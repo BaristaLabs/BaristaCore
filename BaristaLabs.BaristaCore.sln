@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1E189DA3-80DF-4A10-BC21-E616DEB0E752}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E6B87984-3E9A-476A-AEAA-8B9CECB79BB8}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{D66C28D6-1304-4337-A0D2-376736217870}"
+	ProjectSection(SolutionItems) = preProject
+		lib\ChakraCore.dll = lib\ChakraCore.dll
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{BF7A5A92-FCD0-4CA4-9234-B96B543F2488}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "BaristaLabs.BaristaCore", "src\BaristaLabs.BaristaCore\BaristaLabs.BaristaCore.xproj", "{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "BaristaLabs.BaristaCore.Server", "src\BaristaLabs.BaristaCore.Server\BaristaLabs.BaristaCore.Server.xproj", "{624574AB-E6D3-4030-9A4F-E816723B6625}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556}.Release|Any CPU.Build.0 = Release|Any CPU
+		{624574AB-E6D3-4030-9A4F-E816723B6625}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{624574AB-E6D3-4030-9A4F-E816723B6625}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{624574AB-E6D3-4030-9A4F-E816723B6625}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{624574AB-E6D3-4030-9A4F-E816723B6625}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
+		{624574AB-E6D3-4030-9A4F-E816723B6625} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
+	EndGlobalSection
+EndGlobal
