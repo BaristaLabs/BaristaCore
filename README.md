@@ -34,12 +34,14 @@ New Capabilities:
     - [ ] Support configuring endpoint url
   - [X] .Net Core Support
   - [X] Use ChakraCore as the JavaScript Engine
-    - Enables ECMAScript 6 support (classes, promises, arrow functions, etc), and beyond.
-    - More performant script execution
-    - Debugging Support
+    - [X] Enables ECMAScript 6+ support (classes, arrow functions, etc), and beyond.
+    - [ ] ES6 Promises (Requires additional impl.)
+    - [X] More performant script execution
+    - [ ]Debugging Support
   - [ ] Cross-Platform Support
     - [ ] Provide Pre-built ChakraCore.dll binaries for 3 platforms
     - [ ] Provide an automatic way for the .dll to be specified.
+  - [ ] Automatic TypeScript transpilation
 
 New Services:
  - [ ] Define 'apps' as logical containers of files
@@ -50,6 +52,7 @@ New Services:
  - [ ] Built-In Scheduling via Quartz.Net
  - [ ] Built-In Lucene.Net 4.8 Support
  - [ ] Bundles installable via a service call
+ - [ ] Support multi-tenancy in a cloud environment.
 
 New extensibility support:
  - [ ] ISourceFileProvider Allows implementations of external stores to be used
