@@ -1,0 +1,68 @@
+BaristaCore
+--------
+
+> **10/5/2016** *BaristaCore is currently in active development. The functionality described below indicates the design goals of BaristaCore and may not be all currently implemented.*
+
+BaristaCore is an open-source cross-platform sandbox to run code with a http call.
+
+BaristaCore improves upon barista-sharepoint by decoupling SharePoint from the equation, allowing Barista to execute as part of any .Net WebAPI middleware
+
+In addition, Barista has been rewritten to use the ChakraCore Engine within .Net Core to allow Barista to execute in cross-platform environments.
+
+To Summarize:
+
+ - Barista as WebAPI Middleware
+ - .Net Core Support
+ - ChakraCore as the JavaScript Engine
+ - Cross-Platform (Windows/OSx/Linux) Support
+
+
+ Other players in the serverless service app space that have sprung up in the past few years include:
+
+ - AWS Lambda
+ - Azure Functions
+ - Auth0 WebTask
+ - iron.io
+
+ However, each of the solutions above are closed-source cloud implementations. BaristaCore lets you have the same types of flexability as the above, but within your own datacenter.
+
+Roadmap
+----------
+
+New Capabilities:
+  - [X] Barista as WebAPI Middleware
+    - [ ] Support configuring endpoint url
+  - [X] .Net Core Support
+  - [X] Use ChakraCore as the JavaScript Engine
+    - Enables ECMAScript 6 support (classes, promises, arrow functions, etc), and beyond.
+    - More performant script execution
+    - Debugging Support
+  - [ ] Cross-Platform Support
+    - [ ] Provide Pre-built ChakraCore.dll binaries for 3 platforms
+    - [ ] Provide an automatic way for the .dll to be specified.
+
+New Services:
+ - [ ] Define 'apps' as logical containers of files
+   - [ ] Bundles can be enabled/disabled on a per-app basis
+   - [ ] Source file providers can be defined and configured on a per-app basis
+   - [ ] Define environment-variables per app.
+   - [ ] Apps automatically include metrics.
+ - [ ] Built-In Scheduling via Quartz.Net
+ - [ ] Built-In Lucene.Net 4.8 Support
+ - [ ] Bundles installable via a service call
+
+New extensibility support:
+ - [ ] ISourceFileProvider Allows implementations of external stores to be used
+   - require(...) now supports webpack-like syntax to use external file stores for instance:
+   ``` javascript
+   const foo = require('github:myrepo!'/foo.js);
+   ```
+ - [ ] API Wrappers generated via T4 templates to minimize LoE when exposing existing APIs to BaristaCore
+
+Fiddle Improvements:
+ - [ ] Provide Fiddle as WebAPI Middleware
+ - [ ] Develop as a PWA for offline/local dev.
+ - [ ] Use webpack for bundling/minification
+ - [ ] Support UI/UX around Apps
+ - [ ] Provide better 'save' support via SourceFileProviders
+ - [ ] Debugging support
