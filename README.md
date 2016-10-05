@@ -9,13 +9,14 @@ BaristaCore improves upon barista-sharepoint by decoupling SharePoint from the e
 
 In addition, Barista has been rewritten to use the ChakraCore Engine within .Net Core to allow Barista to execute in cross-platform environments.
 
-To Summarize:
+To summarize, BaristaCore provides:
 
- - Barista as WebAPI Middleware
+ - Barista as generic WebAPI Middleware
  - .Net Core Support
  - ChakraCore as the JavaScript Engine
  - Cross-Platform (Windows/OSx/Linux) Support
-
+ - New features and services.
+ - Better documentation and distribution.
 
  Other players in the serverless service app space that have sprung up in the past few years include:
 
@@ -32,12 +33,14 @@ Roadmap
 New Capabilities:
   - [X] Barista as WebAPI Middleware
     - [ ] Support configuring endpoint url
+    - [ ] Configurable output formatters
+    - [ ] Configurable Source File Providers (ISourceFileProvider)
   - [X] .Net Core Support
   - [X] Use ChakraCore as the JavaScript Engine
     - [X] Enables ECMAScript 6+ support (classes, arrow functions, etc), and beyond.
     - [ ] ES6 Promises (Requires additional impl.)
     - [X] More performant script execution
-    - [ ]Debugging Support
+    - [ ] Debugging Support
   - [ ] Cross-Platform Support
     - [ ] Provide Pre-built ChakraCore.dll binaries for 3 platforms
     - [ ] Provide an automatic way for the .dll to be specified.
@@ -50,9 +53,19 @@ New Services:
    - [ ] Define environment-variables per app.
    - [ ] Apps automatically include metrics.
  - [ ] Built-In Scheduling via Quartz.Net
- - [ ] Built-In Lucene.Net 4.8 Support
- - [ ] Bundles installable via a service call
- - [ ] Support multi-tenancy in a cloud environment.
+ - [ ] Built-In Lucene.Net 4.8 Support (Lucene .Net Core Support forthcoming)
+ - [ ] Global Bundle Management Service
+ - [ ] Support multi-tenancy in cloud environments. (https://xxx/{user}/{app}/???)
+
+Bundle re-implmentation
+ - [ ] http/request
+ - [ ] SharePoint
+ - [ ] Lucene
+ - [ ] Azure
+ - [ ] Scraping
+ - [ ] PDF Generation
+ - [ ] Local Automation
+ - [ ] ...
 
 New extensibility support:
  - [ ] ISourceFileProvider Allows implementations of external stores to be used
@@ -66,6 +79,24 @@ Fiddle Improvements:
  - [ ] Provide Fiddle as WebAPI Middleware
  - [ ] Develop as a PWA for offline/local dev.
  - [ ] Use webpack for bundling/minification
- - [ ] Support UI/UX around Apps
+   - [ ] Seperate node.js based environment for actually developing BaristaFiddle
+ - [ ] Support UI/UX around new services
+   - [ ] Apps
+   - [ ] Scheduling/Cron
+   - [ ] ...
+ - [ ] TypeScript syntax support
  - [ ] Provide better 'save' support via SourceFileProviders
  - [ ] Debugging support
+
+BaristaServer-SharePoint
+ - [ ] SP2016 Deployment Scripts
+
+Documentation
+ - [x] Barista Site (baristalabs.io)
+   - [ ] Update with improvements in BaristaCore
+ - [ ] Barista Docs (Github Wiki)
+
+Distribution (BaristaServer)
+- [ ] Chocolatey
+- [ ] Brew
+- [ ] Apt-Get
