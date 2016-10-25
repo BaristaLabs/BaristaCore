@@ -1,0 +1,10 @@
+{
+  "name": "BaristaLabs.BaristaCore.BaristaFiddle.WebPack",
+  "version": "0.0.0",
+  "description": "BaristaLabs.BaristaCore.BaristaFiddle.WebPack",
+  "main": "app.js",
+  "author": {
+    "name": "SeanM",
+    "email": ""
+  }
+}

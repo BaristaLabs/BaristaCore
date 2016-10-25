@@ -15,7 +15,8 @@
     "Microsoft.Extensions.Logging.Console": "1.0.0",
     "Microsoft.Extensions.Logging.Debug": "1.0.0",
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
-    "BaristaLabs.BaristaCore": "1.0.0-*"
+    "BaristaLabs.BaristaCore": "1.0.0-*",
+    "BaristaLabs.BaristaFiddle": "1.0.0-*"
   },
 
   "tools": {

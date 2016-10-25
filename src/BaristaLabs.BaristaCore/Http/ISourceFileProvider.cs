@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.Centro.Core.Http
+﻿namespace BaristaLabs.BaristaCore.Http
 {
     using System.IO;
 

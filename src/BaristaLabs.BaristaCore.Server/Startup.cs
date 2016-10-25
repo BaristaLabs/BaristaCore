@@ -1,6 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore.Server
 {
     using BaristaCore.Http;
+    using BaristaFiddle.Http;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
@@ -29,7 +30,6 @@
 
             //Add Barista Services.
             services.AddBarista();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,6 +40,7 @@
 
             app.UseMvc();
             app.UseBarista();
+            app.UseBaristaFiddle();
         }
     }
 }
