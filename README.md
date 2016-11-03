@@ -45,6 +45,7 @@ New Capabilities:
     - [ ] Provide Pre-built ChakraCore.dll binaries for 3 platforms
     - [ ] Provide an automatic way for the .dll to be specified.
   - [ ] Automatic TypeScript transpilation
+  - [ ] Built-in Swagger/Apiary API mocks, ability to implement.
 
 New Services:
  - [ ] Define 'apps' as logical containers of files
