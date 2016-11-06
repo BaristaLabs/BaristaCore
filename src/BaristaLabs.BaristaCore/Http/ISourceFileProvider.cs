@@ -1,7 +1,7 @@
-﻿namespace BaristaLabs.Centro.Core.Http
-{
-    using System.IO;
+﻿using System.IO;
 
+namespace BaristaLabs.BaristaCore.Http
+{
     public interface ISourceFileProvider
     {
         string Prefix
