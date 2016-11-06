@@ -399,7 +399,7 @@
         public readonly FnJsSetExternalData JsSetExternalData;
         #endregion
 
-        private static Lazy<ChakraApi> m_sharedInstance = new Lazy<ChakraApi>(Load);
+        private static readonly Lazy<ChakraApi> SharedInstance = new Lazy<ChakraApi>(Load);
 
         private static class NativeMethods
         {
@@ -498,20 +498,20 @@
         {
             get
             {
-                return m_sharedInstance.Value;
+                return SharedInstance.Value;
             }
         }
 
         private static void ThrowForNative()
         {
-            int hr = Marshal.GetHRForLastWin32Error();
+            var hr = Marshal.GetHRForLastWin32Error();
             throw Marshal.GetExceptionForHR(hr);
         }
 
         private static void SetFn<TDelegate>(ref TDelegate target, IntPtr hModule, string procName, bool optional = false)
             where TDelegate : class
         {
-            IntPtr procAddr = NativeMethods.GetProcAddress(hModule, procName);
+            var procAddr = NativeMethods.GetProcAddress(hModule, procName);
             if (IntPtr.Zero != procAddr)
             {
                 target = Marshal.GetDelegateForFunctionPointer<TDelegate>(procAddr);
@@ -524,37 +524,63 @@
 
         private static ChakraApi Load()
         {
-            string myPath = ".";
-            string directory = Path.GetDirectoryName(myPath);
-            string arch = "x86";
+            var myPath = ".";
+
+            var envPath = Environment.GetEnvironmentVariable("Barista_ChakraPath");
+            if (!string.IsNullOrWhiteSpace(envPath))
+            {
+                myPath = envPath;
+            }
+
+            var directory = Path.GetDirectoryName(myPath);
+
+            //Detect the platform. This sucks.
+            string platform;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                platform = "win";
+            } else if (RuntimeInformation.IsOSPlatform((OSPlatform.OSX)))
+            {
+                platform = "mac";
+            } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                platform = "nix";
+            }
+            else
+            {
+                throw new Exception("Platform not supported. Windows, maxOS and Linux are it, buddy.");
+            }
+
+
+            var arch = "x86";
             if (IntPtr.Size == 8)
             {
                 arch = "x64";
             }
 
 #if DEBUG
-            string build = "dbg";
+            var build = "dbg";
 #else
             string build = "fre";
 #endif
 
-            string mainPath = Path.Combine(directory, "ChakraCore", build, arch, "ChakraCore.dll");
+            var mainPath = Path.Combine(directory, "ChakraCore", platform, build, arch, "ChakraCore.dll");
             if (File.Exists(mainPath))
             {
                 return FromFile(mainPath);
             }
-            string alternatePath = Path.Combine(directory, "ChakraCore", arch, "ChakraCore.dll");
+            var alternatePath = Path.Combine(directory, "ChakraCore", platform, arch, "ChakraCore.dll");
             if (File.Exists(alternatePath))
             {
                 return FromFile(alternatePath);
             }
-            string localPath = Path.Combine(directory, "ChakraCore.dll");
+            var localPath = Path.Combine(directory, "ChakraCore.dll");
             if (File.Exists(localPath))
             {
                 return FromFile(localPath);
             }
 
-            IntPtr hMod = NativeMethods.LoadLibrary("chakra.dll");
+            var hMod = NativeMethods.LoadLibrary("chakra.dll");
             if (hMod != IntPtr.Zero)
             {
                 return new ChakraApi(hMod);
@@ -571,7 +597,7 @@
             {
                 throw new FileNotFoundException("The library could not be located at the specified path.", filePath);
             }
-            IntPtr hMod = NativeMethods.LoadLibraryEx(filePath, IntPtr.Zero, 0);
+            var hMod = NativeMethods.LoadLibraryEx(filePath, IntPtr.Zero, 0);
             if ((hMod == IntPtr.Zero))
             {
                 ThrowForNative();

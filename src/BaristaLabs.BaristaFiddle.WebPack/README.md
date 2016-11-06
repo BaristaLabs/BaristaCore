@@ -1,5 +1,5 @@
-﻿# BaristaFiddle-WebPack
+﻿# BaristaFiddle.WebPack
 
-Barista Fiddle Development
+BaristaFiddle development project.
 
 

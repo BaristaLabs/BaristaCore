@@ -13,7 +13,7 @@
     <ProjectGuid>84a375db-0ab6-40c0-8e2a-e9a9281b906a</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>app.js</StartupFile>
+    <StartupFile>src\main.js</StartupFile>
     <StartWebBrowser>False</StartWebBrowser>
     <SearchPath>
     </SearchPath>
@@ -31,9 +31,24 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="app.js" />
+    <Compile Include="src\app\app.config.js" />
+    <Compile Include="src\app\app.module.js" />
+    <Compile Include="src\common\common.module.js" />
+    <Compile Include="src\common\directives\resize-directive.js" />
+    <Compile Include="src\main.js" />
+    <Compile Include="webpack.config.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <Content Include="src\index.html" />
+    <Content Include="src\main.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\" />
+    <Folder Include="src\app\" />
+    <Folder Include="src\common\" />
+    <Folder Include="src\assets\" />
+    <Folder Include="src\common\directives\" />
+    <Folder Include="src\common\components\" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
