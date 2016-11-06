@@ -578,15 +578,9 @@
                 return FromFile(localPath);
             }
 
-            var hMod = NativeMethods.LoadLibrary("chakra.dll");
-            if (hMod != IntPtr.Zero)
-            {
-                return new ChakraApi(hMod);
-            }
-
             throw new FileNotFoundException(string.Format("Could not locate a copy of ChakraCore.dll to load.  The following paths were trie" +
-                        "d:\n\t{0}\n\t{1}\n\t{2}\n\nEnsure that an architecture-appropriate copy of ChakraCore.dl" +
-                        "l is included in your project.  Also tried to load the system-provided Chakra.dll.", mainPath, alternatePath, localPath));
+                        "d:\n\t{0}\n\t{1}\n\t{2}\n\nEnsure that a platform and architecture-appropriate copy of ChakraCore.dl" +
+                        "l is included in your project.", mainPath, alternatePath, localPath));
         }
 
         public static ChakraApi FromFile(string filePath)
