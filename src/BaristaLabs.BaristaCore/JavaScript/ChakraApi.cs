@@ -524,15 +524,13 @@
 
         private static ChakraApi Load()
         {
-            var myPath = ".";
+            var chakraCorePath = Directory.GetCurrentDirectory();
 
-            var envPath = Environment.GetEnvironmentVariable("Barista_ChakraPath");
+            var envPath = Environment.GetEnvironmentVariable("Barista_ChakraCore_Path");
             if (!string.IsNullOrWhiteSpace(envPath))
             {
-                myPath = envPath;
+                chakraCorePath = envPath;
             }
-
-            var directory = Path.GetDirectoryName(myPath);
 
             //Detect the platform. This sucks.
             string platform;
@@ -564,17 +562,17 @@
             string build = "fre";
 #endif
 
-            var mainPath = Path.Combine(directory, "ChakraCore", platform, build, arch, "ChakraCore.dll");
+            var mainPath = Path.Combine(chakraCorePath, "ChakraCore", platform, build, arch, "ChakraCore.dll");
             if (File.Exists(mainPath))
             {
                 return FromFile(mainPath);
             }
-            var alternatePath = Path.Combine(directory, "ChakraCore", platform, arch, "ChakraCore.dll");
+            var alternatePath = Path.Combine(chakraCorePath, "ChakraCore", platform, arch, "ChakraCore.dll");
             if (File.Exists(alternatePath))
             {
                 return FromFile(alternatePath);
             }
-            var localPath = Path.Combine(directory, "ChakraCore.dll");
+            var localPath = Path.Combine(chakraCorePath, "ChakraCore.dll");
             if (File.Exists(localPath))
             {
                 return FromFile(localPath);
