@@ -5,7 +5,7 @@
 
     public class JavaScriptSymbol : JavaScriptValue
     {
-        internal JavaScriptSymbol(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptEngine engine) :
+        internal JavaScriptSymbol(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine) :
             base(handle, type, engine)
         {
 

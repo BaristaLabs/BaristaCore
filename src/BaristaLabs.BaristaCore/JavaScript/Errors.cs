@@ -96,7 +96,7 @@
         }
 
         [DebuggerStepThrough]
-        public static void CheckForScriptExceptionOrThrow(JsErrorCode errorCode, JavaScriptEngine engine)
+        public static void CheckForScriptExceptionOrThrow(JsErrorCode errorCode, JavaScriptContext engine)
         {
             if (errorCode == JsErrorCode.JsErrorScriptException)
             {

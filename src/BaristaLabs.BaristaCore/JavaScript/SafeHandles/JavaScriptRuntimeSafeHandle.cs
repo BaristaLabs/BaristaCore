@@ -25,18 +25,16 @@
                 return handle == IntPtr.Zero;
             }
         }
-
+        
         protected override bool ReleaseHandle()
         {
             if (IsInvalid)
                 return false;
-
-            var toRelease = this.handle;
-
-            var error = ChakraApi.Instance.JsReleaseCurrentContext();
+            
+            var error = ChakraApi.Instance.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
             Debug.Assert(error == JsErrorCode.JsNoError);
 
-            error = ChakraApi.Instance.JsDisposeRuntime(toRelease);
+            error = ChakraApi.Instance.JsDisposeRuntime(handle);
             Debug.Assert(error == JsErrorCode.JsNoError);
             return true;
         }

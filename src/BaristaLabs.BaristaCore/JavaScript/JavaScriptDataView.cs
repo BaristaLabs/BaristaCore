@@ -7,7 +7,7 @@
 
     public sealed class JavaScriptDataView : JavaScriptObject
     {
-        internal JavaScriptDataView(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptEngine engine) :
+        internal JavaScriptDataView(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine) :
             base(handle, type, engine)
         {
 

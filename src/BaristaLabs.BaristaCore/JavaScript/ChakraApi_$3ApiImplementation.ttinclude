@@ -1,0 +1,43 @@
+﻿namespace BaristaLabs.BaristaCore.JavaScript
+{
+	using Callbacks;
+    using Interfaces;
+	using SafeHandles;
+
+	using System;
+	using System.Runtime.InteropServices;
+
+	internal sealed partial class ChakraApi {
+		
+		private class <#= ChakraApiClassName #> : <#= ChakraApiInterfaces #>
+		{
+<#
+	foreach (var ex in ChakraExternManager.Externs.FindAll(ExternPlatformPredicate))
+	{
+#>
+			public JsErrorCode <#= ex.Name #>(<#= ex.Signature #>)
+			{
+				return NativeMethods.<#= ex.Name #>(<#= ex.CallSignature #>);
+			}
+<#
+    }
+#>
+
+			private static class NativeMethods {
+
+				const string DllName = "<#= DllName #>";
+
+<#
+	foreach (var ex in ChakraExternManager.Externs)
+	{
+#>
+				[DllImport(DllName<# if (!String.IsNullOrWhiteSpace(ex.DllImportEx)) { #><#= ex.DllImportEx #><# } #>)]
+				internal static extern JsErrorCode <#= ex.Name #>(<#= ex.Signature #>);
+
+<#
+	}
+#>
+			}
+		}
+	}
+}

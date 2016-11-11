@@ -9,7 +9,7 @@
 
     public sealed class JavaScriptFunction : JavaScriptObject
     {
-        internal JavaScriptFunction(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptEngine engine) :
+        internal JavaScriptFunction(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine) :
             base(handle, type, engine)
         {
 

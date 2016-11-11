@@ -9,7 +9,7 @@
 
     public sealed class JavaScriptArray : JavaScriptObject, IEnumerable<JavaScriptValue>
     {
-        internal JavaScriptArray(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptEngine engine) :
+        internal JavaScriptArray(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine) :
             base(handle, type, engine)
         {
 
@@ -304,7 +304,7 @@
 
         public IEnumerator<JavaScriptValue> GetEnumerator()
         {
-            var len = this.Length;
+            var len = Length;
             for (int i = 0; i < len; i++)
             {
                 yield return GetAt(i);
@@ -313,7 +313,7 @@
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
     }
 }

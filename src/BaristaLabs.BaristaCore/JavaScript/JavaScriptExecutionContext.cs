@@ -5,10 +5,10 @@
 
     public sealed class JavaScriptExecutionContext : IDisposable
     {
-        private JavaScriptEngine m_engine;
+        private JavaScriptContext m_engine;
         private Action m_release;
 
-        internal JavaScriptExecutionContext(JavaScriptEngine engine, Action release)
+        internal JavaScriptExecutionContext(JavaScriptContext engine, Action release)
         {
             Debug.Assert(engine != null);
             Debug.Assert(release != null);

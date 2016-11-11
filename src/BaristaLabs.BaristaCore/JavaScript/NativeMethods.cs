@@ -3,8 +3,8 @@
     using System;
     using System.Runtime.InteropServices;
     
-    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-    internal delegate bool MemoryCallbackThunkCallback(IntPtr callbackState, JavaScriptMemoryAllocationEventType allocationEvent, UIntPtr allocationSize);
+    //[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    //internal delegate bool MemoryCallbackThunkCallback(IntPtr callbackState, JavaScriptMemoryAllocationEventType allocationEvent, UIntPtr allocationSize);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate IntPtr NativeFunctionThunkCallback(
@@ -200,6 +200,24 @@
         ///     Using <c>eval</c> or <c>function</c> constructor will throw an exception.
         /// </summary>
         DisableEval = 0x00000010,
+    }
+
+    [Flags]
+    internal enum JsParseScriptAttributes
+    {
+        /// <summary>
+        ///     Default attribute
+        /// </summary>
+        JsParseScriptAttributeNone = 0x0,
+        /// <summary>
+        ///     Specified script is internal and non-user code. Hidden from debugger
+        /// </summary>
+        JsParseScriptAttributeLibraryCode = 0x1,
+        /// <summary>
+        ///     ChakraCore assumes ExternalArrayBuffer is Utf8 by default.
+        ///     This one needs to be set for Utf16
+        /// </summary>
+        JsParseScriptAttributeArrayBufferIsUtf16Encoded = 0x2,
     }
 
     internal enum JsValueType

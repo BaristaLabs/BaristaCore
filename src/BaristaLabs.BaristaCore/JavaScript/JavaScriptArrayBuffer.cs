@@ -8,7 +8,7 @@
     {
         private Lazy<uint> m_length;
 
-        internal JavaScriptArrayBuffer(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptEngine engine) :
+        internal JavaScriptArrayBuffer(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine) :
             base(handle, type, engine)
         {
             m_length = new Lazy<uint>(GetLength);
@@ -17,7 +17,7 @@
         private uint GetLength()
         {
             var eng = GetEngine();
-            IntPtr buffer;
+            byte[] buffer;
             uint len;
             Errors.ThrowIfIs(m_api.JsGetArrayBufferStorage(m_handle, out buffer, out len));
 
@@ -32,20 +32,22 @@
             }
         }
 
-        public unsafe Stream GetUnderlyingMemory()
+        public Stream GetUnderlyingMemory()
         {
             var eng = GetEngine();
-            IntPtr buffer;
+            byte[] buffer;
             uint len;
             Errors.ThrowIfIs(m_api.JsGetArrayBufferStorage(m_handle, out buffer, out len));
+            if (len > int.MaxValue)
+                throw new OutOfMemoryException("Exceeded maximum buffer length.");
 
-            return new UnmanagedMemoryStream((byte*)buffer.ToPointer(), len);
+            return new MemoryStream(buffer, 0, (int)len);
         }
 
-        internal unsafe Tuple<IntPtr, uint> GetUnderlyingMemoryInfo()
+        internal Tuple<byte[], uint> GetUnderlyingMemoryInfo()
         {
             var eng = GetEngine();
-            IntPtr buffer;
+            byte[] buffer;
             uint len;
             Errors.ThrowIfIs(m_api.JsGetArrayBufferStorage(m_handle, out buffer, out len));
 

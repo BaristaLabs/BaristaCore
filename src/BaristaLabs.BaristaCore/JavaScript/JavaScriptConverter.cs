@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using Interfaces;
     using SafeHandles;
     using System;
     using System.Collections.Generic;
@@ -23,29 +24,29 @@
             public bool HasInstanceEvents;
         }
 
-        private WeakReference<JavaScriptEngine> m_engine;
-        private ChakraApi m_api;
+        private WeakReference<JavaScriptContext> m_engine;
+        private IChakraApi m_api;
         private Dictionary<Type, JavaScriptProjection> m_projectionTypes;
         private Dictionary<Type, Expression> m_eventMarshallers;
 
-        public JavaScriptConverter(JavaScriptEngine engine)
+        public JavaScriptConverter(JavaScriptContext engine)
         {
-            m_engine = new WeakReference<JavaScriptEngine>(engine);
+            m_engine = new WeakReference<JavaScriptContext>(engine);
             m_api = engine.Api;
             m_projectionTypes = new Dictionary<Type, JavaScriptProjection>();
             m_eventMarshallers = new Dictionary<Type, Expression>();
         }
 
-        private JavaScriptEngine GetEngine()
+        private JavaScriptContext GetEngine()
         {
-            JavaScriptEngine result;
+            JavaScriptContext result;
             if (!m_engine.TryGetTarget(out result))
-                throw new ObjectDisposedException(nameof(JavaScriptEngine));
+                throw new ObjectDisposedException(nameof(JavaScriptContext));
 
             return result;
         }
 
-        private JavaScriptEngine GetEngineAndClaimContext()
+        private JavaScriptContext GetEngineAndClaimContext()
         {
             var result = GetEngine();
 
@@ -421,7 +422,7 @@
         }
 
         // used by InitializeProjectionForType
-        private JavaScriptObject CreateObjectFor(JavaScriptEngine engine, JavaScriptProjection baseTypeProjection)
+        private JavaScriptObject CreateObjectFor(JavaScriptContext engine, JavaScriptProjection baseTypeProjection)
         {
             if (baseTypeProjection != null)
             {
@@ -439,7 +440,7 @@
             }
         }
 
-        private void ProjectMethods(string owningTypeName, JavaScriptObject target, JavaScriptEngine engine, IEnumerable<MethodInfo> methods)
+        private void ProjectMethods(string owningTypeName, JavaScriptObject target, JavaScriptContext engine, IEnumerable<MethodInfo> methods)
         {
             var methodsByName = methods.GroupBy(m => m.Name);
             foreach (var group in methodsByName)
@@ -522,7 +523,7 @@
             return most;
         }
 
-        private void ProjectProperties(string owningTypeName, JavaScriptObject target, JavaScriptEngine engine, IEnumerable<PropertyInfo> properties)
+        private void ProjectProperties(string owningTypeName, JavaScriptObject target, JavaScriptContext engine, IEnumerable<PropertyInfo> properties)
         {
             foreach (var prop in properties)
             {
@@ -643,7 +644,7 @@
             return false;
         }
 
-        private void ProjectEvents(string owningTypeName, JavaScriptObject target, JavaScriptEngine engine, IEnumerable<EventInfo> events, JavaScriptProjection baseTypeProjection, bool instance)
+        private void ProjectEvents(string owningTypeName, JavaScriptObject target, JavaScriptContext engine, IEnumerable<EventInfo> events, JavaScriptProjection baseTypeProjection, bool instance)
         {
             var eventsArray = events.ToArray();
             var eventsLookup = eventsArray.ToDictionary(ei => ei.Name.ToLower());

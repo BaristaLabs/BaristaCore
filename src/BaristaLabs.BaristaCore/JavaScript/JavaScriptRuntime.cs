@@ -1,6 +1,9 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using Callbacks;
+    using Interfaces;
     using SafeHandles;
+
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -10,8 +13,8 @@
     {
         private JavaScriptRuntimeSettings m_settings;
         private JavaScriptRuntimeSafeHandle m_handle;
-        private ChakraApi m_api = ChakraApi.Instance;
-        private List<WeakReference<JavaScriptEngine>> m_childEngines;
+        private IChakraApi m_api = ChakraApi.Instance;
+        private List<WeakReference<JavaScriptContext>> m_childEngines;
 
         public JavaScriptRuntime() : this(null)
         {
@@ -22,18 +25,18 @@
             if (settings == null)
                 settings = new JavaScriptRuntimeSettings();
 
-            m_childEngines = new List<WeakReference<JavaScriptEngine>>();
+            m_childEngines = new List<WeakReference<JavaScriptContext>>();
             m_settings = settings;
             var attrs = settings.GetRuntimeAttributes();
 
-            var errorCode = m_api.JsCreateRuntime(attrs, IntPtr.Zero, out m_handle);
+            var errorCode = m_api.JsCreateRuntime(attrs, null, out m_handle);
             if (errorCode != JsErrorCode.JsNoError)
                 Errors.ThrowFor(errorCode);
 
             settings.Used = true;
 
             GCHandle handle = GCHandle.Alloc(this, GCHandleType.Weak);
-            errorCode = m_api.JsSetRuntimeMemoryAllocationCallback(m_handle, GCHandle.ToIntPtr(handle), MemoryCallbackThunkPtr);
+            errorCode = m_api.JsSetRuntimeMemoryAllocationCallback(m_handle, GCHandle.ToIntPtr(handle), MemoryCallbackThunk);
             if (errorCode != JsErrorCode.JsNoError)
                 Errors.ThrowFor(errorCode);
         }
@@ -47,16 +50,16 @@
             Errors.ThrowIfIs(error);
         }
 
-        public JavaScriptEngine CreateEngine()
+        public JavaScriptContext CreateContext()
         {
             if (m_handle == null)
                 throw new ObjectDisposedException(nameof(JavaScriptRuntime));
 
-            JavaScriptEngineSafeHandle engine;
-            var error = m_api.JsCreateContext(m_handle, out engine);
+            JavaScriptContextSafeHandle context;
+            var error = m_api.JsCreateContext(m_handle, out context);
             Errors.ThrowIfIs(error);
 
-            return new JavaScriptEngine(engine, this, m_api);
+            return new JavaScriptContext(context, this, m_api);
         }
 
         public void EnableExecution()
@@ -84,11 +87,11 @@
                 if (m_handle == null)
                     throw new ObjectDisposedException(nameof(JavaScriptRuntime));
 
-                ulong result;
+                UIntPtr result;
                 var error = m_api.JsGetRuntimeMemoryUsage(m_handle, out result);
                 Errors.ThrowIfIs(error);
 
-                return result;
+                return result.ToUInt64();
             }
         }
 
@@ -107,14 +110,10 @@
             }
         }
 
-        public event EventHandler<JavaScriptMemoryAllocationEventArgs> MemoryChanging;
-        private void OnMemoryChanging(JavaScriptMemoryAllocationEventArgs args)
+        public event EventHandler<JavaScriptMemoryEventArgs> MemoryChanging;
+        private void OnMemoryChanging(JavaScriptMemoryEventArgs args)
         {
-            var changing = MemoryChanging;
-            if (changing != null)
-            {
-                changing(this, args);
-            }
+            MemoryChanging?.Invoke(this, args);
         }
 
         public JavaScriptRuntimeSettings Settings
@@ -133,13 +132,13 @@
         {
             if (disposing)
             {
-                m_api.JsSetCurrentContext(JavaScriptEngineSafeHandle.Invalid);
-                m_api.JsSetRuntimeMemoryAllocationCallback(this.m_handle, IntPtr.Zero, IntPtr.Zero);
+                m_api.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
+                m_api.JsSetRuntimeMemoryAllocationCallback(m_handle, IntPtr.Zero, null);
                 if (m_childEngines != null)
                 {
                     foreach (var engineRef in m_childEngines)
                     {
-                        JavaScriptEngine engine;
+                        JavaScriptContext engine;
                         if (engineRef.TryGetTarget(out engine))
                         {
                             engine.Dispose();
@@ -166,10 +165,9 @@
         static JavaScriptRuntime()
         {
             MemoryCallbackThunkDelegate = MemoryCallbackThunk;
-            MemoryCallbackThunkPtr = Marshal.GetFunctionPointerForDelegate(MemoryCallbackThunkDelegate);
         }
 
-        private static bool MemoryCallbackThunk(IntPtr callbackState, JavaScriptMemoryAllocationEventType allocationEvent, UIntPtr allocationSize)
+        private static bool MemoryCallbackThunk(IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize)
         {
             GCHandle handle = GCHandle.FromIntPtr(callbackState);
             JavaScriptRuntime runtime = handle.Target as JavaScriptRuntime;
@@ -179,7 +177,7 @@
                 return false;
             }
 
-            var args = new JavaScriptMemoryAllocationEventArgs(allocationSize, allocationEvent);
+            var args = new JavaScriptMemoryEventArgs(allocationSize, allocationEvent);
             runtime.OnMemoryChanging(args);
 
             if (args.IsCancelable && args.Cancel)
@@ -187,8 +185,9 @@
 
             return true;
         }
+
         private static IntPtr MemoryCallbackThunkPtr;
-        private static MemoryCallbackThunkCallback MemoryCallbackThunkDelegate;
+        private static JavaScriptMemoryAllocationCallback MemoryCallbackThunkDelegate;
         #endregion
     }
 }

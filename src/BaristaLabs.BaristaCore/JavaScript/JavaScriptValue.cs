@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using Interfaces;
     using SafeHandles;
     using System;
     using System.Diagnostics;
@@ -10,19 +11,19 @@
     {
         internal JavaScriptValueSafeHandle m_handle;
         internal JavaScriptValueType m_type;
-        internal WeakReference<JavaScriptEngine> m_engine;
-        internal ChakraApi m_api;
+        internal WeakReference<JavaScriptContext> m_engine;
+        internal IChakraApi m_api;
 
-        internal JavaScriptEngine GetEngine()
+        internal JavaScriptContext GetEngine()
         {
-            JavaScriptEngine result;
+            JavaScriptContext result;
             if (!m_engine.TryGetTarget(out result))
-                throw new ObjectDisposedException(nameof(JavaScriptEngine));
+                throw new ObjectDisposedException(nameof(JavaScriptContext));
 
             return result;
         }
 
-        internal JavaScriptValue(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptEngine engine)
+        internal JavaScriptValue(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine)
         {
             Debug.Assert(handle != null);
             Debug.Assert(engine != null);
@@ -35,7 +36,7 @@
 
             m_handle = handle;
             m_type = type;
-            m_engine = new WeakReference<JavaScriptEngine>(engine);
+            m_engine = new WeakReference<JavaScriptContext>(engine);
         }
 
         public override string ToString()
@@ -62,7 +63,7 @@
         {
             var eng = GetEngine();
             bool result;
-            Errors.ThrowIfIs(m_api.JsEquals(this.m_handle, other.m_handle, out result));
+            Errors.ThrowIfIs(m_api.JsEquals(m_handle, other.m_handle, out result));
 
             return result;
         }
@@ -71,7 +72,7 @@
         {
             var eng = GetEngine();
             bool result;
-            Errors.ThrowIfIs(m_api.JsStrictEquals(this.m_handle, other.m_handle, out result));
+            Errors.ThrowIfIs(m_api.JsStrictEquals(m_handle, other.m_handle, out result));
 
             return result;
         }

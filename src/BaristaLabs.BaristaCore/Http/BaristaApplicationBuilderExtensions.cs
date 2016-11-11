@@ -14,9 +14,9 @@
             var evalRouteHandler = new RouteHandler(context =>
             {
                 var jsr = context.RequestServices.GetRequiredService<JavaScriptRuntime>();
-                using (var engine = jsr.CreateEngine())
+                using (var ctx = jsr.CreateContext())
                 {
-                    using (var jsContext = engine.AcquireContext())
+                    using (var jsContext = ctx.AcquireContext())
                     {
                         if (context.Request.Body != null && context.Request.Body.CanRead)
                         {
@@ -32,7 +32,7 @@
                         JavaScriptValue jsValue;
                         try
                         {
-                            var fn = engine.Evaluate(new ScriptSource("[eval code]", codeToExecute));
+                            var fn = ctx.Evaluate(new ScriptSource("[eval code]", codeToExecute));
 
                             jsValue = fn.Invoke(Enumerable.Empty<JavaScriptValue>());
                         }
@@ -40,7 +40,7 @@
                         {
                             //Catch the exception but don't do any additional processing.
                             //ExecuteResultAsync should pick the exception up.
-                            jsValue = engine.UndefinedValue;
+                            jsValue = ctx.UndefinedValue;
                         }
 
                         var result = new JavaScriptValueResult(jsValue);

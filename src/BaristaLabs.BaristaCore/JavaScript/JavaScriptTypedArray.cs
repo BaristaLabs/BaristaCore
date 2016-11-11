@@ -8,7 +8,7 @@
     public sealed class JavaScriptTypedArray : JavaScriptObject
     {
         private Lazy<JavaScriptTypedArrayType> m_arrayType;
-        internal JavaScriptTypedArray(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptEngine engine) :
+        internal JavaScriptTypedArray(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine) :
             base(handle, type, engine)
         {
             m_arrayType = new Lazy<JavaScriptTypedArrayType>(GetArrayType);
@@ -42,15 +42,16 @@
             }
         }
 
-        public unsafe Stream GetUnderlyingMemory()
+        public Stream GetUnderlyingMemory()
         {
             var buf = Buffer;
             Debug.Assert(buf != null);
 
             var mem = buf.GetUnderlyingMemoryInfo();
-            byte* pMem = (byte*)mem.Item1.ToPointer();
-
-            return new UnmanagedMemoryStream(pMem + ByteOffset, ByteLength);
+            if (mem.Item2 > int.MaxValue)
+                throw new OutOfMemoryException("Exceeded maximum buffer length.");
+            
+            return new MemoryStream(mem.Item1, 0, (int)mem.Item2);
         }
 
         public uint Length
@@ -74,7 +75,7 @@
         private JavaScriptTypedArrayType GetArrayType()
         {
             GetEngine();
-            IntPtr buf;
+            byte[] buf;
             uint len;
             JavaScriptTypedArrayType type;
             int elemSize;

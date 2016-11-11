@@ -6,10 +6,11 @@
     using System.Diagnostics;
     using System.Dynamic;
     using System.Linq;
+    using System.Text;
 
     public class JavaScriptObject : JavaScriptValue
     {
-        internal JavaScriptObject(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptEngine engine) :
+        internal JavaScriptObject(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine) :
             base(handle, type, engine)
         {
 
@@ -146,8 +147,10 @@
         {
             var eng = GetEngine();
 
-            IntPtr propId;
-            Errors.ThrowIfIs(m_api.JsGetPropertyIdFromName(propertyName, out propId));
+            JavaScriptPropertyId propId;
+            byte[] buffer = Encoding.UTF8.GetBytes(propertyName);
+
+            Errors.ThrowIfIs(m_api.JsCreatePropertyIdUtf8(buffer, new UIntPtr((uint)buffer.ge out propId));
 
             JavaScriptValueSafeHandle resultHandle;
             Errors.ThrowIfIs(m_api.JsGetProperty(m_handle, propId, out resultHandle));
@@ -159,8 +162,8 @@
         {
             var eng = GetEngine();
 
-            IntPtr propId;
-            Errors.ThrowIfIs(m_api.JsGetPropertyIdFromName(propertyName, out propId));
+            JavaScriptPropertyId propId;
+            Errors.ThrowIfIs(m_api.(propertyName, out propId));
             Errors.ThrowIfIs(m_api.JsSetProperty(m_handle, propId, value.m_handle, false));
         }
 
@@ -168,7 +171,7 @@
         {
             var eng = GetEngine();
 
-            IntPtr propId;
+            JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_api.JsGetPropertyIdFromName(propertyName, out propId));
 
             JavaScriptValueSafeHandle tmpResult;
@@ -192,7 +195,7 @@
         {
             var eng = GetEngine();
 
-            IntPtr propId;
+            JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_api.JsGetPropertyIdFromSymbol(symbol.m_handle, out propId));
 
             JavaScriptValueSafeHandle resultHandle;
@@ -205,7 +208,7 @@
         {
             var eng = GetEngine();
 
-            IntPtr propId;
+            JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_api.JsGetPropertyIdFromSymbol(symbol.m_handle, out propId));
             Errors.ThrowIfIs(m_api.JsSetProperty(m_handle, propId, value.m_handle, false));
         }
@@ -214,7 +217,7 @@
         {
             var eng = GetEngine();
 
-            IntPtr propId;
+            JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_api.JsGetPropertyIdFromSymbol(symbol.m_handle, out propId));
 
             JavaScriptValueSafeHandle tmpResult;
@@ -288,7 +291,7 @@
 
         public bool HasProperty(string propertyName)
         {
-            IntPtr propId;
+            JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_api.JsGetPropertyIdFromName(propertyName, out propId));
             bool has;
             Errors.ThrowIfIs(m_api.JsHasProperty(m_handle, propId, out has));
@@ -299,7 +302,7 @@
         public JavaScriptObject GetOwnPropertyDescriptor(string propertyName)
         {
             var eng = GetEngine();
-            IntPtr propId;
+            JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_api.JsGetPropertyIdFromName(propertyName, out propId));
             JavaScriptValueSafeHandle resultHandle;
             Errors.ThrowIfIs(m_api.JsGetOwnPropertyDescriptor(m_handle, propId, out resultHandle));
@@ -314,7 +317,7 @@
 
             var eng = GetEngine();
 
-            IntPtr propId;
+            JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_api.JsGetPropertyIdFromName(propertyName, out propId));
 
             bool wasSet;
