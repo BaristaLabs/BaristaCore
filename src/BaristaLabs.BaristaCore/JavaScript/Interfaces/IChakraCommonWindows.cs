@@ -21,6 +21,23 @@
 		///     A cookie identifying the script that can be used by debuggable script contexts.
 		/// </param>
 		/// <param name="sourceUrl">The location the script came from.</param>
+		/// <param name="result">A function representing the script code.</param>
+		/// <returns>
+		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		JsErrorCode JsParseScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+
+		/// <summary>
+		///     Parses a script and returns a function representing the script.
+		/// </summary>
+		/// <remarks>
+		///     Requires an active script context.
+		/// </remarks>
+		/// <param name="script">The script to parse.</param>
+		/// <param name="sourceContext">
+		///     A cookie identifying the script that can be used by debuggable script contexts.
+		/// </param>
+		/// <param name="sourceUrl">The location the script came from.</param>
 		/// <param name="parseAttributes">Attribute mask for parsing the script</param>
 		/// <param name="result">A function representing the script code.</param>
 		/// <returns>

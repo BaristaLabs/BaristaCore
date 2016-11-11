@@ -11,6 +11,10 @@
 		
 		private class ChakraApi_Linux : IChakraApi
 		{
+			public JsErrorCode JsCreatePropertyIdUtf8(byte[] name, UIntPtr length, out JavaScriptPropertyId propertyId)
+			{
+				return NativeMethods.JsCreatePropertyIdUtf8(name, length, out propertyId);
+			}
 			public JsErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyId propertyId, out byte[] buffer, UIntPtr bufferSize, out UIntPtr length)
 			{
 				return NativeMethods.JsCopyPropertyIdUtf8(propertyId, out buffer, bufferSize, out length);
@@ -387,10 +391,17 @@
 			{
 				return NativeMethods.JsSetPromiseContinuationCallback(promiseContinuationCallback, callbackState);
 			}
+			public JsErrorCode JsDiagStartDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagDebugEventCallback debugEventCallback, IntPtr callbackState)
+			{
+				return NativeMethods.JsDiagStartDebugging(runtimeHandle, debugEventCallback, callbackState);
+			}
 
 			private static class NativeMethods {
 
 				const string DllName = "ChakraCore.so";
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsCreatePropertyIdUtf8(byte[] name, UIntPtr length, out JavaScriptPropertyId propertyId);
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyId propertyId, out byte[] buffer, UIntPtr bufferSize, out UIntPtr length);
@@ -709,6 +720,9 @@
 
 				[DllImport(DllName, CharSet = CharSet.Unicode)]
 				internal static extern JsErrorCode JsStringToPointer(JavaScriptValueSafeHandle value, out IntPtr stringValue, out UIntPtr stringLength);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsDiagStartDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagDebugEventCallback debugEventCallback, IntPtr callbackState);
 
 			}
 		}

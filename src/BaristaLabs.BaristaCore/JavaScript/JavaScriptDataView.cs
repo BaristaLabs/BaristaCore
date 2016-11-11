@@ -41,15 +41,16 @@
             }
         }
 
-        public unsafe Stream GetUnderlyingMemory()
+        public Stream GetUnderlyingMemory()
         {
             var buf = Buffer;
             Debug.Assert(buf != null);
 
             var mem = buf.GetUnderlyingMemoryInfo();
-            byte* pMem = (byte*)mem.Item1.ToPointer();
+            if (mem.Item2 > int.MaxValue)
+                throw new OutOfMemoryException("Exceeded maximum buffer length.");
 
-            return new UnmanagedMemoryStream(pMem + ByteOffset, ByteLength);
+            return new MemoryStream(mem.Item1, 0, (int)mem.Item2);
         }
 
         /// <summary>

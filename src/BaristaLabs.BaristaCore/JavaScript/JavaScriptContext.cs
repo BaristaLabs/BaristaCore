@@ -30,11 +30,6 @@
         private JavaScriptContextSafeHandle m_handle;
         private WeakReference<JavaScriptRuntime> m_runtime;
         private JavaScriptConverter m_converter;
-        private List<NativeFunctionThunkData> m_nativeFunctionThunks;
-        private static NativeFunctionThunkCallback NativeCallback;
-        private static IntPtr NativeCallbackPtr;
-        private static JsFinalizeCallback FinalizerCallback;
-        private static IntPtr FinalizerCallbackPtr;
         private HashSet<ExternalObjectThunkData> m_externalObjects;
         private IChakraApi m_api;
 
@@ -43,15 +38,6 @@
 
         private JavaScriptValue m_undefined, m_true, m_false;
         private JavaScriptObject m_global, m_null;
-
-        static JavaScriptContext()
-        {
-            NativeCallback = NativeCallbackThunk;
-            NativeCallbackPtr = Marshal.GetFunctionPointerForDelegate(NativeCallback);
-
-            FinalizerCallback = FinalizerCallbackThunk;
-            FinalizerCallbackPtr = Marshal.GetFunctionPointerForDelegate(FinalizerCallback);
-        }
 
         internal JavaScriptContext(JavaScriptContextSafeHandle handle, JavaScriptRuntime runtime, IChakraApi api)
         {
@@ -63,7 +49,6 @@
             m_handle = handle;
             m_runtime = new WeakReference<JavaScriptRuntime>(runtime);
             m_converter = new JavaScriptConverter(this);
-            m_nativeFunctionThunks = new List<NativeFunctionThunkData>();
             m_externalObjects = new HashSet<ExternalObjectThunkData>();
 
             m_handlesToRelease = new List<IntPtr>();
@@ -358,8 +343,12 @@
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
+            var m_apiWin = m_api as IChakraCommonWindows;
+            if (m_apiWin == null)
+                throw new InvalidOperationException("This operation only works on windows.");
+
             JavaScriptValueSafeHandle handle;
-            Errors.ThrowIfIs(m_api.JsParseScript(source.SourceText, source.SourceContextId, source.SourceLocation, out handle));
+            Errors.ThrowIfIs(m_apiWin.JsParseScript(source.SourceText, JavaScriptSourceContext.FromIntPtr(source.SourceContextId), source.SourceLocation, out handle));
 
             return CreateObjectFromHandle(handle) as JavaScriptFunction;
         }
@@ -369,35 +358,31 @@
             throw new NotSupportedException();
         }
 
-        public unsafe void Compile(ScriptSource source, Stream compiledCodeDestination)
+        public ulong Compile(ScriptSource source, byte[] buffer)
         {
-            uint bufferSize = 0;
-            Errors.ThrowIfIs(m_api.JsSerializeScript(source.SourceText, IntPtr.Zero, ref bufferSize));
+            var m_apiWin = m_api as IChakraCommonWindows;
+            if (m_apiWin == null)
+                throw new InvalidOperationException("This operation only works on windows.");
+
+            var bufferSize = (ulong)buffer.Length;
+            Errors.ThrowIfIs(m_apiWin.JsSerializeScript(source.SourceText, buffer, ref bufferSize));
             if (bufferSize > int.MaxValue)
                 throw new OutOfMemoryException();
 
-            IntPtr mem = Marshal.AllocCoTaskMem(unchecked((int)bufferSize));
-            var error = m_api.JsSerializeScript(source.SourceText, mem, ref bufferSize);
-            if (error != JsErrorCode.JsNoError)
-            {
-                Marshal.FreeCoTaskMem(mem);
-                Errors.ThrowFor(error);
-            }
-
-            using (UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)mem.ToPointer(), bufferSize))
-            {
-                ums.CopyTo(compiledCodeDestination);
-            }
-            Marshal.FreeCoTaskMem(mem);
+            return bufferSize;
         }
 
         public JavaScriptValue Execute(ScriptSource source)
         {
+            var m_apiWin = m_api as IChakraCommonWindows;
+            if (m_apiWin == null)
+                throw new InvalidOperationException("This operation only works on windows.");
+
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
             JavaScriptValueSafeHandle handle;
-            Errors.CheckForScriptExceptionOrThrow(m_api.JsRunScript(source.SourceText, source.SourceContextId, source.SourceLocation, out handle), this);
+            Errors.CheckForScriptExceptionOrThrow(m_apiWin.JsRunScript(source.SourceText, JavaScriptSourceContext.FromIntPtr(source.SourceContextId), source.SourceLocation, out handle), this);
             if (handle.IsInvalid)
                 return m_undefined;
 
@@ -455,10 +440,12 @@
             GCHandle handle = GCHandle.Alloc(thunk);
             m_externalObjects.Add(thunk);
 
-            JavaScriptValueSafeHandle result;
-            Errors.ThrowIfIs(m_api.JsCreateExternalObject(GCHandle.ToIntPtr(handle), FinalizerCallbackPtr, out result));
+            throw new NotImplementedException();
 
-            return CreateObjectFromHandle(result);
+            //JavaScriptValueSafeHandle result;
+            //Errors.ThrowIfIs(m_api.JsCreateExternalObject(GCHandle.ToIntPtr(handle), FinalizerCallbackPtr, out result));
+
+            //return CreateObjectFromHandle(result);
         }
 
         internal object GetExternalObjectFrom(JavaScriptValue value)
@@ -594,14 +581,12 @@
             if (hostFunction == null)
                 throw new ArgumentNullException(nameof(hostFunction));
 
-            NativeFunctionThunkData td = new NativeFunctionThunkData() { callback = hostFunction, engine = new WeakReference<JavaScriptContext>(this) };
-            GCHandle handle = GCHandle.Alloc(td, GCHandleType.Weak);
-            m_nativeFunctionThunks.Add(td);
-
             JavaScriptValueSafeHandle resultHandle;
-            Errors.ThrowIfIs(m_api.JsCreateFunction(NativeCallbackPtr, GCHandle.ToIntPtr(handle), out resultHandle));
+            throw new NotImplementedException();
 
-            return CreateObjectFromHandle(resultHandle) as JavaScriptFunction;
+            //Errors.ThrowIfIs(m_api.JsCreateFunction(hostFunction, IntPtr.Zero, out resultHandle));
+
+            //return CreateObjectFromHandle(resultHandle) as JavaScriptFunction;
         }
 
         public JavaScriptFunction CreateFunction(JavaScriptCallableFunction hostFunction, string name)
@@ -613,14 +598,12 @@
 
             var nameVal = Converter.FromString(name);
 
-            NativeFunctionThunkData td = new NativeFunctionThunkData() { callback = hostFunction, engine = new WeakReference<JavaScriptContext>(this) };
-            GCHandle handle = GCHandle.Alloc(td, GCHandleType.Weak);
-            m_nativeFunctionThunks.Add(td);
-
             JavaScriptValueSafeHandle resultHandle;
-            Errors.ThrowIfIs(m_api.JsCreateNamedFunction(nameVal.m_handle, NativeCallbackPtr, GCHandle.ToIntPtr(handle), out resultHandle));
 
-            return CreateObjectFromHandle(resultHandle) as JavaScriptFunction;
+            throw new NotImplementedException();
+            //Errors.ThrowIfIs(m_api.JsCreateNamedFunction(nameVal.m_handle, hostFunction, IntPtr.Zero, out resultHandle));
+
+            //return CreateObjectFromHandle(resultHandle) as JavaScriptFunction;
         }
 
         public JavaScriptValue GetAndClearException()
@@ -710,7 +693,7 @@
                 throw new NotSupportedException("Debugging is not supported with ChakraCore.  Check the CanEnableDebugging property before attempting to enable debugging.");
 
             var debug = m_api as IChakraDebug;
-            Errors.ThrowIfIs(debug.JsDiagStartDebugging());
+            Errors.ThrowIfIs(debug.JsDiagStartDebugging(Runtime.Handle, null, IntPtr.Zero));
         }
 
         public void AddTypeToGlobal<T>(string name = null)

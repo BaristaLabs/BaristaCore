@@ -391,6 +391,10 @@
 			{
 				return NativeMethods.JsSetPromiseContinuationCallback(promiseContinuationCallback, callbackState);
 			}
+			public JsErrorCode JsParseScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result)
+			{
+				return NativeMethods.JsParseScript(script, sourceContext, sourceUrl, out result);
+			}
 			public JsErrorCode JsParseScriptWithAttributes(string script, JavaScriptSourceContext sourceContext, string sourceUrl, JsParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result)
 			{
 				return NativeMethods.JsParseScriptWithAttributes(script, sourceContext, sourceUrl, parseAttributes, out result);
@@ -438,6 +442,10 @@
 			public JsErrorCode JsStringToPointer(JavaScriptValueSafeHandle value, out IntPtr stringValue, out UIntPtr stringLength)
 			{
 				return NativeMethods.JsStringToPointer(value, out stringValue, out stringLength);
+			}
+			public JsErrorCode JsDiagStartDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagDebugEventCallback debugEventCallback, IntPtr callbackState)
+			{
+				return NativeMethods.JsDiagStartDebugging(runtimeHandle, debugEventCallback, callbackState);
 			}
 
 			private static class NativeMethods {
@@ -730,6 +738,9 @@
 				internal static extern JsErrorCode JsSetPromiseContinuationCallback(JavaScriptPromiseContinuationCallback promiseContinuationCallback, IntPtr callbackState);
 
 				[DllImport(DllName, CharSet = CharSet.Unicode)]
+				internal static extern JsErrorCode JsParseScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+
+				[DllImport(DllName, CharSet = CharSet.Unicode)]
 				internal static extern JsErrorCode JsParseScriptWithAttributes(string script, JavaScriptSourceContext sourceContext, string sourceUrl, JsParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
 
 				[DllImport(DllName, CharSet = CharSet.Unicode)]
@@ -764,6 +775,9 @@
 
 				[DllImport(DllName, CharSet = CharSet.Unicode)]
 				internal static extern JsErrorCode JsStringToPointer(JavaScriptValueSafeHandle value, out IntPtr stringValue, out UIntPtr stringLength);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsDiagStartDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagDebugEventCallback debugEventCallback, IntPtr callbackState);
 
 			}
 		}

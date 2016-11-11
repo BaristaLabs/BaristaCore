@@ -160,21 +160,25 @@
             return eng.CreateValueFromHandle(result);
         }
 
-        public unsafe string ToString(JavaScriptValue value)
+        public string ToString(JavaScriptValue value)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
+            var m_apiWin = m_api as IChakraCommonWindows;
+            if (m_apiWin == null)
+                throw new InvalidOperationException("This operation only works on windows.");
+
             var eng = GetEngineAndClaimContext();
             if (value.Type == JavaScriptValueType.String)
             {
-                void* str;
-                uint len;
-                Errors.ThrowIfIs(m_api.JsStringToPointer(value.m_handle, out str, out len));
-                if (len > int.MaxValue)
+                IntPtr resultPtr;
+                UIntPtr stringLength;
+                Errors.ThrowIfIs(m_apiWin.JsStringToPointer(value.m_handle, out resultPtr, out stringLength));
+                if ((int)stringLength > int.MaxValue)
                     throw new OutOfMemoryException("Exceeded maximum string length.");
 
-                return Marshal.PtrToStringUni(new IntPtr(str), unchecked((int)len));
+                return Marshal.PtrToStringUni(resultPtr, (int)stringLength);
             }
             else if (value.Type == JavaScriptValueType.Symbol)
             {
@@ -190,27 +194,27 @@
                 Errors.ThrowIfIs(m_api.JsConvertValueToString(value.m_handle, out tempStr));
                 using (tempStr)
                 {
-                    void* str;
-                    uint len;
-                    Errors.ThrowIfIs(m_api.JsStringToPointer(tempStr, out str, out len));
-                    if (len > int.MaxValue)
+                    IntPtr resultPtr;
+                    UIntPtr stringLength;
+                    Errors.ThrowIfIs(m_apiWin.JsStringToPointer(tempStr, out resultPtr, out stringLength));
+                    if ((int)stringLength > int.MaxValue)
                         throw new OutOfMemoryException("Exceeded maximum string length.");
 
-                    return Marshal.PtrToStringUni(new IntPtr(str), unchecked((int)len));
+                    return Marshal.PtrToStringUni(resultPtr, (int)stringLength);
                 }
             }
         }
 
-        public unsafe JavaScriptValue FromString(string value)
+        public JavaScriptValue FromString(string value)
         {
             var eng = GetEngineAndClaimContext();
 
+            var m_apiWin = m_api as IChakraCommonWindows;
+            if (m_apiWin == null)
+                throw new InvalidOperationException("This operation only works on windows.");
+
             JavaScriptValueSafeHandle result;
-            var encoded = Encoding.Unicode.GetBytes(value);
-            fixed (byte* ptr = &encoded[0])
-            {
-                Errors.ThrowIfIs(m_api.JsPointerToString(ptr, value.Length, out result));
-            }
+            Errors.ThrowIfIs(m_apiWin.JsPointerToString(value, new UIntPtr((uint)value.Length), out result));
 
             return eng.CreateValueFromHandle(result);
         }

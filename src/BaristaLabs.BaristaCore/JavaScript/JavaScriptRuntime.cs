@@ -41,6 +41,11 @@
                 Errors.ThrowFor(errorCode);
         }
 
+        internal JavaScriptRuntimeSafeHandle Handle
+        {
+            get { return m_handle; }
+        }
+
         public void CollectGarbage()
         {
             if (m_handle == null)

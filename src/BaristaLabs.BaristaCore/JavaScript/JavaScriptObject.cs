@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using Interfaces;
     using SafeHandles;
     using System;
     using System.Collections.Generic;
@@ -145,12 +146,14 @@
 
         public JavaScriptValue GetPropertyByName(string propertyName)
         {
+            var m_apiWin = m_api as IChakraCommonWindows;
+            if (m_apiWin == null)
+                throw new InvalidOperationException("This operation only works on windows.");
+
             var eng = GetEngine();
 
             JavaScriptPropertyId propId;
-            byte[] buffer = Encoding.UTF8.GetBytes(propertyName);
-
-            Errors.ThrowIfIs(m_api.JsCreatePropertyIdUtf8(buffer, new UIntPtr((uint)buffer.ge out propId));
+            Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
 
             JavaScriptValueSafeHandle resultHandle;
             Errors.ThrowIfIs(m_api.JsGetProperty(m_handle, propId, out resultHandle));
@@ -160,19 +163,28 @@
 
         public void SetPropertyByName(string propertyName, JavaScriptValue value)
         {
+            var m_apiWin = m_api as IChakraCommonWindows;
+            if (m_apiWin == null)
+                throw new InvalidOperationException("This operation only works on windows.");
+
             var eng = GetEngine();
 
             JavaScriptPropertyId propId;
-            Errors.ThrowIfIs(m_api.(propertyName, out propId));
+            Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
             Errors.ThrowIfIs(m_api.JsSetProperty(m_handle, propId, value.m_handle, false));
         }
 
+
         public void DeletePropertyByName(string propertyName)
         {
+            var m_apiWin = m_api as IChakraCommonWindows;
+            if (m_apiWin == null)
+                throw new InvalidOperationException("This operation only works on windows.");
+
             var eng = GetEngine();
 
             JavaScriptPropertyId propId;
-            Errors.ThrowIfIs(m_api.JsGetPropertyIdFromName(propertyName, out propId));
+            Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
 
             JavaScriptValueSafeHandle tmpResult;
             Errors.ThrowIfIs(m_api.JsDeleteProperty(m_handle, propId, false, out tmpResult));
@@ -291,8 +303,12 @@
 
         public bool HasProperty(string propertyName)
         {
+            var m_apiWin = m_api as IChakraCommonWindows;
+            if (m_apiWin == null)
+                throw new InvalidOperationException("This operation only works on windows.");
+
             JavaScriptPropertyId propId;
-            Errors.ThrowIfIs(m_api.JsGetPropertyIdFromName(propertyName, out propId));
+            Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
             bool has;
             Errors.ThrowIfIs(m_api.JsHasProperty(m_handle, propId, out has));
 
@@ -301,9 +317,13 @@
 
         public JavaScriptObject GetOwnPropertyDescriptor(string propertyName)
         {
+            var m_apiWin = m_api as IChakraCommonWindows;
+            if (m_apiWin == null)
+                throw new InvalidOperationException("This operation only works on windows.");
+
             var eng = GetEngine();
             JavaScriptPropertyId propId;
-            Errors.ThrowIfIs(m_api.JsGetPropertyIdFromName(propertyName, out propId));
+            Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
             JavaScriptValueSafeHandle resultHandle;
             Errors.ThrowIfIs(m_api.JsGetOwnPropertyDescriptor(m_handle, propId, out resultHandle));
 
@@ -315,10 +335,14 @@
             if (descriptor == null)
                 throw new ArgumentNullException(nameof(descriptor));
 
+            var m_apiWin = m_api as IChakraCommonWindows;
+            if (m_apiWin == null)
+                throw new InvalidOperationException("This operation only works on windows.");
+
             var eng = GetEngine();
 
             JavaScriptPropertyId propId;
-            Errors.ThrowIfIs(m_api.JsGetPropertyIdFromName(propertyName, out propId));
+            Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
 
             bool wasSet;
             Errors.CheckForScriptExceptionOrThrow(m_api.JsDefineProperty(m_handle, propId, descriptor.m_handle, out wasSet), eng);

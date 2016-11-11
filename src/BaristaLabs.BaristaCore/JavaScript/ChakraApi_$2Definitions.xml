@@ -2339,6 +2339,34 @@ Description
   **
   ***************************************
   -->
+  <Export name="JsParseScript" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Parses a script and returns a function representing the script.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="script">The script to parse.</param>
+/// <param name="sourceContext">
+///     A cookie identifying the script that can be used by debuggable script contexts.
+/// </param>
+/// <param name="sourceUrl">The location the script came from.</param>
+/// <param name="result">A function representing the script code.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="string" name="script"/>
+      <Parameter type="JsSourceContext" name="sourceContext"/>
+      <Parameter type="string" name="sourceUrl"/>
+      <Parameter type="JsValueRef" name="result" direction="Out"/>
+    </Parameters>
+  </Export>
+  
   <Export name="JsParseScriptWithAttributes" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
     <Description>
       <![CDATA[
@@ -2362,7 +2390,7 @@ Description
     </Description>
     <Parameters>
       <Parameter type="string" name="script"/>
-      <Parameter type="JavaScriptSourceContext" name="sourceContext"/>
+      <Parameter type="JsSourceContext" name="sourceContext"/>
       <Parameter type="string" name="sourceUrl"/>
       <Parameter type="JsParseScriptAttributes" name="parseAttributes"/>
       <Parameter type="JsValueRef" name="result" direction="Out"/>
@@ -2391,7 +2419,7 @@ Description
     </Description>
     <Parameters>
       <Parameter type="string" name="script"/>
-      <Parameter type="JavaScriptSourceContext" name="sourceContext"/>
+      <Parameter type="JsSourceContext" name="sourceContext"/>
       <Parameter type="string" name="sourceUrl"/>
       <Parameter type="JsValueRef" name="result" direction="Out"/>
     </Parameters>
@@ -2419,7 +2447,7 @@ Description
     </Description>
     <Parameters>
       <Parameter type="string" name="script"/>
-      <Parameter type="JavaScriptSourceContext" name="sourceContext"/>
+      <Parameter type="JsSourceContext" name="sourceContext"/>
       <Parameter type="string" name="sourceUrl"/>
       <Parameter type="JsValueRef" name="result" direction="Out"/>
     </Parameters>
@@ -2494,7 +2522,7 @@ Description
       <Parameter type="JsSerializedScriptLoadSourceCallback" name="scriptLoadCallback"/>
       <Parameter type="JsSerializedScriptUnloadCallback" name="scriptUnloadCallback"/>
       <Parameter type="byte[]" name="buffer"/>
-      <Parameter type="JavaScriptSourceContext" name="sourceContext"/>
+      <Parameter type="JsSourceContext" name="sourceContext"/>
       <Parameter type="string" name="sourceUrl"/>
       <Parameter type="JsValueRef" name="result" direction="Out"/>
     </Parameters>

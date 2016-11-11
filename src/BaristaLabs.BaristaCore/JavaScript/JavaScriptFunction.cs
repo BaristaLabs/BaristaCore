@@ -17,9 +17,7 @@
 
         public JavaScriptValue Invoke(IEnumerable<JavaScriptValue> args)
         {
-            var argsArray = args.PrependWith(this).Select(val => val.m_handle.DangerousGetHandle()).ToArray();
-            if (argsArray.Length > ushort.MaxValue)
-                throw new ArgumentOutOfRangeException(nameof(args));
+            var argsArray = args.Select(a => a.m_handle).ToArray();
 
             var eng = GetEngine();
             JavaScriptValueSafeHandle resultHandle;
@@ -32,9 +30,7 @@
 
         public JavaScriptObject Construct(IEnumerable<JavaScriptValue> args)
         {
-            var argsArray = args.PrependWith(this).Select(val => val.m_handle.DangerousGetHandle()).ToArray();
-            if (argsArray.Length > ushort.MaxValue)
-                throw new ArgumentOutOfRangeException(nameof(args));
+            var argsArray = args.Select(a => a.m_handle).ToArray();
 
             var eng = GetEngine();
             JavaScriptValueSafeHandle resultHandle;
@@ -83,7 +79,7 @@
             if (args == null)
                 args = Enumerable.Empty<JavaScriptValue>();
 
-            var argsArray = args.PrependWith(thisObject).Select(v => v.m_handle.DangerousGetHandle()).ToArray();
+            var argsArray = args.Select(a => a.m_handle).ToArray();
             JavaScriptValueSafeHandle result;
             Errors.CheckForScriptExceptionOrThrow(m_api.JsCallFunction(m_handle, argsArray, unchecked((ushort)argsArray.Length), out result), eng);
             return eng.CreateValueFromHandle(result);
