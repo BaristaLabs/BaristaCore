@@ -7,6 +7,395 @@
   **
   ***************************************
   -->
+  <Export name="JsInitializeModuleRecord" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Initialize a ModuleRecord from host
+/// </summary>
+/// <remarks>
+///     Bootstrap the module loading process by creating a new module record.
+/// </remarks>
+/// <param name="referencingModule">The referencingModule as in HostResolveImportedModule (15.2.1.17). nullptr if this is the top level module.</param>
+/// <param name="normalizedSpecifier">The host normalized specifier. This is the key to a unique ModuleRecord.</param>
+/// <param name="moduleRecord">The new ModuleRecord created. The host should not try to call this API twice with the same normalizedSpecifier.
+///                           chakra will return an existing ModuleRecord if the specifier was passed in before.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsModuleRecord" name="referencingModule"/>
+      <Parameter type="JsValueRef" name="normalizedSpecifier"/>
+      <Parameter type="JsModuleRecord" name="moduleRecord" direction="Out"/>
+    </Parameters>
+  </Export>
+
+  <Export name="JsParseModuleSource" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Parse the module source
+/// </summary>
+/// <remarks>
+/// This is basically ParseModule operation in ES6 spec. It is slightly different in that the ModuleRecord was initialized earlier, and passed in as an argument.
+/// </remarks>
+/// <param name="requestModule">The ModuleRecord that holds the parse tree of the source code.</param>
+/// <param name="sourceContext">A cookie identifying the script that can be used by debuggable script contexts.</param>
+/// <param name="script">The source script to be parsed, but not executed in this code.</param>
+/// <param name="scriptLength">The source length of sourceText. The input might contain embedded null.</param>
+/// <param name="sourceFlag">The type of the source code passed in. It could be UNICODE or utf8 at this time.</param>
+/// <param name="exceptionValueRef">The error object if there is parse error.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsModuleRecord" name="requestModule"/>
+      <Parameter type="JsSourceContext" name="sourceContext"/>
+      <Parameter type="byte[]" name="script"/>
+      <Parameter type="uint" name="scriptLength"/>
+      <Parameter type="JsParseModuleSourceFlags" name="sourceFlag"/>
+      <Parameter type="JsValueRef" name="exceptionValueRef" direction="Out"/>
+    </Parameters>
+  </Export>
+
+  <Export name="JsModuleEvaluation" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Execute module code.
+/// </summary>
+/// <remarks>
+///     This method implements 15.2.1.1.6.5, "ModuleEvaluation" concrete method.
+///     When this methid is called, the chakra engine should have notified the host that the module and all its dependent are ready to be executed.
+///     One moduleRecord will be executed only once. Additional execution call on the same moduleRecord will fail.
+/// </remarks>
+/// <param name="requestModule">The module to be executed.</param>
+/// <param name="result">The return value of the module.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsModuleRecord" name="requestModule"/>
+      <Parameter type="JsValueRef" name="result" direction="Out"/>
+    </Parameters>
+  </Export>
+
+  <Export name="JsSetModuleHostInfo" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Set the host info for the specified module.
+/// </summary>
+/// <param name="requestModule">The request module.</param>
+/// <param name="moduleHostInfo">The type of host info to be set.</param>
+/// <param name="hostInfo">The host info to be set.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsModuleRecord" name="requestModule"/>
+      <Parameter type="JsModuleHostInfoKind" name="moduleHostInfo"/>
+      <Parameter type="IntPtr" name="hostInfo"/>
+    </Parameters>
+  </Export>
+  
+  <Export name="JsGetModuleHostInfo" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Retrieve the host info for the specified module.
+/// </summary>
+/// <param name="requestModule">The request module.</param>
+/// <param name="moduleHostInfo">The type of host info to get.</param>
+/// <param name="hostInfo">The host info to be retrieved.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsModuleRecord" name="requestModule"/>
+      <Parameter type="JsModuleHostInfoKind" name="moduleHostInfo"/>
+      <Parameter type="IntPtr" name="hostInfo" direction="Out"/>
+    </Parameters>
+  </Export>
+  
+  <Export name="JsCreateString" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Create JavascriptString variable from C string
+/// </summary>
+/// <remarks>
+///     <para>
+///         C string is expected to be ASCII
+///     </para>
+/// </remarks>
+/// <param name="content">Pointer to string memory.</param>
+/// <param name="length">Number of bytes within the string</param>
+/// <param name="value">JsValueRef representing the JavascriptString</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="string" name="content"/>
+      <Parameter type="size_t" name="length"/>
+      <Parameter type="JsValueRef" name="value" direction="Out"/>
+    </Parameters>
+  </Export>
+
+  <Export name="JsCreateStringUtf8" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Create JavascriptString variable from Utf8 string
+/// </summary>
+/// <remarks>
+///     <para>
+///         Input string can be either ASCII or Utf8
+///     </para>
+/// </remarks>
+/// <param name="content">Pointer to string memory.</param>
+/// <param name="length">Number of bytes within the string</param>
+/// <param name="value">JsValueRef representing the JavascriptString</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="string" name="content"/>
+      <Parameter type="size_t" name="length"/>
+      <Parameter type="JsValueRef" name="value" direction="Out"/>
+    </Parameters>
+  </Export>
+
+  <Export name="JsCreateStringUtf16" target="Common" source="ChakraCore.h" dllImportEx=", CharSet = CharSet.Unicode">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Create JavascriptString variable from Utf8 string
+/// </summary>
+/// <remarks>
+///     <para>
+///         Input string can be either ASCII or Utf8
+///     </para>
+/// </remarks>
+/// <param name="content">Pointer to string memory.</param>
+/// <param name="length">Number of bytes within the string</param>
+/// <param name="value">JsValueRef representing the JavascriptString</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="string" name="content"/>
+      <Parameter type="size_t" name="length"/>
+      <Parameter type="JsValueRef" name="value" direction="Out"/>
+    </Parameters>
+  </Export>
+
+  <Export name="JsCopyString" target="Common" source="ChakraCore.h" dllImportEx=", CharSet = CharSet.Ansi">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Write JavascriptString value into C string buffer
+/// </summary>
+/// <remarks>
+///     <para>
+///         When size of the `buffer` is unknown,
+///         `buffer` argument can be nullptr.
+///         In that case, `written` argument will return the length needed.
+///     </para>
+///     <para>
+///         when start is out of range or < 0, returns JsErrorInvalidArgument
+///         and `written` will be equal to 0.
+///         If calculated length is 0 (It can be due to string length or `start`
+///         and length combination), then `written` will be equal to 0 and call
+///         returns JsNoError
+///     </para>
+/// </remarks>
+/// <param name="value">JavascriptString value</param>
+/// <param name="start">start offset of buffer</param>
+/// <param name="length">length to be written</param>
+/// <param name="buffer">Pointer to buffer</param>
+/// <param name="written">Total number of characters written</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="value"/>
+      <Parameter type="int" name="start"/>
+      <Parameter type="int" name="length"/>
+      <Parameter type="char*" name="buffer"/>
+      <Parameter type="size_t" name="written" direction="Out"/>
+    </Parameters>
+  </Export>
+
+  <Export name="JsCopyStringUtf8" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Write JavascriptString value into Utf8 string buffer
+/// </summary>
+/// <remarks>
+///     <para>
+///         When size of the `buffer` is unknown,
+///         `buffer` argument can be nullptr.
+///         In that case, `written` argument will return the length needed.
+///     </para>
+/// </remarks>
+/// <param name="value">JavascriptString value</param>
+/// <param name="buffer">Pointer to buffer</param>
+/// <param name="bufferSize">Buffer size</param>
+/// <param name="written">Total number of characters written</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="value"/>
+      <Parameter type="char*" name="buffer"/>
+      <Parameter type="size_t" name="bufferSize"/>
+      <Parameter type="size_t" name="written" direction="Out"/>
+    </Parameters>
+  </Export>
+
+  <Export name="JsCopyStringUtf16" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Write string value into Utf16 string buffer
+/// </summary>
+/// <remarks>
+///     <para>
+///         When size of the `buffer` is unknown,
+///         `buffer` argument can be nullptr.
+///         In that case, `written` argument will return the length needed.
+///     </para>
+///     <para>
+///         when start is out of range or < 0, returns JsErrorInvalidArgument
+///         and `written` will be equal to 0.
+///         If calculated length is 0 (It can be due to string length or `start`
+///         and length combination), then `written` will be equal to 0 and call
+///         returns JsNoError
+///     </para>
+/// </remarks>
+/// <param name="value">JavascriptString value</param>
+/// <param name="start">start offset of buffer</param>
+/// <param name="length">length to be written</param>
+/// <param name="buffer">Pointer to buffer</param>
+/// <param name="written">Total number of characters written</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="value"/>
+      <Parameter type="int" name="start"/>
+      <Parameter type="int" name="length"/>
+      <Parameter type="char*" name="buffer"/>
+      <Parameter type="size_t" name="written" direction="Out"/>
+    </Parameters>
+  </Export>
+
+  <Export name="JsParse" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Parses a script and returns a function representing the script.
+/// </summary>
+/// <remarks>
+///     <para>
+///        Requires an active script context.
+///     </para>
+///     <para>
+///         Script source can be either JavascriptString or JavascriptExternalArrayBuffer.
+///         In case it is an ExternalArrayBuffer, and the encoding of the buffer is Utf16,
+///         JsParseScriptAttributeArrayBufferIsUtf16Encoded is expected on parseAttributes.
+///     </para>
+///     <para>
+///         Use JavascriptExternalArrayBuffer with Utf8/ASCII script source
+///         for better performance and smaller memory footprint.
+///     </para>
+/// </remarks>
+/// <param name="script">The script to run.</param>
+/// <param name="sourceContext">
+///     A cookie identifying the script that can be used by debuggable script contexts.
+/// </param>
+/// <param name="sourceUrl">The location the script came from.</param>
+/// <param name="parseAttributes">Attribute mask for parsing the script</param>
+/// <param name="result">The result of the compiled script.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="script"/>
+      <Parameter type="JsSourceContext" name="sourceContext"/>
+      <Parameter type="JsValueRef" name="sourceUrl"/>
+      <Parameter type="JsParseScriptAttributes" name="parseAttributes"/>
+      <Parameter type="JsValueRef" name="result" direction="Out"/>
+    </Parameters>
+  </Export>
+
+  <Export name="JsRun" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Executes a script.
+/// </summary>
+/// <remarks>
+///     <para>
+///        Requires an active script context.
+///     </para>
+///     <para>
+///         Script source can be either JavascriptString or JavascriptExternalArrayBuffer.
+///         In case it is an ExternalArrayBuffer, and the encoding of the buffer is Utf16,
+///         JsParseScriptAttributeArrayBufferIsUtf16Encoded is expected on parseAttributes.
+///     </para>
+///     <para>
+///         Use JavascriptExternalArrayBuffer with Utf8/ASCII script source
+///         for better performance and smaller memory footprint.
+///     </para>
+/// </remarks>
+/// <param name="script">The script to run.</param>
+/// <param name="sourceContext">
+///     A cookie identifying the script that can be used by debuggable script contexts.
+/// </param>
+/// <param name="sourceUrl">The location the script came from</param>
+/// <param name="parseAttributes">Attribute mask for parsing the script</param>
+/// <param name="result">The result of the script, if any. This parameter can be null.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="script"/>
+      <Parameter type="JsSourceContext" name="sourceContext"/>
+      <Parameter type="JsValueRef" name="sourceUrl"/>
+      <Parameter type="JsParseScriptAttributes" name="parseAttributes"/>
+      <Parameter type="JsValueRef" name="result" direction="Out"/>
+    </Parameters>
+  </Export>
+  
   <Export name="JsCreatePropertyIdUtf8" target="Common" source="ChakraCore.h">
     <Description>
       <![CDATA[
@@ -71,19 +460,129 @@
       <Parameter type="size_t" name="length" direction="Out"/>
     </Parameters>
   </Export>
-  
-  <!--<Export name="Name" target="Common" source="ChakraCore.h">
+
+  <Export name="JsSerialize" target="Common" source="ChakraCore.h">
     <Description>
       <![CDATA[
-Description
+/// <summary>
+///     Serializes a parsed script to a buffer than can be reused.
+/// </summary>
+/// <remarks>
+///     <para>
+///     <c>JsSerializeScript</c> parses a script and then stores the parsed form of the script in a
+///     runtime-independent format. The serialized script then can be deserialized in any
+///     runtime without requiring the script to be re-parsed.
+///     </para>
+///     <para>
+///     Requires an active script context.
+///     </para>
+///     <para>
+///         Script source can be either JavascriptString or JavascriptExternalArrayBuffer.
+///         In case it is an ExternalArrayBuffer, and the encoding of the buffer is Utf16,
+///         JsParseScriptAttributeArrayBufferIsUtf16Encoded is expected on parseAttributes.
+///     </para>
+///     <para>
+///         Use JavascriptExternalArrayBuffer with Utf8/ASCII script source
+///         for better performance and smaller memory footprint.
+///     </para>
+/// </remarks>
+/// <param name="script">The script to serialize</param>
+/// <param name="buffer">The buffer to put the serialized script into. Can be null.</param>
+/// <param name="bufferSize">
+///     On entry, the size of the buffer, in bytes; on exit, the size of the buffer, in bytes,
+///     required to hold the serialized script.
+/// </param>
+/// <param name="parseAttributes">Encoding for the script.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="Type" name="Name"/>
-      <Parameter type="Type" name="Name"/>
-      <Parameter type="Type" name="Name" direction="Out"/>
+      <Parameter type="JsValueRef" name="script"/>
+      <Parameter type="byte[]" name="buffer" direction="Out"/>
+      <Parameter type="uint" name="bufferSize" direction="Ref"/>
+      <Parameter type="JsParseScriptAttributes" name="Name"/>
     </Parameters>
-  </Export>-->
+  </Export>
+
+  <Export name="JsParseSerialized" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Parses a serialized script and returns a function representing the script.
+///     Provides the ability to lazy load the script source only if/when it is needed.
+/// </summary>
+/// <remarks>
+///     <para>
+///     Requires an active script context.
+///     </para>
+/// </remarks>
+/// <param name="buffer">The serialized script.</param>
+/// <param name="scriptLoadCallback">
+///     Callback called when the source code of the script needs to be loaded.
+///     This is an optional parameter, set to null if not needed.
+/// </param>
+/// <param name="sourceContext">
+///     A cookie identifying the script that can be used by debuggable script contexts.
+///     This context will passed into scriptLoadCallback.
+/// </param>
+/// <param name="sourceUrl">The location the script came from.</param>
+/// <param name="result">A function representing the script code.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="byte[]" name="buffer"/>
+      <Parameter type="JsSerializedLoadScriptCallback" name="scriptLoadCallback"/>
+      <Parameter type="JsSourceContext" name="sourceContext"/>
+      <Parameter type="JsValueRef" name="sourceUrl"/>
+      <Parameter type="JsValueRef" name="result" direction="Out"/>
+    </Parameters>
+  </Export>
+
+  <Export name="JsRunSerialized" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+
+/// <summary>
+///     Runs a serialized script.
+///     Provides the ability to lazy load the script source only if/when it is needed.
+/// </summary>
+/// <remarks>
+///     <para>
+///     Requires an active script context.
+///     </para>
+///     <para>
+///     The runtime will hold on to the buffer until all instances of any functions created from
+///     the buffer are garbage collected.
+///     </para>
+/// </remarks>
+/// <param name="buffer">The serialized script.</param>
+/// <param name="scriptLoadCallback">Callback called when the source code of the script needs to be loaded.</param>
+/// <param name="sourceContext">
+///     A cookie identifying the script that can be used by debuggable script contexts.
+///     This context will passed into scriptLoadCallback.
+/// </param>
+/// <param name="sourceUrl">The location the script came from.</param>
+/// <param name="result">
+///     The result of running the script, if any. This parameter can be null.
+/// </param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="byte[]" name="buffer"/>
+      <Parameter type="JsSerializedLoadScriptCallback" name="scriptLoadCallback"/>
+      <Parameter type="JsSourceContext" name="sourceContext"/>
+      <Parameter type="JsValueRef" name="sourceUrl"/>
+      <Parameter type="JsValueRef" name="result" direction="Out"/>
+    </Parameters>
+  </Export>
   
   <!-- 
   ***************************************

@@ -3,9 +3,6 @@
     using System;
     using System.Runtime.InteropServices;
     
-    //[UnmanagedFunctionPointer(CallingConvention.StdCall)]
-    //internal delegate bool MemoryCallbackThunkCallback(IntPtr callbackState, JavaScriptMemoryAllocationEventType allocationEvent, UIntPtr allocationSize);
-
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate IntPtr NativeFunctionThunkCallback(
         IntPtr callee,

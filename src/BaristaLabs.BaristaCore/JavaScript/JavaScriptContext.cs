@@ -110,7 +110,7 @@
             }
         }
 
-        public JavaScriptExecutionContext AcquireContext()
+        public JavaScriptExecutionContext AcquireExecutionContext()
         {
             ClaimContextPrivate();
             return new JavaScriptExecutionContext(this, ReleaseContextPrivate);

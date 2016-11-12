@@ -16,7 +16,7 @@
                 var jsr = context.RequestServices.GetRequiredService<JavaScriptRuntime>();
                 using (var ctx = jsr.CreateContext())
                 {
-                    using (var jsContext = ctx.AcquireContext())
+                    using (var jsContext = ctx.AcquireExecutionContext())
                     {
                         if (context.Request.Body != null && context.Request.Body.CanRead)
                         {

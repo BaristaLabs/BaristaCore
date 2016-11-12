@@ -17,22 +17,29 @@
 		{ "JsSourceContext", "JavaScriptSourceContext" },
         { "JsRef", "JavaScriptValueSafeHandle" }, //Not sure about this one...
 		{ "JsValueRef", "JavaScriptValueSafeHandle" },
-		{ "JsValueRef[]", "JavaScriptValueSafeHandle[]" },
+		{ "JsValueRef[]", "IntPtr[]" },
         { "JsPropertyIdRef", "JavaScriptPropertyId" },
         { "JsPropertyIdType", "JavaSciptPropertyIdType" },
+        { "JsModuleRecord", "IntPtr" },
+        { "JsParseModuleSourceFlags", "JavaScriptParseModuleSourceFlags" },
+		{ "JsModuleHostInfoKind", "JavaScriptModuleHostInfoKind" },
 
         { "JsTypedArrayType", "JavaScriptTypedArrayType"},
         { "JsNativeFunction", "JavaScriptNativeFunction"},
 
+        { "JsSerializedLoadScriptCallback", "JavaScriptSerializedLoadScriptCallback" },
         { "JsSerializedScriptLoadSourceCallback", "JavaScriptSerializedScriptLoadSourceCallback" },
 		{ "JsSerializedScriptUnloadCallback", "JavaScriptSerializedScriptUnloadCallback" },
         { "JsFinalizeCallback", "JavaScriptObjectFinalizeCallback"},
         { "JsPromiseContinuationCallback", "JavaScriptPromiseContinuationCallback"},
         { "JsDiagDebugEventCallback", "JavaScriptDiagDebugEventCallback" },
+		{ "FetchImportedModuleCallBack", "JavaScriptFetchImportedModuleCallBack" },
+		{ "NotifyModuleReadyCallback", "JavaScriptNotifyModuleReadyCallback" },
 
 		{ "BYTE", "byte[]" },
         { "size_t", "UIntPtr" },
-        { "wchar_t", "string" }
+        { "wchar_t", "string" },
+        { "char*", "byte[]"}
     };
 
 	var hostServiceProvider = (IServiceProvider)this.Host;

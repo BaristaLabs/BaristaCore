@@ -1122,7 +1122,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JsErrorCode JsCallFunction(JavaScriptValueSafeHandle @function, JavaScriptValueSafeHandle[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
+		JsErrorCode JsCallFunction(JavaScriptValueSafeHandle @function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
 		///     Invokes a function as a constructor.
@@ -1137,7 +1137,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JsErrorCode JsConstructObject(JavaScriptValueSafeHandle @function, JavaScriptValueSafeHandle[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
+		JsErrorCode JsConstructObject(JavaScriptValueSafeHandle @function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
 		///     Creates a new JavaScript function.

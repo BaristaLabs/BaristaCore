@@ -4,6 +4,7 @@
     using SafeHandles;
 
     using System;
+	using System.Text;
 
     /// <summary>
     /// <#= SourceName #> interface

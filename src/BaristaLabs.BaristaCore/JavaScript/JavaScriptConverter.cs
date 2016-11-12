@@ -842,7 +842,7 @@
             if (registration.Item2 == null) // synchronization context
             {
                 var eng = registration.Item1.GetEngine();
-                using (var context = eng.AcquireContext())
+                using (var context = eng.AcquireExecutionContext())
                 {
                     var jsObj = eng.CreateObject();
                     for (int i = 0; i < names.Length; i++)
@@ -858,7 +858,7 @@
                 registration.Item2.Post((s) =>
                 {
                     var eng = registration.Item1.GetEngine();
-                    using (var context = eng.AcquireContext())
+                    using (var context = eng.AcquireExecutionContext())
                     {
                         var jsObj = eng.CreateObject();
                         for (int i = 0; i < names.Length; i++)

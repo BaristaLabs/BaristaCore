@@ -6,11 +6,64 @@
 
 	using System;
 	using System.Runtime.InteropServices;
+	using System.Text;
 
 	internal sealed partial class ChakraApi {
 		
 		private class ChakraApi_Darwin : IChakraApi
 		{
+			public JsErrorCode JsInitializeModuleRecord(IntPtr referencingModule, JavaScriptValueSafeHandle normalizedSpecifier, out IntPtr moduleRecord)
+			{
+				return NativeMethods.JsInitializeModuleRecord(referencingModule, normalizedSpecifier, out moduleRecord);
+			}
+			public JsErrorCode JsParseModuleSource(IntPtr requestModule, JavaScriptSourceContext sourceContext, byte[] script, uint scriptLength, JavaScriptParseModuleSourceFlags sourceFlag, out JavaScriptValueSafeHandle exceptionValueRef)
+			{
+				return NativeMethods.JsParseModuleSource(requestModule, sourceContext, script, scriptLength, sourceFlag, out exceptionValueRef);
+			}
+			public JsErrorCode JsModuleEvaluation(IntPtr requestModule, out JavaScriptValueSafeHandle result)
+			{
+				return NativeMethods.JsModuleEvaluation(requestModule, out result);
+			}
+			public JsErrorCode JsSetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, IntPtr hostInfo)
+			{
+				return NativeMethods.JsSetModuleHostInfo(requestModule, moduleHostInfo, hostInfo);
+			}
+			public JsErrorCode JsGetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, out IntPtr hostInfo)
+			{
+				return NativeMethods.JsGetModuleHostInfo(requestModule, moduleHostInfo, out hostInfo);
+			}
+			public JsErrorCode JsCreateString(string content, UIntPtr length, out JavaScriptValueSafeHandle value)
+			{
+				return NativeMethods.JsCreateString(content, length, out value);
+			}
+			public JsErrorCode JsCreateStringUtf8(string content, UIntPtr length, out JavaScriptValueSafeHandle value)
+			{
+				return NativeMethods.JsCreateStringUtf8(content, length, out value);
+			}
+			public JsErrorCode JsCreateStringUtf16(string content, UIntPtr length, out JavaScriptValueSafeHandle value)
+			{
+				return NativeMethods.JsCreateStringUtf16(content, length, out value);
+			}
+			public JsErrorCode JsCopyString(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer, out UIntPtr written)
+			{
+				return NativeMethods.JsCopyString(value, start, length, buffer, out written);
+			}
+			public JsErrorCode JsCopyStringUtf8(JavaScriptValueSafeHandle value, byte[] buffer, UIntPtr bufferSize, out UIntPtr written)
+			{
+				return NativeMethods.JsCopyStringUtf8(value, buffer, bufferSize, out written);
+			}
+			public JsErrorCode JsCopyStringUtf16(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer, out UIntPtr written)
+			{
+				return NativeMethods.JsCopyStringUtf16(value, start, length, buffer, out written);
+			}
+			public JsErrorCode JsParse(JavaScriptValueSafeHandle script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JsParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result)
+			{
+				return NativeMethods.JsParse(script, sourceContext, sourceUrl, parseAttributes, out result);
+			}
+			public JsErrorCode JsRun(JavaScriptValueSafeHandle script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JsParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result)
+			{
+				return NativeMethods.JsRun(script, sourceContext, sourceUrl, parseAttributes, out result);
+			}
 			public JsErrorCode JsCreatePropertyIdUtf8(byte[] name, UIntPtr length, out JavaScriptPropertyId propertyId)
 			{
 				return NativeMethods.JsCreatePropertyIdUtf8(name, length, out propertyId);
@@ -18,6 +71,18 @@
 			public JsErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyId propertyId, out byte[] buffer, UIntPtr bufferSize, out UIntPtr length)
 			{
 				return NativeMethods.JsCopyPropertyIdUtf8(propertyId, out buffer, bufferSize, out length);
+			}
+			public JsErrorCode JsSerialize(JavaScriptValueSafeHandle script, out byte[] buffer, ref uint bufferSize, JsParseScriptAttributes Name)
+			{
+				return NativeMethods.JsSerialize(script, out buffer, ref bufferSize, Name);
+			}
+			public JsErrorCode JsParseSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result)
+			{
+				return NativeMethods.JsParseSerialized(buffer, scriptLoadCallback, sourceContext, sourceUrl, out result);
+			}
+			public JsErrorCode JsRunSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result)
+			{
+				return NativeMethods.JsRunSerialized(buffer, scriptLoadCallback, sourceContext, sourceUrl, out result);
 			}
 			public JsErrorCode JsCreateRuntime(JsRuntimeAttributes attributes, JavaScriptThreadServiceCallback threadService, out JavaScriptRuntimeSafeHandle runtime)
 			{
@@ -323,11 +388,11 @@
 			{
 				return NativeMethods.JsGetDataViewStorage(dataView, out buffer, out bufferLength);
 			}
-			public JsErrorCode JsCallFunction(JavaScriptValueSafeHandle @function, JavaScriptValueSafeHandle[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result)
+			public JsErrorCode JsCallFunction(JavaScriptValueSafeHandle @function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result)
 			{
 				return NativeMethods.JsCallFunction(@function, arguments, argumentCount, out result);
 			}
-			public JsErrorCode JsConstructObject(JavaScriptValueSafeHandle @function, JavaScriptValueSafeHandle[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result)
+			public JsErrorCode JsConstructObject(JavaScriptValueSafeHandle @function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result)
 			{
 				return NativeMethods.JsConstructObject(@function, arguments, argumentCount, out result);
 			}
@@ -401,10 +466,58 @@
 				const string DllName = "libChakraCore.dylib";
 
 				[DllImport(DllName)]
+				internal static extern JsErrorCode JsInitializeModuleRecord(IntPtr referencingModule, JavaScriptValueSafeHandle normalizedSpecifier, out IntPtr moduleRecord);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsParseModuleSource(IntPtr requestModule, JavaScriptSourceContext sourceContext, byte[] script, uint scriptLength, JavaScriptParseModuleSourceFlags sourceFlag, out JavaScriptValueSafeHandle exceptionValueRef);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsModuleEvaluation(IntPtr requestModule, out JavaScriptValueSafeHandle result);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsSetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, IntPtr hostInfo);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsGetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, out IntPtr hostInfo);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsCreateString(string content, UIntPtr length, out JavaScriptValueSafeHandle value);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsCreateStringUtf8(string content, UIntPtr length, out JavaScriptValueSafeHandle value);
+
+				[DllImport(DllName, CharSet = CharSet.Unicode)]
+				internal static extern JsErrorCode JsCreateStringUtf16(string content, UIntPtr length, out JavaScriptValueSafeHandle value);
+
+				[DllImport(DllName, CharSet = CharSet.Ansi)]
+				internal static extern JsErrorCode JsCopyString(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer, out UIntPtr written);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsCopyStringUtf8(JavaScriptValueSafeHandle value, byte[] buffer, UIntPtr bufferSize, out UIntPtr written);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsCopyStringUtf16(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer, out UIntPtr written);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsParse(JavaScriptValueSafeHandle script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JsParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsRun(JavaScriptValueSafeHandle script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JsParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
+
+				[DllImport(DllName)]
 				internal static extern JsErrorCode JsCreatePropertyIdUtf8(byte[] name, UIntPtr length, out JavaScriptPropertyId propertyId);
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyId propertyId, out byte[] buffer, UIntPtr bufferSize, out UIntPtr length);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsSerialize(JavaScriptValueSafeHandle script, out byte[] buffer, ref uint bufferSize, JsParseScriptAttributes Name);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsParseSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);
+
+				[DllImport(DllName)]
+				internal static extern JsErrorCode JsRunSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsCreateRuntime(JsRuntimeAttributes attributes, JavaScriptThreadServiceCallback threadService, out JavaScriptRuntimeSafeHandle runtime);
@@ -635,10 +748,10 @@
 				internal static extern JsErrorCode JsGetDataViewStorage(JavaScriptValueSafeHandle dataView, out byte[] buffer, out uint bufferLength);
 
 				[DllImport(DllName)]
-				internal static extern JsErrorCode JsCallFunction(JavaScriptValueSafeHandle @function, JavaScriptValueSafeHandle[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
+				internal static extern JsErrorCode JsCallFunction(JavaScriptValueSafeHandle @function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
 
 				[DllImport(DllName)]
-				internal static extern JsErrorCode JsConstructObject(JavaScriptValueSafeHandle @function, JavaScriptValueSafeHandle[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
+				internal static extern JsErrorCode JsConstructObject(JavaScriptValueSafeHandle @function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsCreateFunction(JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle @function);
@@ -684,6 +797,9 @@
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsSetPromiseContinuationCallback(JavaScriptPromiseContinuationCallback promiseContinuationCallback, IntPtr callbackState);
+
+				[DllImport(DllName, CharSet = CharSet.Unicode)]
+				internal static extern JsErrorCode JsParseScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
 
 				[DllImport(DllName, CharSet = CharSet.Unicode)]
 				internal static extern JsErrorCode JsParseScriptWithAttributes(string script, JavaScriptSourceContext sourceContext, string sourceUrl, JsParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);

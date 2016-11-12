@@ -67,7 +67,7 @@
 
             var engine = value.GetEngine();
 
-            using (var jsContext = engine.AcquireContext())
+            using (var jsContext = engine.AcquireExecutionContext())
             {
                 if (engine.HasException)
                 {

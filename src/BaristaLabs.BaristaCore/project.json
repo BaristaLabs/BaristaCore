@@ -19,7 +19,6 @@
   },
   "buildOptions": {
     "define": [],
-    "allowUnsafe": true,
     "copyToOutput": {
       "includeFiles": [
         "win_x64_rel_chakracore.dll"
