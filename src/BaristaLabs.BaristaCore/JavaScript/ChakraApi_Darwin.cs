@@ -120,6 +120,14 @@
 			{
 				return NativeMethods.JsAddRef(@ref, out count);
 			}
+			public JsErrorCode JsReleaseContext(JavaScriptContextSafeHandle context, out uint count)
+			{
+				return NativeMethods.JsReleaseContext(context, out count);
+			}
+			public JsErrorCode JsReleaseValue(JavaScriptValueSafeHandle value, out uint count)
+			{
+				return NativeMethods.JsReleaseValue(value, out count);
+			}
 			public JsErrorCode JsRelease(IntPtr @ref, out uint count)
 			{
 				return NativeMethods.JsRelease(@ref, out count);
@@ -360,7 +368,7 @@
 			{
 				return NativeMethods.JsCreateArrayBuffer(byteLength, out result);
 			}
-			public JsErrorCode JsCreateExternalArrayBuffer(IntPtr data, uint byteLength, JavaScriptObjectFinalizeCallback finalizeCallback, IntPtr callbackState, out bool result)
+			public JsErrorCode JsCreateExternalArrayBuffer(IntPtr data, uint byteLength, JavaScriptObjectFinalizeCallback finalizeCallback, IntPtr callbackState, out JavaScriptValueSafeHandle result)
 			{
 				return NativeMethods.JsCreateExternalArrayBuffer(data, byteLength, finalizeCallback, callbackState, out result);
 			}
@@ -546,6 +554,12 @@
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsAddRef(IntPtr @ref, out uint count);
 
+				[DllImport(DllName, EntryPoint = "JsRelease" )]
+				internal static extern JsErrorCode JsReleaseContext(JavaScriptContextSafeHandle context, out uint count);
+
+				[DllImport(DllName, EntryPoint = "JsRelease" )]
+				internal static extern JsErrorCode JsReleaseValue(JavaScriptValueSafeHandle value, out uint count);
+
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsRelease(IntPtr @ref, out uint count);
 
@@ -727,7 +741,7 @@
 				internal static extern JsErrorCode JsCreateArrayBuffer(uint byteLength, out JavaScriptValueSafeHandle result);
 
 				[DllImport(DllName)]
-				internal static extern JsErrorCode JsCreateExternalArrayBuffer(IntPtr data, uint byteLength, JavaScriptObjectFinalizeCallback finalizeCallback, IntPtr callbackState, out bool result);
+				internal static extern JsErrorCode JsCreateExternalArrayBuffer(IntPtr data, uint byteLength, JavaScriptObjectFinalizeCallback finalizeCallback, IntPtr callbackState, out JavaScriptValueSafeHandle result);
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsCreateTypedArray(JavaScriptTypedArrayType arrayType, JavaScriptValueSafeHandle baseArray, uint byteOffset, uint elementLength, out JavaScriptValueSafeHandle result);

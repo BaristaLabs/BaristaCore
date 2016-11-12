@@ -1,8 +1,9 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
-    using Interfaces;
+    using Extensions;
     using SafeHandles;
     using System;
+    using System.Runtime.InteropServices;
     using System.Text;
     using Xunit;
 
@@ -172,7 +173,7 @@
         [Fact]
         public void JsRunInvocationIsCorrect()
         {
-            var script = "43-1";
+            var script = "(()=>{return 6*7;})()";
             int result;
 
             using (var rt = new JavaScriptRuntime())
@@ -181,44 +182,28 @@
                 {
                     using (var xc = ctx.AcquireExecutionContext())
                     {
-                        JavaScriptValueSafeHandle scriptHandle;
-                        Errors.ThrowIfIs(ChakraApi.Instance.JsCreateString(script, new UIntPtr((uint)script.Length), out scriptHandle));
-
-                        //ChakraApi.Instance.JsCreateExternalArrayBuffer()
-                        string sourceUrl = "http://testing123";
-                        JavaScriptValueSafeHandle sourceUrlHandle;
-                        Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length), out sourceUrlHandle));
-
-                        
-                        var sc = new JavaScriptSourceContext();
                         JavaScriptValueSafeHandle resultHandle;
 
                         try
                         {
-                            Errors.ThrowIfIs(ChakraApi.Instance.JsRun(scriptHandle, sc, sourceUrlHandle, JsParseScriptAttributes.JsParseScriptAttributeNone, out resultHandle));
+                            Errors.ThrowIfIs(ChakraApi.Instance.JsRunScriptUtf8(script, JavaScriptSourceContext.None, null, JsParseScriptAttributes.JsParseScriptAttributeNone, out resultHandle));
                             dynamic resultValue = ctx.CreateValueFromHandle(resultHandle);
-                            dynamic scr = ctx.CreateValueFromHandle(scriptHandle);
                             result = (int)resultValue;
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             bool hasException;
                             ChakraApi.Instance.JsHasException(out hasException);
 
                             if (hasException) {
-                                Console.WriteLine("omg.");
                                 JavaScriptValueSafeHandle jsEx;
                                 ChakraApi.Instance.JsGetAndClearException(out jsEx);
-                                dynamic ex2 = ctx.CreateValueFromHandle(jsEx);
-                                dynamic scr = ctx.CreateValueFromHandle(scriptHandle);
+                                dynamic ex = ctx.CreateValueFromHandle(jsEx);
+                                throw new Exception(String.Format("{0} occured at {1} {2}", (string)ex, (int)ex.line, (int)ex.column));
                             }
-
-                            
 
                             result = 1;
                         }
-
-                        
                     }
                 }
             }

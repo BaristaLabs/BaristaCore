@@ -834,6 +834,50 @@
     </Parameters>
   </Export>
 
+  <Export name="JsReleaseContext" target="Common" source="ChakraCommon.h" dllImportEx=", EntryPoint = &quot;JsRelease&quot; ">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Releases a reference to a garbage collected object.
+/// </summary>
+/// <remarks>
+///     Removes a reference to a <c>JsRef</c> handle that was created by <c>JsAddRef</c>.
+/// </remarks>
+/// <param name="value">The object to add a reference to.</param>
+/// <param name="count">The object's new reference count (can pass in null).</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsContextRef" name="context"/>
+      <Parameter type="uint" name="count" direction="Out"/>
+    </Parameters>
+  </Export>
+  
+  <Export name="JsReleaseValue" target="Common" source="ChakraCommon.h" dllImportEx=", EntryPoint = &quot;JsRelease&quot; ">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Releases a reference to a garbage collected object.
+/// </summary>
+/// <remarks>
+///     Removes a reference to a <c>JsRef</c> handle that was created by <c>JsAddRef</c>.
+/// </remarks>
+/// <param name="value">The object to add a reference to.</param>
+/// <param name="count">The object's new reference count (can pass in null).</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="value"/>
+      <Parameter type="uint" name="count" direction="Out"/>
+    </Parameters>
+  </Export>
+  
   <Export name="JsRelease" target="Common" source="ChakraCommon.h">
     <Description>
       <![CDATA[

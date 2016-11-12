@@ -4,6 +4,7 @@
     using SafeHandles;
 
     using System;
+	using System.Text;
 
     /// <summary>
     /// ChakraCommon.h interface
@@ -170,6 +171,32 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		JsErrorCode JsAddRef(IntPtr @ref, out uint count);
+
+		/// <summary>
+		///     Releases a reference to a garbage collected object.
+		/// </summary>
+		/// <remarks>
+		///     Removes a reference to a <c>JsRef</c> handle that was created by <c>JsAddRef</c>.
+		/// </remarks>
+		/// <param name="value">The object to add a reference to.</param>
+		/// <param name="count">The object's new reference count (can pass in null).</param>
+		/// <returns>
+		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		JsErrorCode JsReleaseContext(JavaScriptContextSafeHandle context, out uint count);
+
+		/// <summary>
+		///     Releases a reference to a garbage collected object.
+		/// </summary>
+		/// <remarks>
+		///     Removes a reference to a <c>JsRef</c> handle that was created by <c>JsAddRef</c>.
+		/// </remarks>
+		/// <param name="value">The object to add a reference to.</param>
+		/// <param name="count">The object's new reference count (can pass in null).</param>
+		/// <returns>
+		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		JsErrorCode JsReleaseValue(JavaScriptValueSafeHandle value, out uint count);
 
 		/// <summary>
 		///     Releases a reference to a garbage collected object.
@@ -991,7 +1018,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JsErrorCode JsCreateExternalArrayBuffer(IntPtr data, uint byteLength, JavaScriptObjectFinalizeCallback finalizeCallback, IntPtr callbackState, out bool result);
+		JsErrorCode JsCreateExternalArrayBuffer(IntPtr data, uint byteLength, JavaScriptObjectFinalizeCallback finalizeCallback, IntPtr callbackState, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
 		///     Creates a Javascript typed array object.
