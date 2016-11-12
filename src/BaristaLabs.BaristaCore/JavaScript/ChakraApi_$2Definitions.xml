@@ -2215,7 +2215,7 @@
       <Parameter type="uint" name="byteLength"/>
       <Parameter type="JsFinalizeCallback" name="finalizeCallback"/>
       <Parameter type="IntPtr" name="callbackState"/>
-      <Parameter type="bool" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="result" direction="Out"/>
     </Parameters>
   </Export>
   

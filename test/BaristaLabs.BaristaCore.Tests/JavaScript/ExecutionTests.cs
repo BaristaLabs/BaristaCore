@@ -168,5 +168,63 @@
             
             Assert.True(str == resultStr);
         }
+
+        [Fact]
+        public void JsRunInvocationIsCorrect()
+        {
+            var script = "43-1";
+            int result;
+
+            using (var rt = new JavaScriptRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (var xc = ctx.AcquireExecutionContext())
+                    {
+                        JavaScriptValueSafeHandle scriptHandle;
+                        Errors.ThrowIfIs(ChakraApi.Instance.JsCreateString(script, new UIntPtr((uint)script.Length), out scriptHandle));
+
+                        //ChakraApi.Instance.JsCreateExternalArrayBuffer()
+                        string sourceUrl = "http://testing123";
+                        JavaScriptValueSafeHandle sourceUrlHandle;
+                        Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length), out sourceUrlHandle));
+
+                        
+                        var sc = new JavaScriptSourceContext();
+                        JavaScriptValueSafeHandle resultHandle;
+
+                        try
+                        {
+                            Errors.ThrowIfIs(ChakraApi.Instance.JsRun(scriptHandle, sc, sourceUrlHandle, JsParseScriptAttributes.JsParseScriptAttributeNone, out resultHandle));
+                            dynamic resultValue = ctx.CreateValueFromHandle(resultHandle);
+                            dynamic scr = ctx.CreateValueFromHandle(scriptHandle);
+                            result = (int)resultValue;
+                        }
+                        catch (Exception ex)
+                        {
+                            bool hasException;
+                            ChakraApi.Instance.JsHasException(out hasException);
+
+                            if (hasException) {
+                                Console.WriteLine("omg.");
+                                JavaScriptValueSafeHandle jsEx;
+                                ChakraApi.Instance.JsGetAndClearException(out jsEx);
+                                dynamic ex2 = ctx.CreateValueFromHandle(jsEx);
+                                dynamic scr = ctx.CreateValueFromHandle(scriptHandle);
+                            }
+
+                            
+
+                            result = 1;
+                        }
+
+                        
+                    }
+                }
+            }
+
+
+            Assert.True(42 == result);
+        }
     }
 }
