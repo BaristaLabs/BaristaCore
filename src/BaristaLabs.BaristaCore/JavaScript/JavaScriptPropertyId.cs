@@ -49,7 +49,7 @@
             {
                 byte[] buffer = new byte[144];
                 UIntPtr bufferLength;
-                Errors.ThrowIfIs(ChakraApi.Instance.JsCopyPropertyIdUtf8(this, out buffer, new UIntPtr((uint)buffer.Length), out bufferLength));
+                Errors.ThrowIfIs(ChakraApi.Instance.JsCopyPropertyIdUtf8(this, buffer, new UIntPtr((uint)buffer.Length), out bufferLength));
                 return Encoding.UTF8.GetString(buffer, 0, (int)bufferLength.ToUInt32());
             }
         }

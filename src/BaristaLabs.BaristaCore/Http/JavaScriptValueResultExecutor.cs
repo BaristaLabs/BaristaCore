@@ -65,13 +65,13 @@
             var value = result.Value;
             object resultValue;
 
-            var engine = value.GetEngine();
+            var context = value.GetContext();
 
-            using (var jsContext = engine.AcquireExecutionContext())
+            using (var jsContext = context.AcquireExecutionContext())
             {
-                if (engine.HasException)
+                if (context.HasException)
                 {
-                    dynamic exception = engine.GetAndClearException();
+                    dynamic exception = context.GetAndClearException();
                     var jsException = new JavaScriptException
                     {
                         Message = (string)exception.message,
@@ -79,7 +79,7 @@
                         Column = (int)exception.column,
                         Length = (int)exception.length,
                         Source = (string)exception.source,
-                        Stack = exception.stack == engine.UndefinedValue ? string.Empty : (string)exception.stack
+                        Stack = exception.stack == context.UndefinedValue ? string.Empty : (string)exception.stack
                     };
 
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
@@ -88,11 +88,11 @@
                 }
                 else
                 {
-                    dynamic glob = engine.GlobalObject;
+                    dynamic glob = context.GlobalObject;
                     //TODO: Use a stringify that doesn't die on recursive referenes
                     var val = glob.JSON.stringify(result.Value);
                     if ((string)val == "{}")
-                        val = engine.Converter.ToString(result.Value);
+                        val = context.Converter.ToString(result.Value);
 
                     //TODO: Support other result types, buffer, etc
 

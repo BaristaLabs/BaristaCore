@@ -7,12 +7,11 @@
     using System.Diagnostics;
     using System.Dynamic;
     using System.Linq;
-    using System.Text;
 
     public class JavaScriptObject : JavaScriptValue
     {
-        internal JavaScriptObject(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine) :
-            base(handle, type, engine)
+        internal JavaScriptObject(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext context) :
+            base(handle, type, context)
         {
 
         }
@@ -22,7 +21,7 @@
         {
             get
             {
-                var eng = GetEngine();
+                var eng = GetContext();
                 var fn = GetObjectBuiltinFunction("keys", "Object.keys");
                 return fn.Invoke(new JavaScriptValue[] { eng.UndefinedValue, this }) as JavaScriptArray;
             }
@@ -33,7 +32,7 @@
         {
             get
             {
-                var eng = GetEngine();
+                var eng = GetContext();
 
                 bool result;
                 Errors.ThrowIfIs(m_api.JsGetExtensionAllowed(m_handle, out result));
@@ -47,7 +46,7 @@
         {
             get
             {
-                var eng = GetEngine();
+                var eng = GetContext();
 
                 JavaScriptValueSafeHandle handle;
                 Errors.ThrowIfIs(m_api.JsGetPrototype(m_handle, out handle));
@@ -56,7 +55,7 @@
             }
             set
             {
-                var eng = GetEngine();
+                var eng = GetContext();
                 if (value == null)
                     value = eng.NullValue;
 
@@ -69,7 +68,7 @@
         {
             get
             {
-                var eng = GetEngine();
+                var eng = GetContext();
                 return eng.GetExternalObjectFrom(this);
             }
         }
@@ -79,7 +78,7 @@
         {
             get
             {
-                var eng = GetEngine();
+                var eng = GetContext();
                 var fn = GetObjectBuiltinFunction("isSealed", "Object.isSealed");
 
                 return eng.Converter.ToBoolean(fn.Invoke(new JavaScriptValue[] { eng.UndefinedValue, this }));
@@ -91,7 +90,7 @@
         {
             get
             {
-                var eng = GetEngine();
+                var eng = GetContext();
                 var fn = GetObjectBuiltinFunction("isFrozen", "Object.isFrozen");
 
                 return eng.Converter.ToBoolean(fn.Invoke(new JavaScriptValue[] { eng.UndefinedValue, this }));
@@ -109,7 +108,7 @@
 
         internal JavaScriptFunction GetObjectBuiltinFunction(string functionName, string nameIfNotFound)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var obj = eng.GlobalObject.GetPropertyByName("Object") as JavaScriptFunction;
             if (obj == null)
                 Errors.ThrowIOEFmt(Errors.DefaultFnOverwritten, "Object");
@@ -125,7 +124,7 @@
             if (other == null)
                 throw new ArgumentNullException(nameof(other));
 
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("isPrototypeOf", "Object.prototype.isPrototypeOf");
 
             var args = new List<JavaScriptValue>() { this, other };
@@ -135,7 +134,7 @@
 
         public bool PropertyIsEnumerable(string propertyName)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("propertyIsEnumerable", "Object.prototype.propertyIsEnumerable");
             using (var jsPropName = eng.Converter.FromString(propertyName))
             {
@@ -150,7 +149,7 @@
             if (m_apiWin == null)
                 throw new InvalidOperationException("This operation only works on windows.");
 
-            var eng = GetEngine();
+            var eng = GetContext();
 
             JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
@@ -167,7 +166,7 @@
             if (m_apiWin == null)
                 throw new InvalidOperationException("This operation only works on windows.");
 
-            var eng = GetEngine();
+            var eng = GetContext();
 
             JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
@@ -181,7 +180,7 @@
             if (m_apiWin == null)
                 throw new InvalidOperationException("This operation only works on windows.");
 
-            var eng = GetEngine();
+            var eng = GetContext();
 
             JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
@@ -205,7 +204,7 @@
 
         public JavaScriptValue GetPropertyBySymbol(JavaScriptSymbol symbol)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
 
             JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_api.JsGetPropertyIdFromSymbol(symbol.m_handle, out propId));
@@ -218,7 +217,7 @@
 
         public void SetPropertyBySymbol(JavaScriptSymbol symbol, JavaScriptValue value)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
 
             JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_api.JsGetPropertyIdFromSymbol(symbol.m_handle, out propId));
@@ -227,7 +226,7 @@
 
         public void DeletePropertyBySymbol(JavaScriptSymbol symbol)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
 
             JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_api.JsGetPropertyIdFromSymbol(symbol.m_handle, out propId));
@@ -254,7 +253,7 @@
             if (index == null)
                 throw new ArgumentNullException(nameof(index));
 
-            var eng = GetEngine();
+            var eng = GetContext();
             JavaScriptValueSafeHandle result;
             Errors.ThrowIfIs(m_api.JsGetIndexedProperty(m_handle, index.m_handle, out result));
 
@@ -266,7 +265,7 @@
             if (index == null)
                 throw new ArgumentNullException(nameof(index));
 
-            var eng = GetEngine();
+            var eng = GetContext();
             if (value == null)
                 value = eng.NullValue;
 
@@ -295,7 +294,7 @@
 
         public bool HasOwnProperty(string propertyName)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("hasOwnProperty", "Object.prototype.hasOwnProperty");
 
             return eng.Converter.ToBoolean(fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromString(propertyName) }));
@@ -321,7 +320,7 @@
             if (m_apiWin == null)
                 throw new InvalidOperationException("This operation only works on windows.");
 
-            var eng = GetEngine();
+            var eng = GetContext();
             JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
             JavaScriptValueSafeHandle resultHandle;
@@ -339,7 +338,7 @@
             if (m_apiWin == null)
                 throw new InvalidOperationException("This operation only works on windows.");
 
-            var eng = GetEngine();
+            var eng = GetContext();
 
             JavaScriptPropertyId propId;
             Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
@@ -350,7 +349,7 @@
 
         public void DefineProperties(JavaScriptObject propertiesContainer)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fnDP = GetObjectBuiltinFunction("defineProperties", "Object.defineProperties");
 
             fnDP.Invoke(new JavaScriptValue[] { eng.UndefinedValue, this, propertiesContainer });
@@ -358,7 +357,7 @@
 
         public JavaScriptArray GetOwnPropertyNames()
         {
-            var eng = GetEngine();
+            var eng = GetContext();
 
             JavaScriptValueSafeHandle resultHandle;
             Errors.ThrowIfIs(m_api.JsGetOwnPropertyNames(m_handle, out resultHandle));
@@ -368,7 +367,7 @@
 
         public JavaScriptArray GetOwnPropertySymbols()
         {
-            var eng = GetEngine();
+            var eng = GetContext();
 
             JavaScriptValueSafeHandle resultHandle;
             Errors.ThrowIfIs(m_api.JsGetOwnPropertySymbols(m_handle, out resultHandle));
@@ -383,7 +382,7 @@
 
         public void Seal()
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetObjectBuiltinFunction("seal", "Object.seal");
 
             fn.Invoke(new JavaScriptValue[] { eng.UndefinedValue, this });
@@ -391,7 +390,7 @@
 
         public void Freeze()
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetObjectBuiltinFunction("freeze", "Object.freeze");
 
             fn.Invoke(new JavaScriptValue[] { eng.UndefinedValue, this });
@@ -401,7 +400,7 @@
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
             var fn = GetPropertyByName(binder.Name) as JavaScriptFunction;
-            var eng = GetEngine();
+            var eng = GetContext();
             var c = eng.Converter;
 
             if (fn != null)
@@ -417,7 +416,7 @@
             if (indexes.Length > 1)
                 return base.TryGetIndex(binder, indexes, out result);
 
-            var eng = GetEngine();
+            var eng = GetContext();
             var jsIndex = eng.Converter.FromObject(indexes[0]);
             result = GetValueAtIndex(jsIndex);
             return true;
@@ -428,7 +427,7 @@
             if (indexes.Length > 1)
                 return base.TrySetIndex(binder, indexes, value);
 
-            var eng = GetEngine();
+            var eng = GetContext();
             var jsIndex = eng.Converter.FromObject(indexes[0]);
             var jsVal = eng.Converter.FromObject(value);
             SetValueAtIndex(jsIndex, jsVal);
@@ -444,7 +443,7 @@
 
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
-            var jsVal = GetEngine().Converter.FromObject(value);
+            var jsVal = GetContext().Converter.FromObject(value);
             SetPropertyByName(binder.Name, jsVal);
 
             return true;
@@ -461,7 +460,7 @@
             if (indexes.Length > 1)
                 return base.TryDeleteIndex(binder, indexes);
 
-            var jsIndex = GetEngine().Converter.FromObject(indexes[0]);
+            var jsIndex = GetContext().Converter.FromObject(indexes[0]);
             DeleteValueAtIndex(jsIndex);
 
             return true;

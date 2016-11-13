@@ -9,8 +9,8 @@
 
     public sealed class JavaScriptFunction : JavaScriptObject
     {
-        internal JavaScriptFunction(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine) :
-            base(handle, type, engine)
+        internal JavaScriptFunction(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext context) :
+            base(handle, type, context)
         {
 
         }
@@ -26,7 +26,7 @@
             if (argsArray.Length > ushort.MaxValue)
                 throw new ArgumentOutOfRangeException(nameof(args));
 
-            var eng = GetEngine();
+            var eng = GetContext();
             JavaScriptValueSafeHandle resultHandle;
             Errors.CheckForScriptExceptionOrThrow(m_api.JsCallFunction(m_handle, argsArray, (ushort)argsArray.Length, out resultHandle), eng);
             if (resultHandle.IsInvalid)
@@ -41,7 +41,7 @@
             if (argsArray.Length > ushort.MaxValue)
                 throw new ArgumentOutOfRangeException(nameof(args));
 
-            var eng = GetEngine();
+            var eng = GetContext();
             JavaScriptValueSafeHandle resultHandle;
             Errors.CheckForScriptExceptionOrThrow(m_api.JsConstructObject(m_handle, argsArray, (ushort)argsArray.Length, out resultHandle), eng);
             if (resultHandle.IsInvalid)
@@ -52,7 +52,7 @@
 
         public JavaScriptFunction Bind(JavaScriptObject thisObject, IEnumerable<JavaScriptValue> args)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
 
             if (thisObject == null)
                 thisObject = eng.NullValue;
@@ -65,7 +65,7 @@
 
         public JavaScriptValue Apply(JavaScriptObject thisObject, JavaScriptArray args = null)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             if (thisObject == null)
                 thisObject = eng.NullValue;
 
@@ -81,7 +81,7 @@
 
         public JavaScriptValue Call(JavaScriptObject thisObject, IEnumerable<JavaScriptValue> args)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             if (thisObject == null)
                 thisObject = eng.NullValue;
 
@@ -100,7 +100,7 @@
         #region DynamicObject overrides
         public override bool TryInvoke(InvokeBinder binder, object[] args, out object result)
         {
-            var e = GetEngine();
+            var e = GetContext();
             var c = e.Converter;
             result = Invoke(args.Select(a => c.FromObject(a)));
 
@@ -109,7 +109,7 @@
 
         public override bool TryCreateInstance(CreateInstanceBinder binder, object[] args, out object result)
         {
-            var e = GetEngine();
+            var e = GetContext();
             var c = e.Converter;
             result = Construct(args.Select(a => c.FromObject(a)));
 

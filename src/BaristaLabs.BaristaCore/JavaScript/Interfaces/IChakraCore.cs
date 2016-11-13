@@ -301,7 +301,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JsErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyId propertyId, out byte[] buffer, UIntPtr bufferSize, out UIntPtr length);
+		JsErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyId propertyId, byte[] buffer, UIntPtr bufferSize, out UIntPtr length);
 
 		/// <summary>
 		///     Serializes a parsed script to a buffer than can be reused.
@@ -335,7 +335,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JsErrorCode JsSerialize(JavaScriptValueSafeHandle script, out byte[] buffer, ref uint bufferSize, JsParseScriptAttributes Name);
+		JsErrorCode JsSerialize(JavaScriptValueSafeHandle script, byte[] buffer, ref ulong bufferSize, JsParseScriptAttributes parseAttributes);
 
 		/// <summary>
 		///     Parses a serialized script and returns a function representing the script.

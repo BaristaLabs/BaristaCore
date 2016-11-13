@@ -7,8 +7,8 @@
 
     public sealed class JavaScriptDataView : JavaScriptObject
     {
-        internal JavaScriptDataView(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine) :
-            base(handle, type, engine)
+        internal JavaScriptDataView(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext context) :
+            base(handle, type, context)
         {
 
         }
@@ -25,7 +25,7 @@
         {
             get
             {
-                var eng = GetEngine();
+                var eng = GetContext();
                 var val = GetPropertyByName("byteLength");
                 return (uint)eng.Converter.ToDouble(val);
             }
@@ -35,7 +35,7 @@
         {
             get
             {
-                var eng = GetEngine();
+                var eng = GetContext();
                 var val = GetPropertyByName("byteOffset");
                 return (uint)eng.Converter.ToDouble(val);
             }
@@ -59,7 +59,7 @@
         /// <param name="byteOffset">The offset from the beginning of the DataView's view of the underlying <c>ArrayBuffer</c>.</param>
         public short GetInt8(uint byteOffset)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("getInt8", "DataView.prototype.getInt8");
             return (short)eng.Converter.ToDouble(fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset) }));
         }
@@ -69,7 +69,7 @@
         /// <param name="byteOffset">The offset from the beginning of the DataView's view of the underlying <c>ArrayBuffer</c>.</param>
         public byte GetUint8(uint byteOffset)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("getUint8", "DataView.prototype.getUint8");
             return (byte)eng.Converter.ToDouble(fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset) }));
         }
@@ -80,7 +80,7 @@
         /// <param name="littleEndian">True to read as little-endian; otherwise read as big-endian.</param>
         public short GetInt16(uint byteOffset, bool littleEndian = false)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("getInt16", "DataView.prototype.getInt16");
             return (short)eng.Converter.ToDouble(fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromBoolean(littleEndian) }));
         }
@@ -91,7 +91,7 @@
         /// <param name="littleEndian">True to read as little-endian; otherwise read as big-endian.</param>
         public ushort GetUint16(uint byteOffset, bool littleEndian = false)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("getUint16", "DataView.prototype.getUint16");
             return (ushort)eng.Converter.ToDouble(fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromBoolean(littleEndian) }));
         }
@@ -102,7 +102,7 @@
         /// <param name="littleEndian">True to read as little-endian; otherwise read as big-endian.</param>
         public int GetInt32(uint byteOffset, bool littleEndian = false)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("getInt32", "DataView.prototype.getInt32");
             return eng.Converter.ToInt32(fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromBoolean(littleEndian) }));
         }
@@ -113,7 +113,7 @@
         /// <param name="littleEndian">True to read as little-endian; otherwise read as big-endian.</param>
         public uint GetUint32(uint byteOffset, bool littleEndian = false)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("getUint32", "DataView.prototype.getUint32");
             return (uint)eng.Converter.ToDouble(fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromBoolean(littleEndian) }));
         }
@@ -124,7 +124,7 @@
         /// <param name="littleEndian">True to read as little-endian; otherwise read as big-endian.</param>
         public float GetFloat32(uint byteOffset, bool littleEndian = false)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("getFloat32", "DataView.prototype.getFloat32");
             return (float)eng.Converter.ToDouble(fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromBoolean(littleEndian) }));
         }
@@ -135,7 +135,7 @@
         /// <param name="littleEndian">True to read as little-endian; otherwise read as big-endian.</param>
         public double GetFloat64(uint byteOffset, bool littleEndian = false)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("getFloat64", "DataView.prototype.getFloat64");
             return eng.Converter.ToDouble(fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromBoolean(littleEndian) }));
         }
@@ -151,7 +151,7 @@
             if (value < -128 || value > 127)
                 throw new ArgumentOutOfRangeException(nameof(value));
 
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("setInt8", "DataView.prototype.setInt8");
             fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromDouble(value) });
         }
@@ -162,7 +162,7 @@
         /// <param name="value">The value to store.</param>
         public void SetUint8(uint byteOffset, byte value)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("setUint8", "DataView.prototype.setUint8");
             fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromDouble(value) });
         }
@@ -174,7 +174,7 @@
         /// <param name="littleEndian">True to store as little-endian; otherwise store as big-endian.</param>
         public void SetInt16(uint byteOffset, short value, bool littleEndian = false)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("setInt16", "DataView.prototype.setInt16");
             fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromBoolean(littleEndian), eng.Converter.FromDouble(value) });
         }
@@ -186,7 +186,7 @@
         /// <param name="littleEndian">True to store as little-endian; otherwise store as big-endian.</param>
         public void SetUint16(uint byteOffset, ushort value, bool littleEndian = false)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("setUint16", "DataView.prototype.setUint16");
             fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromBoolean(littleEndian), eng.Converter.FromDouble(value) });
         }
@@ -198,7 +198,7 @@
         /// <param name="littleEndian">True to store as little-endian; otherwise store as big-endian.</param>
         public void SetInt32(uint byteOffset, int value, bool littleEndian = false)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("setInt32", "DataView.prototype.setInt32");
             fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromBoolean(littleEndian), eng.Converter.FromInt32(value) });
         }
@@ -210,7 +210,7 @@
         /// <param name="littleEndian">True to store as little-endian; otherwise store as big-endian.</param>
         public void SetUint32(uint byteOffset, uint value, bool littleEndian = false)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("setUint32", "DataView.prototype.setUint32");
             fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromBoolean(littleEndian), eng.Converter.FromDouble(value) });
         }
@@ -222,7 +222,7 @@
         /// <param name="littleEndian">True to store as little-endian; otherwise store as big-endian.</param>
         public void SetFloat32(uint byteOffset, float value, bool littleEndian = false)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("setFloat32", "DataView.prototype.setFloat32");
             fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromBoolean(littleEndian), eng.Converter.FromDouble(value) });
         }
@@ -234,7 +234,7 @@
         /// <param name="littleEndian">True to store as little-endian; otherwise store as big-endian.</param>
         public void SetFloat64(uint byteOffset, double value, bool littleEndian = false)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetBuiltinFunctionProperty("setFloat64", "DataView.prototype.setFloat64");
             fn.Invoke(new JavaScriptValue[] { this, eng.Converter.FromDouble(byteOffset), eng.Converter.FromBoolean(littleEndian), eng.Converter.FromDouble(value) });
         }

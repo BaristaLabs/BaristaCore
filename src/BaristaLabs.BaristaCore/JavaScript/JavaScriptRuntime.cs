@@ -14,7 +14,7 @@
         private JavaScriptRuntimeSettings m_settings;
         private JavaScriptRuntimeSafeHandle m_handle;
         private IChakraApi m_api = ChakraApi.Instance;
-        private List<WeakReference<JavaScriptContext>> m_childEngines;
+        private List<WeakReference<JavaScriptContext>> m_childContexts;
 
         public JavaScriptRuntime() : this(null)
         {
@@ -25,7 +25,7 @@
             if (settings == null)
                 settings = new JavaScriptRuntimeSettings();
 
-            m_childEngines = new List<WeakReference<JavaScriptContext>>();
+            m_childContexts = new List<WeakReference<JavaScriptContext>>();
             m_settings = settings;
             var attrs = settings.GetRuntimeAttributes();
 
@@ -139,17 +139,17 @@
             {
                 m_api.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
                 m_api.JsSetRuntimeMemoryAllocationCallback(m_handle, IntPtr.Zero, null);
-                if (m_childEngines != null)
+                if (m_childContexts != null)
                 {
-                    foreach (var engineRef in m_childEngines)
+                    foreach (var contextRef in m_childContexts)
                     {
-                        JavaScriptContext engine;
-                        if (engineRef.TryGetTarget(out engine))
+                        JavaScriptContext context;
+                        if (contextRef.TryGetTarget(out context))
                         {
-                            engine.Dispose();
+                            context.Dispose();
                         }
                     }
-                    m_childEngines = null;
+                    m_childContexts = null;
                 }
 
                 if (m_handle != null && !m_handle.IsClosed)

@@ -24,31 +24,31 @@
             public bool HasInstanceEvents;
         }
 
-        private WeakReference<JavaScriptContext> m_engine;
+        private WeakReference<JavaScriptContext> m_context;
         private IChakraApi m_api;
         private Dictionary<Type, JavaScriptProjection> m_projectionTypes;
         private Dictionary<Type, Expression> m_eventMarshallers;
 
-        public JavaScriptConverter(JavaScriptContext engine)
+        public JavaScriptConverter(JavaScriptContext context)
         {
-            m_engine = new WeakReference<JavaScriptContext>(engine);
-            m_api = engine.Api;
+            m_context = new WeakReference<JavaScriptContext>(context);
+            m_api = context.Api;
             m_projectionTypes = new Dictionary<Type, JavaScriptProjection>();
             m_eventMarshallers = new Dictionary<Type, Expression>();
         }
 
-        private JavaScriptContext GetEngine()
+        private JavaScriptContext GetContext()
         {
             JavaScriptContext result;
-            if (!m_engine.TryGetTarget(out result))
+            if (!m_context.TryGetTarget(out result))
                 throw new ObjectDisposedException(nameof(JavaScriptContext));
 
             return result;
         }
 
-        private JavaScriptContext GetEngineAndClaimContext()
+        private JavaScriptContext GetContextAndSetCurrent()
         {
-            var result = GetEngine();
+            var result = GetContext();
 
             return result;
         }
@@ -58,7 +58,7 @@
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            var eng = GetEngineAndClaimContext();
+            var eng = GetContextAndSetCurrent();
 
             bool result;
 
@@ -81,7 +81,7 @@
 
         public JavaScriptValue FromBoolean(bool value)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             if (value)
                 return eng.TrueValue;
 
@@ -93,7 +93,7 @@
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            var eng = GetEngineAndClaimContext();
+            var eng = GetContextAndSetCurrent();
 
             double result;
 
@@ -116,7 +116,7 @@
 
         public JavaScriptValue FromDouble(double value)
         {
-            var eng = GetEngineAndClaimContext();
+            var eng = GetContextAndSetCurrent();
 
             JavaScriptValueSafeHandle result;
             Errors.ThrowIfIs(m_api.JsDoubleToNumber(value, out result));
@@ -129,7 +129,7 @@
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            var eng = GetEngineAndClaimContext();
+            var eng = GetContextAndSetCurrent();
 
             int result;
 
@@ -152,7 +152,7 @@
 
         public JavaScriptValue FromInt32(int value)
         {
-            var eng = GetEngineAndClaimContext();
+            var eng = GetContextAndSetCurrent();
 
             JavaScriptValueSafeHandle result;
             Errors.ThrowIfIs(m_api.JsIntToNumber(value, out result));
@@ -165,20 +165,18 @@
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            var m_apiWin = m_api as IChakraCommonWindows;
-            if (m_apiWin == null)
-                throw new InvalidOperationException("This operation only works on windows.");
-
-            var eng = GetEngineAndClaimContext();
+            var eng = GetContextAndSetCurrent();
             if (value.Type == JavaScriptValueType.String)
             {
-                IntPtr resultPtr;
-                UIntPtr stringLength;
-                Errors.ThrowIfIs(m_apiWin.JsStringToPointer(value.m_handle, out resultPtr, out stringLength));
-                if ((int)stringLength > int.MaxValue)
+                UIntPtr size;
+                Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf16(value.m_handle, 0, -1, null, out size));
+                if ((int)size > int.MaxValue)
                     throw new OutOfMemoryException("Exceeded maximum string length.");
 
-                return Marshal.PtrToStringUni(resultPtr, (int)stringLength);
+                byte[] result = new byte[(int)size];
+                UIntPtr written;
+                Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf16(value.m_handle, 0, -1, result, out written));
+                return Encoding.Unicode.GetString(result, 0, (int)written);
             }
             else if (value.Type == JavaScriptValueType.Symbol)
             {
@@ -194,34 +192,32 @@
                 Errors.ThrowIfIs(m_api.JsConvertValueToString(value.m_handle, out tempStr));
                 using (tempStr)
                 {
-                    IntPtr resultPtr;
-                    UIntPtr stringLength;
-                    Errors.ThrowIfIs(m_apiWin.JsStringToPointer(tempStr, out resultPtr, out stringLength));
-                    if ((int)stringLength > int.MaxValue)
+                    UIntPtr size;
+                    Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf16(value.m_handle, 0, -1, null, out size));
+                    if ((int)size > int.MaxValue)
                         throw new OutOfMemoryException("Exceeded maximum string length.");
 
-                    return Marshal.PtrToStringUni(resultPtr, (int)stringLength);
+                    byte[] result = new byte[(int)size];
+                    UIntPtr written;
+                    Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf16(value.m_handle, 0, -1, result, out written));
+                    return Encoding.Unicode.GetString(result, 0, (int)written);
                 }
             }
         }
 
         public JavaScriptValue FromString(string value)
         {
-            var eng = GetEngineAndClaimContext();
-
-            var m_apiWin = m_api as IChakraCommonWindows;
-            if (m_apiWin == null)
-                throw new InvalidOperationException("This operation only works on windows.");
+            var eng = GetContextAndSetCurrent();
 
             JavaScriptValueSafeHandle result;
-            Errors.ThrowIfIs(m_apiWin.JsPointerToString(value, new UIntPtr((uint)value.Length), out result));
+            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf16(value, new UIntPtr((uint)value.Length * 2), out result));
 
             return eng.CreateValueFromHandle(result);
         }
 
         public JavaScriptValue FromObject(object o)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             if (o == null)
             {
                 return eng.NullValue;
@@ -268,7 +264,7 @@
             }
             else if (typeof(Delegate).GetTypeInfo().IsAssignableFrom(t))
             {
-                throw new ArgumentException("Use JavaScriptEngine.CreateFunction to marshal a delegate to JavaScript.");
+                throw new ArgumentException("Use JavaScriptContext.CreateFunction to marshal a delegate to JavaScript.");
             }
             else
             {
@@ -347,7 +343,7 @@
 
         private JavaScriptProjection InitializeProjectionForType(Type t)
         {
-            var eng = GetEngineAndClaimContext();
+            var eng = GetContextAndSetCurrent();
 
             ObjectReflector reflector = ObjectReflector.Create(t);
             JavaScriptProjection baseTypeProjection = null;
@@ -377,7 +373,7 @@
             if (publicConstructors.Any())
             {
                 // e.g. var MyObject = function() { [native code] };
-                ctor = eng.CreateFunction((engine, constr, thisObj, args) =>
+                ctor = eng.CreateFunction((context, constr, thisObj, args) =>
                 {
                     // todo
                     return FromObject(publicConstructors.First().Invoke(new object[] { }));
@@ -385,7 +381,7 @@
             }
             else
             {
-                ctor = eng.CreateFunction((engine, constr, thisObj, args) =>
+                ctor = eng.CreateFunction((context, constr, thisObj, args) =>
                 {
                     return eng.UndefinedValue;
                 }, t.FullName);
@@ -426,30 +422,30 @@
         }
 
         // used by InitializeProjectionForType
-        private JavaScriptObject CreateObjectFor(JavaScriptContext engine, JavaScriptProjection baseTypeProjection)
+        private JavaScriptObject CreateObjectFor(JavaScriptContext context, JavaScriptProjection baseTypeProjection)
         {
             if (baseTypeProjection != null)
             {
                 // todo: revisit to see if there is a better way to do this
                 // Can probably get 
-                // ((engine.GlobalObject.GetPropertyByName("Object") as JavaScriptObject).GetPropertyByName("create") as JavaScriptFunction).Invoke(baseTypeProjection.Prototype) 
+                // ((context.GlobalObject.GetPropertyByName("Object") as JavaScriptObject).GetPropertyByName("create") as JavaScriptFunction).Invoke(baseTypeProjection.Prototype) 
                 // but this is so much clearer
-                dynamic global = engine.GlobalObject;
+                dynamic global = context.GlobalObject;
                 JavaScriptObject result = global.Object.create(baseTypeProjection.Prototype);
                 return result;
             }
             else
             {
-                return engine.CreateObject();
+                return context.CreateObject();
             }
         }
 
-        private void ProjectMethods(string owningTypeName, JavaScriptObject target, JavaScriptContext engine, IEnumerable<MethodInfo> methods)
+        private void ProjectMethods(string owningTypeName, JavaScriptObject target, JavaScriptContext context, IEnumerable<MethodInfo> methods)
         {
             var methodsByName = methods.GroupBy(m => m.Name);
             foreach (var group in methodsByName)
             {
-                var method = engine.CreateFunction((eng, ctor, thisObj, args) =>
+                var method = context.CreateFunction((eng, ctor, thisObj, args) =>
                 {
                     var @this = thisObj as JavaScriptObject;
                     if (@this == null)
@@ -482,9 +478,9 @@
                         return eng.UndefinedValue;
                     }
                 }, owningTypeName + "." + group.Key);
-                //var propDescriptor = engine.CreateObject();
-                //propDescriptor.SetPropertyByName("configurable", engine.TrueValue);
-                //propDescriptor.SetPropertyByName("enumerable", engine.TrueValue);
+                //var propDescriptor = context.CreateObject();
+                //propDescriptor.SetPropertyByName("configurable", context.TrueValue);
+                //propDescriptor.SetPropertyByName("enumerable", context.TrueValue);
                 //propDescriptor.SetPropertyByName("value", method);
                 //target.DefineProperty(group.Key, propDescriptor);
                 target.SetPropertyByName(group.Key, method);
@@ -527,7 +523,7 @@
             return most;
         }
 
-        private void ProjectProperties(string owningTypeName, JavaScriptObject target, JavaScriptContext engine, IEnumerable<PropertyInfo> properties)
+        private void ProjectProperties(string owningTypeName, JavaScriptObject target, JavaScriptContext context, IEnumerable<PropertyInfo> properties)
         {
             foreach (var prop in properties)
             {
@@ -537,7 +533,7 @@
                 JavaScriptFunction jsGet = null, jsSet = null;
                 if (prop.GetMethod != null)
                 {
-                    jsGet = engine.CreateFunction((eng, ctor, thisObj, args) =>
+                    jsGet = context.CreateFunction((eng, ctor, thisObj, args) =>
                     {
                         var @this = thisObj as JavaScriptObject;
                         if (@this == null)
@@ -559,7 +555,7 @@
                 }
                 if (prop.SetMethod != null)
                 {
-                    jsSet = engine.CreateFunction((eng, ctor, thisObj, args) =>
+                    jsSet = context.CreateFunction((eng, ctor, thisObj, args) =>
                     {
                         var @this = thisObj as JavaScriptObject;
                         if (@this == null)
@@ -586,12 +582,12 @@
                     }, owningTypeName + "." + prop.Name + ".set");
                 }
 
-                var descriptor = engine.CreateObject();
+                var descriptor = context.CreateObject();
                 if (jsGet != null)
                     descriptor.SetPropertyByName("get", jsGet);
                 if (jsSet != null)
                     descriptor.SetPropertyByName("set", jsSet);
-                descriptor.SetPropertyByName("enumerable", engine.TrueValue);
+                descriptor.SetPropertyByName("enumerable", context.TrueValue);
                 target.DefineProperty(prop.Name, descriptor);
             }
         }
@@ -648,14 +644,14 @@
             return false;
         }
 
-        private void ProjectEvents(string owningTypeName, JavaScriptObject target, JavaScriptContext engine, IEnumerable<EventInfo> events, JavaScriptProjection baseTypeProjection, bool instance)
+        private void ProjectEvents(string owningTypeName, JavaScriptObject target, JavaScriptContext context, IEnumerable<EventInfo> events, JavaScriptProjection baseTypeProjection, bool instance)
         {
             var eventsArray = events.ToArray();
             var eventsLookup = eventsArray.ToDictionary(ei => ei.Name.ToLower());
             // General approach here
             // if there is a base thing, invoke that
             // for each event, register a delegate that marshals it back to JavaScript
-            var add = engine.CreateFunction((eng, ctor, thisObj, args) =>
+            var add = context.CreateFunction((eng, ctor, thisObj, args) =>
             {
                 bool callBase = instance && (baseTypeProjection?.HasInstanceEvents ?? false);
                 var @this = thisObj as JavaScriptObject;
@@ -718,7 +714,7 @@
             // Avoid race condition in which m_projectionTypes has had projection removed
             m_projectionTypes[t] = projection;
 
-            var eng = GetEngineAndClaimContext();
+            var eng = GetContextAndSetCurrent();
             var result = eng.CreateExternalObject(target, externalData =>
             {
                 if (Interlocked.Decrement(ref projection.RefCount) <= 0)
@@ -841,7 +837,7 @@
                 return;
             if (registration.Item2 == null) // synchronization context
             {
-                var eng = registration.Item1.GetEngine();
+                var eng = registration.Item1.GetContext();
                 using (var context = eng.AcquireExecutionContext())
                 {
                     var jsObj = eng.CreateObject();
@@ -857,7 +853,7 @@
             {
                 registration.Item2.Post((s) =>
                 {
-                    var eng = registration.Item1.GetEngine();
+                    var eng = registration.Item1.GetContext();
                     using (var context = eng.AcquireExecutionContext())
                     {
                         var jsObj = eng.CreateObject();

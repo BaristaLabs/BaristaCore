@@ -68,13 +68,13 @@
 			{
 				return NativeMethods.JsCreatePropertyIdUtf8(name, length, out propertyId);
 			}
-			public JsErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyId propertyId, out byte[] buffer, UIntPtr bufferSize, out UIntPtr length)
+			public JsErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyId propertyId, byte[] buffer, UIntPtr bufferSize, out UIntPtr length)
 			{
-				return NativeMethods.JsCopyPropertyIdUtf8(propertyId, out buffer, bufferSize, out length);
+				return NativeMethods.JsCopyPropertyIdUtf8(propertyId, buffer, bufferSize, out length);
 			}
-			public JsErrorCode JsSerialize(JavaScriptValueSafeHandle script, out byte[] buffer, ref uint bufferSize, JsParseScriptAttributes Name)
+			public JsErrorCode JsSerialize(JavaScriptValueSafeHandle script, byte[] buffer, ref ulong bufferSize, JsParseScriptAttributes parseAttributes)
 			{
-				return NativeMethods.JsSerialize(script, out buffer, ref bufferSize, Name);
+				return NativeMethods.JsSerialize(script, buffer, ref bufferSize, parseAttributes);
 			}
 			public JsErrorCode JsParseSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result)
 			{
@@ -516,10 +516,10 @@
 				internal static extern JsErrorCode JsCreatePropertyIdUtf8(byte[] name, UIntPtr length, out JavaScriptPropertyId propertyId);
 
 				[DllImport(DllName)]
-				internal static extern JsErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyId propertyId, out byte[] buffer, UIntPtr bufferSize, out UIntPtr length);
+				internal static extern JsErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyId propertyId, byte[] buffer, UIntPtr bufferSize, out UIntPtr length);
 
 				[DllImport(DllName)]
-				internal static extern JsErrorCode JsSerialize(JavaScriptValueSafeHandle script, out byte[] buffer, ref uint bufferSize, JsParseScriptAttributes Name);
+				internal static extern JsErrorCode JsSerialize(JavaScriptValueSafeHandle script, byte[] buffer, ref ulong bufferSize, JsParseScriptAttributes parseAttributes);
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsParseSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);

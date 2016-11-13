@@ -8,15 +8,15 @@
     {
         private Lazy<uint> m_length;
 
-        internal JavaScriptArrayBuffer(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine) :
-            base(handle, type, engine)
+        internal JavaScriptArrayBuffer(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext context) :
+            base(handle, type, context)
         {
             m_length = new Lazy<uint>(GetLength);
         }
 
         private uint GetLength()
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             byte[] buffer;
             uint len;
             Errors.ThrowIfIs(m_api.JsGetArrayBufferStorage(m_handle, out buffer, out len));
@@ -34,7 +34,7 @@
 
         public Stream GetUnderlyingMemory()
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             byte[] buffer;
             uint len;
             Errors.ThrowIfIs(m_api.JsGetArrayBufferStorage(m_handle, out buffer, out len));
@@ -46,7 +46,7 @@
 
         internal Tuple<byte[], uint> GetUnderlyingMemoryInfo()
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             byte[] buffer;
             uint len;
             Errors.ThrowIfIs(m_api.JsGetArrayBufferStorage(m_handle, out buffer, out len));

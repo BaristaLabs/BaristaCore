@@ -11,38 +11,38 @@
     {
         internal JavaScriptValueSafeHandle m_handle;
         internal JavaScriptValueType m_type;
-        internal WeakReference<JavaScriptContext> m_engine;
+        internal WeakReference<JavaScriptContext> m_context;
         internal IChakraApi m_api;
 
-        internal JavaScriptContext GetEngine()
+        internal JavaScriptContext GetContext()
         {
             JavaScriptContext result;
-            if (!m_engine.TryGetTarget(out result))
+            if (!m_context.TryGetTarget(out result))
                 throw new ObjectDisposedException(nameof(JavaScriptContext));
 
             return result;
         }
 
-        internal JavaScriptValue(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine)
+        internal JavaScriptValue(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext context)
         {
             Debug.Assert(handle != null);
-            Debug.Assert(engine != null);
+            Debug.Assert(context != null);
             Debug.Assert(Enum.IsDefined(typeof(JavaScriptValueType), type));
-            handle.SetEngine(engine);
-            m_api = engine.Api;
+            handle.SetContext(context);
+            m_api = context.Api;
 
             uint count;
             Errors.ThrowIfIs(m_api.JsAddRef(handle.DangerousGetHandle(), out count));
 
             m_handle = handle;
             m_type = type;
-            m_engine = new WeakReference<JavaScriptContext>(engine);
+            m_context = new WeakReference<JavaScriptContext>(context);
         }
 
         public override string ToString()
         {
-            var engine = GetEngine();
-            return engine.Converter.ToString(this);
+            var context = GetContext();
+            return context.Converter.ToString(this);
         }
 
         public JavaScriptValueType Type
@@ -54,14 +54,14 @@
         {
             get
             {
-                var engine = GetEngine();
-                return engine.Converter.ToBoolean(this);
+                var context = GetContext();
+                return context.Converter.ToBoolean(this);
             }
         }
 
         public bool SimpleEquals(JavaScriptValue other)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             bool result;
             Errors.ThrowIfIs(m_api.JsEquals(m_handle, other.m_handle, out result));
 
@@ -70,7 +70,7 @@
 
         public bool StrictEquals(JavaScriptValue other)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             bool result;
             Errors.ThrowIfIs(m_api.JsStrictEquals(m_handle, other.m_handle, out result));
 
@@ -81,7 +81,7 @@
 
         public override bool TryConvert(ConvertBinder binder, out object result)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             if (binder.Type == typeof(int))
             {
                 result = eng.Converter.ToInt32(this);
@@ -108,7 +108,7 @@
 
         public override bool TryUnaryOperation(UnaryOperationBinder binder, out object result)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
 
             switch (binder.Operation)
             {

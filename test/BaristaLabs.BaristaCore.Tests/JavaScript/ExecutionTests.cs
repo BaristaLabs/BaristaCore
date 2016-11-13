@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
+    using Callbacks;
     using Extensions;
     using SafeHandles;
     using System;
@@ -99,6 +100,8 @@
 
                         UIntPtr size;
                         Errors.ThrowIfIs(ChakraApi.Instance.JsCopyString(handle, 0, -1, null, out size));
+                        if ((int)size > int.MaxValue)
+                            throw new OutOfMemoryException("Exceeded maximum string length.");
 
                         byte[] result = new byte[(int)size];
                         UIntPtr written;
@@ -127,7 +130,9 @@
                         Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf8(str, new UIntPtr((uint)str.Length), out handle));
 
                         UIntPtr size;
-                        Errors.ThrowIfIs(ChakraApi.Instance.JsCopyString(handle, 0, -1, null, out size));
+                        Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf8(handle, null, UIntPtr.Zero, out size));
+                        if ((int)size > int.MaxValue)
+                            throw new OutOfMemoryException("Exceeded maximum string length.");
 
                         byte[] result = new byte[(int)size];
                         UIntPtr written;
@@ -156,7 +161,9 @@
                         Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf16(str, new UIntPtr((uint)str.Length * 2), out handle));
 
                         UIntPtr size;
-                        Errors.ThrowIfIs(ChakraApi.Instance.JsCopyString(handle, 0, -1, null, out size));
+                        Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf16(handle, 0, -1, null, out size));
+                        if ((int)size > int.MaxValue)
+                            throw new OutOfMemoryException("Exceeded maximum string length.");
 
                         byte[] result = new byte[(int)size];
                         UIntPtr written;
@@ -168,6 +175,51 @@
 
             
             Assert.True(str == resultStr);
+        }
+
+        [Fact]
+        public void JsParseInvocationIsCorrect()
+        {
+            var script = "(()=>{return 6*7;})()";
+            int result;
+
+            using (var rt = new JavaScriptRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (var xc = ctx.AcquireExecutionContext())
+                    {
+                        JavaScriptValueSafeHandle resultHandle;
+
+                        try
+                        {
+                            Errors.ThrowIfIs(ChakraApi.Instance.JsParseScript(script, JavaScriptSourceContext.None, null, JsParseScriptAttributes.JsParseScriptAttributeNone, out resultHandle));
+                            var fn = ctx.CreateValueFromHandle(resultHandle) as JavaScriptFunction;
+
+                            dynamic resultValue = fn.Invoke();
+                            result = (int)resultValue;
+                        }
+                        catch (Exception)
+                        {
+                            bool hasException;
+                            ChakraApi.Instance.JsHasException(out hasException);
+
+                            if (hasException)
+                            {
+                                JavaScriptValueSafeHandle jsEx;
+                                ChakraApi.Instance.JsGetAndClearException(out jsEx);
+                                dynamic ex = ctx.CreateValueFromHandle(jsEx);
+                                throw new Exception(String.Format("{0} occured at {1} {2}", (string)ex, (int)ex.line, (int)ex.column));
+                            }
+
+                            throw;
+                        }
+                    }
+                }
+            }
+
+
+            Assert.True(42 == result);
         }
 
         [Fact]
@@ -186,7 +238,7 @@
 
                         try
                         {
-                            Errors.ThrowIfIs(ChakraApi.Instance.JsRunScriptUtf8(script, JavaScriptSourceContext.None, null, JsParseScriptAttributes.JsParseScriptAttributeNone, out resultHandle));
+                            Errors.ThrowIfIs(ChakraApi.Instance.JsRunScript(script, JavaScriptSourceContext.None, null, JsParseScriptAttributes.JsParseScriptAttributeNone, out resultHandle));
                             dynamic resultValue = ctx.CreateValueFromHandle(resultHandle);
                             result = (int)resultValue;
                         }
@@ -202,7 +254,65 @@
                                 throw new Exception(String.Format("{0} occured at {1} {2}", (string)ex, (int)ex.line, (int)ex.column));
                             }
 
-                            result = 1;
+                            throw;
+                        }
+                    }
+                }
+            }
+
+
+            Assert.True(42 == result);
+        }
+
+        [Fact]
+        public void JsSerializeInvocationIsCorrect()
+        {
+            var script = "(()=>{return 6*7;})()";
+            int result;
+
+            using (var rt = new JavaScriptRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (var xc = ctx.AcquireExecutionContext())
+                    {
+                        JavaScriptValueSafeHandle resultHandle;
+
+                        string source = "[test]";
+                        JavaScriptValueSafeHandle sourceHandle;
+                        Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf8(source, new UIntPtr((uint)source.Length), out sourceHandle));
+
+                        byte[] buffer = new byte[1024];
+                        ulong bufferSize = (ulong)buffer.Length;
+                        try
+                        {
+                            Errors.ThrowIfIs(ChakraApi.Instance.JsSerializeScript(script, buffer, ref bufferSize, JsParseScriptAttributes.JsParseScriptAttributeNone));
+
+                            JavaScriptSerializedLoadScriptCallback cb = (JavaScriptSourceContext sourceContext, out JavaScriptValueSafeHandle value, out JsParseScriptAttributes parseAttributes) =>
+                            {
+                                value = null;
+                                parseAttributes = JsParseScriptAttributes.JsParseScriptAttributeNone;
+                                return true;
+                            };
+
+                            Errors.ThrowIfIs(ChakraApi.Instance.JsRunSerialized(buffer, cb, JavaScriptSourceContext.None, sourceHandle, out resultHandle));
+                            dynamic resultValue = ctx.CreateValueFromHandle(resultHandle);
+                            result = (int)resultValue;
+                        }
+                        catch (Exception)
+                        {
+                            bool hasException;
+                            ChakraApi.Instance.JsHasException(out hasException);
+
+                            if (hasException)
+                            {
+                                JavaScriptValueSafeHandle jsEx;
+                                ChakraApi.Instance.JsGetAndClearException(out jsEx);
+                                dynamic ex = ctx.CreateValueFromHandle(jsEx);
+                                throw new Exception(String.Format("{0} occured at {1} {2}", (string)ex, (int)ex.line, (int)ex.column));
+                            }
+
+                            throw;
                         }
                     }
                 }

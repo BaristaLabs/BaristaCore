@@ -6,7 +6,7 @@
 
     internal class JavaScriptValueSafeHandle : SafeHandle
     {
-        private WeakReference<JavaScriptContext> m_engine;
+        private WeakReference<JavaScriptContext> m_context;
 
         public JavaScriptValueSafeHandle() :
             base(IntPtr.Zero, ownsHandle: true)
@@ -20,11 +20,11 @@
 
         }
 
-        internal void SetEngine(JavaScriptContext engine)
+        internal void SetContext(JavaScriptContext context)
         {
-            Debug.Assert(engine != null);
+            Debug.Assert(context != null);
 
-            m_engine = new WeakReference<JavaScriptContext>(engine);
+            m_context = new WeakReference<JavaScriptContext>(context);
         }
 
         public override bool IsInvalid
@@ -37,11 +37,11 @@
 
         protected override bool ReleaseHandle()
         {
-            if (IsInvalid || m_engine == null)
+            if (IsInvalid || m_context == null)
                 return false;
 
             JavaScriptContext eng;
-            if (m_engine.TryGetTarget(out eng))
+            if (m_context.TryGetTarget(out eng))
             {
                 eng.EnqueueRelease(handle);
                 return true;

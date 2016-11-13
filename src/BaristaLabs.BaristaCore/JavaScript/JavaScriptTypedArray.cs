@@ -8,8 +8,8 @@
     public sealed class JavaScriptTypedArray : JavaScriptObject
     {
         private Lazy<JavaScriptTypedArrayType> m_arrayType;
-        internal JavaScriptTypedArray(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine) :
-            base(handle, type, engine)
+        internal JavaScriptTypedArray(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext context) :
+            base(handle, type, context)
         {
             m_arrayType = new Lazy<JavaScriptTypedArrayType>(GetArrayType);
         }
@@ -26,7 +26,7 @@
         {
             get
             {
-                var eng = GetEngine();
+                var eng = GetContext();
                 var val = GetPropertyByName("byteLength");
                 return (uint)eng.Converter.ToDouble(val);
             }
@@ -36,7 +36,7 @@
         {
             get
             {
-                var eng = GetEngine();
+                var eng = GetContext();
                 var val = GetPropertyByName("byteOffset");
                 return (uint)eng.Converter.ToDouble(val);
             }
@@ -58,7 +58,7 @@
         {
             get
             {
-                var eng = GetEngine();
+                var eng = GetContext();
                 var val = GetPropertyByName("length");
                 return (uint)eng.Converter.ToDouble(val);
             }
@@ -74,7 +74,7 @@
 
         private JavaScriptTypedArrayType GetArrayType()
         {
-            GetEngine();
+            GetContext();
             byte[] buf;
             uint len;
             JavaScriptTypedArrayType type;

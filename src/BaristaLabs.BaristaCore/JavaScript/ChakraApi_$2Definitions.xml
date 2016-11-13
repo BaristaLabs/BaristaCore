@@ -455,7 +455,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsPropertyIdRef" name="propertyId"/>
-      <Parameter type="byte[]" name="buffer" direction="Out"/>
+      <Parameter type="byte[]" name="buffer"/>
       <Parameter type="size_t" name="bufferSize"/>
       <Parameter type="size_t" name="length" direction="Out"/>
     </Parameters>
@@ -500,9 +500,9 @@
     </Description>
     <Parameters>
       <Parameter type="JsValueRef" name="script"/>
-      <Parameter type="byte[]" name="buffer" direction="Out"/>
-      <Parameter type="uint" name="bufferSize" direction="Ref"/>
-      <Parameter type="JsParseScriptAttributes" name="Name"/>
+      <Parameter type="byte[]" name="buffer"/>
+      <Parameter type="ulong" name="bufferSize" direction="Ref"/>
+      <Parameter type="JsParseScriptAttributes" name="parseAttributes"/>
     </Parameters>
   </Export>
 

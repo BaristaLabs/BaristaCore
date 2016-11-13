@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using Extensions;
     using Interfaces;
     using SafeHandles;
     using System;
@@ -10,19 +11,19 @@
     using System.Runtime.InteropServices;
 
     public delegate void JavaScriptExternalObjectFinalizeCallback(object additionalData);
-    public delegate JavaScriptValue JavaScriptCallableFunction(JavaScriptContext callingEngine, bool asConstructor, JavaScriptValue thisValue, IEnumerable<JavaScriptValue> arguments);
+    public delegate JavaScriptValue JavaScriptCallableFunction(JavaScriptContext callingContext, bool asConstructor, JavaScriptValue thisValue, IEnumerable<JavaScriptValue> arguments);
 
     public sealed class JavaScriptContext : IDisposable
     {
         private class NativeFunctionThunkData
         {
             public JavaScriptCallableFunction callback;
-            public WeakReference<JavaScriptContext> engine;
+            public WeakReference<JavaScriptContext> context;
         }
 
         private class ExternalObjectThunkData
         {
-            public WeakReference<JavaScriptContext> engine;
+            public WeakReference<JavaScriptContext> context;
             public WeakReference<object> userData;
             public JavaScriptExternalObjectFinalizeCallback callback;
         }
@@ -338,17 +339,18 @@
             return Evaluate(new ScriptSource("[eval code]", code));
         }
 
+        /// <summary>
+        /// Parses a script and returns a function representating the script contained in the specfied script source.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
         public JavaScriptFunction Evaluate(ScriptSource source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            var m_apiWin = m_api as IChakraCommonWindows;
-            if (m_apiWin == null)
-                throw new InvalidOperationException("This operation only works on windows.");
-
             JavaScriptValueSafeHandle handle;
-            Errors.ThrowIfIs(m_apiWin.JsParseScript(source.SourceText, JavaScriptSourceContext.FromIntPtr(source.SourceContextId), source.SourceLocation, out handle));
+            Errors.ThrowIfIs(m_api.JsParseScript(source, JsParseScriptAttributes.JsParseScriptAttributeNone, out handle));
 
             return CreateObjectFromHandle(handle) as JavaScriptFunction;
         }
@@ -360,29 +362,29 @@
 
         public ulong Compile(ScriptSource source, byte[] buffer)
         {
-            var m_apiWin = m_api as IChakraCommonWindows;
-            if (m_apiWin == null)
-                throw new InvalidOperationException("This operation only works on windows.");
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
             var bufferSize = (ulong)buffer.Length;
-            Errors.ThrowIfIs(m_apiWin.JsSerializeScript(source.SourceText, buffer, ref bufferSize));
+            Errors.ThrowIfIs(m_api.JsSerializeScript(source.SourceText, buffer, ref bufferSize, JsParseScriptAttributes.JsParseScriptAttributeNone));
             if (bufferSize > int.MaxValue)
                 throw new OutOfMemoryException();
 
             return bufferSize;
         }
 
+        /// <summary>
+        /// Executes a script contained in the specified script source and returns the result.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
         public JavaScriptValue Execute(ScriptSource source)
         {
-            var m_apiWin = m_api as IChakraCommonWindows;
-            if (m_apiWin == null)
-                throw new InvalidOperationException("This operation only works on windows.");
-
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
             JavaScriptValueSafeHandle handle;
-            Errors.CheckForScriptExceptionOrThrow(m_apiWin.JsRunScript(source.SourceText, JavaScriptSourceContext.FromIntPtr(source.SourceContextId), source.SourceLocation, out handle), this);
+            Errors.CheckForScriptExceptionOrThrow(m_api.JsRunScript(source, JsParseScriptAttributes.JsParseScriptAttributeNone, out handle), this);
             if (handle.IsInvalid)
                 return m_undefined;
 
@@ -419,7 +421,7 @@
             if (thunkData == null)
                 return;
 
-            var engine = thunkData.engine;
+            var context = thunkData.context;
             var callback = thunkData.callback;
             object userData;
             thunkData.userData.TryGetTarget(out userData);
@@ -428,7 +430,7 @@
                 callback(userData);
 
             JavaScriptContext eng;
-            if (engine.TryGetTarget(out eng))
+            if (context.TryGetTarget(out eng))
             {
                 eng.m_externalObjects.Remove(thunkData);
             }
@@ -436,7 +438,7 @@
 
         public JavaScriptObject CreateExternalObject(object externalData, JavaScriptExternalObjectFinalizeCallback finalizeCallback)
         {
-            ExternalObjectThunkData thunk = new ExternalObjectThunkData() { callback = finalizeCallback, engine = new WeakReference<JavaScriptContext>(this), userData = new WeakReference<object>(externalData), };
+            ExternalObjectThunkData thunk = new ExternalObjectThunkData() { callback = finalizeCallback, context = new WeakReference<JavaScriptContext>(this), userData = new WeakReference<object>(externalData), };
             GCHandle handle = GCHandle.Alloc(thunk);
             m_externalObjects.Add(thunk);
 
@@ -547,27 +549,27 @@
             {
                 GCHandle handle = GCHandle.FromIntPtr(data);
                 var nativeThunk = handle.Target as NativeFunctionThunkData;
-                JavaScriptContext engine;
-                if (!nativeThunk.engine.TryGetTarget(out engine))
+                JavaScriptContext context;
+                if (!nativeThunk.context.TryGetTarget(out context))
                     return IntPtr.Zero;
 
                 JavaScriptValue thisValue = null;
                 if (argCount > 0)
                 {
-                    thisValue = engine.CreateValueFromHandle(new JavaScriptValueSafeHandle(args[0]));
+                    thisValue = context.CreateValueFromHandle(new JavaScriptValueSafeHandle(args[0]));
                 }
 
                 try
                 {
-                    var result = nativeThunk.callback(engine, asConstructor, thisValue, args.Skip(1).Select(h => engine.CreateValueFromHandle(new JavaScriptValueSafeHandle(h))));
+                    var result = nativeThunk.callback(context, asConstructor, thisValue, args.Skip(1).Select(h => context.CreateValueFromHandle(new JavaScriptValueSafeHandle(h))));
                     return result.m_handle.DangerousGetHandle();
                 }
                 catch (Exception ex)
                 {
-                    var error = engine.CreateError(ex.Message);
-                    engine.SetException(error);
+                    var error = context.CreateError(ex.Message);
+                    context.SetException(error);
 
-                    return engine.UndefinedValue.m_handle.DangerousGetHandle();
+                    return context.UndefinedValue.m_handle.DangerousGetHandle();
                 }
             }
             catch

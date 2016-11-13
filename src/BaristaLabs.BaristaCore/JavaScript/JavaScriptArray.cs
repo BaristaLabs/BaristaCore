@@ -9,8 +9,8 @@
 
     public sealed class JavaScriptArray : JavaScriptObject, IEnumerable<JavaScriptValue>
     {
-        internal JavaScriptArray(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext engine) :
-            base(handle, type, engine)
+        internal JavaScriptArray(JavaScriptValueSafeHandle handle, JavaScriptValueType type, JavaScriptContext context) :
+            base(handle, type, context)
         {
 
         }
@@ -19,7 +19,7 @@
         {
             get
             {
-                var eng = GetEngine();
+                var eng = GetContext();
                 return eng.Converter.ToInt32(GetPropertyByName("length"));
             }
         }
@@ -32,7 +32,7 @@
 
         public JavaScriptValue GetAt(int index)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
 
             JavaScriptValueSafeHandle resultHandle;
             using (var temp = eng.Converter.FromInt32(index))
@@ -44,7 +44,7 @@
 
         public void SetAt(int index, JavaScriptValue value)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
 
             using (var temp = eng.Converter.FromInt32(index))
             {
@@ -54,7 +54,7 @@
 
         private JavaScriptFunction GetArrayBuiltin(string name)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var arrayCtor = eng.GlobalObject.GetPropertyByName("Array") as JavaScriptFunction;
             if (arrayCtor == null)
                 Errors.ThrowIOEFmt(Errors.DefaultFnOverwritten, "Array");
@@ -91,7 +91,7 @@
         }
         public int Unshift(IEnumerable<JavaScriptValue> valuesToInsert)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var fn = GetArrayBuiltin("unshift");
             return eng.Converter.ToInt32(fn.Invoke(valuesToInsert.PrependWith(this)));
         }
@@ -110,7 +110,7 @@
             if (valuesToInsert == null)
                 valuesToInsert = Enumerable.Empty<JavaScriptValue>();
 
-            var eng = GetEngine();
+            var eng = GetContext();
             var args = valuesToInsert.PrependWith(this, eng.Converter.FromDouble(index), eng.Converter.FromDouble(numberToRemove));
 
             var fn = GetArrayBuiltin("splice");
@@ -136,7 +136,7 @@
         }
         public string Join(string separator = "")
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             List<JavaScriptValue> args = new List<JavaScriptValue>();
             args.Add(this);
             if (!string.IsNullOrEmpty(separator))
@@ -149,7 +149,7 @@
         {
             var args = new List<JavaScriptValue>();
             args.Add(this);
-            args.Add(GetEngine().Converter.FromInt32(beginning));
+            args.Add(GetContext().Converter.FromInt32(beginning));
 
             return GetArrayBuiltin("slice").Invoke(args) as JavaScriptArray;
         }
@@ -157,8 +157,8 @@
         {
             var args = new List<JavaScriptValue>();
             args.Add(this);
-            args.Add(GetEngine().Converter.FromInt32(beginning));
-            args.Add(GetEngine().Converter.FromInt32(end));
+            args.Add(GetContext().Converter.FromInt32(beginning));
+            args.Add(GetContext().Converter.FromInt32(end));
 
             return GetArrayBuiltin("slice").Invoke(args) as JavaScriptArray;
         }
@@ -168,11 +168,11 @@
             args.Add(this);
             args.Add(valueToFind);
 
-            return GetEngine().Converter.ToInt32(GetArrayBuiltin("indexOf").Invoke(args));
+            return GetContext().Converter.ToInt32(GetArrayBuiltin("indexOf").Invoke(args));
         }
         public int IndexOf(JavaScriptValue valueToFind, int startIndex)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var args = new List<JavaScriptValue>();
             args.Add(this);
             args.Add(valueToFind);
@@ -182,7 +182,7 @@
         }
         public int LastIndexOf(JavaScriptValue valueToFind)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var args = new List<JavaScriptValue>();
             args.Add(this);
             args.Add(valueToFind);
@@ -191,7 +191,7 @@
         }
         public int LastIndexOf(JavaScriptValue valueToFind, int lastIndex)
         {
-            var eng = GetEngine();
+            var eng = GetContext();
             var args = new List<JavaScriptValue>();
             args.Add(this);
             args.Add(valueToFind);
@@ -220,7 +220,7 @@
             args.Add(this);
             args.Add(predicate);
 
-            return GetEngine().Converter.ToBoolean(GetArrayBuiltin("every").Invoke(args));
+            return GetContext().Converter.ToBoolean(GetArrayBuiltin("every").Invoke(args));
         }
         public bool Some(JavaScriptFunction predicate)
         {
@@ -231,7 +231,7 @@
             args.Add(this);
             args.Add(predicate);
 
-            return GetEngine().Converter.ToBoolean(GetArrayBuiltin("some").Invoke(args));
+            return GetContext().Converter.ToBoolean(GetArrayBuiltin("some").Invoke(args));
         }
         public JavaScriptArray Filter(JavaScriptFunction predicate)
         {
