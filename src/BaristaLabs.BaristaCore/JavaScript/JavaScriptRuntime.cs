@@ -1,8 +1,9 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
-    using Callbacks;
-    using Interfaces;
-    using SafeHandles;
+    using Interop;
+    using Interop.Callbacks;
+    using Interop.Interfaces;
+    using Interop.SafeHandles;
 
     using System;
     using System.Collections.Generic;

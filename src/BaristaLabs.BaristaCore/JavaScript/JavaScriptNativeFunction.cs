@@ -1,6 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
-    using SafeHandles;
+    using Interop.SafeHandles;
     using System;
     using System.Runtime.InteropServices;
 

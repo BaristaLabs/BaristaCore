@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using Interop;
     using System;
     public sealed class JavaScriptMemoryEventArgs
     {

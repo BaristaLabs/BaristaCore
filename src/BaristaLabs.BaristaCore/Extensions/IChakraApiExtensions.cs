@@ -1,8 +1,9 @@
 ﻿namespace BaristaLabs.BaristaCore.Extensions
 {
     using JavaScript;
-    using JavaScript.Interfaces;
-    using JavaScript.SafeHandles;
+    using JavaScript.Interop;
+    using JavaScript.Interop.Interfaces;
+    using JavaScript.Interop.SafeHandles;
     using System;
     using System.Runtime.InteropServices;
 

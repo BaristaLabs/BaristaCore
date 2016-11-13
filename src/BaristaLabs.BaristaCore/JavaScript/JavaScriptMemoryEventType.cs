@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore.JavaScript.Interop
 {
     /// <summary>
     ///     Allocation callback event type.

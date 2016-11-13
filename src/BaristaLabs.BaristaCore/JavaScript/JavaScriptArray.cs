@@ -1,7 +1,8 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using Extensions;
-    using SafeHandles;
+    using Interop;
+    using Interop.SafeHandles;
     using System;
     using System.Collections;
     using System.Collections.Generic;

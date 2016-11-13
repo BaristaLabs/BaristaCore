@@ -57,10 +57,10 @@
         /// <summary>
         /// Using the http context and value, obtain an appropriate value that is then formatted and returned in the http response.
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="httpContext"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public virtual Task ExecuteAsync(HttpContext context, JavaScriptValueResult result)
+        public virtual Task ExecuteAsync(HttpContext httpContext, JavaScriptValueResult result)
         {
             var value = result.Value;
             object resultValue;
@@ -82,8 +82,8 @@
                         Stack = exception.stack == context.UndefinedValue ? string.Empty : (string)exception.stack
                     };
 
-                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                    context.Response.ContentType = "text/html";
+                    httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    httpContext.Response.ContentType = "text/html";
                     resultValue = jsException;
                 }
                 else
@@ -98,14 +98,14 @@
 
                     //TODO: Allow require("http").response have first go at the actual result.
 
-                    result.OnFormatting(context);
+                    result.OnFormatting(httpContext);
                     resultValue = (string)val;
                 }
 
                 var objectType = resultValue.GetType();
 
                 var formatterContext = new OutputFormatterWriteContext(
-                    context,
+                    httpContext,
                     WriterFactory,
                     objectType,
                     resultValue);

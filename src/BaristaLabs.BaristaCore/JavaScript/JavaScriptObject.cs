@@ -1,7 +1,8 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
-    using Interfaces;
-    using SafeHandles;
+    using Interop;
+    using Interop.Interfaces;
+    using Interop.SafeHandles;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -145,49 +146,48 @@
 
         public JavaScriptValue GetPropertyByName(string propertyName)
         {
-            var m_apiWin = m_api as IChakraCommonWindows;
-            if (m_apiWin == null)
-                throw new InvalidOperationException("This operation only works on windows.");
-
             var eng = GetContext();
 
-            JavaScriptPropertyId propId;
-            Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
+            using (var propertyId = JavaScriptPropertyIdSafeHandle.FromString(propertyName))
+            {
+                JavaScriptValueSafeHandle propertyHandle;
+                Errors.ThrowIfIs(m_api.JsGetProperty(m_handle, propertyId, out propertyHandle));
 
-            JavaScriptValueSafeHandle resultHandle;
-            Errors.ThrowIfIs(m_api.JsGetProperty(m_handle, propId, out resultHandle));
-
-            return eng.CreateValueFromHandle(resultHandle);
+                return eng.CreateValueFromHandle(propertyHandle);
+            }
         }
 
         public void SetPropertyByName(string propertyName, JavaScriptValue value)
         {
-            var m_apiWin = m_api as IChakraCommonWindows;
-            if (m_apiWin == null)
-                throw new InvalidOperationException("This operation only works on windows.");
-
             var eng = GetContext();
 
-            JavaScriptPropertyId propId;
-            Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
-            Errors.ThrowIfIs(m_api.JsSetProperty(m_handle, propId, value.m_handle, false));
+            using (var propertyId = JavaScriptPropertyIdSafeHandle.FromString(propertyName))
+            { 
+                Errors.ThrowIfIs(m_api.JsSetProperty(m_handle, propertyId, value.m_handle, false));
+            }
         }
 
 
-        public void DeletePropertyByName(string propertyName)
+        public bool DeletePropertyByName(string propertyName)
         {
-            var m_apiWin = m_api as IChakraCommonWindows;
-            if (m_apiWin == null)
-                throw new InvalidOperationException("This operation only works on windows.");
-
             var eng = GetContext();
 
-            JavaScriptPropertyId propId;
-            Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
+            using (var propertyId = JavaScriptPropertyIdSafeHandle.FromString(propertyName))
+            {
+                JavaScriptValueSafeHandle result;
+                Errors.ThrowIfIs(m_api.JsDeleteProperty(m_handle, propertyId, false, out result));
 
-            JavaScriptValueSafeHandle tmpResult;
-            Errors.ThrowIfIs(m_api.JsDeleteProperty(m_handle, propId, false, out tmpResult));
-            tmpResult.Dispose();
+                try
+                {
+                    bool bResult;
+                    Errors.ThrowIfIs(m_api.JsBooleanToBool(result, out bResult));
+                    return bResult;
+                }
+                finally
+                {
+                    result.Dispose();
+                }
+            }
         }
 
         public JavaScriptValue this[string name]
@@ -206,7 +206,7 @@
         {
             var eng = GetContext();
 
-            JavaScriptPropertyId propId;
+            JavaScriptPropertyIdSafeHandle propId;
             Errors.ThrowIfIs(m_api.JsGetPropertyIdFromSymbol(symbol.m_handle, out propId));
 
             JavaScriptValueSafeHandle resultHandle;
@@ -219,7 +219,7 @@
         {
             var eng = GetContext();
 
-            JavaScriptPropertyId propId;
+            JavaScriptPropertyIdSafeHandle propId;
             Errors.ThrowIfIs(m_api.JsGetPropertyIdFromSymbol(symbol.m_handle, out propId));
             Errors.ThrowIfIs(m_api.JsSetProperty(m_handle, propId, value.m_handle, false));
         }
@@ -228,7 +228,7 @@
         {
             var eng = GetContext();
 
-            JavaScriptPropertyId propId;
+            JavaScriptPropertyIdSafeHandle propId;
             Errors.ThrowIfIs(m_api.JsGetPropertyIdFromSymbol(symbol.m_handle, out propId));
 
             JavaScriptValueSafeHandle tmpResult;
@@ -302,16 +302,14 @@
 
         public bool HasProperty(string propertyName)
         {
-            var m_apiWin = m_api as IChakraCommonWindows;
-            if (m_apiWin == null)
-                throw new InvalidOperationException("This operation only works on windows.");
+            var eng = GetContext();
 
-            JavaScriptPropertyId propId;
-            Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
-            bool has;
-            Errors.ThrowIfIs(m_api.JsHasProperty(m_handle, propId, out has));
-
-            return has;
+            using (var propertyId = JavaScriptPropertyIdSafeHandle.FromString(propertyName))
+            {
+                bool result;
+                Errors.ThrowIfIs(m_api.JsHasProperty(m_handle, propertyId, out result));
+                return result;
+            }
         }
 
         public JavaScriptObject GetOwnPropertyDescriptor(string propertyName)
@@ -321,7 +319,7 @@
                 throw new InvalidOperationException("This operation only works on windows.");
 
             var eng = GetContext();
-            JavaScriptPropertyId propId;
+            JavaScriptPropertyIdSafeHandle propId;
             Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
             JavaScriptValueSafeHandle resultHandle;
             Errors.ThrowIfIs(m_api.JsGetOwnPropertyDescriptor(m_handle, propId, out resultHandle));
@@ -340,7 +338,7 @@
 
             var eng = GetContext();
 
-            JavaScriptPropertyId propId;
+            JavaScriptPropertyIdSafeHandle propId;
             Errors.ThrowIfIs(m_apiWin.JsGetPropertyIdFromName(propertyName, out propId));
 
             bool wasSet;

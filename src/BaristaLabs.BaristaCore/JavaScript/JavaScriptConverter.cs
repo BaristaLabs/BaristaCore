@@ -1,14 +1,14 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
-    using Interfaces;
-    using SafeHandles;
+    using Interop;
+    using Interop.Interfaces;
+    using Interop.SafeHandles;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -170,13 +170,13 @@
             {
                 UIntPtr size;
                 Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf16(value.m_handle, 0, -1, null, out size));
-                if ((int)size > int.MaxValue)
+                if ((int)size * 2 > int.MaxValue)
                     throw new OutOfMemoryException("Exceeded maximum string length.");
 
-                byte[] result = new byte[(int)size];
+                byte[] result = new byte[(int)size * 2];
                 UIntPtr written;
                 Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf16(value.m_handle, 0, -1, result, out written));
-                return Encoding.Unicode.GetString(result, 0, (int)written);
+                return Encoding.Unicode.GetString(result, 0, result.Length);
             }
             else if (value.Type == JavaScriptValueType.Symbol)
             {
@@ -194,13 +194,13 @@
                 {
                     UIntPtr size;
                     Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf16(value.m_handle, 0, -1, null, out size));
-                    if ((int)size > int.MaxValue)
+                    if ((int)size * 2 > int.MaxValue)
                         throw new OutOfMemoryException("Exceeded maximum string length.");
 
-                    byte[] result = new byte[(int)size];
+                    byte[] result = new byte[(int)size * 2];
                     UIntPtr written;
                     Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf16(value.m_handle, 0, -1, result, out written));
-                    return Encoding.Unicode.GetString(result, 0, (int)written);
+                    return Encoding.Unicode.GetString(result, 0, result.Length);
                 }
             }
         }
@@ -210,7 +210,7 @@
             var eng = GetContextAndSetCurrent();
 
             JavaScriptValueSafeHandle result;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf16(value, new UIntPtr((uint)value.Length * 2), out result));
+            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf16(value, new UIntPtr((uint)value.Length), out result));
 
             return eng.CreateValueFromHandle(result);
         }
