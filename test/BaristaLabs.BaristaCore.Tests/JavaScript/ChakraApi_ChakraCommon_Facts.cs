@@ -26,7 +26,7 @@
         }
 
         [Fact]
-        public void JSRuntimeCanBeDisposed()
+        public void JsRuntimeCanBeDisposed()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
             Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
@@ -36,7 +36,7 @@
         }
 
         [Fact]
-        public void JSCollectGarbageCanBeCalled()
+        public void JsCollectGarbageCanBeCalled()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
             Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
@@ -46,7 +46,7 @@
         }
 
         [Fact]
-        public void JSRuntimeMemoryUsageCanBeRetrieved()
+        public void JsRuntimeMemoryUsageCanBeRetrieved()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
             Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
@@ -59,7 +59,7 @@
         }
 
         [Fact]
-        public void JSRuntimeMemoryLimitCanBeRetrieved()
+        public void JsRuntimeMemoryLimitCanBeRetrieved()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
             Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
@@ -72,7 +72,7 @@
         }
 
         [Fact]
-        public void JSRuntimeMemoryLimitCanBeSet()
+        public void JsRuntimeMemoryLimitCanBeSet()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
             Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
@@ -87,7 +87,7 @@
         }
 
         [Fact]
-        public void JSRuntimeMemoryAllocationCallbackIsCalled()
+        public void JsRuntimeMemoryAllocationCallbackIsCalled()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
             Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
@@ -111,7 +111,7 @@
         }
 
         [Fact]
-        public void JSRuntimeBeforeCollectCallbackIsCalled()
+        public void JsRuntimeBeforeCollectCallbackIsCalled()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
             Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
