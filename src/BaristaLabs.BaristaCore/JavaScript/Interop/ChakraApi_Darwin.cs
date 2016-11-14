@@ -474,7 +474,7 @@
 
 			private static class NativeMethods {
 
-				const string DllName = "libChakraCore.dylib";
+				const string DllName = "ChakraCore/libChakraCore.dylib";
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsInitializeModuleRecord(IntPtr referencingModule, JavaScriptValueSafeHandle normalizedSpecifier, out IntPtr moduleRecord);

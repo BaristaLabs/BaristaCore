@@ -41,9 +41,9 @@ New Capabilities:
     - [ ] ES6 Promises (Requires additional impl.)
     - [X] More performant script execution
     - [ ] Debugging Support
-  - [ ] Cross-Platform Support
-    - [ ] Provide Pre-built ChakraCore.dll binaries for 3 platforms
-    - [ ] Provide an automatic way for the .dll to be specified.
+  - [X] Cross-Platform Support
+    - [X] Provide Pre-built ChakraCore.dll binaries for 3 platforms
+    - [X] Provide an automatic way for the .dll to be specified.
   - [ ] Automatic TypeScript transpilation
   - [ ] Built-in Swagger/Apiary API mocks, ability to implement.
 

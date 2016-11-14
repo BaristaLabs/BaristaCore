@@ -3,7 +3,7 @@
 #><#
 	string ChakraApiClassName = "ChakraApi_Linux";
 	string ChakraApiInterfaces = "IChakraApi";
-	string DllName = "ChakraCore.so";
+	string DllName = "ChakraCore/ChakraCore.so";
 	Predicate<ChakraExternManager.ChakraExtern> ExternPlatformPredicate = 
 		(ex => ex.Target == ChakraExternManager.PlatformTarget.Common);
 #><#@ include file="ChakraApi_$3ApiImplementation.ttinclude"

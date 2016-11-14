@@ -3,11 +3,9 @@
   "buildOptions": {
     "debugType": "portable",
     "copyToOutput": {
-      "includeFiles": [
-          "libChakraCore.so",
-          "libChakraCore.dylib",
-        "win_x64_rel_chakracore.dll"
-      ]
+      "mappings": {
+        "ChakraCore/" : "../../lib/ChakraCore/**/*"
+      }
     }
   },
   "dependencies": {

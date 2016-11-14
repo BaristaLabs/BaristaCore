@@ -526,7 +526,7 @@
 
 			private static class NativeMethods {
 
-				const string DllName = "win_x64_rel_chakracore.dll";
+				const string DllName = "ChakraCore/ChakraCore.dll";
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsInitializeModuleRecord(IntPtr referencingModule, JavaScriptValueSafeHandle normalizedSpecifier, out IntPtr moduleRecord);

@@ -3,7 +3,7 @@
 #><#
 	string ChakraApiClassName = "ChakraApi_Windows";
 	string ChakraApiInterfaces = "IChakraApi, IChakraCommonWindows";
-	string DllName = "win_x64_rel_chakracore.dll";
+	string DllName = "ChakraCore/ChakraCore.dll";
 	Predicate<ChakraExternManager.ChakraExtern> ExternPlatformPredicate = 
 		(ex => ex.Target == ChakraExternManager.PlatformTarget.Common || ex.Target == ChakraExternManager.PlatformTarget.WindowsOnly);
 #><#@ include file="ChakraApi_$3ApiImplementation.ttinclude"

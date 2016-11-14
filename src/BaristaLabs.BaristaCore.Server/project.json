@@ -34,7 +34,12 @@
 
   "buildOptions": {
     "emitEntryPoint": true,
-    "preserveCompilationContext": true
+    "preserveCompilationContext": true,
+    "copyToOutput": {
+        "mappings": {
+        "ChakraCore/" : "../../lib/ChakraCore/**/*"
+      }
+    }
   },
 
   "runtimeOptions": {
