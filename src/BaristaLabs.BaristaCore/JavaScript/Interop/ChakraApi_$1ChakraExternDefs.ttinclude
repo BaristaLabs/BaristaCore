@@ -39,7 +39,8 @@
 		{ "BYTE", "byte[]" },
         { "size_t", "UIntPtr" },
         { "wchar_t", "string" },
-        { "char*", "byte[]"}
+        { "char*", "byte[]"},
+        { "UIntPtr", "ulong" }
     };
 
 	var hostServiceProvider = (IServiceProvider)this.Host;

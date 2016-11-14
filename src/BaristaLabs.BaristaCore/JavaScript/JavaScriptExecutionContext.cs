@@ -29,8 +29,7 @@
 
         private void Dispose(bool disposing)
         {
-            if (m_release != null)
-                m_release();
+            m_release?.Invoke();
 
             if (disposing)
             {

@@ -38,5 +38,10 @@
             Debug.Assert(error == JsErrorCode.JsNoError);
             return true;
         }
+
+        /// <summary>
+        /// Gets an invalid runtime.
+        /// </summary>
+        public static readonly JavaScriptRuntimeSafeHandle Invalid = new JavaScriptRuntimeSafeHandle();
     }
 }

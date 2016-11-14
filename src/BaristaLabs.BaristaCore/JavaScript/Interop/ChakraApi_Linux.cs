@@ -63,7 +63,7 @@
 			{
 				return NativeMethods.JsRun(script, sourceContext, sourceUrl, parseAttributes, out result);
 			}
-			public JsErrorCode JsCreatePropertyIdUtf8(byte[] name, UIntPtr length, out JavaScriptPropertyIdSafeHandle propertyId)
+			public JsErrorCode JsCreatePropertyIdUtf8(string name, UIntPtr length, out JavaScriptPropertyIdSafeHandle propertyId)
 			{
 				return NativeMethods.JsCreatePropertyIdUtf8(name, length, out propertyId);
 			}
@@ -95,15 +95,15 @@
 			{
 				return NativeMethods.JsDisposeRuntime(runtime);
 			}
-			public JsErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out UIntPtr usage)
+			public JsErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out ulong usage)
 			{
 				return NativeMethods.JsGetRuntimeMemoryUsage(runtime, out usage);
 			}
-			public JsErrorCode JsGetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, out UIntPtr memoryLimit)
+			public JsErrorCode JsGetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, out ulong memoryLimit)
 			{
 				return NativeMethods.JsGetRuntimeMemoryLimit(runtime, out memoryLimit);
 			}
-			public JsErrorCode JsSetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, UIntPtr memoryLimit)
+			public JsErrorCode JsSetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, ulong memoryLimit)
 			{
 				return NativeMethods.JsSetRuntimeMemoryLimit(runtime, memoryLimit);
 			}
@@ -516,7 +516,7 @@
 				internal static extern JsErrorCode JsRun(JavaScriptValueSafeHandle script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JsParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
 
 				[DllImport(DllName)]
-				internal static extern JsErrorCode JsCreatePropertyIdUtf8(byte[] name, UIntPtr length, out JavaScriptPropertyIdSafeHandle propertyId);
+				internal static extern JsErrorCode JsCreatePropertyIdUtf8(string name, UIntPtr length, out JavaScriptPropertyIdSafeHandle propertyId);
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize, out UIntPtr length);
@@ -540,13 +540,13 @@
 				internal static extern JsErrorCode JsDisposeRuntime(IntPtr runtime);
 
 				[DllImport(DllName)]
-				internal static extern JsErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out UIntPtr usage);
+				internal static extern JsErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out ulong usage);
 
 				[DllImport(DllName)]
-				internal static extern JsErrorCode JsGetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, out UIntPtr memoryLimit);
+				internal static extern JsErrorCode JsGetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, out ulong memoryLimit);
 
 				[DllImport(DllName)]
-				internal static extern JsErrorCode JsSetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, UIntPtr memoryLimit);
+				internal static extern JsErrorCode JsSetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, ulong memoryLimit);
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsSetRuntimeMemoryAllocationCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr extraInformation, JavaScriptMemoryAllocationCallback allocationCallback);
@@ -852,10 +852,10 @@
 				internal static extern JsErrorCode JsGetPropertyNameFromId(JavaScriptPropertyIdSafeHandle propertyId, out string name);
 
 				[DllImport(DllName, CharSet = CharSet.Unicode)]
-				internal static extern JsErrorCode JsPointerToString(string stringValue, UIntPtr stringLength, out JavaScriptValueSafeHandle value);
+				internal static extern JsErrorCode JsPointerToString(string stringValue, ulong stringLength, out JavaScriptValueSafeHandle value);
 
 				[DllImport(DllName, CharSet = CharSet.Unicode)]
-				internal static extern JsErrorCode JsStringToPointer(JavaScriptValueSafeHandle value, out IntPtr stringValue, out UIntPtr stringLength);
+				internal static extern JsErrorCode JsStringToPointer(JavaScriptValueSafeHandle value, out IntPtr stringValue, out ulong stringLength);
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsDiagStartDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagDebugEventCallback debugEventCallback, IntPtr callbackState);

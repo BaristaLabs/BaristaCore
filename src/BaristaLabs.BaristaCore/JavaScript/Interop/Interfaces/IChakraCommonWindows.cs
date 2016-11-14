@@ -262,7 +262,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JsErrorCode JsPointerToString(string stringValue, UIntPtr stringLength, out JavaScriptValueSafeHandle value);
+		JsErrorCode JsPointerToString(string stringValue, ulong stringLength, out JavaScriptValueSafeHandle value);
 
 		/// <summary>
 		///     Retrieves the string pointer of a string value.
@@ -285,7 +285,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JsErrorCode JsStringToPointer(JavaScriptValueSafeHandle value, out IntPtr stringValue, out UIntPtr stringLength);
+		JsErrorCode JsStringToPointer(JavaScriptValueSafeHandle value, out IntPtr stringValue, out ulong stringLength);
 
 	}
 }

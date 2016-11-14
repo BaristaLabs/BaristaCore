@@ -422,7 +422,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="byte[]" name="name"/>
+      <Parameter type="string" name="name"/>
       <Parameter type="size_t" name="length"/>
       <Parameter type="JsPropertyIdRef" name="propertyId" direction="Out"/>
     </Parameters>
@@ -630,7 +630,7 @@
       <Parameter type="JsRuntimeHandle" name="handle"/>
     </Parameters>
   </Export>
-
+  
   <Export name="JsDisposeRuntime" target="Common" source="ChakraCommon.h">
     <Description>
       <![CDATA[

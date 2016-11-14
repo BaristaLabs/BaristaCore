@@ -278,7 +278,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JsErrorCode JsCreatePropertyIdUtf8(byte[] name, UIntPtr length, out JavaScriptPropertyIdSafeHandle propertyId);
+		JsErrorCode JsCreatePropertyIdUtf8(string name, UIntPtr length, out JavaScriptPropertyIdSafeHandle propertyId);
 
 		/// <summary>
 		///     Copies the name associated with the property ID into a buffer.

@@ -58,7 +58,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JsErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out UIntPtr usage);
+		JsErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out ulong usage);
 
 		/// <summary>
 		///     Gets the current memory limit for a runtime.
@@ -74,7 +74,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JsErrorCode JsGetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, out UIntPtr memoryLimit);
+		JsErrorCode JsGetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, out ulong memoryLimit);
 
 		/// <summary>
 		///     Sets the current memory limit for a runtime.
@@ -99,7 +99,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JsErrorCode JsSetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, UIntPtr memoryLimit);
+		JsErrorCode JsSetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, ulong memoryLimit);
 
 		/// <summary>
 		///     Sets a memory allocation callback for specified runtime

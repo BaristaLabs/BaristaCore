@@ -52,14 +52,6 @@
         }
 
         /// <summary>
-        ///     Gets an invalid ID.
-        /// </summary>
-        public static JavaScriptPropertyIdSafeHandle Invalid
-        {
-            get { return new JavaScriptPropertyIdSafeHandle(IntPtr.Zero); }
-        }
-
-        /// <summary>
         ///     Gets the name associated with the property ID.
         /// </summary>
         /// <remarks>
@@ -96,10 +88,11 @@
         public static JavaScriptPropertyIdSafeHandle FromString(string name)
         {
             JavaScriptPropertyIdSafeHandle id;
-            var nameUtf8 = Encoding.UTF8.GetBytes(name);
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreatePropertyIdUtf8(nameUtf8, new UIntPtr((uint)nameUtf8.Length), out id));
+            Errors.ThrowIfIs(ChakraApi.Instance.JsCreatePropertyIdUtf8(name, new UIntPtr((uint)name.Length), out id));
             return id;
         }
+
+        #region Equality
 
         /// <summary>
         ///     The equality operator for property IDs.
@@ -109,6 +102,21 @@
         /// <returns>Whether the two property IDs are the same.</returns>
         public static bool operator ==(JavaScriptPropertyIdSafeHandle left, JavaScriptPropertyIdSafeHandle right)
         {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(left, default(JavaScriptPropertyIdSafeHandle)))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(right, default(JavaScriptPropertyIdSafeHandle)))
+            {
+                return false;
+            }
+
             return left.Equals(right);
         }
 
@@ -120,6 +128,21 @@
         /// <returns>Whether the two property IDs are not the same.</returns>
         public static bool operator !=(JavaScriptPropertyIdSafeHandle left, JavaScriptPropertyIdSafeHandle right)
         {
+            if (ReferenceEquals(left, right))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(left, default(JavaScriptPropertyIdSafeHandle)))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(right, default(JavaScriptPropertyIdSafeHandle)))
+            {
+                return true;
+            }
+
             return !left.Equals(right);
         }
 
@@ -130,6 +153,11 @@
         /// <returns>Whether the two property IDs are the same.</returns>
         public bool Equals(JavaScriptPropertyIdSafeHandle other)
         {
+            if (ReferenceEquals(default(JavaScriptPropertyIdSafeHandle), other))
+            {
+                return false;
+            }
+
             return handle == other.handle;
         }
 
@@ -140,13 +168,14 @@
         /// <returns>Whether the two property IDs are the same.</returns>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (ReferenceEquals(default(JavaScriptPropertyIdSafeHandle), obj))
             {
                 return false;
             }
 
             return obj is JavaScriptPropertyIdSafeHandle && Equals((JavaScriptPropertyIdSafeHandle)obj);
         }
+        #endregion
 
         /// <summary>
         ///     The hash code.
@@ -165,5 +194,10 @@
         {
             return Name;
         }
+
+        /// <summary>
+        /// Gets an invalid Property Id.
+        /// </summary>
+        public static readonly JavaScriptPropertyIdSafeHandle Invalid = new JavaScriptPropertyIdSafeHandle();
     }
 }

@@ -93,11 +93,11 @@
                 if (m_handle == null)
                     throw new ObjectDisposedException(nameof(JavaScriptRuntime));
 
-                UIntPtr result;
+                ulong result;
                 var error = m_api.JsGetRuntimeMemoryUsage(m_handle, out result);
                 Errors.ThrowIfIs(error);
 
-                return result.ToUInt64();
+                return result;
             }
         }
 
