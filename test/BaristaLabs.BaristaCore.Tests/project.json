@@ -4,6 +4,7 @@
     "debugType": "portable",
     "copyToOutput": {
       "includeFiles": [
+        "libChakraCore.dylib",
         "win_x64_rel_chakracore.dll"
       ]
     }
