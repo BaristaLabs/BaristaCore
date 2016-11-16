@@ -1027,7 +1027,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsContextRef" name="Nacontextme" direction="Out"/>
+      <Parameter type="JsContextRef" name="context" direction="Out"/>
     </Parameters>
   </Export>
 

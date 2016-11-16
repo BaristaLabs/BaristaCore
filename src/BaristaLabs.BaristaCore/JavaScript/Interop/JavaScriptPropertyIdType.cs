@@ -3,15 +3,15 @@
     /// <summary>
     ///     Type enumeration of a JavaScript property
     /// </summary>
-    internal enum JavaSciptPropertyIdType
+    internal enum JavaScriptPropertyIdType
     {
         /// <summary>
         ///     Type enumeration of a JavaScript string property
         /// </summary>
-        JavaScriptPropertyIdTypeString,
+        String,
         /// <summary>
         ///     Type enumeration of a JavaScript symbol property
         /// </summary>
-        JavaScriptPropertyIdTypeSymbol
+        Symbol
     };
 }

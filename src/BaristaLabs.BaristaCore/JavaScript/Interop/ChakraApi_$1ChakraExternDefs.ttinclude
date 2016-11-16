@@ -19,7 +19,7 @@
 		{ "JsValueRef", "JavaScriptValueSafeHandle" },
 		{ "JsValueRef[]", "IntPtr[]" },
         { "JsPropertyIdRef", "JavaScriptPropertyIdSafeHandle" },
-        { "JsPropertyIdType", "JavaSciptPropertyIdType" },
+        { "JsPropertyIdType", "JavaScriptPropertyIdType" },
         { "JsModuleRecord", "IntPtr" },
         { "JsParseModuleSourceFlags", "JavaScriptParseModuleSourceFlags" },
 		{ "JsModuleHostInfoKind", "JavaScriptModuleHostInfoKind" },

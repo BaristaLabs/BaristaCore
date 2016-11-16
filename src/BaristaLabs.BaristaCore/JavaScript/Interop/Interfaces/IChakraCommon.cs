@@ -286,7 +286,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JsErrorCode JsGetContextOfObject(JavaScriptValueSafeHandle @object, out JavaScriptContextSafeHandle Nacontextme);
+		JsErrorCode JsGetContextOfObject(JavaScriptValueSafeHandle @object, out JavaScriptContextSafeHandle context);
 
 		/// <summary>
 		///     Gets the internal data set on JsrtContext.
@@ -373,7 +373,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JsErrorCode JsGetPropertyIdType(JavaScriptPropertyIdSafeHandle propertyId, out JavaSciptPropertyIdType propertyIdType);
+		JsErrorCode JsGetPropertyIdType(JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptPropertyIdType propertyIdType);
 
 		/// <summary>
 		///     Gets the property ID associated with the symbol.

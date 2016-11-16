@@ -151,9 +151,9 @@
 			{
 				return NativeMethods.JsSetCurrentContext(context);
 			}
-			public JsErrorCode JsGetContextOfObject(JavaScriptValueSafeHandle @object, out JavaScriptContextSafeHandle Nacontextme)
+			public JsErrorCode JsGetContextOfObject(JavaScriptValueSafeHandle @object, out JavaScriptContextSafeHandle context)
 			{
-				return NativeMethods.JsGetContextOfObject(@object, out Nacontextme);
+				return NativeMethods.JsGetContextOfObject(@object, out context);
 			}
 			public JsErrorCode JsGetContextData(JavaScriptContextSafeHandle context, out IntPtr data)
 			{
@@ -175,7 +175,7 @@
 			{
 				return NativeMethods.JsGetSymbolFromPropertyId(propertyId, out symbol);
 			}
-			public JsErrorCode JsGetPropertyIdType(JavaScriptPropertyIdSafeHandle propertyId, out JavaSciptPropertyIdType propertyIdType)
+			public JsErrorCode JsGetPropertyIdType(JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptPropertyIdType propertyIdType)
 			{
 				return NativeMethods.JsGetPropertyIdType(propertyId, out propertyIdType);
 			}
@@ -582,7 +582,7 @@
 				internal static extern JsErrorCode JsSetCurrentContext(JavaScriptContextSafeHandle context);
 
 				[DllImport(DllName)]
-				internal static extern JsErrorCode JsGetContextOfObject(JavaScriptValueSafeHandle @object, out JavaScriptContextSafeHandle Nacontextme);
+				internal static extern JsErrorCode JsGetContextOfObject(JavaScriptValueSafeHandle @object, out JavaScriptContextSafeHandle context);
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsGetContextData(JavaScriptContextSafeHandle context, out IntPtr data);
@@ -600,7 +600,7 @@
 				internal static extern JsErrorCode JsGetSymbolFromPropertyId(JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptValueSafeHandle symbol);
 
 				[DllImport(DllName)]
-				internal static extern JsErrorCode JsGetPropertyIdType(JavaScriptPropertyIdSafeHandle propertyId, out JavaSciptPropertyIdType propertyIdType);
+				internal static extern JsErrorCode JsGetPropertyIdType(JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptPropertyIdType propertyIdType);
 
 				[DllImport(DllName)]
 				internal static extern JsErrorCode JsGetPropertyIdFromSymbol(JavaScriptValueSafeHandle symbol, out JavaScriptPropertyIdSafeHandle propertyId);

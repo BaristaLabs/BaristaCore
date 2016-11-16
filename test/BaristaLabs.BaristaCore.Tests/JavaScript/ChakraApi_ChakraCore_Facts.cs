@@ -3,7 +3,6 @@
     using Interop;
     using Interop.Callbacks;
     using Interop.SafeHandles;
-    using Extensions;
     using System;
     using System.Text;
     using Xunit;
