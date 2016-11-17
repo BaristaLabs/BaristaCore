@@ -1,9 +1,0 @@
-﻿<#@ template debug="false" hostspecific="true" language="C#"
-#><#@ include file="../ChakraApi_$1ChakraExternDefs.ttinclude"
-#><#
-	var SourceName = "ChakraDebug.h";
-	var InterfaceName = "IChakraDebug";
-	Predicate<ChakraExternManager.ChakraExtern> SourceFilePredicate = 
-		(ex => ex.Source == SourceName);
-#><#@ include file="ChakraApiInterface.ttinclude"
-#>

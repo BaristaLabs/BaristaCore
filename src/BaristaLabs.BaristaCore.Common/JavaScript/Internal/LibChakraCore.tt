@@ -1,0 +1,38 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#"
+#><#@ include file="$(SolutionDir)/ChakraExternDefinitions.ttinclude"
+#><#
+	string DllName = "ChakraCore/ChakraCore";
+	Predicate<ChakraExternManager.ChakraExtern> ExternPlatformPredicate = 
+		(ex => true);
+#>
+namespace BaristaLabs.BaristaCore.JavaScript.Internal
+{
+	using System;
+	using System.Runtime.InteropServices;
+
+	///<summary>
+	///	   Represents the Unmanaged ChakraCore Library
+	///</summary>
+	public static class LibChakraCore
+	{
+		const string DllName = "<#= DllName #>";
+
+<#
+	foreach (var ex in ChakraExternManager.Externs)
+	{
+#>
+<#
+		foreach(var ln in ex.Description.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None)) {
+			if (ln.Trim() == string.Empty)
+				continue;
+			WriteLine("\t\t" + ln);
+		}
+#>
+		[DllImport(DllName<# if (!String.IsNullOrWhiteSpace(ex.DllImportEx)) { #><#= ex.DllImportEx #><# } #>)]
+		public static extern JavaScriptErrorCode <#= ex.Name #>(<#= ex.NativeSignature #>);
+
+<#
+	}
+#>
+	}
+}

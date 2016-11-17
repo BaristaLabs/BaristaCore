@@ -1,0 +1,29 @@
+﻿namespace BaristaLabs.BaristaCore.JavaScript
+{
+	using Internal;
+
+    using System;
+
+    /// <summary>
+    /// <#= SourceName #> interface
+    /// </summary>
+    public interface <#= InterfaceName #>
+	{
+<#
+	foreach (var ex in ChakraExternManager.Externs.FindAll(SourceFilePredicate))
+	{
+#>
+<#
+	foreach(var ln in ex.Description.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None)) {
+		if (ln.Trim() == string.Empty)
+			continue;
+		WriteLine("\t\t" + ln);
+    }
+#>
+		JavaScriptErrorCode <#= ex.Name #>(<#= ex.NativeSignature #>);
+
+<#
+    }
+#>
+	}
+}

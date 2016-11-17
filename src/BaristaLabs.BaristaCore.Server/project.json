@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0-*",
+  "dependencies": {
+    "BaristaLabs.BaristaCore.Common": "1.0.0-*",
+    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
+    "Microsoft.AspNetCore.Mvc.Core": "1.0.1",
+    "Microsoft.AspNetCore.Mvc.Formatters.Json": "1.0.1",
+    "Microsoft.AspNetCore.Routing": "1.0.1",
+    "Microsoft.CSharp": "4.0.1",
+    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
+    "NETStandard.Library": "1.6.0",
+    "System.Dynamic.Runtime": "4.0.11",
+    "System.IO.UnmanagedMemoryStream": "4.0.1",
+    "System.Threading": "4.0.11"
+  },
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50"
+    }
+  },
+  "buildOptions": {
+    "define": []
+  }
+}

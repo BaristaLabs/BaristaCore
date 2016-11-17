@@ -1,23 +1,29 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
-    using Interop;
-    using Interop.Callbacks;
-    using Interop.SafeHandles;
+    using Internal;
+
     using System;
+    using System.Runtime.InteropServices;
     using System.Text;
     using Xunit;
-    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Direct tests against the IChakraApi layer
     /// </summary>
     public class ChakraApi_ChakraCommon_Facts
     {
+        private IJavaScriptRuntime Jsrt;
+
+        public ChakraApi_ChakraCommon_Facts()
+        {
+            Jsrt = JavaScriptRuntimeFactory.CreateChakraRuntime();
+        }
+
         [Fact]
         public void JsRuntimeCanBeConstructed()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             Assert.True(runtimeHandle.IsClosed == false);
             Assert.True(runtimeHandle.IsInvalid == false);
@@ -28,7 +34,7 @@
         public void JsRuntimeCanBeDisposed()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
             Assert.True(runtimeHandle.IsClosed == false);
             runtimeHandle.Dispose();
             Assert.True(runtimeHandle.IsClosed);
@@ -38,8 +44,8 @@
         public void JsCollectGarbageCanBeCalled()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCollectGarbage(runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
 
             runtimeHandle.Dispose();
         }
@@ -48,10 +54,10 @@
         public void JsRuntimeMemoryUsageCanBeRetrieved()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             ulong usage;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetRuntimeMemoryUsage(runtimeHandle, out usage));
+            Errors.ThrowIfError(Jsrt.JsGetRuntimeMemoryUsage(runtimeHandle, out usage));
 
             Assert.True(usage > 0);
             runtimeHandle.Dispose();
@@ -61,10 +67,10 @@
         public void JsRuntimeMemoryLimitCanBeRetrieved()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             ulong limit;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetRuntimeMemoryLimit(runtimeHandle, out limit));
+            Errors.ThrowIfError(Jsrt.JsGetRuntimeMemoryLimit(runtimeHandle, out limit));
 
             Assert.True(limit == ulong.MaxValue);
             runtimeHandle.Dispose();
@@ -74,12 +80,12 @@
         public void JsRuntimeMemoryLimitCanBeSet()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetRuntimeMemoryLimit(runtimeHandle, 64000));
+            Errors.ThrowIfError(Jsrt.JsSetRuntimeMemoryLimit(runtimeHandle, 64000));
 
             ulong limit;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetRuntimeMemoryLimit(runtimeHandle, out limit));
+            Errors.ThrowIfError(Jsrt.JsGetRuntimeMemoryLimit(runtimeHandle, out limit));
 
             Assert.True(64000 == limit);
             runtimeHandle.Dispose();
@@ -89,7 +95,7 @@
         public void JsRuntimeMemoryAllocationCallbackIsCalled()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             bool called = false;
             JavaScriptMemoryAllocationCallback callback = (IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize) =>
@@ -98,10 +104,10 @@
                 return true;
             };
 
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, callback));
+            Errors.ThrowIfError(Jsrt.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, callback));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
 
             contextHandle.Dispose();
             runtimeHandle.Dispose();
@@ -113,7 +119,7 @@
         public void JsRuntimeBeforeCollectCallbackIsCalled()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             bool called = false;
             JavaScriptBeforeCollectCallback callback = (IntPtr callbackState) =>
@@ -121,9 +127,9 @@
                 called = true;
             };
 
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, callback));
+            Errors.ThrowIfError(Jsrt.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, callback));
 
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCollectGarbage(runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
 
             runtimeHandle.Dispose();
 
@@ -139,11 +145,11 @@
         public void JsRefCanBeAdded()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             var point = new MyPoint()
             {
@@ -157,11 +163,11 @@
                 Marshal.StructureToPtr(point, ptr, false);
 
                 uint count;
-                Errors.ThrowIfIs(ChakraApi.Instance.JsAddRef(ptr, out count));
+                Errors.ThrowIfError(Jsrt.JsAddRef(ptr, out count));
 
                 Assert.True(count == 0);
 
-                Errors.ThrowIfIs(ChakraApi.Instance.JsCollectGarbage(runtimeHandle));
+                Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
             }
             finally
             {
@@ -176,11 +182,11 @@
         public void JsObjectBeforeCollectCallbackIsCalled()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             bool called = false;
             JavaScriptObjectBeforeCollectCallback callback = (IntPtr sender, IntPtr callbackState) =>
@@ -189,12 +195,15 @@
             };
 
             JavaScriptValueSafeHandle valueHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf8("superman", new UIntPtr((uint)"superman".Length), out valueHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8("superman", new UIntPtr((uint)"superman".Length), out valueHandle));
 
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback));
+            Errors.ThrowIfError(Jsrt.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback));
 
-            valueHandle.Dispose();
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCollectGarbage(runtimeHandle));
+            //Apparently if the handle is released prior to garbage collection, the callback isn't run.
+            //Thus, the following is commented out.
+            //valueHandle.Dispose();
+
+            Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
 
             Assert.True(called == true);
             
@@ -206,10 +215,10 @@
         public void JsContextCanBeCreated()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
 
             Assert.True(contextHandle.IsClosed == false);
             Assert.True(contextHandle.IsInvalid == false);
@@ -222,10 +231,10 @@
         public void JsContextCanBeReleased()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
 
             Assert.True(contextHandle.IsClosed == false);
             contextHandle.Dispose();
@@ -239,10 +248,10 @@
         public void JsCurrentContextCanBeRetrieved()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetCurrentContext(out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsGetCurrentContext(out contextHandle));
 
             Assert.True(contextHandle.IsInvalid);
 
@@ -253,15 +262,15 @@
         public void JsCurrentContextCanBeSet()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
 
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             JavaScriptContextSafeHandle currentContextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetCurrentContext(out currentContextHandle));
+            Errors.ThrowIfError(Jsrt.JsGetCurrentContext(out currentContextHandle));
             Assert.True(currentContextHandle == contextHandle);
             
             contextHandle.Dispose();
@@ -272,18 +281,18 @@
         public void JsContextOfObjectCanBeRetrieved()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             string str = "I do not fear computers. I fear the lack of them.";
             JavaScriptValueSafeHandle stringHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf8(str, new UIntPtr((uint)str.Length), out stringHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(str, new UIntPtr((uint)str.Length), out stringHandle));
 
             JavaScriptContextSafeHandle objectContextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetContextOfObject(stringHandle, out objectContextHandle));
+            Errors.ThrowIfError(Jsrt.JsGetContextOfObject(stringHandle, out objectContextHandle));
 
             Assert.True(objectContextHandle == contextHandle);
 
@@ -297,14 +306,14 @@
         public void JSContextDataCanBeRetrieved()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             IntPtr contextData;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetContextData(contextHandle, out contextData));
+            Errors.ThrowIfError(Jsrt.JsGetContextData(contextHandle, out contextData));
 
             Assert.True(contextData == IntPtr.Zero);
 
@@ -316,20 +325,20 @@
         public void JSContextDataCanBeSet()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             string myString = "How inappropriate to call this planet 'Earth', when it is clearly 'Ocean'.";
             var strPtr = Marshal.StringToHGlobalAnsi(myString);
             try
             {
-                Errors.ThrowIfIs(ChakraApi.Instance.JsSetContextData(contextHandle, strPtr));
+                Errors.ThrowIfError(Jsrt.JsSetContextData(contextHandle, strPtr));
 
                 IntPtr contextData;
-                Errors.ThrowIfIs(ChakraApi.Instance.JsGetContextData(contextHandle, out contextData));
+                Errors.ThrowIfError(Jsrt.JsGetContextData(contextHandle, out contextData));
 
                 Assert.True(contextData == strPtr);
                 Assert.True(myString == Marshal.PtrToStringAnsi(contextData));
@@ -347,14 +356,14 @@
         public void JsRuntimeCanBeRetrieved()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             JavaScriptRuntimeSafeHandle contextRuntimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetRuntime(contextHandle, out contextRuntimeHandle));
+            Errors.ThrowIfError(Jsrt.JsGetRuntime(contextHandle, out contextRuntimeHandle));
 
             Assert.True(contextRuntimeHandle == runtimeHandle);
 
@@ -366,14 +375,14 @@
         public void JsIdleCanBeCalled()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             uint nextIdleTick;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsIdle(out nextIdleTick));
+            Errors.ThrowIfError(Jsrt.JsIdle(out nextIdleTick));
 
             var nextTickTime = new DateTime(DateTime.Now.Ticks + nextIdleTick);
             Assert.True(nextTickTime > DateTime.Now);
@@ -388,23 +397,23 @@
             string propertyName = "foo";
 
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             JavaScriptValueSafeHandle propertyNameHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
 
             JavaScriptValueSafeHandle symbolHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateSymbol(propertyNameHandle, out symbolHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateSymbol(propertyNameHandle, out symbolHandle));
 
             JavaScriptPropertyIdSafeHandle propertyIdHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetPropertyIdFromSymbol(symbolHandle, out propertyIdHandle));
+            Errors.ThrowIfError(Jsrt.JsGetPropertyIdFromSymbol(symbolHandle, out propertyIdHandle));
 
             JavaScriptValueSafeHandle retrievedSymbolHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetSymbolFromPropertyId(propertyIdHandle, out retrievedSymbolHandle));
+            Errors.ThrowIfError(Jsrt.JsGetSymbolFromPropertyId(propertyIdHandle, out retrievedSymbolHandle));
 
             Assert.True(retrievedSymbolHandle != JavaScriptValueSafeHandle.Invalid);
 
@@ -422,31 +431,31 @@
             string propertyName = "foo";
 
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             JavaScriptValueSafeHandle propertyNameHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
 
             JavaScriptValueSafeHandle symbolHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateSymbol(propertyNameHandle, out symbolHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateSymbol(propertyNameHandle, out symbolHandle));
 
             JavaScriptPropertyIdSafeHandle symbolPropertyIdHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetPropertyIdFromSymbol(symbolHandle, out symbolPropertyIdHandle));
+            Errors.ThrowIfError(Jsrt.JsGetPropertyIdFromSymbol(symbolHandle, out symbolPropertyIdHandle));
 
             JavaScriptPropertyIdSafeHandle stringPropertyIdHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out stringPropertyIdHandle));
+            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out stringPropertyIdHandle));
 
             JavaScriptPropertyIdType symbolPropertyType;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetPropertyIdType(symbolPropertyIdHandle, out symbolPropertyType));
+            Errors.ThrowIfError(Jsrt.JsGetPropertyIdType(symbolPropertyIdHandle, out symbolPropertyType));
 
             Assert.True(symbolPropertyType == JavaScriptPropertyIdType.Symbol);
 
             JavaScriptPropertyIdType stringPropertyType;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetPropertyIdType(stringPropertyIdHandle, out stringPropertyType));
+            Errors.ThrowIfError(Jsrt.JsGetPropertyIdType(stringPropertyIdHandle, out stringPropertyType));
 
             Assert.True(stringPropertyType == JavaScriptPropertyIdType.String);
 
@@ -464,20 +473,20 @@
             string propertyName = "foo";
 
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             JavaScriptValueSafeHandle propertyNameHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
 
             JavaScriptValueSafeHandle symbolHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateSymbol(propertyNameHandle, out symbolHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateSymbol(propertyNameHandle, out symbolHandle));
 
             JavaScriptPropertyIdSafeHandle propertyIdHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetPropertyIdFromSymbol(symbolHandle, out propertyIdHandle));
+            Errors.ThrowIfError(Jsrt.JsGetPropertyIdFromSymbol(symbolHandle, out propertyIdHandle));
             
             Assert.True(propertyIdHandle != JavaScriptPropertyIdSafeHandle.Invalid);
 
@@ -494,17 +503,17 @@
             string propertyName = "foo";
 
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             JavaScriptValueSafeHandle propertyNameHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
 
             JavaScriptValueSafeHandle symbolHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateSymbol(propertyNameHandle, out symbolHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateSymbol(propertyNameHandle, out symbolHandle));
             
             Assert.True(symbolHandle != JavaScriptValueSafeHandle.Invalid);
 
@@ -521,39 +530,39 @@
             string toStringPropertyName = "toString";
 
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             JavaScriptValueSafeHandle propertyNameHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
 
             JavaScriptValueSafeHandle symbolHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateSymbol(propertyNameHandle, out symbolHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateSymbol(propertyNameHandle, out symbolHandle));
 
 
             JavaScriptPropertyIdSafeHandle toStringFunctionPropertyIdHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreatePropertyIdUtf8(toStringPropertyName, new UIntPtr((uint)toStringPropertyName.Length), out toStringFunctionPropertyIdHandle));
+            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(toStringPropertyName, new UIntPtr((uint)toStringPropertyName.Length), out toStringFunctionPropertyIdHandle));
 
             JavaScriptValueSafeHandle symbolObjHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsConvertValueToObject(symbolHandle, out symbolObjHandle));
+            Errors.ThrowIfError(Jsrt.JsConvertValueToObject(symbolHandle, out symbolObjHandle));
 
             JavaScriptValueSafeHandle symbolToStringFnHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetProperty(symbolObjHandle, toStringFunctionPropertyIdHandle, out symbolToStringFnHandle));
+            Errors.ThrowIfError(Jsrt.JsGetProperty(symbolObjHandle, toStringFunctionPropertyIdHandle, out symbolToStringFnHandle));
 
             JavaScriptValueSafeHandle resultHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCallFunction(symbolToStringFnHandle, new IntPtr[] { symbolObjHandle.DangerousGetHandle() }, 1, out resultHandle));
+            Errors.ThrowIfError(Jsrt.JsCallFunction(symbolToStringFnHandle, new IntPtr[] { symbolObjHandle.DangerousGetHandle() }, 1, out resultHandle));
 
             UIntPtr size;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf8(resultHandle, null, UIntPtr.Zero, out size));
+            Errors.ThrowIfError(Jsrt.JsCopyStringUtf8(resultHandle, null, UIntPtr.Zero, out size));
             if ((int)size > int.MaxValue)
                 throw new OutOfMemoryException("Exceeded maximum string length.");
 
             byte[] result = new byte[(int)size];
             UIntPtr written;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf8(resultHandle, result, size, out written));
+            Errors.ThrowIfError(Jsrt.JsCopyStringUtf8(resultHandle, result, size, out written));
             string resultStr = Encoding.UTF8.GetString(result, 0, result.Length);
 
             Assert.True(resultStr == "Symbol(foo)");
@@ -586,24 +595,24 @@ return obj;
             JavaScriptValueSafeHandle objHandle;
 
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
             try
             {
                 JavaScriptValueSafeHandle scriptHandle;
-                Errors.ThrowIfIs(ChakraApi.Instance.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero, out scriptHandle));
+                Errors.ThrowIfError(Jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero, out scriptHandle));
 
                 JavaScriptSourceContext sourceContext = new JavaScriptSourceContext();
 
                 JavaScriptValueSafeHandle sourceUrlHandle;
-                Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length), out sourceUrlHandle));
+                Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length), out sourceUrlHandle));
 
-                Errors.ThrowIfIs(ChakraApi.Instance.JsRun(scriptHandle, sourceContext, sourceUrlHandle, JsParseScriptAttributes.JsParseScriptAttributeNone, out objHandle));
+                Errors.ThrowIfError(Jsrt.JsRun(scriptHandle, sourceContext, sourceUrlHandle, JavaScriptParseScriptAttributes.None, out objHandle));
 
                 scriptHandle.Dispose();
                 sourceUrlHandle.Dispose();
@@ -614,13 +623,13 @@ return obj;
             }
 
             JavaScriptValueSafeHandle propertySymbols;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetOwnPropertySymbols(objHandle, out propertySymbols));
+            Errors.ThrowIfError(Jsrt.JsGetOwnPropertySymbols(objHandle, out propertySymbols));
 
-            JsValueType propertySymbolsType;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsGetValueType(propertySymbols, out propertySymbolsType));
+            JavaScriptValueType propertySymbolsType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(propertySymbols, out propertySymbolsType));
 
             Assert.True(propertySymbols != JavaScriptValueSafeHandle.Invalid);
-            Assert.True(propertySymbolsType == JsValueType.JsArray);
+            Assert.True(propertySymbolsType == JavaScriptValueType.Array);
 
             propertySymbols.Dispose();
             objHandle.Dispose();
@@ -635,17 +644,17 @@ return obj;
             var data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
             JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateRuntime(JsRuntimeAttributes.None, null, out runtimeHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
 
             JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfIs(ChakraApi.Instance.JsSetCurrentContext(contextHandle));
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
             IntPtr ptrScript = Marshal.StringToHGlobalAnsi(data);
             try
             {
                 JavaScriptValueSafeHandle externalArrayBufferHandle;
-                Errors.ThrowIfIs(ChakraApi.Instance.JsCreateExternalArrayBuffer(ptrScript, (uint)data.Length, null, IntPtr.Zero, out externalArrayBufferHandle));
+                Errors.ThrowIfError(Jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)data.Length, null, IntPtr.Zero, out externalArrayBufferHandle));
                 Assert.True(externalArrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
             }
             finally

@@ -1,0 +1,23 @@
+﻿namespace BaristaLabs.BaristaCore.JavaScript
+{
+	using Internal;
+
+	using System;
+	using System.Runtime.InteropServices;
+
+	public sealed class <#= JavaScriptRuntimeClassName #> : <#= JavaScriptRuntimeInterfaces #>
+	{
+<#
+	foreach (var ex in ChakraExternManager.Externs.FindAll(ExternPlatformPredicate))
+	{
+#>
+			public JavaScriptErrorCode <#= ex.Name #>(<#= ex.NativeSignature #>)
+			{
+				return LibChakraCore.<#= ex.Name #>(<#= ex.CallSignature #>);
+			}
+
+<#
+    }
+#>
+	}
+}

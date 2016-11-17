@@ -1,0 +1,136 @@
+﻿<#@ assembly name="System.Core"
+#><#@ assembly name="System.Linq"
+#><#@ import namespace="System"
+#><#@ import namespace="System.Collections.Generic"
+#><#@ import namespace="System.Linq"
+#><#@ import namespace="System.Text"
+#><#+
+public class ChakraExternManager {
+	public enum PlatformTarget {
+		Common,
+		WindowsOnly
+    }
+
+	public enum ParameterDirection {
+		In,
+		Out,
+		Ref
+    }
+
+	public class ExternParameter {
+		public string Type;
+		public string Name;
+		public ParameterDirection Direction = ParameterDirection.In;
+    }
+
+	public class ChakraExtern {
+		public string Name = "";
+		public PlatformTarget Target = PlatformTarget.Common;
+		public string Source = "";
+		public string Description = "";
+		public List<ExternParameter> Parameters = new List<ExternParameter>();
+		public string DllImportEx = "";
+
+		public Dictionary<string, string> InterfaceTypeMap = new Dictionary<string, string>() {
+			{ "JavaScriptRuntimeSafeHandle", "JavaScriptRuntime" },
+			{ "JavaScriptContextSafeHandle", "JavaScriptContext" },
+			{ "JavaScriptValueSafeHandle", "JavaScriptValue" }
+		};
+
+		public string InterfaceReturnType
+		{
+			get
+			{
+				var firstOutParameter = Parameters.FirstOrDefault( p => p.Direction == ParameterDirection.Out);
+				if (firstOutParameter != null) {
+					var type = firstOutParameter.Type;
+					if (InterfaceTypeMap.ContainsKey(type))
+						return InterfaceTypeMap[type];
+					return type;
+				}
+					
+				return "void";
+			}
+		}
+
+		public string InterfaceSignature
+		{
+			get
+			{
+				StringBuilder sb = new StringBuilder();
+				var interfaceParameters = Parameters.Where( p => p != Parameters.FirstOrDefault( p2 => p2.Direction == ParameterDirection.Out )).ToList();
+				
+				foreach(var p in interfaceParameters) {
+					if (p.Direction == ParameterDirection.Out)
+						sb.Append("out ");
+					else if (p.Direction == ParameterDirection.Ref)
+						sb.Append("ref ");
+
+					if (InterfaceTypeMap.ContainsKey(p.Type))
+						sb.Append(InterfaceTypeMap[p.Type]);
+					else
+						sb.Append(p.Type);
+
+					sb.Append(" ");
+					sb.Append(p.Name);
+
+					if (p != interfaceParameters[interfaceParameters.Count() - 1])
+						sb.Append(", ");
+                }
+
+				return sb.ToString();
+			}
+		}
+
+		public string NativeSignature
+		{
+			get
+			{
+				StringBuilder sb = new StringBuilder();
+				foreach(var p in Parameters) {
+					if (p.Direction == ParameterDirection.Out)
+						sb.Append("out ");
+					else if (p.Direction == ParameterDirection.Ref)
+						sb.Append("ref ");
+
+					sb.Append(p.Type);
+					sb.Append(" ");
+					sb.Append(p.Name);
+
+					if (p != Parameters[Parameters.Count - 1])
+						sb.Append(", ");
+                }
+
+				return sb.ToString();
+            }
+        }
+
+		public string CallSignature
+        {
+			get
+			{
+				StringBuilder sb = new StringBuilder();
+				foreach(var p in Parameters) {
+					if (p.Direction == ParameterDirection.Out)
+						sb.Append("out ");
+					else if (p.Direction == ParameterDirection.Ref)
+						sb.Append("ref ");
+
+					sb.Append(p.Name);
+
+					if (p != Parameters[Parameters.Count - 1])
+						sb.Append(", ");
+                }
+
+				return sb.ToString();
+            }
+        }
+
+		public List<ExternParameter> GetOutParameters() {
+			return Parameters.FindAll( p => p.Direction == ParameterDirection.Out);
+        }
+    }
+
+	public static List<ChakraExtern> Externs = new List<ChakraExtern>();
+}
+#>
