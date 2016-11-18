@@ -15,7 +15,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
 	///</summary>
 	public static class LibChakraCore
 	{
-		const string DllName = "<#= DllName #>";
+		private const string DllName = "<#= DllName #>";
 
 <#
 	foreach (var ex in ChakraExternManager.Externs)

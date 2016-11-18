@@ -8,7 +8,7 @@
 	///</summary>
 	public static class LibChakraCore
 	{
-		const string DllName = "ChakraCore/libChakraCore";
+		private const string DllName = "ChakraCore/libChakraCore";
 
 		/// <summary>
 		///     Initialize a ModuleRecord from host
