@@ -842,7 +842,7 @@
 /// <remarks>
 ///     Removes a reference to a <c>context</c> handle that was created by <c>JsAddRef</c>.
 /// </remarks>
-/// <param name="value">The object to add a reference to.</param>
+/// <param name="context">The object to add a reference to.</param>
 /// <param name="count">The object's new reference count (can pass in null).</param>
 /// <returns>
 ///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.

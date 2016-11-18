@@ -10,7 +10,7 @@
         /// <summary>
         /// The context.
         /// </summary>
-        private readonly IntPtr context;
+        private readonly IntPtr m_context;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="JavaScriptSourceContext"/> struct.
@@ -18,16 +18,13 @@
         /// <param name="context">The context.</param>
         private JavaScriptSourceContext(IntPtr context)
         {
-            this.context = context;
+            m_context = context;
         }
 
         /// <summary>
         ///     Gets an empty source context.
         /// </summary>
-        public static JavaScriptSourceContext None
-        {
-            get { return new JavaScriptSourceContext(new IntPtr(-1)); }
-        }
+        public static JavaScriptSourceContext None = new JavaScriptSourceContext(new IntPtr(-1));
 
         /// <summary>
         ///     The equality operator for source contexts.
@@ -59,7 +56,7 @@
         /// <returns>A new source context that reflects the subtraction of the offset from the context.</returns>
         public static JavaScriptSourceContext operator -(JavaScriptSourceContext context, int offset)
         {
-            return FromIntPtr(context.context - offset);
+            return FromIntPtr(context.m_context - offset);
         }
 
         /// <summary>
@@ -80,7 +77,7 @@
         /// <returns>A new source context that reflects the decrementing of the context.</returns>
         public static JavaScriptSourceContext operator --(JavaScriptSourceContext context)
         {
-            return FromIntPtr(context.context - 1);
+            return FromIntPtr(context.m_context - 1);
         }
 
         /// <summary>
@@ -101,7 +98,7 @@
         /// <returns>A new source context that reflects the addition of the offset to the context.</returns>
         public static JavaScriptSourceContext operator +(JavaScriptSourceContext context, int offset)
         {
-            return FromIntPtr(context.context + offset);
+            return FromIntPtr(context.m_context + offset);
         }
 
         /// <summary>
@@ -122,7 +119,7 @@
         /// <returns>A new source context that reflects the incrementing of the context.</returns>
         public static JavaScriptSourceContext operator ++(JavaScriptSourceContext context)
         {
-            return FromIntPtr(context.context + 1);
+            return FromIntPtr(context.m_context + 1);
         }
 
         /// <summary>
@@ -166,7 +163,7 @@
         /// <returns>Whether the two source contexts are the same.</returns>
         public bool Equals(JavaScriptSourceContext other)
         {
-            return context == other.context;
+            return m_context == other.m_context;
         }
 
         /// <summary>
@@ -190,7 +187,7 @@
         /// <returns>The hash code of the source context.</returns>
         public override int GetHashCode()
         {
-            return context.ToInt32();
+            return m_context.ToInt32();
         }
     }
 }

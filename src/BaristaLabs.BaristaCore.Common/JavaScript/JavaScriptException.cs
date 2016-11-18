@@ -35,8 +35,8 @@
         /// <summary>
         ///     Initializes a new instance of the <see cref="JavaScriptException"/> class. 
         /// </summary>
-        /// <param name="info">The serialization info.</param>
-        /// <param name="context">The streaming context.</param>
+        /// <param name="message">the error message</param>
+        /// <param name="innerException">An inner exception</param>
         protected JavaScriptException(string message, Exception innerException) :
             base(message, innerException)
         {
