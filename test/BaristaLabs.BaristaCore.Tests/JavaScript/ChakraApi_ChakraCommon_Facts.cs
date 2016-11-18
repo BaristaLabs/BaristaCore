@@ -1067,6 +1067,334 @@ return obj;
         }
 
         [Fact]
+        public void JsCanCreateObject()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle objectHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateObject(out objectHandle));
+
+            Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
+
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(objectHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.Object);
+
+            objectHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public class Foo
+        {
+            public string Bar
+            {
+                get;
+                set;
+            }
+        }
+
+        [Fact]
+        public void JsCanCreateExternalObject()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            var myFoo = new Foo();
+            int size = Marshal.SizeOf(myFoo);
+            IntPtr myFooPtr = Marshal.AllocHGlobal(size);
+            Marshal.StructureToPtr(myFoo, myFooPtr, false);
+
+            bool called = false;
+            JavaScriptObjectFinalizeCallback callback = (IntPtr ptr) =>
+            {
+                called = true;
+                Assert.True(myFooPtr == ptr);
+                Marshal.FreeHGlobal(ptr);
+            };
+
+            JavaScriptValueSafeHandle objectHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateExternalObject(myFooPtr, callback, out objectHandle));
+
+            Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
+
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(objectHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.Object);
+
+            objectHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+
+            Assert.True(called);
+        }
+
+        [Fact]
+        public void JsCanConvertValueToObject()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle numberHandle;
+            Errors.ThrowIfError(Jsrt.JsDoubleToNumber(2.71828, out numberHandle));
+
+
+            JavaScriptValueSafeHandle objectHandle;
+            Errors.ThrowIfError(Jsrt.JsConvertValueToObject(numberHandle, out objectHandle));
+
+            Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
+
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(objectHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.Object);
+
+            objectHandle.Dispose();
+            numberHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsCanGetObjectPrototype()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            string stringValue = "Just what do you think you’re doing, Dave?";
+            JavaScriptValueSafeHandle stringHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(stringValue, new UIntPtr((uint)stringValue.Length), out stringHandle));
+
+            JavaScriptValueSafeHandle objectHandle;
+            Errors.ThrowIfError(Jsrt.JsConvertValueToObject(stringHandle, out objectHandle));
+
+            JavaScriptValueSafeHandle prototypeHandle;
+            Errors.ThrowIfError(Jsrt.JsGetPrototype(objectHandle, out prototypeHandle));
+
+            Assert.True(prototypeHandle != JavaScriptValueSafeHandle.Invalid);
+
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(prototypeHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.Object);
+
+            prototypeHandle.Dispose();
+            objectHandle.Dispose();
+            stringHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsCanSetObjectPrototype()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            //Create a new mammal object to use as a prototype.
+            JavaScriptValueSafeHandle mammalHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateObject(out mammalHandle));
+
+            string isMammal = "isMammal";
+            JavaScriptPropertyIdSafeHandle isMammalPropertyHandle;
+            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(isMammal, new UIntPtr((uint)isMammal.Length), out isMammalPropertyHandle));
+
+            JavaScriptValueSafeHandle trueHandle;
+            Errors.ThrowIfError(Jsrt.JsGetTrueValue(out trueHandle));
+
+            //Set the prototype of cat to be mammal.
+            Errors.ThrowIfError(Jsrt.JsSetProperty(mammalHandle, isMammalPropertyHandle, trueHandle, false));
+
+            JavaScriptValueSafeHandle catHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateObject(out catHandle));
+            
+            Errors.ThrowIfError(Jsrt.JsSetPrototype(catHandle, mammalHandle));
+
+            //Assert that the prototype of cat is mammal, and that cat now contains a isMammal property set to true.
+            JavaScriptValueSafeHandle catPrototypeHandle;
+            Errors.ThrowIfError(Jsrt.JsGetPrototype(catHandle, out catPrototypeHandle));
+
+            Assert.True(catPrototypeHandle == mammalHandle);
+
+            JavaScriptValueSafeHandle catIsMammalHandle;
+            Errors.ThrowIfError(Jsrt.JsGetProperty(catHandle, isMammalPropertyHandle, out catIsMammalHandle));
+
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(catIsMammalHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.Boolean);
+
+            bool catIsMammal;
+            Errors.ThrowIfError(Jsrt.JsBooleanToBool(catIsMammalHandle, out catIsMammal));
+
+            Assert.True(catIsMammal);
+
+            mammalHandle.Dispose();
+            isMammalPropertyHandle.Dispose();
+            trueHandle.Dispose();
+            catHandle.Dispose();
+            catPrototypeHandle.Dispose();
+            catIsMammalHandle.Dispose();
+            //Whew!
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsCanDetermineInstanceOf()
+        {
+            var script = @"
+function Mammal() {
+  this.isMammal = 'yes';
+}
+
+function MammalSpecies(sMammalSpecies) {
+  this.species = sMammalSpecies;
+}
+
+MammalSpecies.prototype = new Mammal();
+MammalSpecies.prototype.constructor = MammalSpecies;
+
+var oCat = new MammalSpecies('Felis');
+";
+            var sourceUrl = "[eval code]";
+            JavaScriptValueSafeHandle objHandle;
+
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
+            try
+            {
+                JavaScriptValueSafeHandle scriptHandle;
+                Errors.ThrowIfError(Jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero, out scriptHandle));
+
+                JavaScriptSourceContext sourceContext = new JavaScriptSourceContext();
+
+                JavaScriptValueSafeHandle sourceUrlHandle;
+                Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length), out sourceUrlHandle));
+
+                Errors.ThrowIfError(Jsrt.JsRun(scriptHandle, sourceContext, sourceUrlHandle, JavaScriptParseScriptAttributes.None, out objHandle));
+
+                scriptHandle.Dispose();
+                sourceUrlHandle.Dispose();
+            }
+            finally
+            {
+                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
+            }
+
+            JavaScriptPropertyIdSafeHandle oCatPropertyHandle;
+            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8("oCat", new UIntPtr((uint)"oCat".Length), out oCatPropertyHandle));
+
+            JavaScriptPropertyIdSafeHandle fnMammalSpeciesPropertyHandle;
+            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8("MammalSpecies", new UIntPtr((uint)"MammalSpecies".Length), out fnMammalSpeciesPropertyHandle));
+
+
+            JavaScriptValueSafeHandle globalHandle;
+            Errors.ThrowIfError(Jsrt.JsGetGlobalObject(out globalHandle));
+
+            JavaScriptValueSafeHandle fnMammalSpeciesHandle;
+            Errors.ThrowIfError(Jsrt.JsGetProperty(globalHandle, fnMammalSpeciesPropertyHandle, out fnMammalSpeciesHandle));
+
+            JavaScriptValueSafeHandle oCatHandle;
+            Errors.ThrowIfError(Jsrt.JsGetProperty(globalHandle, oCatPropertyHandle, out oCatHandle));
+
+            bool result;
+            Errors.ThrowIfError(Jsrt.JsInstanceOf(oCatHandle, fnMammalSpeciesHandle, out result));
+
+            Assert.True(result);
+
+            oCatPropertyHandle.Dispose();
+            fnMammalSpeciesPropertyHandle.Dispose();
+
+            oCatHandle.Dispose();
+            fnMammalSpeciesHandle.Dispose();
+            globalHandle.Dispose();
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsCanDetermineIfObjectIsExtensible()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle objectHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateObject(out objectHandle));
+
+
+            bool isExtensible;
+            Errors.ThrowIfError(Jsrt.JsGetExtensionAllowed(objectHandle, out isExtensible));
+
+            Assert.True(isExtensible);
+
+            objectHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsCanMakeObjectNonExtensible()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle objectHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateObject(out objectHandle));
+
+            Errors.ThrowIfError(Jsrt.JsPreventExtension(objectHandle));
+
+            bool isExtensible;
+            Errors.ThrowIfError(Jsrt.JsGetExtensionAllowed(objectHandle, out isExtensible));
+
+            Assert.False(isExtensible);
+
+            objectHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
         public void JsExternalArrayBufferCanBeCreated()
         {
             var data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
