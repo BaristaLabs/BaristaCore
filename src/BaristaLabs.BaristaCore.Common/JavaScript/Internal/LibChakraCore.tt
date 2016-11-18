@@ -1,7 +1,7 @@
 ﻿<#@ template debug="false" hostspecific="true" language="C#"
 #><#@ include file="$(SolutionDir)/ChakraExternDefinitions.ttinclude"
 #><#
-	string DllName = "ChakraCore/ChakraCore";
+	string DllName = "ChakraCore/libChakraCore";
 	Predicate<ChakraExternManager.ChakraExtern> ExternPlatformPredicate = 
 		(ex => true);
 #>

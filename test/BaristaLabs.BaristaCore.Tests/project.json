@@ -9,7 +9,6 @@
       }
     }
   },
-
   "dependencies": {
     "BaristaLabs.BaristaCore.Common": "1.0.0-*",
     "System.Runtime.Serialization.Primitives": "4.3.0",
