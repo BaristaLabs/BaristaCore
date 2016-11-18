@@ -38,8 +38,8 @@
         /// <summary>
         ///     Initializes a new instance of the <see cref="JavaScriptScriptException"/> class.
         /// </summary>
-        /// <param name="info">The serialization info.</param>
-        /// <param name="context">The streaming context.</param>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         private JavaScriptScriptException(string message, Exception innerException) :
             base(message, innerException)
         {
@@ -109,16 +109,16 @@
         }
 
         #region IDisposable implementation
-        private bool disposedValue = false; // To detect redundant calls
+        private bool m_disposedValue = false; // To detect redundant calls
 
         private void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!m_disposedValue)
             {
                 if (disposing)
                 {
                     m_error.Dispose();
-                    disposedValue = true;
+                    m_disposedValue = true;
                 }
             }
         }

@@ -10,7 +10,7 @@
         /// <summary>
         /// The error code.
         /// </summary>
-        private readonly JavaScriptErrorCode code;
+        private readonly JavaScriptErrorCode m_code;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="JavaScriptException"/> class. 
@@ -29,7 +29,7 @@
         public JavaScriptException(JavaScriptErrorCode code, string message) :
             base(message)
         {
-            this.code = code;
+            this.m_code = code;
         }
 
         /// <summary>
@@ -42,7 +42,7 @@
         {
             if (message != null)
             {
-                code = (JavaScriptErrorCode)base.HResult;
+                m_code = (JavaScriptErrorCode)HResult;
             }
         }
 
@@ -63,7 +63,7 @@
         /// </summary>
         public JavaScriptErrorCode ErrorCode
         {
-            get { return code; }
+            get { return m_code; }
         }
     }
 }

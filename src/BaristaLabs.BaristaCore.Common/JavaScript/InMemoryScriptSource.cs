@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using System;
+    using System.Threading.Tasks;
+
     public class InMemoryScriptSource : IScriptSource
     {
         private readonly IntPtr m_cookie;

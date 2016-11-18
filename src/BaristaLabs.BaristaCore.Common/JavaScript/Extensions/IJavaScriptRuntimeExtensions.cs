@@ -5,8 +5,10 @@
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
 
-    internal static class IChakraApiExtensions
+    internal static class IJavaScriptRuntimeExtensions
     {
+        private const string EvalSourceUrl = "[eval code]";
+
         /// <summary>
         /// Parses a script and returns a function representing a script contained in the specified script source.
         /// </summary>
@@ -43,7 +45,7 @@
         /// <remarks>
         ///     This extension method exists for simplicity. Often, the
         /// </remarks>
-        /// <param name="api"></param>
+        /// <param name="jsrt"></param>
         /// <param name="script"></param>
         /// <param name="sourceContext"></param>
         /// <param name="sourceUrl"></param>
@@ -65,8 +67,7 @@
 
             if (sourceUrl == null)
             {
-                string strSourceUrl = "[eval code]";
-                Errors.ThrowIfError(jsrt.JsCreateStringUtf8(strSourceUrl, new UIntPtr((uint)strSourceUrl.Length), out sourceUrl));
+                Errors.ThrowIfError(jsrt.JsCreateStringUtf8(EvalSourceUrl, new UIntPtr((uint)EvalSourceUrl.Length), out sourceUrl));
                 createdSourceUrl = true;
             }
 
@@ -97,10 +98,9 @@
         /// <summary>
         /// Executes a script contained in the specified script source.
         /// </summary>
-        /// <param name="api"></param>
+        /// <param name="jsrt"></param>
         /// <param name="scriptSource"></param>
         /// <param name="attributes"></param>
-        /// <param name="result"></param>
         /// <returns></returns>
         public static async Task<JavaScriptValueSafeHandle> JsRunScriptAsync(this IJavaScriptRuntime jsrt, IScriptSource scriptSource, JavaScriptParseScriptAttributes attributes)
         {
@@ -131,7 +131,7 @@
         /// <remarks>
         ///     This extension method exists for simplicity. Often, the
         /// </remarks>
-        /// <param name="api"></param>
+        /// <param name="jsrt"></param>
         /// <param name="script"></param>
         /// <param name="sourceContext"></param>
         /// <param name="sourceUrl"></param>
@@ -140,8 +140,8 @@
         /// <returns></returns>
         public static JavaScriptErrorCode JsRunScript(this IJavaScriptRuntime jsrt, string script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result)
         {
-            IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
-            bool createdSourceUrl = false;
+            var ptrScript = Marshal.StringToHGlobalAnsi(script);
+            var createdSourceUrl = false;
 
             JavaScriptValueSafeHandle scriptHandle;
             Errors.ThrowIfError(jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero, out scriptHandle));
@@ -153,8 +153,7 @@
 
             if (sourceUrl == null)
             {
-                string strSourceUrl = "[eval code]";
-                Errors.ThrowIfError(jsrt.JsCreateStringUtf8(strSourceUrl, new UIntPtr((uint)strSourceUrl.Length), out sourceUrl));
+                Errors.ThrowIfError(jsrt.JsCreateStringUtf8(EvalSourceUrl, new UIntPtr((uint)EvalSourceUrl.Length), out sourceUrl));
                 createdSourceUrl = true;
             }
 
@@ -185,7 +184,7 @@
         /// <summary>
         /// Serializes a parsed script to a buffer that can be reused.
         /// </summary>
-        /// <param name="api"></param>
+        /// <param name="jsrt"></param>
         /// <param name="script"></param>
         /// <param name="buffer"></param>
         /// <param name="bufferSize"></param>

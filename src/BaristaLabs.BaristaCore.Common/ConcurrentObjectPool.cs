@@ -17,7 +17,7 @@
         public ConcurrentObjectPool(Func<T> objectGenerator, int boundedCapacity, int initializeCount)
         {
             if (objectGenerator == null)
-                throw new ArgumentNullException("objectGenerator");
+                throw new ArgumentNullException(nameof(objectGenerator));
 
             m_pool = new BlockingCollection<T>(new ConcurrentBag<T>(), boundedCapacity);
             m_objectGenerator = objectGenerator;

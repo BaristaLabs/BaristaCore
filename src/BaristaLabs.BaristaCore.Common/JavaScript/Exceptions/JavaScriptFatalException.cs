@@ -1,6 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
-    using Internal;
     using System;
 
     /// <summary>
@@ -30,8 +29,8 @@
         /// <summary>
         ///     Initializes a new instance of the <see cref="JavaScriptFatalException"/> class.
         /// </summary>
-        /// <param name="info">The serialization info.</param>
-        /// <param name="context">The streaming context.</param>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         private JavaScriptFatalException(string message, Exception innerException) :
             base(message, innerException)
         {

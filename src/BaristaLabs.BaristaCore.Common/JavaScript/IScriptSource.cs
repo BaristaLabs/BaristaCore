@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-
-namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Represents a source where scripts are persisted. 
     /// </summary>

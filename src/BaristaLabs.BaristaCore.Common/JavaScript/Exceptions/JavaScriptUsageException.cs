@@ -30,8 +30,8 @@
         /// <summary>
         ///     Initializes a new instance of the <see cref="JavaScriptUsageException"/> class.
         /// </summary>
-        /// <param name="info">The serialization info.</param>
-        /// <param name="context">The streaming context.</param>
+        /// <param name="message">The error message.</param>
+        /// <param name="innerException">The inner exception.</param>
         private JavaScriptUsageException(string message, Exception innerException) :
             base(message, innerException)
         {
