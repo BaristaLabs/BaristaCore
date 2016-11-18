@@ -219,7 +219,7 @@
 ///         In that case, `written` argument will return the length needed.
 ///     </para>
 ///     <para>
-///         when start is out of range or < 0, returns JsErrorInvalidArgument
+///         when start is out of range or &lt; 0, returns JsErrorInvalidArgument
 ///         and `written` will be equal to 0.
 ///         If calculated length is 0 (It can be due to string length or `start`
 ///         and length combination), then `written` will be equal to 0 and call
@@ -288,7 +288,7 @@
 ///         In that case, `written` argument will return the length needed.
 ///     </para>
 ///     <para>
-///         when start is out of range or < 0, returns JsErrorInvalidArgument
+///         when start is out of range or &lt; 0, returns JsErrorInvalidArgument
 ///         and `written` will be equal to 0.
 ///         If calculated length is 0 (It can be due to string length or `start`
 ///         and length combination), then `written` will be equal to 0 and call
@@ -457,7 +457,7 @@
       <Parameter type="JsPropertyIdRef" name="propertyId"/>
       <Parameter type="byte[]" name="buffer"/>
       <Parameter type="size_t" name="bufferSize"/>
-      <Parameter type="size_t" name="length" direction="Out"/>
+      <Parameter type="size_t" name="written" direction="Out"/>
     </Parameters>
   </Export>
 
@@ -620,7 +620,6 @@
 /// <summary>
 ///     Performs a full garbage collection.
 /// </summary>
-/// <param name="runtime">The runtime in which the garbage collection will be performed.</param>
 /// <returns>
 ///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 /// </returns>
@@ -672,7 +671,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsRuntimeHandle" name="runtime"/>
-      <Parameter type="UIntPtr" name="usage" direction="Out"/>
+      <Parameter type="UIntPtr" name="memoryUsage" direction="Out"/>
     </Parameters>
   </Export>
 
@@ -772,7 +771,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsRuntimeHandle" name="runtime"/>
-      <Parameter type="IntPtr" name="extraInformation"/>
+      <Parameter type="IntPtr" name="callbackState"/>
       <Parameter type="JavaScriptMemoryAllocationCallback" name="allocationCallback"/>
     </Parameters>
   </Export>
@@ -841,7 +840,7 @@
 ///     Releases a reference to a garbage collected object.
 /// </summary>
 /// <remarks>
-///     Removes a reference to a <c>JsRef</c> handle that was created by <c>JsAddRef</c>.
+///     Removes a reference to a <c>context</c> handle that was created by <c>JsAddRef</c>.
 /// </remarks>
 /// <param name="value">The object to add a reference to.</param>
 /// <param name="count">The object's new reference count (can pass in null).</param>
@@ -865,7 +864,7 @@
 /// <remarks>
 ///     Removes a reference to a <c>JsRef</c> handle that was created by <c>JsAddRef</c>.
 /// </remarks>
-/// <param name="value">The object to add a reference to.</param>
+/// <param name="propertyId">The object to add a reference to.</param>
 /// <param name="count">The object's new reference count (can pass in null).</param>
 /// <returns>
 ///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
@@ -873,7 +872,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsPropertyIdRef" name="context"/>
+      <Parameter type="JsPropertyIdRef" name="propertyId"/>
       <Parameter type="uint" name="count" direction="Out"/>
     </Parameters>
   </Export>
@@ -972,7 +971,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsRuntimeHandle" name="runtime"/>
-      <Parameter type="JsContextRef" name="context" direction="Out"/>
+      <Parameter type="JsContextRef" name="newContext" direction="Out"/>
     </Parameters>
   </Export>
 
@@ -991,7 +990,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsContextRef" name="context" direction="Out"/>
+      <Parameter type="JsContextRef" name="currentContext" direction="Out"/>
     </Parameters>
   </Export>
 
@@ -2086,7 +2085,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="IntPtr" name="Data"/>
+      <Parameter type="IntPtr" name="data"/>
       <Parameter type="JsTypedArrayType" name="arrayType"/>
       <Parameter type="uint" name="elementLength"/>
     </Parameters>
@@ -2487,7 +2486,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@function"/>
+      <Parameter type="JsValueRef" name="function"/>
       <Parameter type="JsValueRef[]" name="arguments"/>
       <Parameter type="ushort" name="argumentCount"/>
       <Parameter type="JsValueRef" name="result" direction="Out"/>
@@ -2513,7 +2512,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@function"/>
+      <Parameter type="JsValueRef" name="function"/>
       <Parameter type="JsValueRef[]" name="arguments"/>
       <Parameter type="ushort" name="argumentCount"/>
       <Parameter type="JsValueRef" name="result" direction="Out"/>
@@ -2542,7 +2541,7 @@
     <Parameters>
       <Parameter type="JsNativeFunction" name="nativeFunction"/>
       <Parameter type="IntPtr" name="callbackState"/>
-      <Parameter type="JsValueRef" name="@function" direction="Out"/>
+      <Parameter type="JsValueRef" name="function" direction="Out"/>
     </Parameters>
   </Export>
   
@@ -2570,7 +2569,7 @@
       <Parameter type="JsValueRef" name="name"/>
       <Parameter type="JsNativeFunction" name="nativeFunction"/>
       <Parameter type="IntPtr" name="callbackState"/>
-      <Parameter type="JsValueRef" name="@function" direction="Out"/>
+      <Parameter type="JsValueRef" name="function" direction="Out"/>
     </Parameters>
   </Export>
   

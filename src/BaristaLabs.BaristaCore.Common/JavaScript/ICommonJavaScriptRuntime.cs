@@ -25,7 +25,6 @@
 		/// <summary>
 		///     Performs a full garbage collection.
 		/// </summary>
-		/// <param name="runtime">The runtime in which the garbage collection will be performed.</param>
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
@@ -57,7 +56,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out ulong usage);
+		JavaScriptErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out ulong memoryUsage);
 
 		/// <summary>
 		///     Gets the current memory limit for a runtime.
@@ -130,7 +129,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetRuntimeMemoryAllocationCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr extraInformation, JavaScriptMemoryAllocationCallback allocationCallback);
+		JavaScriptErrorCode JsSetRuntimeMemoryAllocationCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr callbackState, JavaScriptMemoryAllocationCallback allocationCallback);
 
 		/// <summary>
 		///     Sets a callback function that is called by the runtime before garbage collection.
@@ -174,7 +173,7 @@
 		///     Releases a reference to a garbage collected object.
 		/// </summary>
 		/// <remarks>
-		///     Removes a reference to a <c>JsRef</c> handle that was created by <c>JsAddRef</c>.
+		///     Removes a reference to a <c>context</c> handle that was created by <c>JsAddRef</c>.
 		/// </remarks>
 		/// <param name="value">The object to add a reference to.</param>
 		/// <param name="count">The object's new reference count (can pass in null).</param>
@@ -189,12 +188,12 @@
 		/// <remarks>
 		///     Removes a reference to a <c>JsRef</c> handle that was created by <c>JsAddRef</c>.
 		/// </remarks>
-		/// <param name="value">The object to add a reference to.</param>
+		/// <param name="propertyId">The object to add a reference to.</param>
 		/// <param name="count">The object's new reference count (can pass in null).</param>
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsReleasePropertyId(JavaScriptPropertyIdSafeHandle context, out uint count);
+		JavaScriptErrorCode JsReleasePropertyId(JavaScriptPropertyIdSafeHandle propertyId, out uint count);
 
 		/// <summary>
 		///     Releases a reference to a garbage collected object.
@@ -255,7 +254,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateContext(JavaScriptRuntimeSafeHandle runtime, out JavaScriptContextSafeHandle context);
+		JavaScriptErrorCode JsCreateContext(JavaScriptRuntimeSafeHandle runtime, out JavaScriptContextSafeHandle newContext);
 
 		/// <summary>
 		///     Gets the current script context on the thread.
@@ -266,7 +265,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetCurrentContext(out JavaScriptContextSafeHandle context);
+		JavaScriptErrorCode JsGetCurrentContext(out JavaScriptContextSafeHandle currentContext);
 
 		/// <summary>
 		///     Sets the current script context on the thread.
@@ -913,7 +912,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr Data, JavaScriptTypedArrayType arrayType, uint elementLength);
+		JavaScriptErrorCode JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JavaScriptTypedArrayType arrayType, uint elementLength);
 
 		/// <summary>
 		///     Compare two JavaScript values for equality.
@@ -1160,7 +1159,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCallFunction(JavaScriptValueSafeHandle @function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
+		JavaScriptErrorCode JsCallFunction(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
 		///     Invokes a function as a constructor.
@@ -1175,7 +1174,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsConstructObject(JavaScriptValueSafeHandle @function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
+		JavaScriptErrorCode JsConstructObject(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
 		///     Creates a new JavaScript function.
@@ -1191,7 +1190,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateFunction(JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle @function);
+		JavaScriptErrorCode JsCreateFunction(JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle function);
 
 		/// <summary>
 		///     Creates a new JavaScript function with name.
@@ -1208,7 +1207,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateNamedFunction(JavaScriptValueSafeHandle name, JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle @function);
+		JavaScriptErrorCode JsCreateNamedFunction(JavaScriptValueSafeHandle name, JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle function);
 
 		/// <summary>
 		///     Creates a new JavaScript error object

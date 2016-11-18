@@ -145,7 +145,7 @@
 		///         In that case, `written` argument will return the length needed.
 		///     </para>
 		///     <para>
-		///         when start is out of range or < 0, returns JsErrorInvalidArgument
+		///         when start is out of range or &lt; 0, returns JsErrorInvalidArgument
 		///         and `written` will be equal to 0.
 		///         If calculated length is 0 (It can be due to string length or `start`
 		///         and length combination), then `written` will be equal to 0 and call
@@ -193,7 +193,7 @@
 		///         In that case, `written` argument will return the length needed.
 		///     </para>
 		///     <para>
-		///         when start is out of range or < 0, returns JsErrorInvalidArgument
+		///         when start is out of range or &lt; 0, returns JsErrorInvalidArgument
 		///         and `written` will be equal to 0.
 		///         If calculated length is 0 (It can be due to string length or `start`
 		///         and length combination), then `written` will be equal to 0 and call
@@ -315,7 +315,7 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize, out UIntPtr length);
+		public static extern JavaScriptErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize, out UIntPtr written);
 
 		/// <summary>
 		///     Serializes a parsed script to a buffer than can be reused.
@@ -424,7 +424,6 @@
 		/// <summary>
 		///     Performs a full garbage collection.
 		/// </summary>
-		/// <param name="runtime">The runtime in which the garbage collection will be performed.</param>
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
@@ -459,7 +458,7 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out ulong usage);
+		public static extern JavaScriptErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out ulong memoryUsage);
 
 		/// <summary>
 		///     Gets the current memory limit for a runtime.
@@ -535,7 +534,7 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsSetRuntimeMemoryAllocationCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr extraInformation, JavaScriptMemoryAllocationCallback allocationCallback);
+		public static extern JavaScriptErrorCode JsSetRuntimeMemoryAllocationCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr callbackState, JavaScriptMemoryAllocationCallback allocationCallback);
 
 		/// <summary>
 		///     Sets a callback function that is called by the runtime before garbage collection.
@@ -581,7 +580,7 @@
 		///     Releases a reference to a garbage collected object.
 		/// </summary>
 		/// <remarks>
-		///     Removes a reference to a <c>JsRef</c> handle that was created by <c>JsAddRef</c>.
+		///     Removes a reference to a <c>context</c> handle that was created by <c>JsAddRef</c>.
 		/// </remarks>
 		/// <param name="value">The object to add a reference to.</param>
 		/// <param name="count">The object's new reference count (can pass in null).</param>
@@ -597,13 +596,13 @@
 		/// <remarks>
 		///     Removes a reference to a <c>JsRef</c> handle that was created by <c>JsAddRef</c>.
 		/// </remarks>
-		/// <param name="value">The object to add a reference to.</param>
+		/// <param name="propertyId">The object to add a reference to.</param>
 		/// <param name="count">The object's new reference count (can pass in null).</param>
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName, EntryPoint = "JsRelease" )]
-		public static extern JavaScriptErrorCode JsReleasePropertyId(JavaScriptPropertyIdSafeHandle context, out uint count);
+		public static extern JavaScriptErrorCode JsReleasePropertyId(JavaScriptPropertyIdSafeHandle propertyId, out uint count);
 
 		/// <summary>
 		///     Releases a reference to a garbage collected object.
@@ -668,7 +667,7 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCreateContext(JavaScriptRuntimeSafeHandle runtime, out JavaScriptContextSafeHandle context);
+		public static extern JavaScriptErrorCode JsCreateContext(JavaScriptRuntimeSafeHandle runtime, out JavaScriptContextSafeHandle newContext);
 
 		/// <summary>
 		///     Gets the current script context on the thread.
@@ -680,7 +679,7 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsGetCurrentContext(out JavaScriptContextSafeHandle context);
+		public static extern JavaScriptErrorCode JsGetCurrentContext(out JavaScriptContextSafeHandle currentContext);
 
 		/// <summary>
 		///     Sets the current script context on the thread.
@@ -1376,7 +1375,7 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr Data, JavaScriptTypedArrayType arrayType, uint elementLength);
+		public static extern JavaScriptErrorCode JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JavaScriptTypedArrayType arrayType, uint elementLength);
 
 		/// <summary>
 		///     Compare two JavaScript values for equality.
@@ -1638,7 +1637,7 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCallFunction(JavaScriptValueSafeHandle @function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
+		public static extern JavaScriptErrorCode JsCallFunction(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
 		///     Invokes a function as a constructor.
@@ -1654,7 +1653,7 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsConstructObject(JavaScriptValueSafeHandle @function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
+		public static extern JavaScriptErrorCode JsConstructObject(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
 		///     Creates a new JavaScript function.
@@ -1671,7 +1670,7 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCreateFunction(JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle @function);
+		public static extern JavaScriptErrorCode JsCreateFunction(JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle function);
 
 		/// <summary>
 		///     Creates a new JavaScript function with name.
@@ -1689,7 +1688,7 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCreateNamedFunction(JavaScriptValueSafeHandle name, JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle @function);
+		public static extern JavaScriptErrorCode JsCreateNamedFunction(JavaScriptValueSafeHandle name, JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle function);
 
 		/// <summary>
 		///     Creates a new JavaScript error object

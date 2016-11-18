@@ -136,7 +136,7 @@
 		///         In that case, `written` argument will return the length needed.
 		///     </para>
 		///     <para>
-		///         when start is out of range or < 0, returns JsErrorInvalidArgument
+		///         when start is out of range or &lt; 0, returns JsErrorInvalidArgument
 		///         and `written` will be equal to 0.
 		///         If calculated length is 0 (It can be due to string length or `start`
 		///         and length combination), then `written` will be equal to 0 and call
@@ -182,7 +182,7 @@
 		///         In that case, `written` argument will return the length needed.
 		///     </para>
 		///     <para>
-		///         when start is out of range or < 0, returns JsErrorInvalidArgument
+		///         when start is out of range or &lt; 0, returns JsErrorInvalidArgument
 		///         and `written` will be equal to 0.
 		///         If calculated length is 0 (It can be due to string length or `start`
 		///         and length combination), then `written` will be equal to 0 and call
@@ -299,7 +299,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize, out UIntPtr length);
+		JavaScriptErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize, out UIntPtr written);
 
 		/// <summary>
 		///     Serializes a parsed script to a buffer than can be reused.
