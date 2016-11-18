@@ -34,6 +34,7 @@
             if (IsInvalid)
                 return false;
 
+            //Ensure that a context is not active, otherwise the runtime will throw a "Runtime In Use" exception.
             var error = LibChakraCore.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
             Debug.Assert(error == JavaScriptErrorCode.NoError);
 

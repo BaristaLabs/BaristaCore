@@ -33,6 +33,11 @@
             
             Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
 
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(stringHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.String);
+
             stringHandle.Dispose();
             contextHandle.Dispose();
             runtimeHandle.Dispose();
@@ -55,6 +60,11 @@
 
             Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
 
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(stringHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.String);
+
             stringHandle.Dispose();
             contextHandle.Dispose();
             runtimeHandle.Dispose();
@@ -76,6 +86,11 @@
             Errors.ThrowIfError(Jsrt.JsCreateStringUtf16(str, new UIntPtr((uint)str.Length), out stringHandle));
 
             Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
+
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(stringHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.String);
 
             stringHandle.Dispose();
             contextHandle.Dispose();
