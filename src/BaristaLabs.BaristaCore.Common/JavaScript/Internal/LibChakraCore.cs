@@ -8,6 +8,7 @@
 	///</summary>
 	public static class LibChakraCore
 	{
+	    
 		private const string DllName = "ChakraCore/libChakraCore";
 
 		/// <summary>
