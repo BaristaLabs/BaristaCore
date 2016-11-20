@@ -40,7 +40,7 @@ before_install:
       tar -xvzf dotnet_package -C $DOTNET_INSTALL_DIR;
     else
       lsb_release -a;
-      sudo sh -c 'echo "deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ yakkety main" > /etc/apt/sources.list.d/dotnetdev.list';
+      sudo sh -c 'echo "deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main" > /etc/apt/sources.list.d/dotnetdev.list';
       sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893;
       sudo apt-get update;
       sudo apt-get install dotnet-dev-1.0.0-preview2.1-003177;
@@ -65,4 +65,5 @@ install:
 
 script:
   # Run tests
-  - dotnet test -c $CONFIGURATION -f $FRAMEWORK dotnet test BaristaCore/test/BaristaLabs.BaristaCore.Tests/
+  - ls
+  - dotnet test -c $CONFIGURATION -f $FRAMEWORK dotnet test ./test/BaristaLabs.BaristaCore.Tests/
