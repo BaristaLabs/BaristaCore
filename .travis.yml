@@ -68,7 +68,7 @@ script:
   # Run tests
   - mkdir -p ./test/BaristaLabs.BaristaCore.Tests/bin/Release/netcoreapp1.0/
   - cp -arf ./lib/ ./test/BaristaLabs.BaristaCore.Tests/bin/Release/netcoreapp1.0/
-  - cp -arf ./lib/ChakraCore/ ./test/BaristaLabs.BaristaCore.Tests/bin/Release/netcoreapp1.0/
+  - cp -rf ./lib/ChakraCore/ ./test/BaristaLabs.BaristaCore.Tests/bin/Release/netcoreapp1.0/
   - ls -l ./test/BaristaLabs.BaristaCore.Tests/bin/Release/netcoreapp1.0/
   - ls -l ./test/BaristaLabs.BaristaCore.Tests/bin/Release/netcoreapp1.0/ChakraCore/
   - dotnet test -c $CONFIGURATION -f $FRAMEWORK ./test/BaristaLabs.BaristaCore.Tests/
