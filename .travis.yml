@@ -51,6 +51,8 @@ before_install:
     fi
 
 install:
+  # Copy libs into user local lib folder
+  - cp -a /lib/. /usr/local/lib/
   # Display dotnet version info
   - which dotnet;
     if [ $? -eq 0 ]; then
