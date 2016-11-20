@@ -48,6 +48,7 @@ before_install:
       sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893;
       sudo apt-get update;
       sudo apt-get install -y build-essential cmake clang-3.8 libicu-dev dotnet-dev-1.0.0-preview2.1-003177;
+      sudo cp -rf ./lib/ChakraCore/. /home/travis/bin/
     fi
 
 install:
@@ -67,8 +68,6 @@ install:
 script:
   # Run tests
   - env
-  - sudo cp -arf ./lib/ $DOTNET_INSTALL_DIR
-  - sudo cp -rf ./lib/ChakraCore/. $DOTNET_INSTALL_DIR
-  - export DYLD_LIBRARY_PATH=/usr/local/lib:${DYLD_LIBRARY_PATH}
-  - export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
+  - sudo cp -arf ./lib/ "$DOTNET_INSTALL_DIR"
+  - sudo cp -rf ./lib/ChakraCore/. "$DOTNET_INSTALL_DIR"
   - dotnet test -c $CONFIGURATION -f $FRAMEWORK ./test/BaristaLabs.BaristaCore.Tests/
