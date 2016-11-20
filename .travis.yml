@@ -1,6 +1,4 @@
-language: csharp
-mono: none
-dotnet: 1.0.0-preview2-003131
+language: generic
 
 addons:
   apt:
@@ -15,7 +13,7 @@ addons:
 matrix:
   include:
     - os: linux
-      dist: trusty
+      dist: xenial
       sudo: required
       runtime:
         - name: netcore
