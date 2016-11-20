@@ -66,13 +66,7 @@ install:
 
 script:
   # Run tests
-  - mkdir -p ./test/BaristaLabs.BaristaCore.Tests/bin/Release/netcoreapp1.0/
-  - cp -rf ./lib/ChakraCore/. ./test/BaristaLabs.BaristaCore.Tests/bin/Release/netcoreapp1.0/
-  - sudo cp -rf ./lib/ChakraCore/. $DYLD_LIBRARY_PATH
-  - sudo cp -rf ./lib/ChakraCore/. $LD_LIBRARY_PATH
-  #- ls -l ./test/BaristaLabs.BaristaCore.Tests/bin/Release/netcoreapp1.0/
-  #- export DYLD_LIBRARY_PATH=/usr/local/lib
-  #- export LD_LIBRARY_PATH=/usr/local/lib
-  - ls $DYLD_LIBRARY_PATH
-  - ls $LD_LIBRARY_PATH
+  - sudo cp -arf ./lib/ /usr/local/lib/
+  - export DYLD_LIBRARY_PATH=/usr/local/lib:${DYLD_LIBRARY_PATH}
+  - export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
   - dotnet test -c $CONFIGURATION -f $FRAMEWORK ./test/BaristaLabs.BaristaCore.Tests/
