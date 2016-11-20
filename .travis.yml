@@ -15,7 +15,7 @@ addons:
 matrix:
   include:
     - os: linux
-      dist: xenial
+      dist: trusty
       sudo: required
       runtime:
         - name: netcore
@@ -31,7 +31,6 @@ matrix:
 before_install:
   # Install OpenSSL
   - if test "$TRAVIS_OS_NAME" == "osx"; then
-      brew link --force openssl;
   - brew install openssl;
   - brew install openssl;
   - brew link --force openssl;
