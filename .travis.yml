@@ -68,9 +68,10 @@ script:
   # Run tests
   - mkdir -p ./test/BaristaLabs.BaristaCore.Tests/bin/Release/netcoreapp1.0/
   - cp -rf ./lib/ChakraCore/. ./test/BaristaLabs.BaristaCore.Tests/bin/Release/netcoreapp1.0/
-  - cp -rf ./lib/ChakraCore/. /usr/local/lib/
+  - sudo cp -rf ./lib/ChakraCore/. /usr/local/lib/
   - ls -l ./test/BaristaLabs.BaristaCore.Tests/bin/Release/netcoreapp1.0/
   - export DYLD_LIBRARY_PATH=/usr/local/lib
   - export LD_LIBRARY_PATH=/usr/local/lib
   - ls $DYLD_LIBRARY_PATH
+  - ls $LD_LIBRARY_PATH
   - dotnet test -c $CONFIGURATION -f $FRAMEWORK ./test/BaristaLabs.BaristaCore.Tests/
