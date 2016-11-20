@@ -67,4 +67,8 @@ install:
 script:
   # Run tests
   - env
+  - sudo cp -arf ./lib/ $DOTNET_INSTALL_DIR
+  - sudo cp -rf ./lib/ChakraCore/. $DOTNET_INSTALL_DIR
+  - export DYLD_LIBRARY_PATH=/usr/local/lib:${DYLD_LIBRARY_PATH}
+  - export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
   - dotnet test -c $CONFIGURATION -f $FRAMEWORK ./test/BaristaLabs.BaristaCore.Tests/
