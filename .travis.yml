@@ -66,4 +66,4 @@ install:
 script:
   # Run tests
   - ls
-  - dotnet test -c $CONFIGURATION -f $FRAMEWORK dotnet test ./test/BaristaLabs.BaristaCore.Tests/
+  - dotnet test -c $CONFIGURATION -f $FRAMEWORK ./test/BaristaLabs.BaristaCore.Tests/
