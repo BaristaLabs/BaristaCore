@@ -66,7 +66,4 @@ install:
 
 script:
   # Run tests
-  - ls -l ./lib/ChakraCore
-  - chmod +x ./lib/ChakraCore/
-  - ls -l ./lib/ChakraCore
-  - dotnet test -c $CONFIGURATION -f $FRAMEWORK ./test/BaristaLabs.BaristaCore.Tests/
+  - sudo dotnet test -c $CONFIGURATION -f $FRAMEWORK ./test/BaristaLabs.BaristaCore.Tests/
