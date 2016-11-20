@@ -4,10 +4,12 @@ addons:
   apt:
     packages:
     - gettext
+    - clang
+    - cmake
     - libcurl4-openssl-dev
     - libicu-dev
     - libssl-dev
-    - libunwind8
+    - libunwind-dev
     - zlib1g
 
 matrix:
@@ -46,7 +48,7 @@ before_install:
       sudo apt-get update;
       git clone https://github.com/Microsoft/ChakraCore;
       sudo apt-get install -y build-essential cmake clang libunwind-dev libicu-dev dotnet-dev-1.0.0-preview2.1-003177;
-      ./ChakraCore/build.sh --cxx=$cc;
+      ./ChakraCore/build.sh --cc=$cc --cxx=$cxx;
       cp -rf ./ChakraCore/BuildLinux/Release/libChakraCore.so ./lib/ChakraCore;
     fi
 
