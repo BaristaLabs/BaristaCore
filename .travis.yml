@@ -29,18 +29,14 @@ matrix:
 before_install:
   # Install OpenSSL
   - if test "$TRAVIS_OS_NAME" == "osx"; then
-  - brew install openssl;
-  - brew install openssl;
-  - brew link --force openssl;
-      # .NET Core 1.01 (LTS) SDK - Binaries Only for macOS
-  - export DOTNET_SDK_URL="https://go.microsoft.com/fwlink/?LinkID=827533";
-  - else
-      # .NET Core 1.01 (LTS) SDK for Ubuntu 16.04
-  - export DOTNET_SDK_URL="https://go.microsoft.com/fwlink/?LinkID=827536";
-  - fi
-
+      brew install openssl;
+      brew install openssl;
+      brew link --force openssl;
+      export DOTNET_SDK_URL="https://go.microsoft.com/fwlink/?LinkID=827533";
+    else
+      export DOTNET_SDK_URL="https://go.microsoft.com/fwlink/?LinkID=827536";
+    fi
   - export DOTNET_INSTALL_DIR="$PWD/.dotnetcli"
-
   # Install .NET CLI
   - mkdir $DOTNET_INSTALL_DIR
   - curl -L $DOTNET_SDK_URL -o dotnet_package
