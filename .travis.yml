@@ -18,13 +18,13 @@ matrix:
       runtime:
         - name: netcore
           version: 1
-      env: CONFIGURATION=Release FRAMEWORK=netcoreapp1.0.1
+      env: CONFIGURATION=Release FRAMEWORK=netcoreapp1.0
     - os: osx
       osx_image: xcode8.1
       runtime:
         - name: netcore
           version: 1
-      env: CONFIGURATION=Release FRAMEWORK=netcoreapp1.0.1
+      env: CONFIGURATION=Release FRAMEWORK=netcoreapp1.0
 
 before_install:
   - export DOTNET_INSTALL_DIR="$PWD/.dotnetcli"
