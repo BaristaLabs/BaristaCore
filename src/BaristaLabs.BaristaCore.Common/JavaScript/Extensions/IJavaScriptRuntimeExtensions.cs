@@ -129,7 +129,7 @@
         /// Executes a script, automatically storing the script value within an ExternalArrayBuffer.
         /// </summary>
         /// <remarks>
-        ///     This extension method exists for simplicity. Often, the
+        ///     This extension method exists for simplicity.
         /// </remarks>
         /// <param name="jsrt"></param>
         /// <param name="script"></param>
@@ -179,6 +179,65 @@
                 //Release pinned string.
                 Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
             }
+        }
+
+        /// <summary>
+        /// Executes a script, automatically storing the script value within an ExternalArrayBuffer.
+        /// </summary>
+        /// <remarks>
+        ///     This extension method exists for simplicity.
+        /// </remarks>
+        /// <param name="jsrt"></param>
+        /// <param name="script"></param>
+        /// <param name="sourceContext"></param>
+        /// <param name="sourceUrl"></param>
+        /// <param name="parseAttributes"></param>
+        /// <param name="result"></param>
+        /// <returns>A JavaScriptValueSafeHandle containing the result.</returns>
+        public static JavaScriptValueSafeHandle JsRunScript(this IJavaScriptRuntime jsrt, string script, JavaScriptSourceContext sourceContext = default(JavaScriptSourceContext), string sourceUrl = "[eval code]", JavaScriptParseScriptAttributes parseAttributes = JavaScriptParseScriptAttributes.None)
+        {
+            var ptrScript = Marshal.StringToHGlobalAnsi(script);
+
+            JavaScriptValueSafeHandle scriptHandle;
+            Errors.ThrowIfError(jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero, out scriptHandle));
+
+            if (sourceContext == default(JavaScriptSourceContext))
+            {
+                sourceContext = new JavaScriptSourceContext();
+            }
+
+            JavaScriptValueSafeHandle sourceUrlHandle;
+            if (string.IsNullOrWhiteSpace(sourceUrl))
+            {
+                sourceUrl = "[eval code]";
+            }
+
+            Errors.ThrowIfError(jsrt.JsCreateStringUtf8(EvalSourceUrl, new UIntPtr((uint)EvalSourceUrl.Length), out sourceUrlHandle));
+
+            if (parseAttributes == default(JavaScriptParseScriptAttributes))
+            {
+                parseAttributes = JavaScriptParseScriptAttributes.None;
+            }
+
+            JavaScriptValueSafeHandle result;
+            try
+            {
+                Errors.ThrowIfError(jsrt.JsRun(scriptHandle, sourceContext, sourceUrlHandle, parseAttributes, out result));
+            }
+            finally
+            {
+                //Release variables created during this operation.
+                uint releaseCount;
+
+                Errors.ThrowIfError(jsrt.JsReleaseValue(sourceUrlHandle, out releaseCount));
+
+                Errors.ThrowIfError(jsrt.JsReleaseValue(scriptHandle, out releaseCount));
+
+                //Release pinned string.
+                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
+            }
+
+            return result;
         }
 
         /// <summary>

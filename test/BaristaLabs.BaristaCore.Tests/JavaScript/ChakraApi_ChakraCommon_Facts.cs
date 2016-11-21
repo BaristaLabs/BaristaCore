@@ -1395,7 +1395,7 @@ var oCat = new MammalSpecies('Felis');
         }
 
         [Fact]
-        public void JsCanGetObjectProperty()
+        public void JsCanGetProperty()
         {
             var script = @"(() => {
 var obj = {
@@ -1410,8 +1410,100 @@ var obj = {
 return obj;
 })();
 ";
-            var sourceUrl = "[eval code]";
-            JavaScriptValueSafeHandle objHandle;
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+
+            var propertyName = "plugh";
+            JavaScriptPropertyIdSafeHandle propertyIdHandle;
+            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+
+            JavaScriptValueSafeHandle propertyHandle;
+            Errors.ThrowIfError(Jsrt.JsGetProperty(objHandle, propertyIdHandle, out propertyHandle));
+
+            Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
+
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(propertyHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.String);
+
+            propertyIdHandle.Dispose();
+            propertyHandle.Dispose();
+            objHandle.Dispose();
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsCanGetOwnPropertyDescriptor()
+        {
+            var script = @"(() => {
+var obj = {
+    'foo': 'bar',
+    'baz': 'qux',
+    'quux': 'quuz',
+    'corge': 'grault',
+    'waldo': 'fred',
+    'plugh': 'xyzzy',
+    'lol': 'kik'
+};
+return obj;
+})();
+";
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+
+            var propertyName = "corge";
+            JavaScriptPropertyIdSafeHandle propertyIdHandle;
+            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+
+            JavaScriptValueSafeHandle propertyDescriptorHandle;
+            Errors.ThrowIfError(Jsrt.JsGetOwnPropertyDescriptor(objHandle, propertyIdHandle, out propertyDescriptorHandle));
+
+            Assert.True(propertyDescriptorHandle != JavaScriptValueSafeHandle.Invalid);
+
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(propertyDescriptorHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.Object);
+
+            propertyIdHandle.Dispose();
+            propertyDescriptorHandle.Dispose();
+            objHandle.Dispose();
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsCanGetOwnPropertyNames()
+        {
+            var script = @"(() => {
+var obj = {
+    'foo': 'bar',
+    'baz': 'qux',
+    'quux': 'quuz',
+    'corge': 'grault',
+    'waldo': 'fred',
+    'plugh': 'xyzzy',
+    'lol': 'kik'
+};
+return obj;
+})();
+";
 
             JavaScriptRuntimeSafeHandle runtimeHandle;
             Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
@@ -1420,37 +1512,224 @@ return obj;
             Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
             Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
-            IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
-            try
-            {
-                JavaScriptValueSafeHandle scriptHandle;
-                Errors.ThrowIfError(Jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero, out scriptHandle));
-
-                JavaScriptSourceContext sourceContext = new JavaScriptSourceContext();
-
-                JavaScriptValueSafeHandle sourceUrlHandle;
-                Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length), out sourceUrlHandle));
-
-                Errors.ThrowIfError(Jsrt.JsRun(scriptHandle, sourceContext, sourceUrlHandle, JavaScriptParseScriptAttributes.None, out objHandle));
-
-                scriptHandle.Dispose();
-                sourceUrlHandle.Dispose();
-            }
-            finally
-            {
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
-            }
+            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
 
             JavaScriptValueSafeHandle propertySymbols;
-            Errors.ThrowIfError(Jsrt.JsGetOwnPropertySymbols(objHandle, out propertySymbols));
+            Errors.ThrowIfError(Jsrt.JsGetOwnPropertyNames(objHandle, out propertySymbols));
+
+            Assert.True(propertySymbols != JavaScriptValueSafeHandle.Invalid);
 
             JavaScriptValueType propertySymbolsType;
             Errors.ThrowIfError(Jsrt.JsGetValueType(propertySymbols, out propertySymbolsType));
 
-            Assert.True(propertySymbols != JavaScriptValueSafeHandle.Invalid);
             Assert.True(propertySymbolsType == JavaScriptValueType.Array);
 
             propertySymbols.Dispose();
+            objHandle.Dispose();
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsCanSetProperty()
+        {
+            var script = @"(() => {
+var obj = {
+    'foo': 'bar',
+    'baz': 'qux',
+    'quux': 'quuz',
+    'corge': 'grault',
+    'waldo': 'fred',
+    'plugh': 'xyzzy',
+    'lol': 'kik'
+};
+return obj;
+})();
+";
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+
+            var propertyName = "baz";
+            JavaScriptPropertyIdSafeHandle propertyIdHandle;
+            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+
+            JavaScriptValueSafeHandle newPropertyValue;
+            Errors.ThrowIfError(Jsrt.JsDoubleToNumber(3.14159, out newPropertyValue));
+
+            //Set the property
+            Errors.ThrowIfError(Jsrt.JsSetProperty(objHandle, propertyIdHandle, newPropertyValue, true));
+
+
+            JavaScriptValueSafeHandle propertyHandle;
+            Errors.ThrowIfError(Jsrt.JsGetProperty(objHandle, propertyIdHandle, out propertyHandle));
+
+            Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
+
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(propertyHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.Number);
+            
+            propertyIdHandle.Dispose();
+            propertyHandle.Dispose();
+            objHandle.Dispose();
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsCanDetermineIfPropertyExists()
+        {
+            var script = @"(() => {
+var obj = {
+    'foo': 'bar',
+    'baz': 'qux',
+    'quux': 'quuz',
+    'corge': 'grault',
+    'waldo': 'fred',
+    'plugh': 'xyzzy',
+    'lol': 'kik'
+};
+return obj;
+})();
+";
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+
+            var propertyName = "lol";
+            JavaScriptPropertyIdSafeHandle propertyIdHandle;
+            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+
+            bool propertyExists;
+            Errors.ThrowIfError(Jsrt.JsHasProperty(objHandle, propertyIdHandle, out propertyExists));
+
+            Assert.True(propertyExists);
+
+            propertyName = "asdf";
+            propertyIdHandle.Dispose();
+            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+
+            Errors.ThrowIfError(Jsrt.JsHasProperty(objHandle, propertyIdHandle, out propertyExists));
+            Assert.False(propertyExists);
+
+
+            propertyIdHandle.Dispose();
+            objHandle.Dispose();
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsCanDeleteProperty()
+        {
+            var script = @"(() => {
+var obj = {
+    'foo': 'bar',
+    'baz': 'qux',
+    'quux': 'quuz',
+    'corge': 'grault',
+    'waldo': 'fred',
+    'plugh': 'xyzzy',
+    'lol': 'kik'
+};
+return obj;
+})();
+";
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+
+            var propertyName = "waldo";
+            JavaScriptPropertyIdSafeHandle propertyIdHandle;
+            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+
+            JavaScriptValueSafeHandle propertyDeletedHandle;
+            Errors.ThrowIfError(Jsrt.JsDeleteProperty(objHandle, propertyIdHandle, true, out propertyDeletedHandle));
+
+            bool wasPropertyDeleted;
+            Errors.ThrowIfError(Jsrt.JsBooleanToBool(propertyDeletedHandle,out wasPropertyDeleted));
+            Assert.True(wasPropertyDeleted);
+
+
+            bool propertyExists;
+            Errors.ThrowIfError(Jsrt.JsHasProperty(objHandle, propertyIdHandle, out propertyExists));
+            Assert.False(propertyExists);
+
+            propertyDeletedHandle.Dispose();
+            propertyIdHandle.Dispose();
+            objHandle.Dispose();
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsCanDefineProperty()
+        {
+            var script = @"(() => {
+var obj = {
+    'foo': 'bar'
+};
+return obj;
+})();
+";
+            var propertyDef = @"(() => {
+var obj = {
+  enumerable: false,
+  configurable: false,
+  writable: false,
+  value: 'static'
+};
+return obj;
+})();
+";
+
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+            JavaScriptValueSafeHandle propertyDefHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, propertyDef);
+
+            var propertyName = "rico";
+            JavaScriptPropertyIdSafeHandle propertyIdHandle;
+            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+
+            bool result;
+            Errors.ThrowIfError(Jsrt.JsDefineProperty(objHandle, propertyIdHandle, propertyDefHandle, out result));
+
+            Assert.True(result);
+
+
+            bool propertyExists;
+            Errors.ThrowIfError(Jsrt.JsHasProperty(objHandle, propertyIdHandle, out propertyExists));
+            Assert.True(propertyExists);
+
+            propertyDefHandle.Dispose();
+            propertyIdHandle.Dispose();
             objHandle.Dispose();
 
             contextHandle.Dispose();

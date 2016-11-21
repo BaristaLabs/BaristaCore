@@ -2,12 +2,17 @@
 {
     using Internal;
     using System;
+    using System.Diagnostics;
 
     /// <summary>
     ///     A script exception.
     /// </summary>
     public sealed class JavaScriptScriptException : JavaScriptException, IDisposable
     {
+        private const string MessagePropertyName = "message";
+        private const string NamePropertyName = "name";
+        private const string ColumnNumberPropertyName = "column";
+
         /// <summary>
         /// The error.
         /// </summary>
@@ -33,6 +38,20 @@
             base(code, message)
         {
             m_error = error;
+
+            //Don't use our helper errors class in order to prevent recursive errors.
+            JavaScriptErrorCode innerError;
+
+            //Get the message of the Script Error.            
+            JavaScriptPropertyIdSafeHandle messagePropertyHandle;
+            innerError = LibChakraCore.JsCreatePropertyIdUtf8(MessagePropertyName, new UIntPtr((uint)MessagePropertyName.Length), out messagePropertyHandle);
+            Debug.Assert(innerError == JavaScriptErrorCode.NoError);
+
+            JavaScriptValueSafeHandle messageValue;
+            innerError = LibChakraCore.JsGetProperty(error, messagePropertyHandle, out messageValue);
+            Debug.Assert(innerError == JavaScriptErrorCode.NoError);
+
+            ErrorMessage = Helpers.GetStringUtf8(messageValue, releaseHandle: true);
         }
 
         /// <summary>
@@ -63,7 +82,7 @@
         public int ColumnNumber
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -72,13 +91,22 @@
         public int LineNumber
         {
             get;
-            set;
+            private set;
         }
 
         public int Length
         {
             get;
-            set;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets a human-readable description of the error.
+        /// </summary>
+        public string ErrorMessage
+        {
+            get;
+            private set;
         }
 
         /// <summary>
@@ -87,7 +115,7 @@
         public string Name
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -96,7 +124,7 @@
         public string Stack
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -105,7 +133,7 @@
         public string ScriptSource
         {
             get;
-            set;
+            private set;
         }
 
         #region IDisposable implementation
