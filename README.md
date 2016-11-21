@@ -1,6 +1,15 @@
 BaristaCore
 --------
 
+#### Build Status
+
+|                               | __Release__ |
+|:-----------------------------:|:-----------:|
+| __Windows (x64)__             | TBD |
+| __Ubuntu 14.04 (x64)__        | [![Build Status](https://travis-ci.org/BaristaLabs/BaristaCore.svg?branch=master)](https://travis-ci.org/BaristaLabs/BaristaCore) |
+| __OS X 10.12 (x64)__          | [![Build Status](https://travis-ci.org/BaristaLabs/BaristaCore.svg?branch=master)](https://travis-ci.org/BaristaLabs/BaristaCore) |
+
+
 > **10/5/2016** *BaristaCore is currently in active development. The functionality described below indicates the design goals of BaristaCore and may not be all currently implemented.*
 
 BaristaCore is an open-source cross-platform sandbox to run code with a http call.
