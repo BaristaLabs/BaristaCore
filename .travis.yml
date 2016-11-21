@@ -37,7 +37,7 @@ matrix:
 
 before_install:
   - mkdir -p /usr/local/lib
-  - export CHAKRALIBS="$HOME/$CHAKRACORE_PATH/libs"
+  - export CHAKRALIBS="$HOME/$CHAKRACORE_PATH/libs/"
   - if test "$TRAVIS_OS_NAME" == "osx"; then
       sw_vers -productVersion;
       xcode-select --install;
@@ -57,6 +57,7 @@ before_install:
         git checkout debug;
         ./build.sh --icu=/usr/local/opt/icu4c/include;
         cd ..;
+        mkdir -p $CHAKRALIBS;
         cp -rf ./ChakraCore/BuildLinux/Release/bin/ChakraCore/libChakraCore.dylib $CHAKRALIBS;
       fi
     else
@@ -79,6 +80,7 @@ before_install:
         git checkout debug;
         ./build.sh --cxx=/usr/bin/clang++-3.8 --cc=/usr/bin/clang-3.8;
         cd ..;
+        mkdir -p $CHAKRALIBS;
         cp -rf ./ChakraCore/BuildLinux/Release/bin/ChakraCore/libChakraCore.so $CHAKRALIBS;
      fi
     fi
