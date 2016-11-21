@@ -1395,6 +1395,69 @@ var oCat = new MammalSpecies('Felis');
         }
 
         [Fact]
+        public void JsCanGetObjectProperty()
+        {
+            var script = @"(() => {
+var obj = {
+    'foo': 'bar',
+    'baz': 'qux',
+    'quux': 'quuz',
+    'corge': 'grault',
+    'waldo': 'fred',
+    'plugh': 'xyzzy',
+    'lol': 'kik'
+};
+return obj;
+})();
+";
+            var sourceUrl = "[eval code]";
+            JavaScriptValueSafeHandle objHandle;
+
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
+            try
+            {
+                JavaScriptValueSafeHandle scriptHandle;
+                Errors.ThrowIfError(Jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero, out scriptHandle));
+
+                JavaScriptSourceContext sourceContext = new JavaScriptSourceContext();
+
+                JavaScriptValueSafeHandle sourceUrlHandle;
+                Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length), out sourceUrlHandle));
+
+                Errors.ThrowIfError(Jsrt.JsRun(scriptHandle, sourceContext, sourceUrlHandle, JavaScriptParseScriptAttributes.None, out objHandle));
+
+                scriptHandle.Dispose();
+                sourceUrlHandle.Dispose();
+            }
+            finally
+            {
+                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
+            }
+
+            JavaScriptValueSafeHandle propertySymbols;
+            Errors.ThrowIfError(Jsrt.JsGetOwnPropertySymbols(objHandle, out propertySymbols));
+
+            JavaScriptValueType propertySymbolsType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(propertySymbols, out propertySymbolsType));
+
+            Assert.True(propertySymbols != JavaScriptValueSafeHandle.Invalid);
+            Assert.True(propertySymbolsType == JavaScriptValueType.Array);
+
+            propertySymbols.Dispose();
+            objHandle.Dispose();
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
         public void JsExternalArrayBufferCanBeCreated()
         {
             var data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
