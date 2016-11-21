@@ -46,6 +46,8 @@ before_install:
       export PATH="$DOTNET_INSTALL_DIR:$PATH";
       git clone https://github.com/Microsoft/ChakraCore;
       cd ChakraCore;
+      git fetch origin pull/2056/head:debug;
+      git checkout debug;
       ./build.sh --icu=/usr/local/opt/icu4c/include;
       cd ..;
       cp -rf ./ChakraCore/BuildLinux/Release/bin/ChakraCore/libChakraCore.dylib ./lib/ChakraCore/;
@@ -53,7 +55,6 @@ before_install:
       lsb_release -a;
       which $cc;
       sudo apt-get update;
-      sudo apt-get upgrade -y;
       sudo apt-get install -y build-essential clang-3.8 libunwind8 libunwind8-dev libicu-dev;
       wget http://www.cmake.org/files/v3.5/cmake-3.5.2.tar.gz;
       tar xf cmake-3.5.2.tar.gz;
@@ -68,6 +69,8 @@ before_install:
       sudo apt-get install -y dotnet-dev-1.0.0-preview2.1-003177;
       git clone https://github.com/Microsoft/ChakraCore;
       cd ChakraCore;
+      git fetch origin pull/2056/head:debug;
+      git checkout debug;
       ./build.sh --cxx=/usr/bin/clang++-3.8 --cc=/usr/bin/clang-3.8;
       cd ..;
       cp -rf ./ChakraCore/BuildLinux/Release/bin/ChakraCore/libChakraCore.so ./lib/ChakraCore/;
