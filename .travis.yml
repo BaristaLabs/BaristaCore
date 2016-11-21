@@ -37,7 +37,7 @@ matrix:
 
 before_install:
   - mkdir -p /usr/local/lib
-  - export CHAKRALIBS="$HOME/$CHAKRACORE_PATH"
+  - export CHAKRALIBS="$HOME/$CHAKRACORE_PATH/libs"
   - if test "$TRAVIS_OS_NAME" == "osx"; then
       sw_vers -productVersion;
       xcode-select --install;
