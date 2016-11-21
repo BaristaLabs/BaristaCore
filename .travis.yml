@@ -75,7 +75,7 @@ before_install:
     fi
 
 install:
-  # Ensure chakra libraries are updated
+  # Ensure chakra libraries are updated by listing them
   - ls -l ./lib/
   # Display dotnet version info
   - which dotnet;
