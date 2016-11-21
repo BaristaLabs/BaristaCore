@@ -19,6 +19,7 @@ matrix:
     - os: linux
       dist: trusty
       sudo: required
+      compiler: clang
       runtime:
         - name: netcore
           version: 1
@@ -54,19 +55,16 @@ before_install:
     else
       lsb_release -a;
       which $cc;
-      sudo apt-get update;
-      sudo apt-get install -y build-essential clang-3.8 libunwind8 libunwind8-dev libicu-dev;
-      wget http://www.cmake.org/files/v3.5/cmake-3.5.2.tar.gz;
-      tar xf cmake-3.5.2.tar.gz;
-      cd cmake-3.5.2;
-      ./configure;
-      make;
-      sudo make install;
-      cd ..;
-      cmake --version;
       sudo sh -c 'echo "deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main" > /etc/apt/sources.list.d/dotnetdev.list';
       sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893;
-      sudo apt-get install -y dotnet-dev-1.0.0-preview2.1-003177;
+      sudo apt-get update;
+      sudo apt-get install -y build-essential clang-3.8 libunwind8 libunwind8-dev libicu-dev dotnet-dev-1.0.0-preview2.1-003177;
+      export CMAKE_INSTALL_DIR="$PWD/.cmake";
+      mkdir $CMAKE_INSTALL_DIR;
+      wget https://cmake.org/files/v3.7/cmake-3.7.0-Linux-x86_64.tar.gz;
+      tar --strip-components=1 -xvzf ./cmake-3.7.0-Linux-x86_64.tar.gz -C $CMAKE_INSTALL_DIR;
+      export PATH="$CMAKE_INSTALL_DIR/bin:$PATH";
+      cmake --version;
       git clone https://github.com/Microsoft/ChakraCore;
       cd ChakraCore;
       git fetch origin pull/2056/head:debug;
@@ -78,7 +76,7 @@ before_install:
 
 install:
   # Ensure chakra libraries are updated by listing them
-  - ls -l ./lib/
+  - ls -l ./lib/ChakraCore/
   # Display dotnet version info
   - which dotnet;
     if [ $? -eq 0 ]; then
