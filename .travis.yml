@@ -27,7 +27,7 @@ matrix:
       runtime:
         - name: netcore
           version: 1
-      env: CONFIGURATION=Release FRAMEWORK=netcoreapp1.0 CHAKRACORE_PATH=.ChakraCore
+      env: CONFIGURATION=Release FRAMEWORK=netcoreapp1.0
     - os: osx
       osx_image: xcode8.1
       runtime:
@@ -37,6 +37,7 @@ matrix:
 
 before_install:
   - mkdir -p /usr/local/lib
+  - export CHAKRACORE_PATH=.ChakraCore
   - export CHAKRALIBS="$HOME/$CHAKRACORE_PATH/libs/"
   - if test "$TRAVIS_OS_NAME" == "osx"; then
       sw_vers -productVersion;
