@@ -36,7 +36,7 @@ matrix:
       env: CONFIGURATION=Release FRAMEWORK=netcoreapp1.0
 
 before_install:
-  - mkdir -p /usr/local/lib;
+  - mkdir -p /usr/local/lib
   - export CHAKRALIBS="$HOME/$CHAKRACORE_PATH"
   - if test "$TRAVIS_OS_NAME" == "osx"; then
       sw_vers -productVersion;
@@ -50,7 +50,6 @@ before_install:
       curl -L $DOTNET_SDK_URL -o dotnet_package;
       tar -xvzf dotnet_package -C $DOTNET_INSTALL_DIR;
       export PATH="$DOTNET_INSTALL_DIR:$PATH";
-      # Build ChakraCore if TravisCI cache didn't pull it.
       if [ ! -d "$CHAKRALIBS" ]; then
         git clone https://github.com/Microsoft/ChakraCore;
         cd ChakraCore;
@@ -67,7 +66,6 @@ before_install:
       sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893;
       sudo apt-get update;
       sudo apt-get install -y build-essential clang-3.8 libunwind8 libunwind8-dev libicu-dev dotnet-dev-1.0.0-preview2.1-003177;
-      # Build ChakraCore if TravisCI cache didn't pull it.
       if [ ! -d "$CHAKRALIBS" ]; then
         export CMAKE_INSTALL_DIR="$PWD/.cmake";
         mkdir $CMAKE_INSTALL_DIR;
