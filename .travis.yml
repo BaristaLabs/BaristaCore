@@ -3,6 +3,7 @@ language: generic
 addons:
   apt:
     packages:
+    - build-essential
     - gettext
     - clang-3.8
     - cmake
@@ -10,6 +11,7 @@ addons:
     - libicu-dev
     - libssl-dev
     - libunwind8
+    - libunwind8-dev
     - zlib1g
 
 matrix:
@@ -32,25 +34,49 @@ before_install:
   - mkdir -p /usr/local/lib;
   - if test "$TRAVIS_OS_NAME" == "osx"; then
       sw_vers -productVersion;
+      xcode-select --install;
       export DOTNET_INSTALL_DIR="$PWD/.dotnetcli";
       mkdir $DOTNET_INSTALL_DIR;
-      brew install openssl;
+      brew install cmake icu4c openssl;
       ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/;
       ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/;
       export DOTNET_SDK_URL="https://go.microsoft.com/fwlink/?LinkID=834982";
       curl -L $DOTNET_SDK_URL -o dotnet_package;
       tar -xvzf dotnet_package -C $DOTNET_INSTALL_DIR;
       export PATH="$DOTNET_INSTALL_DIR:$PATH";
+      git clone https://github.com/Microsoft/ChakraCore;
+      cd ChakraCore;
+      ./build.sh --icu=/usr/local/opt/icu4c/include;
+      cd ..;
+      cp -rf ./ChakraCore/BuildLinux/Release/bin/ChakraCore/libChakraCore.dylib ./lib/ChakraCore/;
     else
       lsb_release -a;
       which $cc;
+      sudo apt-get update;
+      sudo apt-get upgrade -y;
+      sudo apt-get dist-upgrade -y;
+      sudo apt-get install -y build-essential clang-3.8 libunwind8 libunwind8-dev libicu-dev;
+      wget http://www.cmake.org/files/v3.5/cmake-3.5.2.tar.gz;
+      tar xf cmake-3.5.2.tar.gz;
+      cd cmake-3.5.2;
+      ./configure;
+      make;
+      sudo make install;
+      cd ..;
+      cmake --version;
       sudo sh -c 'echo "deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main" > /etc/apt/sources.list.d/dotnetdev.list';
       sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893;
-      sudo apt-get update;
-      sudo apt-get install -y build-essential cmake clang-3.8 libicu-dev dotnet-dev-1.0.0-preview2.1-003177;
+      sudo apt-get install -y dotnet-dev-1.0.0-preview2.1-003177;
+      git clone https://github.com/Microsoft/ChakraCore;
+      cd ChakraCore;
+      ./build.sh --cxx=/usr/bin/clang++-3.8 --cc=/usr/bin/clang-3.8;
+      cd ..;
+      cp -rf ./ChakraCore/BuildLinux/Release/bin/ChakraCore/libChakraCore.so ./lib/ChakraCore/;
     fi
 
 install:
+  # Ensure chakra libraries are updated
+  - ls -l ./lib/
   # Display dotnet version info
   - which dotnet;
     if [ $? -eq 0 ]; then
