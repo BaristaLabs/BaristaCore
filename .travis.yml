@@ -1,5 +1,9 @@
 language: generic
 
+cache:
+    directories:
+    - $HOME/.ChakraCore
+
 addons:
   apt:
     packages:
@@ -23,7 +27,7 @@ matrix:
       runtime:
         - name: netcore
           version: 1
-      env: CONFIGURATION=Release FRAMEWORK=netcoreapp1.0
+      env: CONFIGURATION=Release FRAMEWORK=netcoreapp1.0 CHAKRACORE_PATH=.ChakraCore
     - os: osx
       osx_image: xcode8.1
       runtime:
@@ -33,6 +37,7 @@ matrix:
 
 before_install:
   - mkdir -p /usr/local/lib;
+  - export CHAKRALIBS="$HOME/$CHAKRACORE_PATH"
   - if test "$TRAVIS_OS_NAME" == "osx"; then
       sw_vers -productVersion;
       xcode-select --install;
@@ -45,13 +50,16 @@ before_install:
       curl -L $DOTNET_SDK_URL -o dotnet_package;
       tar -xvzf dotnet_package -C $DOTNET_INSTALL_DIR;
       export PATH="$DOTNET_INSTALL_DIR:$PATH";
-      git clone https://github.com/Microsoft/ChakraCore;
-      cd ChakraCore;
-      git fetch origin pull/2056/head:debug;
-      git checkout debug;
-      ./build.sh --icu=/usr/local/opt/icu4c/include;
-      cd ..;
-      cp -rf ./ChakraCore/BuildLinux/Release/bin/ChakraCore/libChakraCore.dylib ./lib/ChakraCore/;
+      # Build ChakraCore if TravisCI cache didn't pull it.
+      if [ ! -d "$CHAKRALIBS" ]; then
+        git clone https://github.com/Microsoft/ChakraCore;
+        cd ChakraCore;
+        git fetch origin pull/2056/head:debug;
+        git checkout debug;
+        ./build.sh --icu=/usr/local/opt/icu4c/include;
+        cd ..;
+        cp -rf ./ChakraCore/BuildLinux/Release/bin/ChakraCore/libChakraCore.dylib $CHAKRALIBS;
+      fi
     else
       lsb_release -a;
       which $cc;
@@ -59,22 +67,27 @@ before_install:
       sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893;
       sudo apt-get update;
       sudo apt-get install -y build-essential clang-3.8 libunwind8 libunwind8-dev libicu-dev dotnet-dev-1.0.0-preview2.1-003177;
-      export CMAKE_INSTALL_DIR="$PWD/.cmake";
-      mkdir $CMAKE_INSTALL_DIR;
-      wget https://cmake.org/files/v3.7/cmake-3.7.0-Linux-x86_64.tar.gz;
-      tar --strip-components=1 -xvzf ./cmake-3.7.0-Linux-x86_64.tar.gz -C $CMAKE_INSTALL_DIR;
-      export PATH="$CMAKE_INSTALL_DIR/bin:$PATH";
-      cmake --version;
-      git clone https://github.com/Microsoft/ChakraCore;
-      cd ChakraCore;
-      git fetch origin pull/2056/head:debug;
-      git checkout debug;
-      ./build.sh --cxx=/usr/bin/clang++-3.8 --cc=/usr/bin/clang-3.8;
-      cd ..;
-      cp -rf ./ChakraCore/BuildLinux/Release/bin/ChakraCore/libChakraCore.so ./lib/ChakraCore/;
+      # Build ChakraCore if TravisCI cache didn't pull it.
+      if [ ! -d "$CHAKRALIBS" ]; then
+        export CMAKE_INSTALL_DIR="$PWD/.cmake";
+        mkdir $CMAKE_INSTALL_DIR;
+        wget https://cmake.org/files/v3.7/cmake-3.7.0-Linux-x86_64.tar.gz;
+        tar --strip-components=1 -xvzf ./cmake-3.7.0-Linux-x86_64.tar.gz -C $CMAKE_INSTALL_DIR;
+        export PATH="$CMAKE_INSTALL_DIR/bin:$PATH";
+        cmake --version;
+        git clone https://github.com/Microsoft/ChakraCore;
+        cd ChakraCore;
+        git fetch origin pull/2056/head:debug;
+        git checkout debug;
+        ./build.sh --cxx=/usr/bin/clang++-3.8 --cc=/usr/bin/clang-3.8;
+        cd ..;
+        cp -rf ./ChakraCore/BuildLinux/Release/bin/ChakraCore/libChakraCore.so $CHAKRALIBS;
+     fi
     fi
 
 install:
+  # Copy pre-compiled libraries to ChakraCore
+  - cp -rf $CHAKRALIBS ./lib/ChakraCore/
   # Ensure chakra libraries are updated by listing them
   - ls -l ./lib/ChakraCore/
   # Display dotnet version info
