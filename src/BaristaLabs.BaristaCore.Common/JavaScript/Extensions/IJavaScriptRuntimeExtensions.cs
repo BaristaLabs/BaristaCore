@@ -5,7 +5,7 @@
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
 
-    internal static class IJavaScriptRuntimeExtensions
+    public static class IJavaScriptRuntimeExtensions
     {
         private const string EvalSourceUrl = "[eval code]";
 
