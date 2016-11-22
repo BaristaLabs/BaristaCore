@@ -6,24 +6,17 @@
 
     public class JavaScriptRuntimeSafeHandle : SafeHandle, IEquatable<JavaScriptRuntimeSafeHandle>
     {
-        public JavaScriptRuntimeSafeHandle() :
-            base(IntPtr.Zero, ownsHandle: true)
-        {
-
-        }
-
-        public JavaScriptRuntimeSafeHandle(IntPtr handle) :
-            base(handle, true)
-        {
-
-        }
-
         public override bool IsInvalid
         {
             get
             {
                 return handle == IntPtr.Zero;
             }
+        }
+
+        public JavaScriptRuntimeSafeHandle() :
+            base(IntPtr.Zero, ownsHandle: true)
+        {
         }
 
         /// <summary>

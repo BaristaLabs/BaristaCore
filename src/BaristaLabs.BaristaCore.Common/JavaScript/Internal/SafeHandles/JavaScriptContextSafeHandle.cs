@@ -14,14 +14,20 @@
             }
         }
 
-        public JavaScriptContextSafeHandle() :
-            base(IntPtr.Zero, ownsHandle: true)
+        /// <summary>
+        /// Gets the native function call which created the safe handle.
+        /// </summary>
+        /// <remarks>
+        /// Useful when debugging.
+        /// </remarks>
+        public string NativeFunctionSource
         {
-
+            get;
+            set;
         }
 
-        public JavaScriptContextSafeHandle(IntPtr handle) :
-            base(handle, true)
+        public JavaScriptContextSafeHandle() :
+            base(IntPtr.Zero, ownsHandle: true)
         {
         }
 
@@ -37,7 +43,13 @@
             var error = LibChakraCore.JsRelease(handle, out count);
 
             Debug.Assert(error == JavaScriptErrorCode.NoError);
-            return true;
+            if (count == 0)
+            {
+                handle = IntPtr.Zero;
+                return true;
+            }
+
+            return false;
         }
 
         #region Equality

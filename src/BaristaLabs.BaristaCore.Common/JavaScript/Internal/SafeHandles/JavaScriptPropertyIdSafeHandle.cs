@@ -46,11 +46,6 @@
         {
         }
 
-        public JavaScriptPropertyIdSafeHandle(IntPtr handle) :
-            base(handle, true)
-        {
-        }
-
         /// <summary>
         ///     Releases resources associated with the property ID.
         /// </summary>

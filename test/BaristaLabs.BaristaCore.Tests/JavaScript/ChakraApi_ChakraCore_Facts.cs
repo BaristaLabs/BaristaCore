@@ -236,7 +236,7 @@
             }
             finally
             {
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
+                Marshal.FreeHGlobal(ptrScript);
 
                 contextHandle.Dispose();
                 runtimeHandle.Dispose();
@@ -288,7 +288,7 @@
             }
             finally
             {
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
+                Marshal.FreeHGlobal(ptrScript);
 
                 contextHandle.Dispose();
                 runtimeHandle.Dispose();
@@ -379,7 +379,7 @@
             }
             finally
             {
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
+                Marshal.FreeHGlobal(ptrScript);
 
                 contextHandle.Dispose();
                 runtimeHandle.Dispose();
@@ -413,7 +413,7 @@
             }
             finally
             {
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
+                Marshal.FreeHGlobal(ptrScript);
             }
 
             JavaScriptSerializedLoadScriptCallback callback = (JavaScriptSourceContext sourceContext, out JavaScriptValueSafeHandle value, out JavaScriptParseScriptAttributes parseAttributes) =>
@@ -470,7 +470,7 @@
             }
             finally
             {
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
+                Marshal.FreeHGlobal(ptrScript);
             }
 
             JavaScriptSerializedLoadScriptCallback callback = (JavaScriptSourceContext sourceContext, out JavaScriptValueSafeHandle value, out JavaScriptParseScriptAttributes parseAttributes) =>

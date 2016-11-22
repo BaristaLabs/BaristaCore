@@ -809,6 +809,54 @@
     </Parameters>
   </Export>
 
+  <Export name="JsAddContextRef" target="Common" source="ChakraCommon.h" dllImportEx=", EntryPoint = &quot;JsAddRef&quot; ">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Adds a reference to a garbage collected object.
+/// </summary>
+/// <remarks>
+///     This only needs to be called on <c>JsRef</c> handles that are not going to be stored
+///     somewhere on the stack. Calling <c>JsAddRef</c> ensures that the object the <c>JsRef</c>
+///     refers to will not be freed until <c>JsRelease</c> is called.
+/// </remarks>
+/// <param name="ref">The object to add a reference to.</param>
+/// <param name="count">The object's new reference count (can pass in null).</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsContextRef" name="@ref"/>
+      <Parameter type="uint" name="count" direction="Out"/>
+    </Parameters>
+  </Export>
+  
+  <Export name="JsAddValueRef" target="Common" source="ChakraCommon.h" dllImportEx=", EntryPoint = &quot;JsAddRef&quot; ">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Adds a reference to a garbage collected object.
+/// </summary>
+/// <remarks>
+///     This only needs to be called on <c>JsRef</c> handles that are not going to be stored
+///     somewhere on the stack. Calling <c>JsAddRef</c> ensures that the object the <c>JsRef</c>
+///     refers to will not be freed until <c>JsRelease</c> is called.
+/// </remarks>
+/// <param name="ref">The object to add a reference to.</param>
+/// <param name="count">The object's new reference count (can pass in null).</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="@ref"/>
+      <Parameter type="uint" name="count" direction="Out"/>
+    </Parameters>
+  </Export>
+  
   <Export name="JsAddRef" target="Common" source="ChakraCommon.h">
     <Description>
       <![CDATA[
@@ -2405,7 +2453,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsValueRef" name="arrayBuffer"/>
-      <Parameter type="byte[]" name="buffer" direction="Out"/>
+      <Parameter type="IntPtr" name="buffer" direction="Out"/>
       <Parameter type="uint" name="bufferLength" direction="Out"/>
     </Parameters>
   </Export>
@@ -2434,7 +2482,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsValueRef" name="typedArray"/>
-      <Parameter type="byte[]" name="buffer" direction="Out"/>
+      <Parameter type="IntPtr" name="buffer" direction="Out"/>
       <Parameter type="uint" name="bufferLength" direction="Out"/>
       <Parameter type="JsTypedArrayType" name="arrayType" direction="Out"/>
       <Parameter type="int" name="elementSize" direction="Out"/>
@@ -2461,7 +2509,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsValueRef" name="dataView"/>
-      <Parameter type="byte[]" name="buffer" direction="Out"/>
+      <Parameter type="IntPtr" name="buffer" direction="Out"/>
       <Parameter type="uint" name="bufferLength" direction="Out"/>
     </Parameters>
   </Export>

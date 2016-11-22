@@ -573,6 +573,38 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsAddRef" )]
+		public static extern JavaScriptErrorCode JsAddContextRef(JavaScriptContextSafeHandle @ref, out uint count);
+
+		/// <summary>
+		///     Adds a reference to a garbage collected object.
+		/// </summary>
+		/// <remarks>
+		///     This only needs to be called on <c>JsRef</c> handles that are not going to be stored
+		///     somewhere on the stack. Calling <c>JsAddRef</c> ensures that the object the <c>JsRef</c>
+		///     refers to will not be freed until <c>JsRelease</c> is called.
+		/// </remarks>
+		/// <param name="ref">The object to add a reference to.</param>
+		/// <param name="count">The object's new reference count (can pass in null).</param>
+		/// <returns>
+		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsAddRef" )]
+		public static extern JavaScriptErrorCode JsAddValueRef(JavaScriptValueSafeHandle @ref, out uint count);
+
+		/// <summary>
+		///     Adds a reference to a garbage collected object.
+		/// </summary>
+		/// <remarks>
+		///     This only needs to be called on <c>JsRef</c> handles that are not going to be stored
+		///     somewhere on the stack. Calling <c>JsAddRef</c> ensures that the object the <c>JsRef</c>
+		///     refers to will not be freed until <c>JsRelease</c> is called.
+		/// </remarks>
+		/// <param name="ref">The object to add a reference to.</param>
+		/// <param name="count">The object's new reference count (can pass in null).</param>
+		/// <returns>
+		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+		/// </returns>
 		[DllImport(DllName)]
 		public static extern JavaScriptErrorCode JsAddRef(IntPtr @ref, out uint count);
 
@@ -1584,7 +1616,7 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsGetArrayBufferStorage(JavaScriptValueSafeHandle arrayBuffer, out byte[] buffer, out uint bufferLength);
+		public static extern JavaScriptErrorCode JsGetArrayBufferStorage(JavaScriptValueSafeHandle arrayBuffer, out IntPtr buffer, out uint bufferLength);
 
 		/// <summary>
 		///     Obtains the underlying memory storage used by a typed array.
@@ -1604,7 +1636,7 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out byte[] buffer, out uint bufferLength, out JavaScriptTypedArrayType arrayType, out int elementSize);
+		public static extern JavaScriptErrorCode JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out IntPtr buffer, out uint bufferLength, out JavaScriptTypedArrayType arrayType, out int elementSize);
 
 		/// <summary>
 		///     Obtains the underlying memory storage used by a DataView.
@@ -1620,7 +1652,7 @@
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsGetDataViewStorage(JavaScriptValueSafeHandle dataView, out byte[] buffer, out uint bufferLength);
+		public static extern JavaScriptErrorCode JsGetDataViewStorage(JavaScriptValueSafeHandle dataView, out IntPtr buffer, out uint bufferLength);
 
 		/// <summary>
 		///     Invokes a function.

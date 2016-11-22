@@ -1,0 +1,48 @@
+namespace BaristaLabs.BaristaCore.JavaScript
+{
+	using Internal;
+
+	using System;
+	using System.Runtime.InteropServices;
+
+	public sealed class <#= JavaScriptRuntimeClassName #> : <#= JavaScriptRuntimeInterfaces #>
+	{
+<#
+	foreach (var ex in ChakraExternManager.Externs.FindAll(ExternPlatformPredicate))
+	{
+#>
+			public JavaScriptErrorCode <#= ex.Name #>(<#= ex.NativeSignature #>)
+			{
+				var errCode = LibChakraCore.<#= ex.Name #>(<#= ex.CallSignature #>);
+<#		if (ex.HasOutContextSafeHandles)
+		{
+			foreach (var outSafeHandle in ex.GetOutContextSafeHandles())
+            {
+#>
+				uint contextRefCount;
+				LibChakraCore.JsAddContextRef(<#= outSafeHandle.Name #>, out contextRefCount);
+				<#= outSafeHandle.Name #>.NativeFunctionSource = nameof(LibChakraCore.<#= ex.Name #>);
+<#		
+			}
+        }
+
+		if (ex.HasOutValueSafeHandles)
+		{
+			foreach (var outSafeHandle in ex.GetOutValueSafeHandles())
+            {
+#>
+				uint valueRefCount;
+				LibChakraCore.JsAddValueRef(<#= outSafeHandle.Name #>, out valueRefCount);
+				<#= outSafeHandle.Name #>.NativeFunctionSource = nameof(LibChakraCore.<#= ex.Name #>);
+<#		
+			}
+        }
+#>
+				return errCode;
+			}
+
+<#
+    }
+#>
+	}
+}

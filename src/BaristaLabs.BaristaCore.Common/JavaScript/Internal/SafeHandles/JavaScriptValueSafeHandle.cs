@@ -6,23 +6,29 @@
 
     public class JavaScriptValueSafeHandle : SafeHandle, IEquatable<JavaScriptValueSafeHandle>
     {
-
-        public JavaScriptValueSafeHandle() :
-            base(IntPtr.Zero, ownsHandle: true)
-        {
-        }
-
-        public JavaScriptValueSafeHandle(IntPtr handle) :
-            base(handle, true)
-        {
-        }
-
         public override bool IsInvalid
         {
             get
             {
                 return handle == IntPtr.Zero;
             }
+        }
+
+        /// <summary>
+        /// Gets the native function call which created the safe handle.
+        /// </summary>
+        /// <remarks>
+        /// Useful when debugging.
+        /// </remarks>
+        public string NativeFunctionSource
+        {
+            get;
+            set;
+        }
+
+        public JavaScriptValueSafeHandle() :
+            base(IntPtr.Zero, ownsHandle: true)
+        {
         }
 
         /// <summary>
@@ -41,8 +47,13 @@
             uint count;
             var error = LibChakraCore.JsRelease(handle, out count);
             Debug.Assert(error == JavaScriptErrorCode.NoError);
+            if (count == 0)
+            {
+                handle = IntPtr.Zero;
+                return true;
+            }
 
-            return true;
+            return false;
         }
 
         #region Equality

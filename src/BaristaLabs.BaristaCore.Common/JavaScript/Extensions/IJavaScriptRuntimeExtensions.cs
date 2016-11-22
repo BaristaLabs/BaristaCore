@@ -83,15 +83,13 @@
             finally
             {
                 //Release variables created during this operation.
-                uint releaseCount;
-
                 if (createdSourceUrl)
-                    Errors.ThrowIfError(jsrt.JsReleaseValue(sourceUrl, out releaseCount));
+                    sourceUrl.Dispose();
 
-                Errors.ThrowIfError(jsrt.JsReleaseValue(scriptHandle, out releaseCount));
+                scriptHandle.Dispose();
 
                 //Release pinned string.
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
+                Marshal.FreeHGlobal(ptrScript);
             }
         }
 
@@ -169,15 +167,13 @@
             finally
             {
                 //Release variables created during this operation.
-                uint releaseCount;
-
                 if (createdSourceUrl)
-                    Errors.ThrowIfError(jsrt.JsReleaseValue(sourceUrl, out releaseCount));
+                    sourceUrl.Dispose();
 
-                Errors.ThrowIfError(jsrt.JsReleaseValue(scriptHandle, out releaseCount));
+                scriptHandle.Dispose();
 
                 //Release pinned string.
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
+                Marshal.FreeHGlobal(ptrScript);
             }
         }
 
@@ -198,8 +194,14 @@
         {
             var ptrScript = Marshal.StringToHGlobalAnsi(script);
 
+            JavaScriptObjectFinalizeCallback callback = (IntPtr ptr) =>
+            {
+                //Release pinned string.
+                Marshal.FreeHGlobal(ptrScript);
+            };
+
             JavaScriptValueSafeHandle scriptHandle;
-            Errors.ThrowIfError(jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero, out scriptHandle));
+            Errors.ThrowIfError(jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, callback, IntPtr.Zero, out scriptHandle));
 
             if (sourceContext == default(JavaScriptSourceContext))
             {
@@ -227,14 +229,8 @@
             finally
             {
                 //Release variables created during this operation.
-                uint releaseCount;
-
-                Errors.ThrowIfError(jsrt.JsReleaseValue(sourceUrlHandle, out releaseCount));
-
-                Errors.ThrowIfError(jsrt.JsReleaseValue(scriptHandle, out releaseCount));
-
-                //Release pinned string.
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
+                sourceUrlHandle.Dispose();
+                scriptHandle.Dispose();
             }
 
             return result;
@@ -262,13 +258,10 @@
             }
             finally
             {
-                //Release variables created during this operation.
-                uint releaseCount;
-
-                Errors.ThrowIfError(jsrt.JsReleaseValue(scriptHandle, out releaseCount));
+                scriptHandle.Dispose();
 
                 //Release pinned string.
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
+                Marshal.FreeHGlobal(ptrScript);
             }
         }
     }

@@ -142,6 +142,34 @@
         }
 
         [Fact]
+        public void JsValueRefCanBeAdded()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            var myString = "Have you ever questioned the nature of your reality?";
+            JavaScriptValueSafeHandle stringHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(myString, new UIntPtr((uint)myString.Length), out stringHandle));
+
+            uint count;
+            Errors.ThrowIfError(Jsrt.JsAddValueRef(stringHandle, out count));
+
+            //2 because the safe interface adds a reference.
+            Assert.Equal((uint)2, count);
+
+            Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
+
+            stringHandle.Dispose();
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
         public void JsRefCanBeAdded()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
@@ -165,6 +193,7 @@
                 uint count;
                 Errors.ThrowIfError(Jsrt.JsAddRef(ptr, out count));
 
+                //0 because the ptr isn't associated with the runtime.
                 Assert.True(count == 0);
 
                 Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
@@ -199,16 +228,16 @@
 
             Errors.ThrowIfError(Jsrt.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback));
 
-            //Apparently if the handle is released prior to garbage collection, the callback isn't run.
-            //Thus, the following is commented out.
-            //valueHandle.Dispose();
-
+            //The callback is executed during runtime release.
+            valueHandle.Dispose();
             Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
 
-            Assert.True(called == true);
-            
+            Assert.True(called == false);
+
             contextHandle.Dispose();
             runtimeHandle.Dispose();
+
+            Assert.True(called == true);
         }
 
         [Fact]
@@ -344,7 +373,7 @@
             }
             finally
             {
-                Marshal.ZeroFreeGlobalAllocAnsi(strPtr);
+                Marshal.FreeHGlobal(strPtr);
             }
 
             contextHandle.Dispose();
@@ -1113,7 +1142,12 @@ return obj;
 
             Assert.True(handleType == JavaScriptValueType.Object);
 
+            //The callback is executed during runtime release.
             objectHandle.Dispose();
+            Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
+
+            Assert.True(called == false);
+
             contextHandle.Dispose();
             runtimeHandle.Dispose();
 
@@ -1695,6 +1729,131 @@ return obj;
         }
 
         [Fact]
+        public void JsCanDetermineIfIndexedPropertyExists()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            //Test on array
+            JavaScriptValueSafeHandle arrayHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateArray(10, out arrayHandle));
+
+            JavaScriptValueSafeHandle arrayIndexHandle;
+            Errors.ThrowIfError(Jsrt.JsIntToNumber(0, out arrayIndexHandle));
+
+            //array[0] = 0;
+            Errors.ThrowIfError(Jsrt.JsSetIndexedProperty(arrayHandle, arrayIndexHandle, arrayIndexHandle));
+
+            bool hasArrayIndex;
+            Errors.ThrowIfError(Jsrt.JsHasIndexedProperty(arrayHandle, arrayIndexHandle, out hasArrayIndex));
+
+            Assert.True(hasArrayIndex);
+
+            Errors.ThrowIfError(Jsrt.JsIntToNumber(10, out arrayIndexHandle));
+
+            Errors.ThrowIfError(Jsrt.JsHasIndexedProperty(arrayHandle, arrayIndexHandle, out hasArrayIndex));
+
+            Assert.False(hasArrayIndex);
+
+            arrayIndexHandle.Dispose();
+            arrayHandle.Dispose();
+
+            //Test on object as associative array.
+            JavaScriptValueSafeHandle objectHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateObject(out objectHandle));
+
+            string propertyName = "foo";
+            JavaScriptPropertyIdSafeHandle propertyIdHandle;
+            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+
+            JavaScriptValueSafeHandle propertyNameHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
+
+            string notAPropertyName = "bar";
+            JavaScriptValueSafeHandle notAPropertyNameHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(notAPropertyName, new UIntPtr((uint)notAPropertyName.Length), out notAPropertyNameHandle));
+
+            string propertyValue = "Some people choose to see the ugliness in this world. The disarray. I choose to see the beauty.";
+            JavaScriptValueSafeHandle propertyValueHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyValue, new UIntPtr((uint)propertyValue.Length), out propertyValueHandle));
+
+            Errors.ThrowIfError(Jsrt.JsSetProperty(objectHandle, propertyIdHandle, propertyValueHandle, true));
+
+            bool hasObjectIndex;
+            Errors.ThrowIfError(Jsrt.JsHasIndexedProperty(objectHandle, propertyNameHandle, out hasObjectIndex));
+
+            Assert.True(hasObjectIndex);
+
+            Errors.ThrowIfError(Jsrt.JsHasIndexedProperty(objectHandle, notAPropertyNameHandle, out hasObjectIndex));
+
+            Assert.False(hasObjectIndex);
+
+            propertyIdHandle.Dispose();
+            propertyNameHandle.Dispose();
+            notAPropertyNameHandle.Dispose();
+            propertyValueHandle.Dispose();
+            objectHandle.Dispose();
+
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsArrayCanBeCreated()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle arrayHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateArray(50, out arrayHandle));
+
+            Assert.True(arrayHandle != JavaScriptValueSafeHandle.Invalid);
+
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(arrayHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.Array);
+
+            arrayHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsArrayBufferCanBeCreated()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle arrayBufferHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateArrayBuffer(50, out arrayBufferHandle));
+
+            Assert.True(arrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
+
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(arrayBufferHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.ArrayBuffer);
+
+            arrayBufferHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
         public void JsExternalArrayBufferCanBeCreated()
         {
             var data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
@@ -1717,12 +1876,193 @@ return obj;
                 Errors.ThrowIfError(Jsrt.JsGetValueType(externalArrayBufferHandle, out handleType));
 
                 Assert.True(handleType == JavaScriptValueType.ArrayBuffer);
+
+                externalArrayBufferHandle.Dispose();
             }
             finally
             {
                 contextHandle.Dispose();
                 runtimeHandle.Dispose();
             }
+        }
+
+        [Fact]
+        public void JsTypedArrayCanBeCreated()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle typedArrayHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50, out typedArrayHandle));
+
+            Assert.True(typedArrayHandle != JavaScriptValueSafeHandle.Invalid);
+
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(typedArrayHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.TypedArray);
+
+            typedArrayHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsDataViewCanBeCreated()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle arrayBufferHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateArrayBuffer(50, out arrayBufferHandle));
+
+            JavaScriptValueSafeHandle dataViewHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateDataView(arrayBufferHandle, 0, 50, out dataViewHandle));
+
+            Assert.True(dataViewHandle != JavaScriptValueSafeHandle.Invalid);
+
+            JavaScriptValueType handleType;
+            Errors.ThrowIfError(Jsrt.JsGetValueType(dataViewHandle, out handleType));
+
+            Assert.True(handleType == JavaScriptValueType.DataView);
+
+            arrayBufferHandle.Dispose();
+            dataViewHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsTypedArrayInfoCanBeRetrieved()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle typedArrayHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50, out typedArrayHandle));
+
+
+            JavaScriptTypedArrayType typedArrayType;
+            JavaScriptValueSafeHandle arrayBufferHandle;
+            uint byteOffset, byteLength;
+            Errors.ThrowIfError(Jsrt.JsGetTypedArrayInfo(typedArrayHandle, out typedArrayType, out arrayBufferHandle, out byteOffset, out byteLength));
+
+            Assert.True(typedArrayType == JavaScriptTypedArrayType.Int8);
+            Assert.True(arrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
+            Assert.True(byteOffset == 0);
+            Assert.True(byteLength == 50);
+
+            arrayBufferHandle.Dispose();
+            typedArrayHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsArrayBufferStorageCanBeRetrieved()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle arrayBufferHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateArrayBuffer(50, out arrayBufferHandle));
+
+            IntPtr ptrBuffer;
+            uint bufferLength;
+            Errors.ThrowIfError(Jsrt.JsGetArrayBufferStorage(arrayBufferHandle, out ptrBuffer, out bufferLength));
+
+            byte[] buffer = new byte[bufferLength];
+            Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
+
+            Assert.True(bufferLength == 50);
+            Assert.True(buffer.Length == 50);
+
+            arrayBufferHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsTypedArrayStorageCanBeRetrieved()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle typedArrayHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50, out typedArrayHandle));
+
+            IntPtr ptrBuffer;
+            uint bufferLength;
+            JavaScriptTypedArrayType typedArrayType;
+            int elementSize;
+            Errors.ThrowIfError(Jsrt.JsGetTypedArrayStorage(typedArrayHandle, out ptrBuffer, out bufferLength, out typedArrayType, out elementSize));
+
+            //Normally, we'd create an appropriately typed buffer based on elementsize.
+            Assert.True(elementSize == 1); //byte
+
+            byte[] buffer = new byte[bufferLength];
+            Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
+
+            Assert.True(bufferLength == 50);
+            Assert.True(buffer.Length == 50);
+            Assert.True(typedArrayType == JavaScriptTypedArrayType.Int8);
+            
+
+            typedArrayHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsDataViewStorageCanBeRetrieved()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle arrayBufferHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateArrayBuffer(50, out arrayBufferHandle));
+
+            JavaScriptValueSafeHandle dataViewHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateDataView(arrayBufferHandle, 0, 50, out dataViewHandle));
+
+            IntPtr ptrBuffer;
+            uint bufferLength;
+            Errors.ThrowIfError(Jsrt.JsGetDataViewStorage(dataViewHandle, out ptrBuffer, out bufferLength));
+
+            byte[] buffer = new byte[bufferLength];
+            Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
+
+            Assert.True(bufferLength == 50);
+            Assert.True(buffer.Length == 50);
+
+            dataViewHandle.Dispose();
+            arrayBufferHandle.Dispose();
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
         }
     }
 }

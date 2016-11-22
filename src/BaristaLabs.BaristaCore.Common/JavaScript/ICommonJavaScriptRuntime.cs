@@ -167,6 +167,21 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
+		JavaScriptErrorCode JsAddValueRef(JavaScriptValueSafeHandle @ref, out uint count);
+
+		/// <summary>
+		///     Adds a reference to a garbage collected object.
+		/// </summary>
+		/// <remarks>
+		///     This only needs to be called on <c>JsRef</c> handles that are not going to be stored
+		///     somewhere on the stack. Calling <c>JsAddRef</c> ensures that the object the <c>JsRef</c>
+		///     refers to will not be freed until <c>JsRelease</c> is called.
+		/// </remarks>
+		/// <param name="ref">The object to add a reference to.</param>
+		/// <param name="count">The object's new reference count (can pass in null).</param>
+		/// <returns>
+		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+		/// </returns>
 		JavaScriptErrorCode JsAddRef(IntPtr @ref, out uint count);
 
 		/// <summary>
@@ -1109,7 +1124,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetArrayBufferStorage(JavaScriptValueSafeHandle arrayBuffer, out byte[] buffer, out uint bufferLength);
+		JavaScriptErrorCode JsGetArrayBufferStorage(JavaScriptValueSafeHandle arrayBuffer, out IntPtr buffer, out uint bufferLength);
 
 		/// <summary>
 		///     Obtains the underlying memory storage used by a typed array.
@@ -1128,7 +1143,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out byte[] buffer, out uint bufferLength, out JavaScriptTypedArrayType arrayType, out int elementSize);
+		JavaScriptErrorCode JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out IntPtr buffer, out uint bufferLength, out JavaScriptTypedArrayType arrayType, out int elementSize);
 
 		/// <summary>
 		///     Obtains the underlying memory storage used by a DataView.
@@ -1143,7 +1158,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetDataViewStorage(JavaScriptValueSafeHandle dataView, out byte[] buffer, out uint bufferLength);
+		JavaScriptErrorCode JsGetDataViewStorage(JavaScriptValueSafeHandle dataView, out IntPtr buffer, out uint bufferLength);
 
 		/// <summary>
 		///     Invokes a function.
