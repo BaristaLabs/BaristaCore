@@ -7,7 +7,7 @@ BaristaCore
 |:-----------------------------:|:-----------:|
 | __Windows (x64)__             | [![Build status](https://ci.appveyor.com/api/projects/status/6jogkgo5x7ohjma4/branch/master?svg=true)](https://ci.appveyor.com/project/Oceanswave/baristacore/branch/master) |
 | __Ubuntu 14.04 (x64)__        | [![Build Status](https://travis-ci.org/BaristaLabs/BaristaCore.svg?branch=master)](https://travis-ci.org/BaristaLabs/BaristaCore) |
-| __OS X 10.12 (x64)__          | [![Build Status](https://travis-ci.org/BaristaLabs/BaristaCore.svg?branch=master)](https://travis-ci.org/BaristaLabs/BaristaCore) |
+| __macOS 10.12.1 (x64)__       | [![Build Status](https://travis-ci.org/BaristaLabs/BaristaCore.svg?branch=master)](https://travis-ci.org/BaristaLabs/BaristaCore) |
 
 
 > **10/5/2016** *BaristaCore is currently in active development. The functionality described below indicates the design goals of BaristaCore and may not be all currently implemented.*
@@ -27,7 +27,9 @@ To summarize, BaristaCore provides:
  - New features and services.
  - Better documentation and distribution.
 
+
  Other players in the serverless service app space that have sprung up in the past few years include:
+
 
  - AWS Lambda
  - Azure Functions
@@ -39,7 +41,7 @@ To summarize, BaristaCore provides:
 Roadmap
 ----------
 
-New Capabilities:
+Core Functionality:
   - [X] Barista as WebAPI Middleware
     - [ ] Support configuring endpoint url
     - [ ] Configurable output formatters
@@ -53,6 +55,7 @@ New Capabilities:
   - [X] Cross-Platform Support
     - [X] Provide Pre-built ChakraCore.dll binaries for 3 platforms
     - [X] Provide an automatic way for the .dll to be specified.
+  - [ ] High-Level Object Model around ChakraCore
   - [ ] Automatic TypeScript transpilation
   - [ ] Built-in Swagger/Apiary API mocks, ability to implement.
 
@@ -75,6 +78,7 @@ Bundle re-implmentation
  - [ ] Scraping
  - [ ] PDF Generation
  - [ ] Local Automation
+ - [ ] Legacy Bundles (for compatibility)
  - [ ] ...
 
 New extensibility support:
@@ -87,6 +91,7 @@ New extensibility support:
 
 Fiddle Improvements:
  - [ ] Provide Fiddle as WebAPI Middleware
+ - [ ] Monaco Editor based
  - [ ] Develop as a PWA for offline/local dev.
  - [ ] Use webpack for bundling/minification
    - [ ] Seperate node.js based environment for actually developing BaristaFiddle
@@ -103,10 +108,20 @@ BaristaServer-SharePoint
 
 Documentation
  - [x] Barista Site (baristalabs.io)
-   - [ ] Update with improvements in BaristaCore
- - [ ] Barista Docs (Github Wiki)
+   - [ ] Update with BaristaCore
+ - [ ] BaristaCore Docs (Github Wiki)
 
 Distribution (BaristaServer)
-- [ ] Chocolatey
-- [ ] Brew
-- [ ] Apt-Get
+ - [ ] Chocolatey
+ - [ ] Brew
+ - [ ] Apt-Get
+
+Continuous Integration
+ - [X] Automated Cross-Platform builds w/ Unit Tests
+  - [X] Windows
+  - [X] Linux
+  - [X] macOS
+ - [ ] Automated Releases
+  - [ ] Chocolatey
+  - [ ] Apt-Get
+  - [ ] Brew
