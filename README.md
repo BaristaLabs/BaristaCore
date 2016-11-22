@@ -46,12 +46,17 @@ Core Functionality:
     - [ ] Support configuring endpoint url
     - [ ] Configurable output formatters
     - [ ] Configurable Source File Providers (ISourceFileProvider)
+	- [ ] Auto-Response marshalling based on result object type (ArrayBuffer/DataView = raw response)
+	- [ ] Re-implementation of X- Header behavior (instancing, language, code location)
   - [X] .Net Core Support
   - [X] Use ChakraCore as the JavaScript Engine
     - [X] Enables ECMAScript 6+ support (classes, arrow functions, etc), and beyond.
     - [ ] ES6 Promises (Requires additional impl.)
     - [X] More performant script execution
+	- [X] T4 Template driven generation of P/Invoke classes
+	- [ ] Full unit test suite surrounding managed/unmanaged interop layer
     - [ ] Debugging Support
+	- [ ] Time-Travel Debugging Support
   - [X] Cross-Platform Support
     - [X] Provide Pre-built ChakraCore.dll binaries for 3 platforms
     - [X] Provide an automatic way for the .dll to be specified.
