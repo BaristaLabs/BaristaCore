@@ -17,11 +17,11 @@ install:
   - ps: Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($tempFile, $env:DOTNET_INSTALL_DIR)
   - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
 before_build:
-  - ps: dotnet --info
-  - cmd: appveyor-retry dotnet restore -v Minimal
+  - cmd: %DOTNET_INSTALL_DIR%\dotnet --info
+  - cmd: appveyor-retry %DOTNET_INSTALL_DIR%\dotnet restore -v Minimal
 build_script:
-  - cmd: dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
+  - cmd: %DOTNET_INSTALL_DIR%\dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
 test_script:
-  - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
+  - cmd: %DOTNET_INSTALL_DIR%\dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
 cache:
   - '%USERPROFILE%\.nuget\packages'
