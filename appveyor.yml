@@ -1,6 +1,5 @@
 version: 1.0.{build}
 configuration:
-  - Debug
   - Release
 platform: x64
 environment:
@@ -9,6 +8,8 @@ init:
   - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
 before_build:
   - cmd: appveyor-retry dotnet restore -v Minimal
+build_script:
+  - cmd: dotnet build -c %CONFIGURATION% -f %PLATFORM% ./test/BaristaLabs.BaristaCore.Tests/
 test_script:
   - cmd: dotnet test -c %CONFIGURATION% -f %PLATFORM% ./test/BaristaLabs.BaristaCore.Tests/
 cache:
