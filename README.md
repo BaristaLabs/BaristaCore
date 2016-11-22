@@ -5,7 +5,7 @@ BaristaCore
 
 |                               | __Release__ |
 |:-----------------------------:|:-----------:|
-| __Windows (x64)__             | TBD |
+| __Windows (x64)__             | [![Build status](https://ci.appveyor.com/api/projects/status/6jogkgo5x7ohjma4/branch/master?svg=true)](https://ci.appveyor.com/project/Oceanswave/baristacore/branch/master) |
 | __Ubuntu 14.04 (x64)__        | [![Build Status](https://travis-ci.org/BaristaLabs/BaristaCore.svg?branch=master)](https://travis-ci.org/BaristaLabs/BaristaCore) |
 | __OS X 10.12 (x64)__          | [![Build Status](https://travis-ci.org/BaristaLabs/BaristaCore.svg?branch=master)](https://travis-ci.org/BaristaLabs/BaristaCore) |
 
