@@ -8,7 +8,7 @@
 #><#@ import namespace="System.Xml"
 #><#@ import namespace="System.Xml.Linq"
 #><#@ import namespace="Microsoft.VisualStudio.TextTemplating"
-#><#@include file="$(SolutionDir)/ChakraExternManager.ttinclude"
+#><#@include file="$(SolutionDir)/tt/ChakraExternManager.ttinclude"
 #><#
 	//Common type mappings
 	var typeMap = new Dictionary<string, string>() {

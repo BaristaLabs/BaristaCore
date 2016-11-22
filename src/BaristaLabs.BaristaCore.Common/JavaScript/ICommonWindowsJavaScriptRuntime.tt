@@ -1,9 +1,9 @@
 ﻿<#@ template debug="false" hostspecific="true" language="C#"
-#><#@ include file="$(SolutionDir)/ChakraExternDefinitions.ttinclude"
+#><#@ include file="$(SolutionDir)/tt/ChakraExternDefinitions.ttinclude"
 #><#
 	var SourceName = "ChakraCommonWindows.h";
 	var InterfaceName = "ICommonWindowsJavaScriptRuntime";
 	Predicate<ChakraExternManager.ChakraExtern> SourceFilePredicate = 
 		(ex => ex.Source == SourceName);
-#><#@ include file="$(SolutionDir)/ChakraSimpleInterface.ttinclude"
+#><#@ include file="$(SolutionDir)/tt/ChakraSimpleInterface.ttinclude"
 #>

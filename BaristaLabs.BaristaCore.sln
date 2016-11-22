@@ -7,12 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1E189DA3-80D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E6B87984-3E9A-476A-AEAA-8B9CECB79BB8}"
 	ProjectSection(SolutionItems) = preProject
-		ChakraExternDefinitions.ttinclude = ChakraExternDefinitions.ttinclude
 		ChakraExternDefinitions.xml = ChakraExternDefinitions.xml
-		ChakraExternManager.ttinclude = ChakraExternManager.ttinclude
-		ChakraSimpleImplementation.ttinclude = ChakraSimpleImplementation.ttinclude
-		ChakraSimpleInterface.ttinclude = ChakraSimpleInterface.ttinclude
-		ChakraTypedInterface.ttinclude = ChakraTypedInterface.ttinclude
 		global.json = global.json
 		LICENSE = LICENSE
 		README.md = README.md
@@ -29,6 +24,15 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "BaristaServer", "src\BaristaServer\BaristaServer.xproj", "{624574AB-E6D3-4030-9A4F-E816723B6625}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "BaristaLabs.BaristaCore.Common", "src\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.xproj", "{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tt", "tt", "{2C6696CF-9E37-417A-B019-F022BC993E02}"
+	ProjectSection(SolutionItems) = preProject
+		tt\ChakraExternDefinitions.ttinclude = tt\ChakraExternDefinitions.ttinclude
+		tt\ChakraExternManager.ttinclude = tt\ChakraExternManager.ttinclude
+		tt\ChakraSimpleImplementation.ttinclude = tt\ChakraSimpleImplementation.ttinclude
+		tt\ChakraSimpleInterface.ttinclude = tt\ChakraSimpleInterface.ttinclude
+		tt\ChakraTypedInterface.ttinclude = tt\ChakraTypedInterface.ttinclude
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,5 +70,6 @@ Global
 		{E3FF6242-6102-4BA5-927B-BD43903BA195} = {BF7A5A92-FCD0-4CA4-9234-B96B543F2488}
 		{624574AB-E6D3-4030-9A4F-E816723B6625} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
 		{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
+		{2C6696CF-9E37-417A-B019-F022BC993E02} = {E6B87984-3E9A-476A-AEAA-8B9CECB79BB8}
 	EndGlobalSection
 EndGlobal
