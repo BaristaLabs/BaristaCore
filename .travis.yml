@@ -3,6 +3,7 @@ language: generic
 cache:
     directories:
     - $HOME/.ChakraCore
+    - $HOME/.nuget/packages
 
 addons:
   apt:
