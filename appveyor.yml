@@ -8,7 +8,7 @@ environment:
 init:
   - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
 install:
-  - ps: $url = "https://go.microsoft.com/fwlink/?LinkID=827537" # .Net Core SDK x64 RTM 1.1.0
+  - ps: $url = "https://go.microsoft.com/fwlink/?LinkID=835014" # .Net Core SDK x64 RTM 1.1.0
     # Download .NET Core SDK and add to PATH
   - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
   - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
@@ -17,11 +17,11 @@ install:
   - ps: Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($tempFile, $env:DOTNET_INSTALL_DIR)
   - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
 before_build:
-  - cmd: %DOTNET_INSTALL_DIR%\dotnet --info
-  - cmd: appveyor-retry %DOTNET_INSTALL_DIR%\dotnet restore -v Minimal
+  - cmd: dotnet --info
+  - cmd: appveyor-retry dotnet restore -v Minimal
 build_script:
-  - cmd: %DOTNET_INSTALL_DIR%\dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
+  - cmd: dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
 test_script:
-  - cmd: %DOTNET_INSTALL_DIR%\dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
+  - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
 cache:
   - '%USERPROFILE%\.nuget\packages'
