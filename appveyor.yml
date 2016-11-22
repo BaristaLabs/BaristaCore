@@ -8,7 +8,7 @@ environment:
 init:
   - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
 install:
-  - ps: $url = "https://go.microsoft.com/fwlink/?LinkID=835014" # .Net Core SDK x64 RTM 1.1.0
+  - ps: $url = "https://go.microsoft.com/fwlink/?LinkID=834991" # .Net Core SDK x64 RTM 1.1.0
     # Download .NET Core SDK and add to PATH
   - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
   - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
