@@ -3,7 +3,7 @@ configuration:
   - Release
 platform: x64
 environment:
-  FRAMEWORK: x64
+  FRAMEWORK: netcoreapp1.0
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
 init:
   - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
