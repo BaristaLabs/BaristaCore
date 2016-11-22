@@ -595,8 +595,6 @@ var obj = {
 return obj;
 })();
 ";
-            var sourceUrl = "[eval code]";
-            JavaScriptValueSafeHandle objHandle;
 
             JavaScriptRuntimeSafeHandle runtimeHandle;
             Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
@@ -605,26 +603,7 @@ return obj;
             Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
             Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
-            IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
-            try
-            {
-                JavaScriptValueSafeHandle scriptHandle;
-                Errors.ThrowIfError(Jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero, out scriptHandle));
-
-                JavaScriptSourceContext sourceContext = new JavaScriptSourceContext();
-
-                JavaScriptValueSafeHandle sourceUrlHandle;
-                Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length), out sourceUrlHandle));
-
-                Errors.ThrowIfError(Jsrt.JsRun(scriptHandle, sourceContext, sourceUrlHandle, JavaScriptParseScriptAttributes.None, out objHandle));
-
-                scriptHandle.Dispose();
-                sourceUrlHandle.Dispose();
-            }
-            finally
-            {
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
-            }
+            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
 
             JavaScriptValueSafeHandle propertySymbols;
             Errors.ThrowIfError(Jsrt.JsGetOwnPropertySymbols(objHandle, out propertySymbols));
@@ -1282,8 +1261,6 @@ MammalSpecies.prototype.constructor = MammalSpecies;
 
 var oCat = new MammalSpecies('Felis');
 ";
-            var sourceUrl = "[eval code]";
-            JavaScriptValueSafeHandle objHandle;
 
             JavaScriptRuntimeSafeHandle runtimeHandle;
             Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
@@ -1292,26 +1269,7 @@ var oCat = new MammalSpecies('Felis');
             Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
             Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
 
-            IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
-            try
-            {
-                JavaScriptValueSafeHandle scriptHandle;
-                Errors.ThrowIfError(Jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero, out scriptHandle));
-
-                JavaScriptSourceContext sourceContext = new JavaScriptSourceContext();
-
-                JavaScriptValueSafeHandle sourceUrlHandle;
-                Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length), out sourceUrlHandle));
-
-                Errors.ThrowIfError(Jsrt.JsRun(scriptHandle, sourceContext, sourceUrlHandle, JavaScriptParseScriptAttributes.None, out objHandle));
-
-                scriptHandle.Dispose();
-                sourceUrlHandle.Dispose();
-            }
-            finally
-            {
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
-            }
+            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
 
             JavaScriptPropertyIdSafeHandle oCatPropertyHandle;
             Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8("oCat", new UIntPtr((uint)"oCat".Length), out oCatPropertyHandle));
