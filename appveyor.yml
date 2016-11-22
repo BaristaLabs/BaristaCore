@@ -7,7 +7,17 @@ environment:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
 init:
   - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
+install:
+  - ps: $url = "https://go.microsoft.com/fwlink/?LinkID=827537" # .Net Core SDK x64 RTM 1.1.0
+    # Download .NET Core SDK and add to PATH
+  - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
+  - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
+  - ps: $tempFile = [System.IO.Path]::GetTempFileName()
+  - ps: (New-Object System.Net.WebClient).DownloadFile($url, $tempFile)
+  - ps: Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($tempFile, $env:DOTNET_INSTALL_DIR)
+  - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
 before_build:
+  - ps: dotnet --info
   - cmd: appveyor-retry dotnet restore -v Minimal
 build_script:
   - cmd: dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
