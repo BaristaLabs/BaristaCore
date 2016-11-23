@@ -13,14 +13,50 @@
 	foreach (var ex in ChakraExternManager.Externs.FindAll(SourceFilePredicate))
 	{
 #>
+		/// <summary>
+		///		<#= ex.InterfaceExtern.Summary #>
+		/// </summary>
+<# if (!string.IsNullOrWhiteSpace(ex.InterfaceExtern.Remarks))
+	{
+#>
+		/// <remarks>
 <#
-	foreach(var ln in ex.Description.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None)) {
+	foreach(var ln in ex.InterfaceExtern.Remarks.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None)) {
 		if (ln.Trim() == string.Empty)
 			continue;
-		WriteLine("\t\t" + ln);
+		WriteLine("\t\t///\t\t" + ln);
     }
 #>
-		JavaScriptErrorCode <#= ex.Name #>(<#= ex.NativeSignature #>);
+		/// </remarks>
+<#
+	foreach(var param in ex.InterfaceExtern.Parameters)
+	{
+#>
+		/// <param name="<#= param.Name #>">
+<#
+	foreach(var ln in param.Description.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None)) {
+		if (ln.Trim() == string.Empty)
+			continue;
+		WriteLine("\t\t///\t\t" + ln);
+    }
+#>
+		/// </param>
+<#	} #>
+<#	} #>
+<# if (ex.InterfaceExtern.ReturnParameter.Type != "void")
+	{
+#>
+		/// <returns>
+<#
+	foreach(var ln in ex.InterfaceExtern.ReturnParameter.Description.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None)) {
+		if (ln.Trim() == string.Empty)
+			continue;
+		WriteLine("\t\t///\t\t" + ln);
+    }
+#>
+		/// </returns>
+<#	} #>
+		<#= ex.ReturnParameter.Type #> <#= ex.Name #>(<#= ex.Signature #>);
 
 <#
     }

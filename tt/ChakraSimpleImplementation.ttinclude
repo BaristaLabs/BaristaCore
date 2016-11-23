@@ -11,7 +11,7 @@
 	foreach (var ex in ChakraExternManager.Externs.FindAll(ExternPlatformPredicate))
 	{
 #>
-			public JavaScriptErrorCode <#= ex.Name #>(<#= ex.NativeSignature #>)
+			public JavaScriptErrorCode <#= ex.Name #>(<#= ex.Signature #>)
 			{
 				return LibChakraCore.<#= ex.Name #>(<#= ex.CallSignature #>);
 			}

@@ -11,13 +11,12 @@ namespace BaristaLabs.BaristaCore.JavaScript
 	foreach (var ex in ChakraExternManager.Externs.FindAll(ExternPlatformPredicate))
 	{
 #>
-			public <#= ex.InterfaceReturnType #> <#= ex.Name #>(<#= ex.InterfaceSignature #>)
+			public <#= ex.InterfaceExtern.ReturnParameter.Type #> <#= ex.InterfaceExtern.Name #>(<#= ex.InterfaceExtern.Signature #>)
 			{
-<#		var returnParam = ex.InterfaceReturnParameter; #>
-<#		if (returnParam != null) 
+<#		if (ex.InterfaceExtern.ReturnParameter.Type != "void") 
         {
 #>
-				<#= returnParam.Type #> <#= returnParam.Name #>;
+				<#= ex.InterfaceExtern.ReturnParameter.Type #> <#= ex.InterfaceExtern.ReturnParameter.Name #>;
 <#		}#>
 				Errors.ThrowIfError(LibChakraCore.<#= ex.Name #>(<#= ex.CallSignature #>));
 <#		foreach (var outSafeHandle in ex.GetOutContextSafeHandles())
@@ -38,10 +37,10 @@ namespace BaristaLabs.BaristaCore.JavaScript
 <#		
 		}
 #>
-<#		if (returnParam != null) 
+<#		if (ex.InterfaceExtern.ReturnParameter.Type != "void") 
         {
 #>
-				return <#= returnParam.Name #>;
+				return <#= ex.InterfaceExtern.ReturnParameter.Name #>;
 <#		}#>
 			}
 

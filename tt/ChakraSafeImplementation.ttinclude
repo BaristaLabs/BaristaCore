@@ -11,7 +11,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
 	foreach (var ex in ChakraExternManager.Externs.FindAll(ExternPlatformPredicate))
 	{
 #>
-			public JavaScriptErrorCode <#= ex.Name #>(<#= ex.NativeSignature #>)
+			public JavaScriptErrorCode <#= ex.Name #>(<#= ex.Signature #>)
 			{
 				var errCode = LibChakraCore.<#= ex.Name #>(<#= ex.CallSignature #>);
 <#		if (ex.HasOutContextSafeHandles)

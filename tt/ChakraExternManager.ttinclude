@@ -20,6 +20,7 @@ public class ChakraExternManager {
 	public class ExternParameter {
 		public string Type;
 		public string Name;
+		public string Description;
 		public ParameterDirection Direction = ParameterDirection.In;
     }
 
@@ -27,8 +28,14 @@ public class ChakraExternManager {
 		public string Name = "";
 		public PlatformTarget Target = PlatformTarget.Common;
 		public string Source = "";
-		public string Description = "";
+		public string Summary = "";
+        public string Remarks = "";
+
 		public List<ExternParameter> Parameters = new List<ExternParameter>();
+		public ExternParameter ReturnParameter = new ExternParameter() {
+			Type = "JavaScriptErrorCode",
+			Description = ""
+        };
 		public string DllImportEx = "";
 
 		public Dictionary<string, string> InterfaceTypeMap = new Dictionary<string, string>() {
@@ -53,75 +60,53 @@ public class ChakraExternManager {
             }
         }
 
-		public ExternParameter InterfaceReturnParameter
-		{
+		public ChakraExtern InterfaceExtern
+        {
 			get
-			{
-				var firstOutParameter = Parameters.FirstOrDefault( p => p.Direction == ParameterDirection.Out);
+            {
+				var result = new ChakraExtern();
+				result.Summary = this.Summary;
+				result.Remarks = this.Remarks;
+				result.Name = this.Name;
 
-				if (firstOutParameter != null) {
+				var firstOutParameter = Parameters.FirstOrDefault( p => p.Direction == ParameterDirection.Out);
+				var interfaceParameters = Parameters.Where( p => p != firstOutParameter).ToList();
+				foreach(var interfaceParameter in interfaceParameters)
+				{
 					var paramCopy = new ExternParameter();
-					paramCopy.Direction = firstOutParameter.Direction;
-					paramCopy.Name = firstOutParameter.Name;
-					
-					if (InterfaceTypeMap.ContainsKey(firstOutParameter.Type))
-						paramCopy.Type = InterfaceTypeMap[firstOutParameter.Type];
+					paramCopy.Direction = interfaceParameter.Direction;
+					paramCopy.Name = interfaceParameter.Name;
+					paramCopy.Description = interfaceParameter.Description;
+
+					if (InterfaceTypeMap.ContainsKey(interfaceParameter.Type))
+						paramCopy.Type = InterfaceTypeMap[interfaceParameter.Type];
 					else
-						paramCopy.Type = firstOutParameter.Type;
-
-					return paramCopy;
-				}
-					
-				return null;
-			}
-		}
-
-		public string InterfaceReturnType
-		{
-			get
-			{
-				var firstOutParameter = Parameters.FirstOrDefault( p => p.Direction == ParameterDirection.Out);
-				if (firstOutParameter != null) {
-					var type = firstOutParameter.Type;
-					if (InterfaceTypeMap.ContainsKey(type))
-						return InterfaceTypeMap[type];
-					return type;
-				}
-					
-				return "void";
-			}
-		}
-
-		public string InterfaceSignature
-		{
-			get
-			{
-				StringBuilder sb = new StringBuilder();
-				var interfaceParameters = Parameters.Where( p => p != Parameters.FirstOrDefault( p2 => p2.Direction == ParameterDirection.Out )).ToList();
-				
-				foreach(var p in interfaceParameters) {
-					if (p.Direction == ParameterDirection.Out)
-						sb.Append("out ");
-					else if (p.Direction == ParameterDirection.Ref)
-						sb.Append("ref ");
-
-					if (InterfaceTypeMap.ContainsKey(p.Type))
-						sb.Append(InterfaceTypeMap[p.Type]);
-					else
-						sb.Append(p.Type);
-
-					sb.Append(" ");
-					sb.Append(p.Name);
-
-					if (p != interfaceParameters[interfaceParameters.Count() - 1])
-						sb.Append(", ");
+						paramCopy.Type = interfaceParameter.Type;
+					result.Parameters.Add(paramCopy);
                 }
 
-				return sb.ToString();
-			}
-		}
+				//Make the first out parameter the return parameter.
+				result.ReturnParameter = new ExternParameter();
+				if (firstOutParameter == null) {
+					result.ReturnParameter.Type = "void";
+					result.ReturnParameter.Name = "";
+					result.ReturnParameter.Description = "";
+                }
+				else {
+					if (InterfaceTypeMap.ContainsKey(firstOutParameter.Type))
+						result.ReturnParameter.Type = InterfaceTypeMap[firstOutParameter.Type];
+					else
+						result.ReturnParameter.Type = firstOutParameter.Type;
 
-		public string NativeSignature
+					result.ReturnParameter.Name = firstOutParameter.Name;
+					result.ReturnParameter.Description = firstOutParameter.Description;
+                }
+
+				return result;
+            }
+        }
+
+		public string Signature
 		{
 			get
 			{

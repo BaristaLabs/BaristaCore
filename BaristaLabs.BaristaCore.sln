@@ -36,6 +36,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tt", "tt", "{A9077451-DA1B-
 		tt\ChakraTypedSafeImplementation.ttinclude = tt\ChakraTypedSafeImplementation.ttinclude
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "util", "util", "{3EE68377-9F64-4CCB-B995-B4AEB08FB3AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
