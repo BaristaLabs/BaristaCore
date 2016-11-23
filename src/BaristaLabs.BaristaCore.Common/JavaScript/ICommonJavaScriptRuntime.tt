@@ -5,5 +5,5 @@
 	var InterfaceName = "ICommonJavaScriptRuntime";
 	Predicate<ChakraExternManager.ChakraExtern> SourceFilePredicate = 
 		(ex => ex.Source == SourceName);
-#><#@ include file="$(SolutionDir)/tt/ChakraSimpleInterface.ttinclude"
+#><#@ include file="$(SolutionDir)/tt/ChakraTypedInterface.ttinclude"
 #>

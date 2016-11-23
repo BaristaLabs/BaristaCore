@@ -21,7 +21,7 @@
 		/// <remarks>
 		///     The runtime should be active on the current thread and should not be in debug state.
 		/// </remarks>
-		JavaScriptErrorCode JsDiagStartDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagDebugEventCallback debugEventCallback, IntPtr callbackState);
+		void JsDiagStartDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagDebugEventCallback debugEventCallback, IntPtr callbackState);
 
 	}
 }

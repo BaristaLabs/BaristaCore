@@ -5,5 +5,5 @@
 	string JavaScriptRuntimeInterfaces = "IJavaScriptRuntime";
 	Predicate<ChakraExternManager.ChakraExtern> ExternPlatformPredicate = 
 		(ex => ex.Target == ChakraExternManager.PlatformTarget.Common || ex.Target == ChakraExternManager.PlatformTarget.WindowsOnly);
-#><#@ include file="$(SolutionDir)/tt/ChakraSafeImplementation.ttinclude"
+#><#@ include file="$(SolutionDir)/tt/ChakraTypedSafeImplementation.ttinclude"
 #>

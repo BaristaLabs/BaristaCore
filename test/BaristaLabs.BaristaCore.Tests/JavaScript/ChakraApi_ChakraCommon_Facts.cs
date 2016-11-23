@@ -22,81 +22,78 @@
         [Fact]
         public void JsRuntimeCanBeConstructed()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
-
-            Assert.False(runtimeHandle.IsClosed);
-            Assert.False(runtimeHandle.IsInvalid);
-            runtimeHandle.Dispose();
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                Assert.True(runtimeHandle != JavaScriptRuntimeSafeHandle.Invalid);
+                Assert.False(runtimeHandle.IsClosed);
+                Assert.False(runtimeHandle.IsInvalid);
+            }
         }
 
         [Fact]
         public void JsRuntimeCanBeDisposed()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
-            Assert.False(runtimeHandle.IsClosed);
-            runtimeHandle.Dispose();
-            Assert.True(runtimeHandle.IsClosed);
+            JavaScriptRuntimeSafeHandle runtimeHandle = JavaScriptRuntimeSafeHandle.Invalid;
+            try
+            {
+                runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null);
+                Assert.False(runtimeHandle.IsClosed);
+            }
+            finally
+            {
+                runtimeHandle.Dispose();
+                Assert.True(runtimeHandle.IsClosed);
+            }
         }
 
         [Fact]
         public void JsCollectGarbageCanBeCalled()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
-            Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
-
-            runtimeHandle.Dispose();
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                Jsrt.JsCollectGarbage(runtimeHandle);
+            }
         }
 
         [Fact]
         public void JsRuntimeMemoryUsageCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                var usage = Jsrt.JsGetRuntimeMemoryUsage(runtimeHandle);
 
-            ulong usage;
-            Errors.ThrowIfError(Jsrt.JsGetRuntimeMemoryUsage(runtimeHandle, out usage));
-
-            Assert.True(usage > 0);
-            runtimeHandle.Dispose();
+                Assert.True(usage > 0);
+            }
         }
 
         [Fact]
         public void JsRuntimeMemoryLimitCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                var limit = Jsrt.JsGetRuntimeMemoryLimit(runtimeHandle);
 
-            ulong limit;
-            Errors.ThrowIfError(Jsrt.JsGetRuntimeMemoryLimit(runtimeHandle, out limit));
-
-            Assert.True(limit == ulong.MaxValue);
-            runtimeHandle.Dispose();
+                Assert.True(limit == ulong.MaxValue);
+            }
         }
 
         [Fact]
         public void JsRuntimeMemoryLimitCanBeSet()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
 
-            Errors.ThrowIfError(Jsrt.JsSetRuntimeMemoryLimit(runtimeHandle, 64000));
+                Jsrt.JsSetRuntimeMemoryLimit(runtimeHandle, 64000);
 
-            ulong limit;
-            Errors.ThrowIfError(Jsrt.JsGetRuntimeMemoryLimit(runtimeHandle, out limit));
+                var limit = Jsrt.JsGetRuntimeMemoryLimit(runtimeHandle);
 
-            Assert.True(64000 == limit);
-            runtimeHandle.Dispose();
+                Assert.True(64000 == limit);
+            }
         }
 
         [Fact]
         public void JsRuntimeMemoryAllocationCallbackIsCalled()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
-
             bool called = false;
             JavaScriptMemoryAllocationCallback callback = (IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize) =>
             {
@@ -104,13 +101,15 @@
                 return true;
             };
 
-            Errors.ThrowIfError(Jsrt.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, callback));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                Jsrt.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, callback);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                //Bounce a context to get an allocation
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                }
+            }
 
             Assert.True(called);
         }
@@ -118,20 +117,18 @@
         [Fact]
         public void JsRuntimeBeforeCollectCallbackIsCalled()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
-
             bool called = false;
             JavaScriptBeforeCollectCallback callback = (IntPtr callbackState) =>
             {
                 called = true;
             };
 
-            Errors.ThrowIfError(Jsrt.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, callback));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                Jsrt.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, callback);
 
-            Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
-
-            runtimeHandle.Dispose();
+                Jsrt.JsCollectGarbage(runtimeHandle);
+            }
 
             Assert.True(called);
         }
@@ -144,100 +141,91 @@
         [Fact]
         public void JsValueRefCanBeAdded()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var myString = "Have you ever questioned the nature of your reality?";
+                    var stringHandle = Jsrt.JsCreateStringUtf8(myString, new UIntPtr((uint)myString.Length));
 
-            var myString = "Have you ever questioned the nature of your reality?";
-            JavaScriptValueSafeHandle stringHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(myString, new UIntPtr((uint)myString.Length), out stringHandle));
+                    var count = Jsrt.JsAddValueRef(stringHandle);
 
-            uint count;
-            Errors.ThrowIfError(Jsrt.JsAddValueRef(stringHandle, out count));
+                    //2 because the safe interface adds a reference.
+                    Assert.Equal((uint)2, count);
 
-            //2 because the safe interface adds a reference.
-            Assert.Equal((uint)2, count);
+                    Jsrt.JsCollectGarbage(runtimeHandle);
 
-            Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
-
-            stringHandle.Dispose();
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    stringHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsRefCanBeAdded()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
-
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
-
-            var point = new MyPoint()
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
-                x = 64,
-                y = 64
-            };
-            
-            IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf<MyPoint>());
-            try
-            {
-                Marshal.StructureToPtr(point, ptr, false);
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-                uint count;
-                Errors.ThrowIfError(Jsrt.JsAddRef(ptr, out count));
+                    var point = new MyPoint()
+                    {
+                        x = 64,
+                        y = 64
+                    };
 
-                //0 because the ptr isn't associated with the runtime.
-                Assert.True(count == 0);
+                    IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf<MyPoint>());
+                    try
+                    {
+                        Marshal.StructureToPtr(point, ptr, false);
 
-                Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
-            }
-            finally
-            {
-                Marshal.DestroyStructure<MyPoint>(ptr);
-                Marshal.FreeHGlobal(ptr);
-                contextHandle.Dispose();
-                runtimeHandle.Dispose();
+                        var count = Jsrt.JsAddRef(ptr);
+
+                        //0 because the ptr isn't associated with the runtime.
+                        Assert.True(count == 0);
+
+                        Jsrt.JsCollectGarbage(runtimeHandle);
+                    }
+                    finally
+                    {
+                        Marshal.DestroyStructure<MyPoint>(ptr);
+                        Marshal.FreeHGlobal(ptr);
+                    }
+                }
             }
         }
 
         [Fact]
         public void JsObjectBeforeCollectCallbackIsCalled()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
-
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
-
             bool called = false;
             JavaScriptObjectBeforeCollectCallback callback = (IntPtr sender, IntPtr callbackState) =>
             {
                 called = true;
             };
 
-            JavaScriptValueSafeHandle valueHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8("superman", new UIntPtr((uint)"superman".Length), out valueHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            Errors.ThrowIfError(Jsrt.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback));
+                    var valueHandle = Jsrt.JsCreateStringUtf8("superman", new UIntPtr((uint)"superman".Length));
 
-            //The callback is executed during runtime release.
-            valueHandle.Dispose();
-            Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
+                    Jsrt.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback);
 
-            //Commenting this as apparently on linux/osx, JsCollectGarbage does call the callback,
-            //while on windows it does not. Might be related to timing, garbage collection, or idle.
-            //Assert.False(called);
+                    //The callback is executed during runtime release.
+                    valueHandle.Dispose();
+                    Jsrt.JsCollectGarbage(runtimeHandle);
 
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    //Commenting this as apparently on linux/osx, JsCollectGarbage does call the callback,
+                    //while on windows it does not. Might be related to timing, garbage collection, or idle.
+                    //Assert.False(called);
+                }
+            }
 
             Assert.True(called);
         }
@@ -245,180 +233,166 @@
         [Fact]
         public void JsContextCanBeCreated()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-
-            Assert.False(contextHandle.IsClosed);
-            Assert.False(contextHandle.IsInvalid);
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    Assert.False(contextHandle == JavaScriptContextSafeHandle.Invalid);
+                    Assert.False(contextHandle.IsClosed);
+                    Assert.False(contextHandle.IsInvalid);
+                }
+            }
         }
 
         [Fact]
         public void JsContextCanBeReleased()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                var contextHandle = Jsrt.JsCreateContext(runtimeHandle);
+                try
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-
-            Assert.False(contextHandle.IsClosed);
-            contextHandle.Dispose();
-            Assert.True(contextHandle.IsClosed);
-
-            runtimeHandle.Dispose();
+                    Assert.False(contextHandle.IsClosed);
+                }
+                finally
+                {
+                    contextHandle.Dispose();
+                    Assert.True(contextHandle.IsClosed);
+                }
+            }
         }
 
         [Fact]
         public void JsCurrentContextCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                var contextHandle = Jsrt.JsGetCurrentContext();
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsGetCurrentContext(out contextHandle));
+                Assert.True(contextHandle.IsInvalid);
 
-            Assert.True(contextHandle.IsInvalid);
-
-            runtimeHandle.Dispose();
+            }
         }
 
         [Fact]
         public void JsCurrentContextCanBeSet()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+                    var currentContextHandle = Jsrt.JsGetCurrentContext();
+                    Assert.True(currentContextHandle == contextHandle);
 
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
-
-            JavaScriptContextSafeHandle currentContextHandle;
-            Errors.ThrowIfError(Jsrt.JsGetCurrentContext(out currentContextHandle));
-            Assert.True(currentContextHandle == contextHandle);
-            
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsContextOfObjectCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    string str = "I do not fear computers. I fear the lack of them.";
+                    var stringHandle = Jsrt.JsCreateStringUtf8(str, new UIntPtr((uint)str.Length));
 
-            string str = "I do not fear computers. I fear the lack of them.";
-            JavaScriptValueSafeHandle stringHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(str, new UIntPtr((uint)str.Length), out stringHandle));
+                    var objectContextHandle = Jsrt.JsGetContextOfObject(stringHandle);
 
-            JavaScriptContextSafeHandle objectContextHandle;
-            Errors.ThrowIfError(Jsrt.JsGetContextOfObject(stringHandle, out objectContextHandle));
+                    Assert.True(objectContextHandle == contextHandle);
 
-            Assert.True(objectContextHandle == contextHandle);
-
-            stringHandle.Dispose();
-            objectContextHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    stringHandle.Dispose();
+                    objectContextHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JSContextDataCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var contextData = Jsrt.JsGetContextData(contextHandle);
 
-            IntPtr contextData;
-            Errors.ThrowIfError(Jsrt.JsGetContextData(contextHandle, out contextData));
-
-            Assert.True(contextData == IntPtr.Zero);
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    Assert.True(contextData == IntPtr.Zero);
+                }
+            }
         }
 
         [Fact]
         public void JSContextDataCanBeSet()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
-
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
-
-            string myString = "How inappropriate to call this planet 'Earth', when it is clearly 'Ocean'.";
-            var strPtr = Marshal.StringToHGlobalAnsi(myString);
-            try
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
-                Errors.ThrowIfError(Jsrt.JsSetContextData(contextHandle, strPtr));
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-                IntPtr contextData;
-                Errors.ThrowIfError(Jsrt.JsGetContextData(contextHandle, out contextData));
+                    string myString = "How inappropriate to call this planet 'Earth', when it is clearly 'Ocean'.";
+                    var strPtr = Marshal.StringToHGlobalAnsi(myString);
+                    try
+                    {
+                        Jsrt.JsSetContextData(contextHandle, strPtr);
 
-                Assert.True(contextData == strPtr);
-                Assert.True(myString == Marshal.PtrToStringAnsi(contextData));
+                        var contextData = Jsrt.JsGetContextData(contextHandle);
+
+                        Assert.True(contextData == strPtr);
+                        Assert.True(myString == Marshal.PtrToStringAnsi(contextData));
+                    }
+                    finally
+                    {
+                        Marshal.FreeHGlobal(strPtr);
+                    }
+
+                }
             }
-            finally
-            {
-                Marshal.FreeHGlobal(strPtr);
-            }
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
         }
 
         [Fact]
         public void JsRuntimeCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var contextRuntimeHandle = Jsrt.JsGetRuntime(contextHandle);
 
-            JavaScriptRuntimeSafeHandle contextRuntimeHandle;
-            Errors.ThrowIfError(Jsrt.JsGetRuntime(contextHandle, out contextRuntimeHandle));
-
-            Assert.True(contextRuntimeHandle == runtimeHandle);
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    Assert.True(contextRuntimeHandle == runtimeHandle);
+                }
+            }
         }
 
         [Fact]
         public void JsIdleCanBeCalled()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableIdleProcessing, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var nextIdleTick = Jsrt.JsIdle();
 
-            uint nextIdleTick;
-            Errors.ThrowIfError(Jsrt.JsIdle(out nextIdleTick));
+                    var nextTickTime = new DateTime(DateTime.Now.Ticks + nextIdleTick);
+                    Assert.True(nextTickTime > DateTime.Now);
 
-            var nextTickTime = new DateTime(DateTime.Now.Ticks + nextIdleTick);
-            Assert.True(nextTickTime > DateTime.Now);
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -426,33 +400,25 @@
         {
             string propertyName = "foo";
 
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var propertyNameHandle = Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var symbolHandle = Jsrt.JsCreateSymbol(propertyNameHandle);
+                    var propertyIdHandle = Jsrt.JsGetPropertyIdFromSymbol(symbolHandle);
+                    var retrievedSymbolHandle = Jsrt.JsGetSymbolFromPropertyId(propertyIdHandle);
 
-            JavaScriptValueSafeHandle propertyNameHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
+                    Assert.True(retrievedSymbolHandle != JavaScriptValueSafeHandle.Invalid);
 
-            JavaScriptValueSafeHandle symbolHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateSymbol(propertyNameHandle, out symbolHandle));
-
-            JavaScriptPropertyIdSafeHandle propertyIdHandle;
-            Errors.ThrowIfError(Jsrt.JsGetPropertyIdFromSymbol(symbolHandle, out propertyIdHandle));
-
-            JavaScriptValueSafeHandle retrievedSymbolHandle;
-            Errors.ThrowIfError(Jsrt.JsGetSymbolFromPropertyId(propertyIdHandle, out retrievedSymbolHandle));
-
-            Assert.True(retrievedSymbolHandle != JavaScriptValueSafeHandle.Invalid);
-
-            retrievedSymbolHandle.Dispose();
-            propertyIdHandle.Dispose();
-            symbolHandle.Dispose();
-            propertyNameHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    retrievedSymbolHandle.Dispose();
+                    propertyIdHandle.Dispose();
+                    symbolHandle.Dispose();
+                    propertyNameHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -460,41 +426,29 @@
         {
             string propertyName = "foo";
 
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var propertyNameHandle = Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var symbolHandle = Jsrt.JsCreateSymbol(propertyNameHandle);
+                    var symbolPropertyIdHandle = Jsrt.JsGetPropertyIdFromSymbol(symbolHandle);
+                    var stringPropertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
 
-            JavaScriptValueSafeHandle propertyNameHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
+                    var symbolPropertyType = Jsrt.JsGetPropertyIdType(symbolPropertyIdHandle);
+                    Assert.True(symbolPropertyType == JavaScriptPropertyIdType.Symbol);
 
-            JavaScriptValueSafeHandle symbolHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateSymbol(propertyNameHandle, out symbolHandle));
+                    var stringPropertyType = Jsrt.JsGetPropertyIdType(stringPropertyIdHandle);
+                    Assert.True(stringPropertyType == JavaScriptPropertyIdType.String);
 
-            JavaScriptPropertyIdSafeHandle symbolPropertyIdHandle;
-            Errors.ThrowIfError(Jsrt.JsGetPropertyIdFromSymbol(symbolHandle, out symbolPropertyIdHandle));
-
-            JavaScriptPropertyIdSafeHandle stringPropertyIdHandle;
-            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out stringPropertyIdHandle));
-
-            JavaScriptPropertyIdType symbolPropertyType;
-            Errors.ThrowIfError(Jsrt.JsGetPropertyIdType(symbolPropertyIdHandle, out symbolPropertyType));
-
-            Assert.True(symbolPropertyType == JavaScriptPropertyIdType.Symbol);
-
-            JavaScriptPropertyIdType stringPropertyType;
-            Errors.ThrowIfError(Jsrt.JsGetPropertyIdType(stringPropertyIdHandle, out stringPropertyType));
-
-            Assert.True(stringPropertyType == JavaScriptPropertyIdType.String);
-
-            stringPropertyIdHandle.Dispose();
-            symbolPropertyIdHandle.Dispose();
-            symbolHandle.Dispose();
-            propertyNameHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    stringPropertyIdHandle.Dispose();
+                    symbolPropertyIdHandle.Dispose();
+                    symbolHandle.Dispose();
+                    propertyNameHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -502,29 +456,23 @@
         {
             string propertyName = "foo";
 
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var propertyNameHandle = Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var symbolHandle = Jsrt.JsCreateSymbol(propertyNameHandle);
+                    var propertyIdHandle = Jsrt.JsGetPropertyIdFromSymbol(symbolHandle);
 
-            JavaScriptValueSafeHandle propertyNameHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
+                    Assert.True(propertyIdHandle != JavaScriptPropertyIdSafeHandle.Invalid);
 
-            JavaScriptValueSafeHandle symbolHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateSymbol(propertyNameHandle, out symbolHandle));
-
-            JavaScriptPropertyIdSafeHandle propertyIdHandle;
-            Errors.ThrowIfError(Jsrt.JsGetPropertyIdFromSymbol(symbolHandle, out propertyIdHandle));
-            
-            Assert.True(propertyIdHandle != JavaScriptPropertyIdSafeHandle.Invalid);
-
-            propertyIdHandle.Dispose();
-            symbolHandle.Dispose();
-            propertyNameHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    propertyIdHandle.Dispose();
+                    symbolHandle.Dispose();
+                    propertyNameHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -532,30 +480,24 @@
         {
             string propertyName = "foo";
 
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var propertyNameHandle = Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var symbolHandle = Jsrt.JsCreateSymbol(propertyNameHandle);
 
-            JavaScriptValueSafeHandle propertyNameHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
+                    Assert.True(symbolHandle != JavaScriptValueSafeHandle.Invalid);
 
-            JavaScriptValueSafeHandle symbolHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateSymbol(propertyNameHandle, out symbolHandle));
-            
-            Assert.True(symbolHandle != JavaScriptValueSafeHandle.Invalid);
+                    var handleType = Jsrt.JsGetValueType(symbolHandle);
+                    Assert.True(handleType == JavaScriptValueType.Symbol);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(symbolHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Symbol);
-
-            symbolHandle.Dispose();
-            propertyNameHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    symbolHandle.Dispose();
+                    propertyNameHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -564,53 +506,42 @@
             string propertyName = "foo";
             string toStringPropertyName = "toString";
 
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableIdleProcessing, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
-
-            JavaScriptValueSafeHandle propertyNameHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
-
-            JavaScriptValueSafeHandle symbolHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateSymbol(propertyNameHandle, out symbolHandle));
+                    var propertyNameHandle = Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var symbolHandle = Jsrt.JsCreateSymbol(propertyNameHandle);
 
 
-            JavaScriptPropertyIdSafeHandle toStringFunctionPropertyIdHandle;
-            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(toStringPropertyName, new UIntPtr((uint)toStringPropertyName.Length), out toStringFunctionPropertyIdHandle));
+                    var toStringFunctionPropertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(toStringPropertyName, new UIntPtr((uint)toStringPropertyName.Length));
 
-            JavaScriptValueSafeHandle symbolObjHandle;
-            Errors.ThrowIfError(Jsrt.JsConvertValueToObject(symbolHandle, out symbolObjHandle));
+                    var symbolObjHandle = Jsrt.JsConvertValueToObject(symbolHandle);
+                    var symbolToStringFnHandle = Jsrt.JsGetProperty(symbolObjHandle, toStringFunctionPropertyIdHandle);
 
-            JavaScriptValueSafeHandle symbolToStringFnHandle;
-            Errors.ThrowIfError(Jsrt.JsGetProperty(symbolObjHandle, toStringFunctionPropertyIdHandle, out symbolToStringFnHandle));
+                    var resultHandle = Jsrt.JsCallFunction(symbolToStringFnHandle, new IntPtr[] { symbolObjHandle.DangerousGetHandle() }, 1);
 
-            JavaScriptValueSafeHandle resultHandle;
-            Errors.ThrowIfError(Jsrt.JsCallFunction(symbolToStringFnHandle, new IntPtr[] { symbolObjHandle.DangerousGetHandle() }, 1, out resultHandle));
+                    var size = Jsrt.JsCopyStringUtf8(resultHandle, null, UIntPtr.Zero);
+                    if ((int)size > int.MaxValue)
+                        throw new OutOfMemoryException("Exceeded maximum string length.");
 
-            UIntPtr size;
-            Errors.ThrowIfError(Jsrt.JsCopyStringUtf8(resultHandle, null, UIntPtr.Zero, out size));
-            if ((int)size > int.MaxValue)
-                throw new OutOfMemoryException("Exceeded maximum string length.");
+                    byte[] result = new byte[(int)size];
+                    var written = Jsrt.JsCopyStringUtf8(resultHandle, result, size);
+                    string resultStr = Encoding.UTF8.GetString(result, 0, result.Length);
 
-            byte[] result = new byte[(int)size];
-            UIntPtr written;
-            Errors.ThrowIfError(Jsrt.JsCopyStringUtf8(resultHandle, result, size, out written));
-            string resultStr = Encoding.UTF8.GetString(result, 0, result.Length);
+                    Assert.True(resultStr == "Symbol(foo)");
 
-            Assert.True(resultStr == "Symbol(foo)");
+                    toStringFunctionPropertyIdHandle.Dispose();
+                    symbolObjHandle.Dispose();
+                    symbolToStringFnHandle.Dispose();
+                    resultHandle.Dispose();
 
-            toStringFunctionPropertyIdHandle.Dispose();
-            symbolObjHandle.Dispose();
-            symbolToStringFnHandle.Dispose();
-            resultHandle.Dispose();
-
-            symbolHandle.Dispose();
-            propertyNameHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    symbolHandle.Dispose();
+                    propertyNameHandle.Dispose();
+                }
+            }
         }
 
 
@@ -627,478 +558,399 @@ return obj;
 })();
 ";
 
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
 
-            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    var propertySymbols = Jsrt.JsGetOwnPropertySymbols(objHandle);
 
-            JavaScriptValueSafeHandle propertySymbols;
-            Errors.ThrowIfError(Jsrt.JsGetOwnPropertySymbols(objHandle, out propertySymbols));
+                    Assert.True(propertySymbols != JavaScriptValueSafeHandle.Invalid);
 
-            JavaScriptValueType propertySymbolsType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(propertySymbols, out propertySymbolsType));
+                    var propertySymbolsType = Jsrt.JsGetValueType(propertySymbols);
+                    Assert.True(propertySymbolsType == JavaScriptValueType.Array);
 
-            Assert.True(propertySymbols != JavaScriptValueSafeHandle.Invalid);
-            Assert.True(propertySymbolsType == JavaScriptValueType.Array);
+                    propertySymbols.Dispose();
+                    objHandle.Dispose();
 
-            propertySymbols.Dispose();
-            objHandle.Dispose();
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsUndefinedValueCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var undefinedHandle = Jsrt.JsGetUndefinedValue();
 
-            JavaScriptValueSafeHandle undefinedHandle;
-            Errors.ThrowIfError(Jsrt.JsGetUndefinedValue(out undefinedHandle));
+                    Assert.True(undefinedHandle != JavaScriptValueSafeHandle.Invalid);
 
-            Assert.True(undefinedHandle != JavaScriptValueSafeHandle.Invalid);
+                    var handleType = Jsrt.JsGetValueType(undefinedHandle);
+                    Assert.True(handleType == JavaScriptValueType.Undefined);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(undefinedHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Undefined);
-
-            undefinedHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    undefinedHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsNullValueCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var nullHandle = Jsrt.JsGetNullValue();
 
-            JavaScriptValueSafeHandle nullHandle;
-            Errors.ThrowIfError(Jsrt.JsGetNullValue(out nullHandle));
+                    Assert.True(nullHandle != JavaScriptValueSafeHandle.Invalid);
 
-            Assert.True(nullHandle != JavaScriptValueSafeHandle.Invalid);
+                    var handleType = Jsrt.JsGetValueType(nullHandle);
+                    Assert.True(handleType == JavaScriptValueType.Null);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(nullHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Null);
-
-            nullHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    nullHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsTrueValueCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var trueHandle = Jsrt.JsGetTrueValue();
 
-            JavaScriptValueSafeHandle trueHandle;
-            Errors.ThrowIfError(Jsrt.JsGetTrueValue(out trueHandle));
+                    Assert.True(trueHandle != JavaScriptValueSafeHandle.Invalid);
 
-            Assert.True(trueHandle != JavaScriptValueSafeHandle.Invalid);
+                    var handleType = Jsrt.JsGetValueType(trueHandle);
+                    Assert.True(handleType == JavaScriptValueType.Boolean);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(trueHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Boolean);
-
-            trueHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    trueHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsFalseValueCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var falseHandle = Jsrt.JsGetFalseValue();
 
-            JavaScriptValueSafeHandle falseHandle;
-            Errors.ThrowIfError(Jsrt.JsGetFalseValue(out falseHandle));
+                    Assert.True(falseHandle != JavaScriptValueSafeHandle.Invalid);
 
-            Assert.True(falseHandle != JavaScriptValueSafeHandle.Invalid);
+                    var handleType = Jsrt.JsGetValueType(falseHandle);
+                    Assert.True(handleType == JavaScriptValueType.Boolean);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(falseHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Boolean);
-
-            falseHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    falseHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanConvertBoolValueToBoolean()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var trueHandle = Jsrt.JsBoolToBoolean(true);
+                    Assert.True(trueHandle != JavaScriptValueSafeHandle.Invalid);
 
-            JavaScriptValueSafeHandle trueHandle;
-            Errors.ThrowIfError(Jsrt.JsBoolToBoolean(true, out trueHandle));
-            Assert.True(trueHandle != JavaScriptValueSafeHandle.Invalid);
-
-            trueHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    trueHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanConvertBooleanValueToBool()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var trueHandle = Jsrt.JsGetTrueValue();
+                    var falseHandle = Jsrt.JsGetFalseValue();
 
-            JavaScriptValueSafeHandle trueHandle;
-            Errors.ThrowIfError(Jsrt.JsGetTrueValue(out trueHandle));
+                    var result = Jsrt.JsBooleanToBool(trueHandle);
+                    Assert.True(result);
 
-            JavaScriptValueSafeHandle falseHandle;
-            Errors.ThrowIfError(Jsrt.JsGetFalseValue(out falseHandle));
+                    result = Jsrt.JsBooleanToBool(falseHandle);
+                    Assert.False(result);
 
-            bool result;
-            Errors.ThrowIfError(Jsrt.JsBooleanToBool(trueHandle, out result));
-            Assert.True(result);
-
-            Errors.ThrowIfError(Jsrt.JsBooleanToBool(falseHandle, out result));
-            Assert.False(result);
-
-            trueHandle.Dispose();
-            falseHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    trueHandle.Dispose();
+                    falseHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanConvertValueToBoolean()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var stringValue = "true";
+                    var stringHandle = Jsrt.JsCreateStringUtf8(stringValue, new UIntPtr((uint)stringValue.Length));
 
-            var stringValue = "true";
-            JavaScriptValueSafeHandle stringHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(stringValue, new UIntPtr((uint)stringValue.Length), out stringHandle));
+                    var boolHandle = Jsrt.JsConvertValueToBoolean(stringHandle);
 
-            JavaScriptValueSafeHandle boolHandle;
-            Errors.ThrowIfError(Jsrt.JsConvertValueToBoolean(stringHandle, out boolHandle));
+                    var handleType = Jsrt.JsGetValueType(boolHandle);
+                    Assert.True(handleType == JavaScriptValueType.Boolean);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(boolHandle, out handleType));
+                    var result = Jsrt.JsBooleanToBool(boolHandle);
+                    Assert.True(result);
 
-            Assert.True(handleType == JavaScriptValueType.Boolean);
-
-            bool result;
-            Errors.ThrowIfError(Jsrt.JsBooleanToBool(boolHandle, out result));
-            Assert.True(result);
-
-            stringHandle.Dispose();
-            boolHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    stringHandle.Dispose();
+                    boolHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanGetValueType()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var stringValue = "Dear future generations: Please accept our apologies. We were rolling drunk on petroleum.";
+                    var stringHandle = Jsrt.JsCreateStringUtf8(stringValue, new UIntPtr((uint)stringValue.Length));
 
-            var stringValue = "Dear future generations: Please accept our apologies. We were rolling drunk on petroleum.";
-            JavaScriptValueSafeHandle stringHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(stringValue, new UIntPtr((uint)stringValue.Length), out stringHandle));
+                    var handleType = Jsrt.JsGetValueType(stringHandle);
+                    Assert.True(handleType == JavaScriptValueType.String);
 
-            JavaScriptValueType result;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(stringHandle, out result));
-
-            Assert.True(result == JavaScriptValueType.String);
-
-            stringHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    stringHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanConvertDoubleValueToNumber()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var doubleHandle = Jsrt.JsDoubleToNumber(3.14156);
 
-            JavaScriptValueSafeHandle doubleHandle;
-            Errors.ThrowIfError(Jsrt.JsDoubleToNumber(3.14156, out doubleHandle));
+                    Assert.True(doubleHandle != JavaScriptValueSafeHandle.Invalid);
 
-            Assert.True(doubleHandle != JavaScriptValueSafeHandle.Invalid);
+                    var handleType = Jsrt.JsGetValueType(doubleHandle);
+                    Assert.True(handleType == JavaScriptValueType.Number);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(doubleHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Number);
-
-            doubleHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    doubleHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanConvertIntValueToNumber()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var intHandle = Jsrt.JsIntToNumber(3);
 
-            JavaScriptValueSafeHandle intHandle;
-            Errors.ThrowIfError(Jsrt.JsIntToNumber(3, out intHandle));
+                    Assert.True(intHandle != JavaScriptValueSafeHandle.Invalid);
 
-            Assert.True(intHandle != JavaScriptValueSafeHandle.Invalid);
+                    var handleType = Jsrt.JsGetValueType(intHandle);
+                    Assert.True(handleType == JavaScriptValueType.Number);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(intHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Number);
-
-            intHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    intHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanConvertNumberToDouble()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var doubleHandle = Jsrt.JsDoubleToNumber(3.14159);
 
-            JavaScriptValueSafeHandle doubleHandle;
-            Errors.ThrowIfError(Jsrt.JsDoubleToNumber(3.14159, out doubleHandle));
+                    var result = Jsrt.JsNumberToDouble(doubleHandle);
 
-            double result;
-            Errors.ThrowIfError(Jsrt.JsNumberToDouble(doubleHandle, out result));
+                    Assert.True(result == 3.14159);
 
-            Assert.True(result == 3.14159);
-
-            doubleHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    doubleHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanConvertNumberToInt()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var intHandle = Jsrt.JsIntToNumber(3);
+                    var result = Jsrt.JsNumberToInt(intHandle);
 
-            JavaScriptValueSafeHandle intHandle;
-            Errors.ThrowIfError(Jsrt.JsIntToNumber(3, out intHandle));
+                    Assert.True(result == 3);
 
-            int result;
-            Errors.ThrowIfError(Jsrt.JsNumberToInt(intHandle, out result));
-
-            Assert.True(result == 3);
-
-            intHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    intHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanConvertValueToNumber()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var stringValue = "2.71828";
+                    var stringHandle = Jsrt.JsCreateStringUtf8(stringValue, new UIntPtr((uint)stringValue.Length));
+                    var numberHandle = Jsrt.JsConvertValueToNumber(stringHandle);
 
-            var stringValue = "2.71828";
-            JavaScriptValueSafeHandle stringHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(stringValue, new UIntPtr((uint)stringValue.Length), out stringHandle));
+                    var handleType = Jsrt.JsGetValueType(numberHandle);
+                    Assert.True(handleType == JavaScriptValueType.Number);
 
-            JavaScriptValueSafeHandle numberHandle;
-            Errors.ThrowIfError(Jsrt.JsConvertValueToNumber(stringHandle, out numberHandle));
+                    var result = Jsrt.JsNumberToDouble(numberHandle);
+                    Assert.True(result == 2.71828);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(numberHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Number);
-
-            double result;
-            Errors.ThrowIfError(Jsrt.JsNumberToDouble(numberHandle, out result));
-
-            Assert.True(result == 2.71828);
-
-            stringHandle.Dispose();
-            numberHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    stringHandle.Dispose();
+                    numberHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanGetStringLength()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var stringValue = "If your brains were dynamite there wouldn't be enough to blow your hat off.";
+                    var stringHandle = Jsrt.JsCreateStringUtf8(stringValue, new UIntPtr((uint)stringValue.Length));
 
-            var stringValue = "If your brains were dynamite there wouldn't be enough to blow your hat off.";
-            JavaScriptValueSafeHandle stringHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(stringValue, new UIntPtr((uint)stringValue.Length), out stringHandle));
+                    var result = Jsrt.JsGetStringLength(stringHandle);
+                    Assert.True(stringValue.Length == result);
 
-            int result;
-            Errors.ThrowIfError(Jsrt.JsGetStringLength(stringHandle, out result));
-
-            Assert.True(stringValue.Length == result);
-
-            stringHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    stringHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanConvertValueToString()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var numberHandle = Jsrt.JsDoubleToNumber(2.71828);
+                    var stringHandle = Jsrt.JsConvertValueToString(numberHandle);
 
-            JavaScriptValueSafeHandle numberHandle;
-            Errors.ThrowIfError(Jsrt.JsDoubleToNumber(2.71828, out numberHandle));
+                    Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
 
-            JavaScriptValueSafeHandle stringHandle;
-            Errors.ThrowIfError(Jsrt.JsConvertValueToString(numberHandle, out stringHandle));
+                    var handleType = Jsrt.JsGetValueType(stringHandle);
+                    Assert.True(handleType == JavaScriptValueType.String);
 
-            Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
+                    //Get the size
+                    var size = Jsrt.JsCopyStringUtf8(stringHandle, null, UIntPtr.Zero);
+                    if ((int)size > int.MaxValue)
+                        throw new OutOfMemoryException("Exceeded maximum string length.");
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(stringHandle, out handleType));
+                    byte[] result = new byte[(int)size];
+                    var written = Jsrt.JsCopyStringUtf8(stringHandle, result, new UIntPtr((uint)result.Length));
+                    string resultStr = Encoding.UTF8.GetString(result, 0, result.Length);
 
-            Assert.True(handleType == JavaScriptValueType.String);
+                    Assert.True(resultStr == "2.71828");
 
-            //Get the size
-            UIntPtr size;
-            Errors.ThrowIfError(Jsrt.JsCopyStringUtf8(stringHandle, null, UIntPtr.Zero, out size));
-            if ((int)size > int.MaxValue)
-                throw new OutOfMemoryException("Exceeded maximum string length.");
-
-            byte[] result = new byte[(int)size];
-            UIntPtr written;
-            Errors.ThrowIfError(Jsrt.JsCopyStringUtf8(stringHandle, result, new UIntPtr((uint)result.Length), out written));
-            string resultStr = Encoding.UTF8.GetString(result, 0, result.Length);
-
-            Assert.True(resultStr == "2.71828");
-
-            stringHandle.Dispose();
-            numberHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    stringHandle.Dispose();
+                    numberHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanRetrieveGlobalObject()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var objectHandle = Jsrt.JsGetGlobalObject();
 
-            JavaScriptValueSafeHandle objectHandle;
-            Errors.ThrowIfError(Jsrt.JsGetGlobalObject(out objectHandle));
+                    Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
 
-            Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
+                    var handleType = Jsrt.JsGetValueType(objectHandle);
+                    Assert.True(handleType == JavaScriptValueType.Object);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(objectHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Object);
-
-            objectHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    objectHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanCreateObject()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var objectHandle = Jsrt.JsCreateObject();
 
-            JavaScriptValueSafeHandle objectHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateObject(out objectHandle));
+                    Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
 
-            Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
+                    var handleType = Jsrt.JsGetValueType(objectHandle);
+                    Assert.True(handleType == JavaScriptValueType.Object);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(objectHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Object);
-
-            objectHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    objectHandle.Dispose();
+                }
+            }
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -1114,13 +966,6 @@ return obj;
         [Fact]
         public void JsCanCreateExternalObject()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
-
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
-
             var myFoo = new Foo();
             int size = Marshal.SizeOf(myFoo);
             IntPtr myFooPtr = Marshal.AllocHGlobal(size);
@@ -1134,26 +979,29 @@ return obj;
                 Marshal.FreeHGlobal(ptr);
             };
 
-            JavaScriptValueSafeHandle objectHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateExternalObject(myFooPtr, callback, out objectHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
+                    var objectHandle = Jsrt.JsCreateExternalObject(myFooPtr, callback);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(objectHandle, out handleType));
+                    Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
 
-            Assert.True(handleType == JavaScriptValueType.Object);
+                    var handleType = Jsrt.JsGetValueType(objectHandle);
+                    Assert.True(handleType == JavaScriptValueType.Object);
 
-            //The callback is executed during runtime release.
-            objectHandle.Dispose();
-            Errors.ThrowIfError(Jsrt.JsCollectGarbage(runtimeHandle));
+                    //The callback is executed during runtime release.
+                    objectHandle.Dispose();
+                    Jsrt.JsCollectGarbage(runtimeHandle);
 
-            //Commenting this as apparently on linux/osx, JsCollectGarbage does call the callback,
-            //while on windows it does not. Might be related to timing, garbage collection, or idle.
-            //Assert.False(called);
+                    //Commenting this as apparently on linux/osx, JsCollectGarbage does call the callback,
+                    //while on windows it does not. Might be related to timing, garbage collection, or idle.
+                    //Assert.False(called);
 
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
 
             Assert.True(called);
         }
@@ -1161,125 +1009,99 @@ return obj;
         [Fact]
         public void JsCanConvertValueToObject()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var numberHandle = Jsrt.JsDoubleToNumber(2.71828);
+                    var objectHandle = Jsrt.JsConvertValueToObject(numberHandle);
 
-            JavaScriptValueSafeHandle numberHandle;
-            Errors.ThrowIfError(Jsrt.JsDoubleToNumber(2.71828, out numberHandle));
+                    Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
 
+                    var handleType = Jsrt.JsGetValueType(objectHandle);
+                    Assert.True(handleType == JavaScriptValueType.Object);
 
-            JavaScriptValueSafeHandle objectHandle;
-            Errors.ThrowIfError(Jsrt.JsConvertValueToObject(numberHandle, out objectHandle));
-
-            Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
-
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(objectHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Object);
-
-            objectHandle.Dispose();
-            numberHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    objectHandle.Dispose();
+                    numberHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanGetObjectPrototype()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    string stringValue = "Just what do you think you’re doing, Dave?";
+                    var stringHandle = Jsrt.JsCreateStringUtf8(stringValue, new UIntPtr((uint)stringValue.Length));
+                    var objectHandle = Jsrt.JsConvertValueToObject(stringHandle);
+                    var prototypeHandle = Jsrt.JsGetPrototype(objectHandle);
 
-            string stringValue = "Just what do you think you’re doing, Dave?";
-            JavaScriptValueSafeHandle stringHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(stringValue, new UIntPtr((uint)stringValue.Length), out stringHandle));
+                    Assert.True(prototypeHandle != JavaScriptValueSafeHandle.Invalid);
 
-            JavaScriptValueSafeHandle objectHandle;
-            Errors.ThrowIfError(Jsrt.JsConvertValueToObject(stringHandle, out objectHandle));
+                    var handleType = Jsrt.JsGetValueType(prototypeHandle);
+                    Assert.True(handleType == JavaScriptValueType.Object);
 
-            JavaScriptValueSafeHandle prototypeHandle;
-            Errors.ThrowIfError(Jsrt.JsGetPrototype(objectHandle, out prototypeHandle));
-
-            Assert.True(prototypeHandle != JavaScriptValueSafeHandle.Invalid);
-
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(prototypeHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Object);
-
-            prototypeHandle.Dispose();
-            objectHandle.Dispose();
-            stringHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    prototypeHandle.Dispose();
+                    objectHandle.Dispose();
+                    stringHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanSetObjectPrototype()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    //Create a new mammal object to use as a prototype.
+                    var mammalHandle = Jsrt.JsCreateObject();
 
-            //Create a new mammal object to use as a prototype.
-            JavaScriptValueSafeHandle mammalHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateObject(out mammalHandle));
+                    string isMammal = "isMammal";
+                    var isMammalPropertyHandle = Jsrt.JsCreatePropertyIdUtf8(isMammal, new UIntPtr((uint)isMammal.Length));
 
-            string isMammal = "isMammal";
-            JavaScriptPropertyIdSafeHandle isMammalPropertyHandle;
-            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(isMammal, new UIntPtr((uint)isMammal.Length), out isMammalPropertyHandle));
+                    var trueHandle = Jsrt.JsGetTrueValue();
 
-            JavaScriptValueSafeHandle trueHandle;
-            Errors.ThrowIfError(Jsrt.JsGetTrueValue(out trueHandle));
+                    //Set the prototype of cat to be mammal.
+                    Jsrt.JsSetProperty(mammalHandle, isMammalPropertyHandle, trueHandle, false);
 
-            //Set the prototype of cat to be mammal.
-            Errors.ThrowIfError(Jsrt.JsSetProperty(mammalHandle, isMammalPropertyHandle, trueHandle, false));
+                    var catHandle = Jsrt.JsCreateObject();
 
-            JavaScriptValueSafeHandle catHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateObject(out catHandle));
-            
-            Errors.ThrowIfError(Jsrt.JsSetPrototype(catHandle, mammalHandle));
+                    Jsrt.JsSetPrototype(catHandle, mammalHandle);
 
-            //Assert that the prototype of cat is mammal, and that cat now contains a isMammal property set to true.
-            JavaScriptValueSafeHandle catPrototypeHandle;
-            Errors.ThrowIfError(Jsrt.JsGetPrototype(catHandle, out catPrototypeHandle));
+                    //Assert that the prototype of cat is mammal, and that cat now contains a isMammal property set to true.
+                    var catPrototypeHandle = Jsrt.JsGetPrototype(catHandle);
 
-            Assert.True(catPrototypeHandle == mammalHandle);
+                    Assert.True(catPrototypeHandle == mammalHandle);
 
-            JavaScriptValueSafeHandle catIsMammalHandle;
-            Errors.ThrowIfError(Jsrt.JsGetProperty(catHandle, isMammalPropertyHandle, out catIsMammalHandle));
+                    var catIsMammalHandle = Jsrt.JsGetProperty(catHandle, isMammalPropertyHandle);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(catIsMammalHandle, out handleType));
+                    var handleType = Jsrt.JsGetValueType(catIsMammalHandle);
+                    Assert.True(handleType == JavaScriptValueType.Boolean);
 
-            Assert.True(handleType == JavaScriptValueType.Boolean);
+                    var catIsMammal = Jsrt.JsBooleanToBool(catIsMammalHandle);
+                    Assert.True(catIsMammal);
 
-            bool catIsMammal;
-            Errors.ThrowIfError(Jsrt.JsBooleanToBool(catIsMammalHandle, out catIsMammal));
+                    mammalHandle.Dispose();
+                    isMammalPropertyHandle.Dispose();
+                    trueHandle.Dispose();
+                    catHandle.Dispose();
+                    catPrototypeHandle.Dispose();
+                    catIsMammalHandle.Dispose();
+                    //Whew!
 
-            Assert.True(catIsMammal);
-
-            mammalHandle.Dispose();
-            isMammalPropertyHandle.Dispose();
-            trueHandle.Dispose();
-            catHandle.Dispose();
-            catPrototypeHandle.Dispose();
-            catIsMammalHandle.Dispose();
-            //Whew!
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -1300,94 +1122,74 @@ MammalSpecies.prototype.constructor = MammalSpecies;
 var oCat = new MammalSpecies('Felis');
 ";
 
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
 
-            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
-
-            JavaScriptPropertyIdSafeHandle oCatPropertyHandle;
-            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8("oCat", new UIntPtr((uint)"oCat".Length), out oCatPropertyHandle));
-
-            JavaScriptPropertyIdSafeHandle fnMammalSpeciesPropertyHandle;
-            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8("MammalSpecies", new UIntPtr((uint)"MammalSpecies".Length), out fnMammalSpeciesPropertyHandle));
+                    var oCatPropertyHandle = Jsrt.JsCreatePropertyIdUtf8("oCat", new UIntPtr((uint)"oCat".Length));
+                    var fnMammalSpeciesPropertyHandle = Jsrt.JsCreatePropertyIdUtf8("MammalSpecies", new UIntPtr((uint)"MammalSpecies".Length));
 
 
-            JavaScriptValueSafeHandle globalHandle;
-            Errors.ThrowIfError(Jsrt.JsGetGlobalObject(out globalHandle));
+                    var globalHandle = Jsrt.JsGetGlobalObject();
+                    var fnMammalSpeciesHandle = Jsrt.JsGetProperty(globalHandle, fnMammalSpeciesPropertyHandle);
+                    var oCatHandle = Jsrt.JsGetProperty(globalHandle, oCatPropertyHandle);
 
-            JavaScriptValueSafeHandle fnMammalSpeciesHandle;
-            Errors.ThrowIfError(Jsrt.JsGetProperty(globalHandle, fnMammalSpeciesPropertyHandle, out fnMammalSpeciesHandle));
+                    var result = Jsrt.JsInstanceOf(oCatHandle, fnMammalSpeciesHandle);
+                    Assert.True(result);
 
-            JavaScriptValueSafeHandle oCatHandle;
-            Errors.ThrowIfError(Jsrt.JsGetProperty(globalHandle, oCatPropertyHandle, out oCatHandle));
+                    oCatPropertyHandle.Dispose();
+                    fnMammalSpeciesPropertyHandle.Dispose();
 
-            bool result;
-            Errors.ThrowIfError(Jsrt.JsInstanceOf(oCatHandle, fnMammalSpeciesHandle, out result));
+                    oCatHandle.Dispose();
+                    fnMammalSpeciesHandle.Dispose();
+                    globalHandle.Dispose();
 
-            Assert.True(result);
-
-            oCatPropertyHandle.Dispose();
-            fnMammalSpeciesPropertyHandle.Dispose();
-
-            oCatHandle.Dispose();
-            fnMammalSpeciesHandle.Dispose();
-            globalHandle.Dispose();
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanDetermineIfObjectIsExtensible()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var objectHandle = Jsrt.JsCreateObject();
 
-            JavaScriptValueSafeHandle objectHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateObject(out objectHandle));
+                    var isExtensible = Jsrt.JsGetExtensionAllowed(objectHandle);
+                    Assert.True(isExtensible);
 
-
-            bool isExtensible;
-            Errors.ThrowIfError(Jsrt.JsGetExtensionAllowed(objectHandle, out isExtensible));
-
-            Assert.True(isExtensible);
-
-            objectHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    objectHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanMakeObjectNonExtensible()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var objectHandle = Jsrt.JsCreateObject();
 
-            JavaScriptValueSafeHandle objectHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateObject(out objectHandle));
+                    Jsrt.JsPreventExtension(objectHandle);
 
-            Errors.ThrowIfError(Jsrt.JsPreventExtension(objectHandle));
+                    var isExtensible = Jsrt.JsGetExtensionAllowed(objectHandle);
+                    Assert.False(isExtensible);
 
-            bool isExtensible;
-            Errors.ThrowIfError(Jsrt.JsGetExtensionAllowed(objectHandle, out isExtensible));
-
-            Assert.False(isExtensible);
-
-            objectHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    objectHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -1406,35 +1208,29 @@ var obj = {
 return obj;
 })();
 ";
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
 
-            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    var propertyName = "plugh";
+                    var propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyHandle = Jsrt.JsGetProperty(objHandle, propertyIdHandle);
 
-            var propertyName = "plugh";
-            JavaScriptPropertyIdSafeHandle propertyIdHandle;
-            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+                    Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
 
-            JavaScriptValueSafeHandle propertyHandle;
-            Errors.ThrowIfError(Jsrt.JsGetProperty(objHandle, propertyIdHandle, out propertyHandle));
+                    var handleType = Jsrt.JsGetValueType(propertyHandle);
+                    Assert.True(handleType == JavaScriptValueType.String);
 
-            Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
+                    propertyIdHandle.Dispose();
+                    propertyHandle.Dispose();
+                    objHandle.Dispose();
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(propertyHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.String);
-
-            propertyIdHandle.Dispose();
-            propertyHandle.Dispose();
-            objHandle.Dispose();
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -1453,35 +1249,29 @@ var obj = {
 return obj;
 })();
 ";
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
 
-            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    var propertyName = "corge";
+                    var propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyDescriptorHandle = Jsrt.JsGetOwnPropertyDescriptor(objHandle, propertyIdHandle);
 
-            var propertyName = "corge";
-            JavaScriptPropertyIdSafeHandle propertyIdHandle;
-            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+                    Assert.True(propertyDescriptorHandle != JavaScriptValueSafeHandle.Invalid);
 
-            JavaScriptValueSafeHandle propertyDescriptorHandle;
-            Errors.ThrowIfError(Jsrt.JsGetOwnPropertyDescriptor(objHandle, propertyIdHandle, out propertyDescriptorHandle));
+                    var handleType = Jsrt.JsGetValueType(propertyDescriptorHandle);
+                    Assert.True(handleType == JavaScriptValueType.Object);
 
-            Assert.True(propertyDescriptorHandle != JavaScriptValueSafeHandle.Invalid);
+                    propertyIdHandle.Dispose();
+                    propertyDescriptorHandle.Dispose();
+                    objHandle.Dispose();
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(propertyDescriptorHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Object);
-
-            propertyIdHandle.Dispose();
-            propertyDescriptorHandle.Dispose();
-            objHandle.Dispose();
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -1501,30 +1291,26 @@ return obj;
 })();
 ";
 
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
 
-            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    var propertySymbols = Jsrt.JsGetOwnPropertyNames(objHandle);
 
-            JavaScriptValueSafeHandle propertySymbols;
-            Errors.ThrowIfError(Jsrt.JsGetOwnPropertyNames(objHandle, out propertySymbols));
+                    Assert.True(propertySymbols != JavaScriptValueSafeHandle.Invalid);
 
-            Assert.True(propertySymbols != JavaScriptValueSafeHandle.Invalid);
+                    var handleType = Jsrt.JsGetValueType(propertySymbols);
+                    Assert.True(handleType == JavaScriptValueType.Array);
 
-            JavaScriptValueType propertySymbolsType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(propertySymbols, out propertySymbolsType));
+                    propertySymbols.Dispose();
+                    objHandle.Dispose();
 
-            Assert.True(propertySymbolsType == JavaScriptValueType.Array);
-
-            propertySymbols.Dispose();
-            objHandle.Dispose();
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -1543,42 +1329,34 @@ var obj = {
 return obj;
 })();
 ";
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
 
-            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    var propertyName = "baz";
+                    var propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var newPropertyValue = Jsrt.JsDoubleToNumber(3.14159);
 
-            var propertyName = "baz";
-            JavaScriptPropertyIdSafeHandle propertyIdHandle;
-            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+                    //Set the property
+                    Jsrt.JsSetProperty(objHandle, propertyIdHandle, newPropertyValue, true);
 
-            JavaScriptValueSafeHandle newPropertyValue;
-            Errors.ThrowIfError(Jsrt.JsDoubleToNumber(3.14159, out newPropertyValue));
+                    var propertyHandle = Jsrt.JsGetProperty(objHandle, propertyIdHandle);
 
-            //Set the property
-            Errors.ThrowIfError(Jsrt.JsSetProperty(objHandle, propertyIdHandle, newPropertyValue, true));
+                    Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
 
+                    var handleType = Jsrt.JsGetValueType(propertyHandle);
+                    Assert.True(handleType == JavaScriptValueType.Number);
 
-            JavaScriptValueSafeHandle propertyHandle;
-            Errors.ThrowIfError(Jsrt.JsGetProperty(objHandle, propertyIdHandle, out propertyHandle));
+                    propertyIdHandle.Dispose();
+                    propertyHandle.Dispose();
+                    objHandle.Dispose();
 
-            Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
-
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(propertyHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Number);
-            
-            propertyIdHandle.Dispose();
-            propertyHandle.Dispose();
-            objHandle.Dispose();
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -1597,37 +1375,33 @@ var obj = {
 return obj;
 })();
 ";
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
 
-            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    var propertyName = "lol";
+                    var propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
 
-            var propertyName = "lol";
-            JavaScriptPropertyIdSafeHandle propertyIdHandle;
-            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+                    var propertyExists = Jsrt.JsHasProperty(objHandle, propertyIdHandle);
+                    Assert.True(propertyExists);
 
-            bool propertyExists;
-            Errors.ThrowIfError(Jsrt.JsHasProperty(objHandle, propertyIdHandle, out propertyExists));
+                    propertyName = "asdf";
+                    propertyIdHandle.Dispose();
+                    propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
 
-            Assert.True(propertyExists);
-
-            propertyName = "asdf";
-            propertyIdHandle.Dispose();
-            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
-
-            Errors.ThrowIfError(Jsrt.JsHasProperty(objHandle, propertyIdHandle, out propertyExists));
-            Assert.False(propertyExists);
+                    propertyExists = Jsrt.JsHasProperty(objHandle, propertyIdHandle);
+                    Assert.False(propertyExists);
 
 
-            propertyIdHandle.Dispose();
-            objHandle.Dispose();
+                    propertyIdHandle.Dispose();
+                    objHandle.Dispose();
 
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -1646,37 +1420,30 @@ var obj = {
 return obj;
 })();
 ";
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
 
-            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    var propertyName = "waldo";
+                    var propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyDeletedHandle = Jsrt.JsDeleteProperty(objHandle, propertyIdHandle, true);
 
-            var propertyName = "waldo";
-            JavaScriptPropertyIdSafeHandle propertyIdHandle;
-            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+                    var wasPropertyDeleted = Jsrt.JsBooleanToBool(propertyDeletedHandle);
+                    Assert.True(wasPropertyDeleted);
 
-            JavaScriptValueSafeHandle propertyDeletedHandle;
-            Errors.ThrowIfError(Jsrt.JsDeleteProperty(objHandle, propertyIdHandle, true, out propertyDeletedHandle));
+                    var propertyExists = Jsrt.JsHasProperty(objHandle, propertyIdHandle);
+                    Assert.False(propertyExists);
 
-            bool wasPropertyDeleted;
-            Errors.ThrowIfError(Jsrt.JsBooleanToBool(propertyDeletedHandle,out wasPropertyDeleted));
-            Assert.True(wasPropertyDeleted);
+                    propertyDeletedHandle.Dispose();
+                    propertyIdHandle.Dispose();
+                    objHandle.Dispose();
 
-
-            bool propertyExists;
-            Errors.ThrowIfError(Jsrt.JsHasProperty(objHandle, propertyIdHandle, out propertyExists));
-            Assert.False(propertyExists);
-
-            propertyDeletedHandle.Dispose();
-            propertyIdHandle.Dispose();
-            objHandle.Dispose();
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -1700,111 +1467,90 @@ return obj;
 })();
 ";
 
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    JavaScriptValueSafeHandle propertyDefHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, propertyDef);
 
-            JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
-            JavaScriptValueSafeHandle propertyDefHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, propertyDef);
+                    var propertyName = "rico";
+                    var propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
 
-            var propertyName = "rico";
-            JavaScriptPropertyIdSafeHandle propertyIdHandle;
-            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+                    var result = Jsrt.JsDefineProperty(objHandle, propertyIdHandle, propertyDefHandle);
+                    Assert.True(result);
 
-            bool result;
-            Errors.ThrowIfError(Jsrt.JsDefineProperty(objHandle, propertyIdHandle, propertyDefHandle, out result));
+                    var propertyExists = Jsrt.JsHasProperty(objHandle, propertyIdHandle);
+                    Assert.True(propertyExists);
 
-            Assert.True(result);
+                    propertyDefHandle.Dispose();
+                    propertyIdHandle.Dispose();
+                    objHandle.Dispose();
 
-
-            bool propertyExists;
-            Errors.ThrowIfError(Jsrt.JsHasProperty(objHandle, propertyIdHandle, out propertyExists));
-            Assert.True(propertyExists);
-
-            propertyDefHandle.Dispose();
-            propertyIdHandle.Dispose();
-            objHandle.Dispose();
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanDetermineIfIndexedPropertyExists()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    //Test on array
+                    var arrayHandle = Jsrt.JsCreateArray(10);
+                    var arrayIndexHandle = Jsrt.JsIntToNumber(0);
 
-            //Test on array
-            JavaScriptValueSafeHandle arrayHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateArray(10, out arrayHandle));
+                    //array[0] = 0;
+                    Jsrt.JsSetIndexedProperty(arrayHandle, arrayIndexHandle, arrayIndexHandle);
 
-            JavaScriptValueSafeHandle arrayIndexHandle;
-            Errors.ThrowIfError(Jsrt.JsIntToNumber(0, out arrayIndexHandle));
+                    
+                    var hasArrayIndex = Jsrt.JsHasIndexedProperty(arrayHandle, arrayIndexHandle);
+                    Assert.True(hasArrayIndex);
 
-            //array[0] = 0;
-            Errors.ThrowIfError(Jsrt.JsSetIndexedProperty(arrayHandle, arrayIndexHandle, arrayIndexHandle));
+                    arrayIndexHandle = Jsrt.JsIntToNumber(10);
 
-            bool hasArrayIndex;
-            Errors.ThrowIfError(Jsrt.JsHasIndexedProperty(arrayHandle, arrayIndexHandle, out hasArrayIndex));
+                    hasArrayIndex = Jsrt.JsHasIndexedProperty(arrayHandle, arrayIndexHandle);
+                    Assert.False(hasArrayIndex);
 
-            Assert.True(hasArrayIndex);
+                    arrayIndexHandle.Dispose();
+                    arrayHandle.Dispose();
 
-            Errors.ThrowIfError(Jsrt.JsIntToNumber(10, out arrayIndexHandle));
+                    //Test on object as associative array.
+                    var objectHandle = Jsrt.JsCreateObject();
 
-            Errors.ThrowIfError(Jsrt.JsHasIndexedProperty(arrayHandle, arrayIndexHandle, out hasArrayIndex));
+                    string propertyName = "foo";
+                    var propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyNameHandle = Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
 
-            Assert.False(hasArrayIndex);
+                    string notAPropertyName = "bar";
+                    var notAPropertyNameHandle = Jsrt.JsCreateStringUtf8(notAPropertyName, new UIntPtr((uint)notAPropertyName.Length));
 
-            arrayIndexHandle.Dispose();
-            arrayHandle.Dispose();
+                    string propertyValue = "Some people choose to see the ugliness in this world. The disarray. I choose to see the beauty.";
+                    var propertyValueHandle = Jsrt.JsCreateStringUtf8(propertyValue, new UIntPtr((uint)propertyValue.Length));
 
-            //Test on object as associative array.
-            JavaScriptValueSafeHandle objectHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateObject(out objectHandle));
+                    Jsrt.JsSetProperty(objectHandle, propertyIdHandle, propertyValueHandle, true);
 
-            string propertyName = "foo";
-            JavaScriptPropertyIdSafeHandle propertyIdHandle;
-            Errors.ThrowIfError(Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyIdHandle));
+                    var hasObjectIndex = Jsrt.JsHasIndexedProperty(objectHandle, propertyNameHandle);
+                    Assert.True(hasObjectIndex);
 
-            JavaScriptValueSafeHandle propertyNameHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyName, new UIntPtr((uint)propertyName.Length), out propertyNameHandle));
+                    hasObjectIndex = Jsrt.JsHasIndexedProperty(objectHandle, notAPropertyNameHandle);
+                    Assert.False(hasObjectIndex);
 
-            string notAPropertyName = "bar";
-            JavaScriptValueSafeHandle notAPropertyNameHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(notAPropertyName, new UIntPtr((uint)notAPropertyName.Length), out notAPropertyNameHandle));
-
-            string propertyValue = "Some people choose to see the ugliness in this world. The disarray. I choose to see the beauty.";
-            JavaScriptValueSafeHandle propertyValueHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(propertyValue, new UIntPtr((uint)propertyValue.Length), out propertyValueHandle));
-
-            Errors.ThrowIfError(Jsrt.JsSetProperty(objectHandle, propertyIdHandle, propertyValueHandle, true));
-
-            bool hasObjectIndex;
-            Errors.ThrowIfError(Jsrt.JsHasIndexedProperty(objectHandle, propertyNameHandle, out hasObjectIndex));
-
-            Assert.True(hasObjectIndex);
-
-            Errors.ThrowIfError(Jsrt.JsHasIndexedProperty(objectHandle, notAPropertyNameHandle, out hasObjectIndex));
-
-            Assert.False(hasObjectIndex);
-
-            propertyIdHandle.Dispose();
-            propertyNameHandle.Dispose();
-            notAPropertyNameHandle.Dispose();
-            propertyValueHandle.Dispose();
-            objectHandle.Dispose();
+                    propertyIdHandle.Dispose();
+                    propertyNameHandle.Dispose();
+                    notAPropertyNameHandle.Dispose();
+                    propertyValueHandle.Dispose();
+                    objectHandle.Dispose();
 
 
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -1816,73 +1562,63 @@ return arr;
 })();
 ";
 
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    JavaScriptValueSafeHandle arrayHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
 
-            JavaScriptValueSafeHandle arrayHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    var arrayIndexHandle = Jsrt.JsIntToNumber(10);
+                    var valueHandle = Jsrt.JsGetIndexedProperty(arrayHandle, arrayIndexHandle);
 
-            JavaScriptValueSafeHandle arrayIndexHandle;
-            Errors.ThrowIfError(Jsrt.JsIntToNumber(10, out arrayIndexHandle));
+                    Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
 
-            JavaScriptValueSafeHandle valueHandle;
-            Errors.ThrowIfError(Jsrt.JsGetIndexedProperty(arrayHandle, arrayIndexHandle, out valueHandle));
+                    var result = Extensions.IJavaScriptRuntimeExtensions.GetStringUtf8(Jsrt, valueHandle);
 
-            Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
+                    Assert.Equal("Robert", result);
 
-            var result = Extensions.IJavaScriptRuntimeExtensions.GetStringUtf8(Jsrt, valueHandle);
+                    valueHandle.Dispose();
+                    arrayIndexHandle.Dispose();
+                    arrayHandle.Dispose();
 
-            Assert.Equal("Robert", result);
-
-            valueHandle.Dispose();
-            arrayIndexHandle.Dispose();
-            arrayHandle.Dispose();
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsCanSetIndexedProperty()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var arrayHandle = Jsrt.JsCreateArray(50);
 
-            JavaScriptValueSafeHandle arrayHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateArray(50, out arrayHandle));
+                    var value = "The Bicameral Mind";
+                    var valueHandle= Jsrt.JsCreateStringUtf8(value, new UIntPtr((uint)value.Length));
 
-            var value = "The Bicameral Mind";
-            JavaScriptValueSafeHandle valueHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(value, new UIntPtr((uint)value.Length), out valueHandle));
+                    var arrayIndexHandle = Jsrt.JsIntToNumber(42);
 
-            JavaScriptValueSafeHandle arrayIndexHandle;
-            Errors.ThrowIfError(Jsrt.JsIntToNumber(42, out arrayIndexHandle));
+                    Jsrt.JsSetIndexedProperty(arrayHandle, arrayIndexHandle, valueHandle);
 
-            Errors.ThrowIfError(Jsrt.JsSetIndexedProperty(arrayHandle, arrayIndexHandle, valueHandle));
+                    var resultHandle = Jsrt.JsGetIndexedProperty(arrayHandle, arrayIndexHandle);
+                    Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
 
-            JavaScriptValueSafeHandle resultHandle;
-            Errors.ThrowIfError(Jsrt.JsGetIndexedProperty(arrayHandle, arrayIndexHandle, out resultHandle));
+                    var result = Extensions.IJavaScriptRuntimeExtensions.GetStringUtf8(Jsrt, valueHandle);
 
-            Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
+                    Assert.Equal("The Bicameral Mind", result);
 
-            var result = Extensions.IJavaScriptRuntimeExtensions.GetStringUtf8(Jsrt, valueHandle);
+                    resultHandle.Dispose();
+                    valueHandle.Dispose();
+                    arrayIndexHandle.Dispose();
+                    arrayHandle.Dispose();
 
-            Assert.Equal("The Bicameral Mind", result);
-
-            resultHandle.Dispose();
-            valueHandle.Dispose();
-            arrayIndexHandle.Dispose();
-            arrayHandle.Dispose();
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -1894,87 +1630,73 @@ return arr;
 })();
 ";
 
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    JavaScriptValueSafeHandle arrayHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
 
-            JavaScriptValueSafeHandle arrayHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    var arrayIndexHandle = Jsrt.JsIntToNumber(12);
 
-            JavaScriptValueSafeHandle arrayIndexHandle;
-            Errors.ThrowIfError(Jsrt.JsIntToNumber(12, out arrayIndexHandle));
+                    Jsrt.JsDeleteIndexedProperty(arrayHandle, arrayIndexHandle);
 
-            Errors.ThrowIfError(Jsrt.JsDeleteIndexedProperty(arrayHandle, arrayIndexHandle));
+                    var valueHandle = Jsrt.JsGetIndexedProperty(arrayHandle, arrayIndexHandle);
+                    Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
 
-            JavaScriptValueSafeHandle valueHandle;
-            Errors.ThrowIfError(Jsrt.JsGetIndexedProperty(arrayHandle, arrayIndexHandle, out valueHandle));
-            
-            Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
+                    var undefinedHandle = Jsrt.JsGetUndefinedValue();
 
-            JavaScriptValueSafeHandle undefinedHandle;
-            Errors.ThrowIfError(Jsrt.JsGetUndefinedValue(out undefinedHandle));
+                    Assert.Equal(undefinedHandle, valueHandle);
 
-            Assert.Equal(undefinedHandle, valueHandle);
+                    undefinedHandle.Dispose();
+                    valueHandle.Dispose();
+                    arrayIndexHandle.Dispose();
+                    arrayHandle.Dispose();
 
-            undefinedHandle.Dispose();
-            valueHandle.Dispose();
-            arrayIndexHandle.Dispose();
-            arrayHandle.Dispose();
-
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsArrayCanBeCreated()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var arrayHandle = Jsrt.JsCreateArray(50);
 
-            JavaScriptValueSafeHandle arrayHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateArray(50, out arrayHandle));
+                    Assert.True(arrayHandle != JavaScriptValueSafeHandle.Invalid);
 
-            Assert.True(arrayHandle != JavaScriptValueSafeHandle.Invalid);
+                    var handleType = Jsrt.JsGetValueType(arrayHandle);
+                    Assert.True(handleType == JavaScriptValueType.Array);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(arrayHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.Array);
-
-            arrayHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    arrayHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsArrayBufferCanBeCreated()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var arrayBufferHandle = Jsrt.JsCreateArrayBuffer(50);
+                    Assert.True(arrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
 
-            JavaScriptValueSafeHandle arrayBufferHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateArrayBuffer(50, out arrayBufferHandle));
+                    var handleType = Jsrt.JsGetValueType(arrayBufferHandle);
+                    Assert.True(handleType == JavaScriptValueType.ArrayBuffer);
 
-            Assert.True(arrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
-
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(arrayBufferHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.ArrayBuffer);
-
-            arrayBufferHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    arrayBufferHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
@@ -1982,211 +1704,184 @@ return arr;
         {
             var data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
-
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
-
-            IntPtr ptrScript = Marshal.StringToHGlobalAnsi(data);
-            try
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
-                JavaScriptValueSafeHandle externalArrayBufferHandle;
-                Errors.ThrowIfError(Jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)data.Length, null, IntPtr.Zero, out externalArrayBufferHandle));
-                Assert.True(externalArrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-                JavaScriptValueType handleType;
-                Errors.ThrowIfError(Jsrt.JsGetValueType(externalArrayBufferHandle, out handleType));
+                    IntPtr ptrScript = Marshal.StringToHGlobalAnsi(data);
 
-                Assert.True(handleType == JavaScriptValueType.ArrayBuffer);
+                    try
+                    {
+                        var externalArrayBufferHandle = Jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)data.Length, null, IntPtr.Zero);
+                        Assert.True(externalArrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
 
-                externalArrayBufferHandle.Dispose();
-            }
-            finally
-            {
-                contextHandle.Dispose();
-                runtimeHandle.Dispose();
+                        var handleType = Jsrt.JsGetValueType(externalArrayBufferHandle);
+                        Assert.True(handleType == JavaScriptValueType.ArrayBuffer);
+
+                        externalArrayBufferHandle.Dispose();
+                    }
+                    finally
+                    {
+                        Marshal.FreeHGlobal(ptrScript);
+                    }
+                }
             }
         }
 
         [Fact]
         public void JsTypedArrayCanBeCreated()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var typedArrayHandle = Jsrt.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50);
 
-            JavaScriptValueSafeHandle typedArrayHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50, out typedArrayHandle));
+                    Assert.True(typedArrayHandle != JavaScriptValueSafeHandle.Invalid);
 
-            Assert.True(typedArrayHandle != JavaScriptValueSafeHandle.Invalid);
+                    var handleType = Jsrt.JsGetValueType(typedArrayHandle);
+                    Assert.True(handleType == JavaScriptValueType.TypedArray);
 
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(typedArrayHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.TypedArray);
-
-            typedArrayHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    typedArrayHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsDataViewCanBeCreated()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var arrayBufferHandle = Jsrt.JsCreateArrayBuffer(50);
+                    var dataViewHandle = Jsrt.JsCreateDataView(arrayBufferHandle, 0, 50);
 
-            JavaScriptValueSafeHandle arrayBufferHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateArrayBuffer(50, out arrayBufferHandle));
+                    Assert.True(dataViewHandle != JavaScriptValueSafeHandle.Invalid);
 
-            JavaScriptValueSafeHandle dataViewHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateDataView(arrayBufferHandle, 0, 50, out dataViewHandle));
+                    var handleType = Jsrt.JsGetValueType(dataViewHandle);
+                    Assert.True(handleType == JavaScriptValueType.DataView);
 
-            Assert.True(dataViewHandle != JavaScriptValueSafeHandle.Invalid);
-
-            JavaScriptValueType handleType;
-            Errors.ThrowIfError(Jsrt.JsGetValueType(dataViewHandle, out handleType));
-
-            Assert.True(handleType == JavaScriptValueType.DataView);
-
-            arrayBufferHandle.Dispose();
-            dataViewHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    arrayBufferHandle.Dispose();
+                    dataViewHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsTypedArrayInfoCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var typedArrayHandle = Jsrt.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50);
 
-            JavaScriptValueSafeHandle typedArrayHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50, out typedArrayHandle));
+                    JavaScriptValueSafeHandle arrayBufferHandle;
+                    uint byteOffset, byteLength;
+                    var typedArrayType = Jsrt.JsGetTypedArrayInfo(typedArrayHandle, out arrayBufferHandle, out byteOffset, out byteLength);
 
+                    Assert.True(typedArrayType == JavaScriptTypedArrayType.Int8);
+                    Assert.True(arrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
+                    Assert.True(byteOffset == 0);
+                    Assert.True(byteLength == 50);
 
-            JavaScriptTypedArrayType typedArrayType;
-            JavaScriptValueSafeHandle arrayBufferHandle;
-            uint byteOffset, byteLength;
-            Errors.ThrowIfError(Jsrt.JsGetTypedArrayInfo(typedArrayHandle, out typedArrayType, out arrayBufferHandle, out byteOffset, out byteLength));
-
-            Assert.True(typedArrayType == JavaScriptTypedArrayType.Int8);
-            Assert.True(arrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
-            Assert.True(byteOffset == 0);
-            Assert.True(byteLength == 50);
-
-            arrayBufferHandle.Dispose();
-            typedArrayHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    arrayBufferHandle.Dispose();
+                    typedArrayHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsArrayBufferStorageCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var arrayBufferHandle = Jsrt.JsCreateArrayBuffer(50);
 
-            JavaScriptValueSafeHandle arrayBufferHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateArrayBuffer(50, out arrayBufferHandle));
+                    uint bufferLength;
+                    var ptrBuffer = Jsrt.JsGetArrayBufferStorage(arrayBufferHandle, out bufferLength);
 
-            IntPtr ptrBuffer;
-            uint bufferLength;
-            Errors.ThrowIfError(Jsrt.JsGetArrayBufferStorage(arrayBufferHandle, out ptrBuffer, out bufferLength));
+                    byte[] buffer = new byte[bufferLength];
+                    Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
 
-            byte[] buffer = new byte[bufferLength];
-            Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
+                    Assert.True(bufferLength == 50);
+                    Assert.True(buffer.Length == 50);
 
-            Assert.True(bufferLength == 50);
-            Assert.True(buffer.Length == 50);
-
-            arrayBufferHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    arrayBufferHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsTypedArrayStorageCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var typedArrayHandle = Jsrt.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50);
 
-            JavaScriptValueSafeHandle typedArrayHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50, out typedArrayHandle));
+                    uint bufferLength;
+                    JavaScriptTypedArrayType typedArrayType;
+                    int elementSize;
+                    var ptrBuffer = Jsrt.JsGetTypedArrayStorage(typedArrayHandle, out bufferLength, out typedArrayType, out elementSize);
 
-            IntPtr ptrBuffer;
-            uint bufferLength;
-            JavaScriptTypedArrayType typedArrayType;
-            int elementSize;
-            Errors.ThrowIfError(Jsrt.JsGetTypedArrayStorage(typedArrayHandle, out ptrBuffer, out bufferLength, out typedArrayType, out elementSize));
+                    //Normally, we'd create an appropriately typed buffer based on elementsize.
+                    Assert.True(elementSize == 1); //byte
 
-            //Normally, we'd create an appropriately typed buffer based on elementsize.
-            Assert.True(elementSize == 1); //byte
+                    byte[] buffer = new byte[bufferLength];
+                    Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
 
-            byte[] buffer = new byte[bufferLength];
-            Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
+                    Assert.True(bufferLength == 50);
+                    Assert.True(buffer.Length == 50);
+                    Assert.True(typedArrayType == JavaScriptTypedArrayType.Int8);
 
-            Assert.True(bufferLength == 50);
-            Assert.True(buffer.Length == 50);
-            Assert.True(typedArrayType == JavaScriptTypedArrayType.Int8);
-            
 
-            typedArrayHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    typedArrayHandle.Dispose();
+                }
+            }
         }
 
         [Fact]
         public void JsDataViewStorageCanBeRetrieved()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+                    var arrayBufferHandle = Jsrt.JsCreateArrayBuffer(50);
+                    var dataViewHandle = Jsrt.JsCreateDataView(arrayBufferHandle, 0, 50);
 
-            JavaScriptValueSafeHandle arrayBufferHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateArrayBuffer(50, out arrayBufferHandle));
+                    uint bufferLength;
+                    var ptrBuffer = Jsrt.JsGetDataViewStorage(dataViewHandle, out bufferLength);
 
-            JavaScriptValueSafeHandle dataViewHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateDataView(arrayBufferHandle, 0, 50, out dataViewHandle));
+                    byte[] buffer = new byte[bufferLength];
+                    Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
 
-            IntPtr ptrBuffer;
-            uint bufferLength;
-            Errors.ThrowIfError(Jsrt.JsGetDataViewStorage(dataViewHandle, out ptrBuffer, out bufferLength));
+                    Assert.True(bufferLength == 50);
+                    Assert.True(buffer.Length == 50);
 
-            byte[] buffer = new byte[bufferLength];
-            Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
-
-            Assert.True(bufferLength == 50);
-            Assert.True(buffer.Length == 50);
-
-            dataViewHandle.Dispose();
-            arrayBufferHandle.Dispose();
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    dataViewHandle.Dispose();
+                    arrayBufferHandle.Dispose();
+                }
+            }
         }
     }
 }

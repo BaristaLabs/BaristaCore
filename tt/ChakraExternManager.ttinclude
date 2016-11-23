@@ -32,9 +32,9 @@ public class ChakraExternManager {
 		public string DllImportEx = "";
 
 		public Dictionary<string, string> InterfaceTypeMap = new Dictionary<string, string>() {
-			{ "JavaScriptRuntimeSafeHandle", "JavaScriptRuntime" },
-			{ "JavaScriptContextSafeHandle", "JavaScriptContext" },
-			{ "JavaScriptValueSafeHandle", "JavaScriptValue" }
+			{ "JavaScriptRuntimeSafeHandle", "JavaScriptRuntimeSafeHandle" },
+			{ "JavaScriptContextSafeHandle", "JavaScriptContextSafeHandle" },
+			{ "JavaScriptValueSafeHandle", "JavaScriptValueSafeHandle" }
 		};
 
 		public bool HasOutContextSafeHandles
@@ -52,6 +52,29 @@ public class ChakraExternManager {
 				return Parameters.Any( p => p.Direction == ParameterDirection.Out && p.Type == "JavaScriptValueSafeHandle" );
             }
         }
+
+		public ExternParameter InterfaceReturnParameter
+		{
+			get
+			{
+				var firstOutParameter = Parameters.FirstOrDefault( p => p.Direction == ParameterDirection.Out);
+
+				if (firstOutParameter != null) {
+					var paramCopy = new ExternParameter();
+					paramCopy.Direction = firstOutParameter.Direction;
+					paramCopy.Name = firstOutParameter.Name;
+					
+					if (InterfaceTypeMap.ContainsKey(firstOutParameter.Type))
+						paramCopy.Type = InterfaceTypeMap[firstOutParameter.Type];
+					else
+						paramCopy.Type = firstOutParameter.Type;
+
+					return paramCopy;
+				}
+					
+				return null;
+			}
+		}
 
 		public string InterfaceReturnType
 		{

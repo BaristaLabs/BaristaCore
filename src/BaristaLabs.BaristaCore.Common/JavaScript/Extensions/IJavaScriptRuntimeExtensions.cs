@@ -19,13 +19,11 @@
             //If Auto Convert is specified, ensure that the type is a string, otherwise convert it.
             if (autoConvert)
             {
-                JavaScriptValueType handleValueType;
-                Errors.ThrowIfError(jsrt.JsGetValueType(stringHandle, out handleValueType));
+                var handleValueType = jsrt.JsGetValueType(stringHandle);
 
                 if (handleValueType != JavaScriptValueType.String)
                 {
-                    JavaScriptValueSafeHandle convertedToStringHandle;
-                    Errors.ThrowIfError(jsrt.JsConvertValueToString(stringHandle, out convertedToStringHandle));
+                    var convertedToStringHandle = jsrt.JsConvertValueToString(stringHandle);
 
                     stringHandle = convertedToStringHandle;
                     stringHandleWasCreated = true;
@@ -33,15 +31,13 @@
             }
 
             //Get the size
-            UIntPtr size;
-            Errors.ThrowIfError(jsrt.JsCopyStringUtf8(stringHandle, null, UIntPtr.Zero, out size));
+            var size = jsrt.JsCopyStringUtf8(stringHandle, null, UIntPtr.Zero);
  
             if ((int)size > int.MaxValue)
                 throw new OutOfMemoryException("Exceeded maximum string length.");
 
             byte[] result = new byte[(int)size];
-            UIntPtr written;
-            Errors.ThrowIfError(jsrt.JsCopyStringUtf8(stringHandle, result, new UIntPtr((uint)result.Length), out written));
+            var written = jsrt.JsCopyStringUtf8(stringHandle, result, new UIntPtr((uint)result.Length));
 
             var strResult = Encoding.UTF8.GetString(result, 0, result.Length);
             if (stringHandleWasCreated)
@@ -64,19 +60,15 @@
 
             var script = await scriptSource.GetScriptAsync();
 
-            JavaScriptValueSafeHandle sourceUrl;
-            Errors.ThrowIfError(jsrt.JsCreateStringUtf8(scriptSource.Description, new UIntPtr((uint)scriptSource.Description.Length), out sourceUrl));
+            var sourceUrl = jsrt.JsCreateStringUtf8(scriptSource.Description, new UIntPtr((uint)scriptSource.Description.Length));
 
             try
             {
-                JavaScriptValueSafeHandle result;
-                Errors.ThrowIfError(JsParseScript(jsrt, script, JavaScriptSourceContext.FromInt(scriptSource.Cookie), sourceUrl, attributes, out result));
-                return result;
+                return JsParseScript(jsrt, script, JavaScriptSourceContext.FromInt(scriptSource.Cookie), sourceUrl, attributes);
             }
             finally
             {
-                uint releaseCount;
-                Errors.ThrowIfError(jsrt.JsReleaseValue(sourceUrl, out releaseCount));
+                sourceUrl.Dispose();
             }
         }
 
@@ -93,13 +85,12 @@
         /// <param name="parseAttributes"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static JavaScriptErrorCode JsParseScript(this IJavaScriptRuntime jsrt, string script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result)
+        public static JavaScriptValueSafeHandle JsParseScript(this IJavaScriptRuntime jsrt, string script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes)
         {
             IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
             bool createdSourceUrl = false;
 
-            JavaScriptValueSafeHandle scriptHandle;
-            Errors.ThrowIfError(jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero, out scriptHandle));
+            var scriptHandle = jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero);
 
             if (sourceContext == default(JavaScriptSourceContext))
             {
@@ -108,7 +99,7 @@
 
             if (sourceUrl == null)
             {
-                Errors.ThrowIfError(jsrt.JsCreateStringUtf8(EvalSourceUrl, new UIntPtr((uint)EvalSourceUrl.Length), out sourceUrl));
+                sourceUrl = jsrt.JsCreateStringUtf8(EvalSourceUrl, new UIntPtr((uint)EvalSourceUrl.Length));
                 createdSourceUrl = true;
             }
 
@@ -119,7 +110,7 @@
 
             try
             {
-                return jsrt.JsParse(scriptHandle, sourceContext, sourceUrl, parseAttributes, out result);
+                return jsrt.JsParse(scriptHandle, sourceContext, sourceUrl, parseAttributes);
             }
             finally
             {
@@ -148,19 +139,15 @@
 
             var script = await scriptSource.GetScriptAsync();
 
-            JavaScriptValueSafeHandle sourceUrl;
-            Errors.ThrowIfError(jsrt.JsCreateStringUtf8(scriptSource.Description, new UIntPtr((uint)scriptSource.Description.Length), out sourceUrl));
+            var sourceUrl = jsrt.JsCreateStringUtf8(scriptSource.Description, new UIntPtr((uint)scriptSource.Description.Length));
 
             try
             {
-                JavaScriptValueSafeHandle result;
-                Errors.ThrowIfError(JsRunScript(jsrt, script, JavaScriptSourceContext.FromInt(scriptSource.Cookie), sourceUrl, attributes, out result));
-                return result;
+                return JsRunScript(jsrt, script, JavaScriptSourceContext.FromInt(scriptSource.Cookie), sourceUrl, attributes);
             }
             finally
             {
-                uint releaseCount;
-                Errors.ThrowIfError(jsrt.JsReleaseValue(sourceUrl, out releaseCount));
+                sourceUrl.Dispose();
             }
         }
 
@@ -177,13 +164,12 @@
         /// <param name="parseAttributes"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static JavaScriptErrorCode JsRunScript(this IJavaScriptRuntime jsrt, string script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result)
+        public static JavaScriptValueSafeHandle JsRunScript(this IJavaScriptRuntime jsrt, string script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes)
         {
             var ptrScript = Marshal.StringToHGlobalAnsi(script);
             var createdSourceUrl = false;
 
-            JavaScriptValueSafeHandle scriptHandle;
-            Errors.ThrowIfError(jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero, out scriptHandle));
+            var scriptHandle = jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero);
 
             if (sourceContext == default(JavaScriptSourceContext))
             {
@@ -192,7 +178,7 @@
 
             if (sourceUrl == null)
             {
-                Errors.ThrowIfError(jsrt.JsCreateStringUtf8(EvalSourceUrl, new UIntPtr((uint)EvalSourceUrl.Length), out sourceUrl));
+                sourceUrl = jsrt.JsCreateStringUtf8(EvalSourceUrl, new UIntPtr((uint)EvalSourceUrl.Length));
                 createdSourceUrl = true;
             }
 
@@ -203,7 +189,7 @@
 
             try
             {
-                return jsrt.JsRun(scriptHandle, sourceContext, sourceUrl, parseAttributes, out result);
+                return jsrt.JsRun(scriptHandle, sourceContext, sourceUrl, parseAttributes);
             }
             finally
             {
@@ -241,8 +227,7 @@
                 Marshal.FreeHGlobal(ptrScript);
             };
 
-            JavaScriptValueSafeHandle scriptHandle;
-            Errors.ThrowIfError(jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, callback, IntPtr.Zero, out scriptHandle));
+            var scriptHandle = jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, callback, IntPtr.Zero);
 
             if (sourceContext == default(JavaScriptSourceContext))
             {
@@ -255,17 +240,16 @@
                 sourceUrl = "[eval code]";
             }
 
-            Errors.ThrowIfError(jsrt.JsCreateStringUtf8(EvalSourceUrl, new UIntPtr((uint)EvalSourceUrl.Length), out sourceUrlHandle));
+            sourceUrlHandle = jsrt.JsCreateStringUtf8(EvalSourceUrl, new UIntPtr((uint)EvalSourceUrl.Length));
 
             if (parseAttributes == default(JavaScriptParseScriptAttributes))
             {
                 parseAttributes = JavaScriptParseScriptAttributes.None;
             }
 
-            JavaScriptValueSafeHandle result;
             try
             {
-                Errors.ThrowIfError(jsrt.JsRun(scriptHandle, sourceContext, sourceUrlHandle, parseAttributes, out result));
+                return jsrt.JsRun(scriptHandle, sourceContext, sourceUrlHandle, parseAttributes);
             }
             finally
             {
@@ -273,8 +257,6 @@
                 sourceUrlHandle.Dispose();
                 scriptHandle.Dispose();
             }
-
-            return result;
         }
 
         /// <summary>
@@ -286,23 +268,21 @@
         /// <param name="bufferSize"></param>
         /// <param name="parseAttributes"></param>
         /// <returns></returns>
-        public static JavaScriptErrorCode JsSerializeScript(this IJavaScriptRuntime jsrt, string script, byte[] buffer, ref ulong bufferSize, JavaScriptParseScriptAttributes parseAttributes)
+        public static void JsSerializeScript(this IJavaScriptRuntime jsrt, string script, byte[] buffer, ref ulong bufferSize, JavaScriptParseScriptAttributes parseAttributes)
         {
             IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
 
-            JavaScriptValueSafeHandle scriptHandle;
-            Errors.ThrowIfError(jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero, out scriptHandle));
-
-            try
+            using (var scriptHandle = jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero))
             {
-                return jsrt.JsSerialize(scriptHandle, buffer, ref bufferSize, parseAttributes);
-            }
-            finally
-            {
-                scriptHandle.Dispose();
-
-                //Release pinned string.
-                Marshal.FreeHGlobal(ptrScript);
+                try
+                {
+                    jsrt.JsSerialize(scriptHandle, buffer, ref bufferSize, parseAttributes);
+                }
+                finally
+                {
+                    //Release pinned string.
+                    Marshal.FreeHGlobal(ptrScript);
+                }
             }
         }
     }

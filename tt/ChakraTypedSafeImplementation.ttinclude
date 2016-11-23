@@ -1,0 +1,52 @@
+namespace BaristaLabs.BaristaCore.JavaScript
+{
+	using Internal;
+
+	using System;
+	using System.Runtime.InteropServices;
+
+	public sealed class <#= JavaScriptRuntimeClassName #> : <#= JavaScriptRuntimeInterfaces #>
+	{
+<#
+	foreach (var ex in ChakraExternManager.Externs.FindAll(ExternPlatformPredicate))
+	{
+#>
+			public <#= ex.InterfaceReturnType #> <#= ex.Name #>(<#= ex.InterfaceSignature #>)
+			{
+<#		var returnParam = ex.InterfaceReturnParameter; #>
+<#		if (returnParam != null) 
+        {
+#>
+				<#= returnParam.Type #> <#= returnParam.Name #>;
+<#		}#>
+				Errors.ThrowIfError(LibChakraCore.<#= ex.Name #>(<#= ex.CallSignature #>));
+<#		foreach (var outSafeHandle in ex.GetOutContextSafeHandles())
+        {
+#>
+				uint contextRefCount;
+				LibChakraCore.JsAddContextRef(<#= outSafeHandle.Name #>, out contextRefCount);
+				<#= outSafeHandle.Name #>.NativeFunctionSource = nameof(LibChakraCore.<#= ex.Name #>);
+<#		
+		}
+
+		foreach (var outSafeHandle in ex.GetOutValueSafeHandles())
+        {
+#>
+				uint valueRefCount;
+				LibChakraCore.JsAddValueRef(<#= outSafeHandle.Name #>, out valueRefCount);
+				<#= outSafeHandle.Name #>.NativeFunctionSource = nameof(LibChakraCore.<#= ex.Name #>);
+<#		
+		}
+#>
+<#		if (returnParam != null) 
+        {
+#>
+				return <#= returnParam.Name #>;
+<#		}#>
+			}
+
+<#
+    }
+#>
+	}
+}

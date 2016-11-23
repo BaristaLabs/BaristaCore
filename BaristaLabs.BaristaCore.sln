@@ -33,6 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tt", "tt", "{2C6696CF-9E37-
 		tt\ChakraSimpleImplementation.ttinclude = tt\ChakraSimpleImplementation.ttinclude
 		tt\ChakraSimpleInterface.ttinclude = tt\ChakraSimpleInterface.ttinclude
 		tt\ChakraTypedInterface.ttinclude = tt\ChakraTypedInterface.ttinclude
+		tt\ChakraTypedSafeImplementation.ttinclude = tt\ChakraTypedSafeImplementation.ttinclude
 	EndProjectSection
 EndProject
 Global

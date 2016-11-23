@@ -19,27 +19,26 @@
         [Fact]
         public void JsCanStartDebugging()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
-
-            JavaScriptContextSafeHandle contextHandle;
-            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
-            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
-
-            bool called = false;
-            JavaScriptDiagDebugEventCallback callback = (JavaScriptDiagDebugEventType eventType, JavaScriptValueSafeHandle eventData, IntPtr callbackState) =>
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
-                called = true;
-                return true;
-            };
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
 
-            Errors.ThrowIfError(Jsrt.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero));
+                    bool called = false;
+                    JavaScriptDiagDebugEventCallback callback = (JavaScriptDiagDebugEventType eventType, JavaScriptValueSafeHandle eventData, IntPtr callbackState) =>
+                    {
+                        called = true;
+                        return true;
+                    };
 
-            //We didn't specify any breakpoints so...
-            Assert.False(called);
+                    Jsrt.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero);
 
-            contextHandle.Dispose();
-            runtimeHandle.Dispose();
+                    //We didn't specify any breakpoints so...
+                    Assert.False(called);
+
+                }
+            }
         }
     }
 }

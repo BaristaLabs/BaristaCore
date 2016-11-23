@@ -20,7 +20,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateRuntime(JavaScriptRuntimeAttributes attributes, JavaScriptThreadServiceCallback threadService, out JavaScriptRuntimeSafeHandle runtime);
+		JavaScriptRuntimeSafeHandle JsCreateRuntime(JavaScriptRuntimeAttributes attributes, JavaScriptThreadServiceCallback threadService);
 
 		/// <summary>
 		///     Performs a full garbage collection.
@@ -28,7 +28,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCollectGarbage(JavaScriptRuntimeSafeHandle handle);
+		void JsCollectGarbage(JavaScriptRuntimeSafeHandle handle);
 
 		/// <summary>
 		///     Disposes a runtime.
@@ -42,7 +42,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsDisposeRuntime(IntPtr runtime);
+		void JsDisposeRuntime(IntPtr runtime);
 
 		/// <summary>
 		///     Gets the current memory usage for a runtime.
@@ -56,7 +56,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out ulong memoryUsage);
+		ulong JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime);
 
 		/// <summary>
 		///     Gets the current memory limit for a runtime.
@@ -72,7 +72,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, out ulong memoryLimit);
+		ulong JsGetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime);
 
 		/// <summary>
 		///     Sets the current memory limit for a runtime.
@@ -97,7 +97,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, ulong memoryLimit);
+		void JsSetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, ulong memoryLimit);
 
 		/// <summary>
 		///     Sets a memory allocation callback for specified runtime
@@ -129,7 +129,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetRuntimeMemoryAllocationCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr callbackState, JavaScriptMemoryAllocationCallback allocationCallback);
+		void JsSetRuntimeMemoryAllocationCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr callbackState, JavaScriptMemoryAllocationCallback allocationCallback);
 
 		/// <summary>
 		///     Sets a callback function that is called by the runtime before garbage collection.
@@ -152,7 +152,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetRuntimeBeforeCollectCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr callbackState, JavaScriptBeforeCollectCallback beforeCollectCallback);
+		void JsSetRuntimeBeforeCollectCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr callbackState, JavaScriptBeforeCollectCallback beforeCollectCallback);
 
 		/// <summary>
 		///     Adds a reference to a garbage collected object.
@@ -167,7 +167,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsAddValueRef(JavaScriptValueSafeHandle @ref, out uint count);
+		uint JsAddContextRef(JavaScriptContextSafeHandle @ref);
 
 		/// <summary>
 		///     Adds a reference to a garbage collected object.
@@ -182,7 +182,22 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsAddRef(IntPtr @ref, out uint count);
+		uint JsAddValueRef(JavaScriptValueSafeHandle @ref);
+
+		/// <summary>
+		///     Adds a reference to a garbage collected object.
+		/// </summary>
+		/// <remarks>
+		///     This only needs to be called on <c>JsRef</c> handles that are not going to be stored
+		///     somewhere on the stack. Calling <c>JsAddRef</c> ensures that the object the <c>JsRef</c>
+		///     refers to will not be freed until <c>JsRelease</c> is called.
+		/// </remarks>
+		/// <param name="ref">The object to add a reference to.</param>
+		/// <param name="count">The object's new reference count (can pass in null).</param>
+		/// <returns>
+		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		uint JsAddRef(IntPtr @ref);
 
 		/// <summary>
 		///     Releases a reference to a garbage collected object.
@@ -195,7 +210,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsReleaseContext(JavaScriptContextSafeHandle context, out uint count);
+		uint JsReleaseContext(JavaScriptContextSafeHandle context);
 
 		/// <summary>
 		///     Releases a reference to a garbage collected object.
@@ -208,7 +223,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsReleasePropertyId(JavaScriptPropertyIdSafeHandle propertyId, out uint count);
+		uint JsReleasePropertyId(JavaScriptPropertyIdSafeHandle propertyId);
 
 		/// <summary>
 		///     Releases a reference to a garbage collected object.
@@ -221,7 +236,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsReleaseValue(JavaScriptValueSafeHandle value, out uint count);
+		uint JsReleaseValue(JavaScriptValueSafeHandle value);
 
 		/// <summary>
 		///     Releases a reference to a garbage collected object.
@@ -234,7 +249,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsRelease(IntPtr @ref, out uint count);
+		uint JsRelease(IntPtr @ref);
 
 		/// <summary>
 		///     Sets a callback function that is called by the runtime before garbage collection of
@@ -255,7 +270,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetObjectBeforeCollectCallback(JavaScriptValueSafeHandle @ref, IntPtr callbackState, JavaScriptObjectBeforeCollectCallback objectBeforeCollectCallback);
+		void JsSetObjectBeforeCollectCallback(JavaScriptValueSafeHandle @ref, IntPtr callbackState, JavaScriptObjectBeforeCollectCallback objectBeforeCollectCallback);
 
 		/// <summary>
 		///     Creates a script context for running scripts.
@@ -269,7 +284,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateContext(JavaScriptRuntimeSafeHandle runtime, out JavaScriptContextSafeHandle newContext);
+		JavaScriptContextSafeHandle JsCreateContext(JavaScriptRuntimeSafeHandle runtime);
 
 		/// <summary>
 		///     Gets the current script context on the thread.
@@ -280,7 +295,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetCurrentContext(out JavaScriptContextSafeHandle currentContext);
+		JavaScriptContextSafeHandle JsGetCurrentContext();
 
 		/// <summary>
 		///     Sets the current script context on the thread.
@@ -289,7 +304,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetCurrentContext(JavaScriptContextSafeHandle context);
+		void JsSetCurrentContext(JavaScriptContextSafeHandle context);
 
 		/// <summary>
 		///     Gets the script context that the object belongs to.
@@ -299,7 +314,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetContextOfObject(JavaScriptValueSafeHandle @object, out JavaScriptContextSafeHandle context);
+		JavaScriptContextSafeHandle JsGetContextOfObject(JavaScriptValueSafeHandle @object);
 
 		/// <summary>
 		///     Gets the internal data set on JsrtContext.
@@ -309,7 +324,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetContextData(JavaScriptContextSafeHandle context, out IntPtr data);
+		IntPtr JsGetContextData(JavaScriptContextSafeHandle context);
 
 		/// <summary>
 		///     Sets the internal data of JsrtContext.
@@ -319,7 +334,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetContextData(JavaScriptContextSafeHandle context, IntPtr data);
+		void JsSetContextData(JavaScriptContextSafeHandle context, IntPtr data);
 
 		/// <summary>
 		///     Gets the runtime that the context belongs to.
@@ -329,7 +344,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetRuntime(JavaScriptContextSafeHandle context, out JavaScriptRuntimeSafeHandle runtime);
+		JavaScriptRuntimeSafeHandle JsGetRuntime(JavaScriptContextSafeHandle context);
 
 		/// <summary>
 		///     Tells the runtime to do any idle processing it need to do.
@@ -356,7 +371,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsIdle(out uint nextIdleTick);
+		uint JsIdle();
 
 		/// <summary>
 		///     Gets the symbol associated with the property ID.
@@ -371,7 +386,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetSymbolFromPropertyId(JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptValueSafeHandle symbol);
+		JavaScriptValueSafeHandle JsGetSymbolFromPropertyId(JavaScriptPropertyIdSafeHandle propertyId);
 
 		/// <summary>
 		///     Gets the type of property
@@ -386,7 +401,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetPropertyIdType(JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptPropertyIdType propertyIdType);
+		JavaScriptPropertyIdType JsGetPropertyIdType(JavaScriptPropertyIdSafeHandle propertyId);
 
 		/// <summary>
 		///     Gets the property ID associated with the symbol.
@@ -406,7 +421,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetPropertyIdFromSymbol(JavaScriptValueSafeHandle symbol, out JavaScriptPropertyIdSafeHandle propertyId);
+		JavaScriptPropertyIdSafeHandle JsGetPropertyIdFromSymbol(JavaScriptValueSafeHandle symbol);
 
 		/// <summary>
 		///     Creates a Javascript symbol.
@@ -419,7 +434,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateSymbol(JavaScriptValueSafeHandle description, out JavaScriptValueSafeHandle result);
+		JavaScriptValueSafeHandle JsCreateSymbol(JavaScriptValueSafeHandle description);
 
 		/// <summary>
 		///     Gets the list of all symbol properties on the object.
@@ -432,7 +447,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetOwnPropertySymbols(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle propertySymbols);
+		JavaScriptValueSafeHandle JsGetOwnPropertySymbols(JavaScriptValueSafeHandle @object);
 
 		/// <summary>
 		///     Gets the value of <c>undefined</c> in the current script context.
@@ -444,7 +459,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetUndefinedValue(out JavaScriptValueSafeHandle undefinedValue);
+		JavaScriptValueSafeHandle JsGetUndefinedValue();
 
 		/// <summary>
 		///     Gets the value of <c>null</c> in the current script context.
@@ -456,7 +471,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetNullValue(out JavaScriptValueSafeHandle nullValue);
+		JavaScriptValueSafeHandle JsGetNullValue();
 
 		/// <summary>
 		///     Gets the value of <c>true</c> in the current script context.
@@ -468,7 +483,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetTrueValue(out JavaScriptValueSafeHandle trueValue);
+		JavaScriptValueSafeHandle JsGetTrueValue();
 
 		/// <summary>
 		///     Gets the value of <c>false</c> in the current script context.
@@ -480,7 +495,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetFalseValue(out JavaScriptValueSafeHandle falseValue);
+		JavaScriptValueSafeHandle JsGetFalseValue();
 
 		/// <summary>
 		///     Creates a Boolean value from a <c>bool</c> value.
@@ -493,7 +508,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsBoolToBoolean(bool value, out JavaScriptValueSafeHandle booleanValue);
+		JavaScriptValueSafeHandle JsBoolToBoolean(bool value);
 
 		/// <summary>
 		///     Retrieves the <c>bool</c> value of a Boolean value.
@@ -503,7 +518,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsBooleanToBool(JavaScriptValueSafeHandle value, out bool boolValue);
+		bool JsBooleanToBool(JavaScriptValueSafeHandle value);
 
 		/// <summary>
 		///     Converts the value to Boolean using standard JavaScript semantics.
@@ -516,7 +531,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsConvertValueToBoolean(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle booleanValue);
+		JavaScriptValueSafeHandle JsConvertValueToBoolean(JavaScriptValueSafeHandle value);
 
 		/// <summary>
 		///     Gets the JavaScript type of a JsValueRef.
@@ -526,7 +541,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetValueType(JavaScriptValueSafeHandle value, out JavaScriptValueType type);
+		JavaScriptValueType JsGetValueType(JavaScriptValueSafeHandle value);
 
 		/// <summary>
 		///     Creates a number value from a <c>double</c> value.
@@ -539,7 +554,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsDoubleToNumber(double doubleValue, out JavaScriptValueSafeHandle value);
+		JavaScriptValueSafeHandle JsDoubleToNumber(double doubleValue);
 
 		/// <summary>
 		///     Creates a number value from an <c>int</c> value.
@@ -552,7 +567,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsIntToNumber(int intValue, out JavaScriptValueSafeHandle value);
+		JavaScriptValueSafeHandle JsIntToNumber(int intValue);
 
 		/// <summary>
 		///     Retrieves the <c>double</c> value of a number value.
@@ -566,7 +581,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsNumberToDouble(JavaScriptValueSafeHandle value, out double doubleValue);
+		double JsNumberToDouble(JavaScriptValueSafeHandle value);
 
 		/// <summary>
 		///     Retrieves the <c>int</c> value of a number value.
@@ -580,7 +595,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsNumberToInt(JavaScriptValueSafeHandle value, out int intValue);
+		int JsNumberToInt(JavaScriptValueSafeHandle value);
 
 		/// <summary>
 		///     Converts the value to number using standard JavaScript semantics.
@@ -593,7 +608,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsConvertValueToNumber(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle numberValue);
+		JavaScriptValueSafeHandle JsConvertValueToNumber(JavaScriptValueSafeHandle value);
 
 		/// <summary>
 		///     Gets the length of a string value.
@@ -603,7 +618,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetStringLength(JavaScriptValueSafeHandle stringValue, out int length);
+		int JsGetStringLength(JavaScriptValueSafeHandle stringValue);
 
 		/// <summary>
 		///     Converts the value to string using standard JavaScript semantics.
@@ -616,7 +631,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsConvertValueToString(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle stringValue);
+		JavaScriptValueSafeHandle JsConvertValueToString(JavaScriptValueSafeHandle value);
 
 		/// <summary>
 		///     Gets the global object in the current script context.
@@ -628,7 +643,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetGlobalObject(out JavaScriptValueSafeHandle globalObject);
+		JavaScriptValueSafeHandle JsGetGlobalObject();
 
 		/// <summary>
 		///     Creates a new object.
@@ -640,7 +655,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateObject(out JavaScriptValueSafeHandle @object);
+		JavaScriptValueSafeHandle JsCreateObject();
 
 		/// <summary>
 		///     Creates a new object that stores some external data.
@@ -656,7 +671,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateExternalObject(IntPtr data, JavaScriptObjectFinalizeCallback finalizeCallback, out JavaScriptValueSafeHandle @object);
+		JavaScriptValueSafeHandle JsCreateExternalObject(IntPtr data, JavaScriptObjectFinalizeCallback finalizeCallback);
 
 		/// <summary>
 		///     Converts the value to object using standard JavaScript semantics.
@@ -669,7 +684,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsConvertValueToObject(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle @object);
+		JavaScriptValueSafeHandle JsConvertValueToObject(JavaScriptValueSafeHandle value);
 
 		/// <summary>
 		///     Returns the prototype of an object.
@@ -682,7 +697,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetPrototype(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle prototypeObject);
+		JavaScriptValueSafeHandle JsGetPrototype(JavaScriptValueSafeHandle @object);
 
 		/// <summary>
 		///     Sets the prototype of an object.
@@ -695,7 +710,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetPrototype(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle prototypeObject);
+		void JsSetPrototype(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle prototypeObject);
 
 		/// <summary>
 		///     Performs JavaScript "instanceof" operator test.
@@ -709,7 +724,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsInstanceOf(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle constructor, out bool result);
+		bool JsInstanceOf(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle constructor);
 
 		/// <summary>
 		///     Returns a value that indicates whether an object is extensible or not.
@@ -722,7 +737,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetExtensionAllowed(JavaScriptValueSafeHandle @object, out bool value);
+		bool JsGetExtensionAllowed(JavaScriptValueSafeHandle @object);
 
 		/// <summary>
 		///     Makes an object non-extensible.
@@ -734,7 +749,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsPreventExtension(JavaScriptValueSafeHandle @object);
+		void JsPreventExtension(JavaScriptValueSafeHandle @object);
 
 		/// <summary>
 		///     Gets an object's property.
@@ -748,7 +763,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptValueSafeHandle value);
+		JavaScriptValueSafeHandle JsGetProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId);
 
 		/// <summary>
 		///     Gets a property descriptor for an object's own property.
@@ -762,7 +777,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetOwnPropertyDescriptor(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptValueSafeHandle propertyDescriptor);
+		JavaScriptValueSafeHandle JsGetOwnPropertyDescriptor(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId);
 
 		/// <summary>
 		///     Gets the list of all properties on the object.
@@ -775,7 +790,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetOwnPropertyNames(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle propertyNames);
+		JavaScriptValueSafeHandle JsGetOwnPropertyNames(JavaScriptValueSafeHandle @object);
 
 		/// <summary>
 		///     Puts an object's property.
@@ -790,7 +805,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, JavaScriptValueSafeHandle value, bool useStrictRules);
+		void JsSetProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, JavaScriptValueSafeHandle value, bool useStrictRules);
 
 		/// <summary>
 		///     Determines whether an object has a property.
@@ -804,7 +819,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsHasProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out bool hasProperty);
+		bool JsHasProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId);
 
 		/// <summary>
 		///     Deletes an object's property.
@@ -819,7 +834,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsDeleteProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, bool useStrictRules, out JavaScriptValueSafeHandle result);
+		JavaScriptValueSafeHandle JsDeleteProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, bool useStrictRules);
 
 		/// <summary>
 		///     Defines a new object's own property from a property descriptor.
@@ -834,7 +849,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsDefineProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, JavaScriptValueSafeHandle propertyDescriptor, out bool result);
+		bool JsDefineProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, JavaScriptValueSafeHandle propertyDescriptor);
 
 		/// <summary>
 		///     Tests whether an object has a value at the specified index.
@@ -848,7 +863,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsHasIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index, out bool result);
+		bool JsHasIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index);
 
 		/// <summary>
 		///     Retrieve the value at the specified index of an object.
@@ -862,7 +877,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index, out JavaScriptValueSafeHandle result);
+		JavaScriptValueSafeHandle JsGetIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index);
 
 		/// <summary>
 		///     Set the value at the specified index of an object.
@@ -876,7 +891,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index, JavaScriptValueSafeHandle value);
+		void JsSetIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index, JavaScriptValueSafeHandle value);
 
 		/// <summary>
 		///     Delete the value at the specified index of an object.
@@ -889,7 +904,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsDeleteIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index);
+		void JsDeleteIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index);
 
 		/// <summary>
 		///     Determines whether an object has its indexed properties in external data.
@@ -899,7 +914,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsHasIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out bool value);
+		bool JsHasIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object);
 
 		/// <summary>
 		///     Retrieves an object's indexed properties external data information.
@@ -911,7 +926,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, IntPtr data, out JavaScriptTypedArrayType arrayType, out uint elementLength);
+		JavaScriptTypedArrayType JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, IntPtr data, out uint elementLength);
 
 		/// <summary>
 		///     Sets an object's indexed properties to external data. The external data will be used as back
@@ -927,7 +942,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JavaScriptTypedArrayType arrayType, uint elementLength);
+		void JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JavaScriptTypedArrayType arrayType, uint elementLength);
 
 		/// <summary>
 		///     Compare two JavaScript values for equality.
@@ -946,7 +961,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsEquals(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2, out bool result);
+		bool JsEquals(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2);
 
 		/// <summary>
 		///     Compare two JavaScript values for strict equality.
@@ -965,7 +980,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsStrictEquals(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2, out bool result);
+		bool JsStrictEquals(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2);
 
 		/// <summary>
 		///     Determines whether an object is an external object.
@@ -975,7 +990,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsHasExternalData(JavaScriptValueSafeHandle @object, out bool value);
+		bool JsHasExternalData(JavaScriptValueSafeHandle @object);
 
 		/// <summary>
 		///     Retrieves the data from an external object.
@@ -988,7 +1003,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetExternalData(JavaScriptValueSafeHandle @object, out IntPtr externalData);
+		IntPtr JsGetExternalData(JavaScriptValueSafeHandle @object);
 
 		/// <summary>
 		///     Sets the external data on an external object.
@@ -1001,7 +1016,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetExternalData(JavaScriptValueSafeHandle @object, IntPtr externalData);
+		void JsSetExternalData(JavaScriptValueSafeHandle @object, IntPtr externalData);
 
 		/// <summary>
 		///     Creates a Javascript array object.
@@ -1014,7 +1029,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateArray(uint length, out JavaScriptValueSafeHandle result);
+		JavaScriptValueSafeHandle JsCreateArray(uint length);
 
 		/// <summary>
 		///     Creates a Javascript ArrayBuffer object.
@@ -1029,7 +1044,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateArrayBuffer(uint byteLength, out JavaScriptValueSafeHandle result);
+		JavaScriptValueSafeHandle JsCreateArrayBuffer(uint byteLength);
 
 		/// <summary>
 		///     Creates a Javascript ArrayBuffer object to access external memory.
@@ -1043,7 +1058,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateExternalArrayBuffer(IntPtr data, uint byteLength, JavaScriptObjectFinalizeCallback finalizeCallback, IntPtr callbackState, out JavaScriptValueSafeHandle result);
+		JavaScriptValueSafeHandle JsCreateExternalArrayBuffer(IntPtr data, uint byteLength, JavaScriptObjectFinalizeCallback finalizeCallback, IntPtr callbackState);
 
 		/// <summary>
 		///     Creates a Javascript typed array object.
@@ -1075,7 +1090,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateTypedArray(JavaScriptTypedArrayType arrayType, JavaScriptValueSafeHandle baseArray, uint byteOffset, uint elementLength, out JavaScriptValueSafeHandle result);
+		JavaScriptValueSafeHandle JsCreateTypedArray(JavaScriptTypedArrayType arrayType, JavaScriptValueSafeHandle baseArray, uint byteOffset, uint elementLength);
 
 		/// <summary>
 		///     Creates a Javascript DataView object.
@@ -1096,7 +1111,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateDataView(JavaScriptValueSafeHandle arrayBuffer, uint byteOffset, uint byteLength, out JavaScriptValueSafeHandle result);
+		JavaScriptValueSafeHandle JsCreateDataView(JavaScriptValueSafeHandle arrayBuffer, uint byteOffset, uint byteLength);
 
 		/// <summary>
 		///     Obtains frequently used properties of a typed array.
@@ -1109,7 +1124,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetTypedArrayInfo(JavaScriptValueSafeHandle typedArray, out JavaScriptTypedArrayType arrayType, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength);
+		JavaScriptTypedArrayType JsGetTypedArrayInfo(JavaScriptValueSafeHandle typedArray, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength);
 
 		/// <summary>
 		///     Obtains the underlying memory storage used by an <c>ArrayBuffer</c>.
@@ -1124,7 +1139,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetArrayBufferStorage(JavaScriptValueSafeHandle arrayBuffer, out IntPtr buffer, out uint bufferLength);
+		IntPtr JsGetArrayBufferStorage(JavaScriptValueSafeHandle arrayBuffer, out uint bufferLength);
 
 		/// <summary>
 		///     Obtains the underlying memory storage used by a typed array.
@@ -1143,7 +1158,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out IntPtr buffer, out uint bufferLength, out JavaScriptTypedArrayType arrayType, out int elementSize);
+		IntPtr JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out uint bufferLength, out JavaScriptTypedArrayType arrayType, out int elementSize);
 
 		/// <summary>
 		///     Obtains the underlying memory storage used by a DataView.
@@ -1158,7 +1173,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetDataViewStorage(JavaScriptValueSafeHandle dataView, out IntPtr buffer, out uint bufferLength);
+		IntPtr JsGetDataViewStorage(JavaScriptValueSafeHandle dataView, out uint bufferLength);
 
 		/// <summary>
 		///     Invokes a function.
@@ -1174,7 +1189,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCallFunction(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
+		JavaScriptValueSafeHandle JsCallFunction(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount);
 
 		/// <summary>
 		///     Invokes a function as a constructor.
@@ -1189,7 +1204,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsConstructObject(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
+		JavaScriptValueSafeHandle JsConstructObject(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount);
 
 		/// <summary>
 		///     Creates a new JavaScript function.
@@ -1205,7 +1220,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateFunction(JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle function);
+		JavaScriptValueSafeHandle JsCreateFunction(JavaScriptNativeFunction nativeFunction, IntPtr callbackState);
 
 		/// <summary>
 		///     Creates a new JavaScript function with name.
@@ -1222,7 +1237,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateNamedFunction(JavaScriptValueSafeHandle name, JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle function);
+		JavaScriptValueSafeHandle JsCreateNamedFunction(JavaScriptValueSafeHandle name, JavaScriptNativeFunction nativeFunction, IntPtr callbackState);
 
 		/// <summary>
 		///     Creates a new JavaScript error object
@@ -1235,7 +1250,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
+		JavaScriptValueSafeHandle JsCreateError(JavaScriptValueSafeHandle message);
 
 		/// <summary>
 		///     Creates a new JavaScript RangeError error object
@@ -1248,7 +1263,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateRangeError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
+		JavaScriptValueSafeHandle JsCreateRangeError(JavaScriptValueSafeHandle message);
 
 		/// <summary>
 		///     Creates a new JavaScript ReferenceError error object
@@ -1261,7 +1276,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateReferenceError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
+		JavaScriptValueSafeHandle JsCreateReferenceError(JavaScriptValueSafeHandle message);
 
 		/// <summary>
 		///     Creates a new JavaScript SyntaxError error object
@@ -1274,7 +1289,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateSyntaxError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
+		JavaScriptValueSafeHandle JsCreateSyntaxError(JavaScriptValueSafeHandle message);
 
 		/// <summary>
 		///     Creates a new JavaScript TypeError error object
@@ -1287,7 +1302,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateTypeError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
+		JavaScriptValueSafeHandle JsCreateTypeError(JavaScriptValueSafeHandle message);
 
 		/// <summary>
 		///     Creates a new JavaScript URIError error object
@@ -1300,7 +1315,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsCreateURIError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
+		JavaScriptValueSafeHandle JsCreateURIError(JavaScriptValueSafeHandle message);
 
 		/// <summary>
 		///     Determines whether the runtime of the current context is in an exception state.
@@ -1327,7 +1342,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsHasException(out bool hasException);
+		bool JsHasException();
 
 		/// <summary>
 		///     Returns the exception that caused the runtime of the current context to be in the
@@ -1349,7 +1364,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsGetAndClearException(out JavaScriptValueSafeHandle exception);
+		JavaScriptValueSafeHandle JsGetAndClearException();
 
 		/// <summary>
 		///     Sets the runtime of the current context to an exception state.
@@ -1369,7 +1384,7 @@
 		/// <returns>
 		///     JsNoError if the engine was set into an exception state, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetException(JavaScriptValueSafeHandle exception);
+		void JsSetException(JavaScriptValueSafeHandle exception);
 
 		/// <summary>
 		///     Suspends script execution and terminates any running scripts in a runtime.
@@ -1392,7 +1407,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsDisableRuntimeExecution(JavaScriptRuntimeSafeHandle runtime);
+		void JsDisableRuntimeExecution(JavaScriptRuntimeSafeHandle runtime);
 
 		/// <summary>
 		///     Enables script execution in a runtime.
@@ -1405,7 +1420,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsEnableRuntimeExecution(JavaScriptRuntimeSafeHandle runtime);
+		void JsEnableRuntimeExecution(JavaScriptRuntimeSafeHandle runtime);
 
 		/// <summary>
 		///     Returns a value that indicates whether script execution is disabled in the runtime.
@@ -1415,7 +1430,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsIsRuntimeExecutionDisabled(JavaScriptRuntimeSafeHandle runtime, out bool isDisabled);
+		bool JsIsRuntimeExecutionDisabled(JavaScriptRuntimeSafeHandle runtime);
 
 		/// <summary>
 		///     Sets a promise continuation callback function that is called by the context when a task
@@ -1433,7 +1448,7 @@
 		/// <returns>
 		///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		JavaScriptErrorCode JsSetPromiseContinuationCallback(JavaScriptPromiseContinuationCallback promiseContinuationCallback, IntPtr callbackState);
+		void JsSetPromiseContinuationCallback(JavaScriptPromiseContinuationCallback promiseContinuationCallback, IntPtr callbackState);
 
 	}
 }
