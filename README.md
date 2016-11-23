@@ -35,6 +35,7 @@ To summarize, BaristaCore provides:
  - Azure Functions
  - Auth0 WebTask
  - iron.io
+ - Hyperdev
 
  However, each of the solutions above are closed-source cloud implementations. BaristaCore lets you have the same types of flexability as the above, but within your own datacenter.
 
