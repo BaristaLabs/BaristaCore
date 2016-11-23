@@ -21,15 +21,51 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
 	foreach (var ex in ChakraExternManager.Externs)
 	{
 #>
-<#
-		foreach(var ln in ex.Description.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None)) {
-			if (ln.Trim() == string.Empty)
-				continue;
-			WriteLine("\t\t" + ln);
-		}
+		/// <summary>
+		///		<#= ex.Summary #>
+		/// </summary>
+<# if (!string.IsNullOrWhiteSpace(ex.Remarks))
+	{
 #>
+		/// <remarks>
+<#
+	foreach(var ln in ex.Remarks.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None)) {
+		if (ln.Trim() == string.Empty)
+			continue;
+		WriteLine("\t\t///\t\t" + ln);
+    }
+#>
+		/// </remarks>
+<#
+	foreach(var param in ex.Parameters)
+	{
+#>
+		/// <param name="<#= param.Name #>">
+<#
+	foreach(var ln in param.Description.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None)) {
+		if (ln.Trim() == string.Empty)
+			continue;
+		WriteLine("\t\t///\t\t" + ln);
+    }
+#>
+		/// </param>
+<#	} #>
+<#	} #>
+<# if (ex.ReturnParameter.Type != "void")
+	{
+#>
+		/// <returns>
+<#
+	foreach(var ln in ex.ReturnParameter.Description.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None)) {
+		if (ln.Trim() == string.Empty)
+			continue;
+		WriteLine("\t\t///\t\t" + ln);
+    }
+#>
+		/// </returns>
+<#	} #>
 		[DllImport(DllName<# if (!String.IsNullOrWhiteSpace(ex.DllImportEx)) { #><#= ex.DllImportEx #><# } #>)]
-		public static extern JavaScriptErrorCode <#= ex.Name #>(<#= ex.NativeSignature #>);
+		public static extern JavaScriptErrorCode <#= ex.Name #>(<#= ex.Signature #>);
 
 <#
 	}
