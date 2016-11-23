@@ -3,11 +3,52 @@
     using Internal;
     using System;
     using System.Runtime.InteropServices;
+    using System.Text;
     using System.Threading.Tasks;
 
     public static class IJavaScriptRuntimeExtensions
     {
         private const string EvalSourceUrl = "[eval code]";
+
+        public static string GetStringUtf8(this IJavaScriptRuntime jsrt, JavaScriptValueSafeHandle stringHandle, bool autoConvert = false)
+        {
+            bool stringHandleWasCreated = false;
+            if (stringHandle == null || stringHandle == JavaScriptValueSafeHandle.Invalid)
+                throw new ArgumentNullException(nameof(stringHandle));
+
+            //If Auto Convert is specified, ensure that the type is a string, otherwise convert it.
+            if (autoConvert)
+            {
+                JavaScriptValueType handleValueType;
+                Errors.ThrowIfError(jsrt.JsGetValueType(stringHandle, out handleValueType));
+
+                if (handleValueType != JavaScriptValueType.String)
+                {
+                    JavaScriptValueSafeHandle convertedToStringHandle;
+                    Errors.ThrowIfError(jsrt.JsConvertValueToString(stringHandle, out convertedToStringHandle));
+
+                    stringHandle = convertedToStringHandle;
+                    stringHandleWasCreated = true;
+                }
+            }
+
+            //Get the size
+            UIntPtr size;
+            Errors.ThrowIfError(jsrt.JsCopyStringUtf8(stringHandle, null, UIntPtr.Zero, out size));
+ 
+            if ((int)size > int.MaxValue)
+                throw new OutOfMemoryException("Exceeded maximum string length.");
+
+            byte[] result = new byte[(int)size];
+            UIntPtr written;
+            Errors.ThrowIfError(jsrt.JsCopyStringUtf8(stringHandle, result, new UIntPtr((uint)result.Length), out written));
+
+            var strResult = Encoding.UTF8.GetString(result, 0, result.Length);
+            if (stringHandleWasCreated)
+                stringHandle.Dispose();
+
+            return strResult;
+        }
 
         /// <summary>
         /// Parses a script and returns a function representing a script contained in the specified script source.

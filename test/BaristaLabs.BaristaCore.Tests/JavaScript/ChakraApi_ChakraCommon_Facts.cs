@@ -1808,6 +1808,126 @@ return obj;
         }
 
         [Fact]
+        public void JsCanRetrieveIndexedProperty()
+        {
+            var script = @"(() => {
+var arr = ['Arnold', 'Bernard', 'Charlotte', 'Delores', 'Elsie', 'Felix', 'Hector', 'Lee', 'Maeve', 'Peter', 'Robert', 'Sylvester', 'Teddy', 'Wyatt'];
+return arr;
+})();
+";
+
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle arrayHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+
+            JavaScriptValueSafeHandle arrayIndexHandle;
+            Errors.ThrowIfError(Jsrt.JsIntToNumber(10, out arrayIndexHandle));
+
+            JavaScriptValueSafeHandle valueHandle;
+            Errors.ThrowIfError(Jsrt.JsGetIndexedProperty(arrayHandle, arrayIndexHandle, out valueHandle));
+
+            Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
+
+            var result = Extensions.IJavaScriptRuntimeExtensions.GetStringUtf8(Jsrt, valueHandle);
+
+            Assert.Equal("Robert", result);
+
+            valueHandle.Dispose();
+            arrayIndexHandle.Dispose();
+            arrayHandle.Dispose();
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsCanSetIndexedProperty()
+        {
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle arrayHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateArray(50, out arrayHandle));
+
+            var value = "The Bicameral Mind";
+            JavaScriptValueSafeHandle valueHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateStringUtf8(value, new UIntPtr((uint)value.Length), out valueHandle));
+
+            JavaScriptValueSafeHandle arrayIndexHandle;
+            Errors.ThrowIfError(Jsrt.JsIntToNumber(42, out arrayIndexHandle));
+
+            Errors.ThrowIfError(Jsrt.JsSetIndexedProperty(arrayHandle, arrayIndexHandle, valueHandle));
+
+            JavaScriptValueSafeHandle resultHandle;
+            Errors.ThrowIfError(Jsrt.JsGetIndexedProperty(arrayHandle, arrayIndexHandle, out resultHandle));
+
+            Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
+
+            var result = Extensions.IJavaScriptRuntimeExtensions.GetStringUtf8(Jsrt, valueHandle);
+
+            Assert.Equal("The Bicameral Mind", result);
+
+            resultHandle.Dispose();
+            valueHandle.Dispose();
+            arrayIndexHandle.Dispose();
+            arrayHandle.Dispose();
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
+        public void JsCanDeleteIndexedProperty()
+        {
+            var script = @"(() => {
+var arr = ['Arnold', 'Bernard', 'Charlotte', 'Delores', 'Elsie', 'Felix', 'Hector', 'Lee', 'Maeve', 'Peter', 'Robert', 'Sylvester', 'Teddy', 'Wyatt'];
+return arr;
+})();
+";
+
+            JavaScriptRuntimeSafeHandle runtimeHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null, out runtimeHandle));
+
+            JavaScriptContextSafeHandle contextHandle;
+            Errors.ThrowIfError(Jsrt.JsCreateContext(runtimeHandle, out contextHandle));
+            Errors.ThrowIfError(Jsrt.JsSetCurrentContext(contextHandle));
+
+            JavaScriptValueSafeHandle arrayHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+
+            JavaScriptValueSafeHandle arrayIndexHandle;
+            Errors.ThrowIfError(Jsrt.JsIntToNumber(12, out arrayIndexHandle));
+
+            Errors.ThrowIfError(Jsrt.JsDeleteIndexedProperty(arrayHandle, arrayIndexHandle));
+
+            JavaScriptValueSafeHandle valueHandle;
+            Errors.ThrowIfError(Jsrt.JsGetIndexedProperty(arrayHandle, arrayIndexHandle, out valueHandle));
+            
+            Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
+
+            JavaScriptValueSafeHandle undefinedHandle;
+            Errors.ThrowIfError(Jsrt.JsGetUndefinedValue(out undefinedHandle));
+
+            Assert.Equal(undefinedHandle, valueHandle);
+
+            undefinedHandle.Dispose();
+            valueHandle.Dispose();
+            arrayIndexHandle.Dispose();
+            arrayHandle.Dispose();
+
+            contextHandle.Dispose();
+            runtimeHandle.Dispose();
+        }
+
+        [Fact]
         public void JsArrayCanBeCreated()
         {
             JavaScriptRuntimeSafeHandle runtimeHandle;
