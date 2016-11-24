@@ -343,7 +343,7 @@
 		void JsSerialize(JavaScriptValueSafeHandle script, byte[] buffer, ref ulong bufferSize, JavaScriptParseScriptAttributes parseAttributes);
 
 		/// <summary>
-		///		Parses a serialized script and returns a function representing the script.Provides the ability to lazy load the script source only if/when it is needed.
+		///		Parses a serialized script and returns a function representing the script. Provides the ability to lazy load the script source only if/when it is needed.
 		/// </summary>
 		/// <remarks>
 		///		Requires an active script context.
@@ -368,7 +368,7 @@
 		JavaScriptValueSafeHandle JsParseSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl);
 
 		/// <summary>
-		///		Runs a serialized script.Provides the ability to lazy load the script source only if/when it is needed.
+		///		Runs a serialized script. Provides the ability to lazy load the script source only if/when it is needed.
 		/// </summary>
 		/// <remarks>
 		///		Requires an active script context.

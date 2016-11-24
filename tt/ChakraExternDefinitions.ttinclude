@@ -79,7 +79,7 @@
         var descriptionXml = descriptionXmlBuilder.ToString();
         var descriptionXDoc = XDocument.Parse(descriptionXml);
 		if (descriptionXDoc.Root.Element("summary") != null)
-			def.Summary = descriptionXDoc.Root.Element("summary").Value.Trim().Replace("\n", "").Replace("\r\n", "");
+			def.Summary = descriptionXDoc.Root.Element("summary").Value.Trim().Replace("\n", " ").Replace("\r\n", " ");
 		if (descriptionXDoc.Root.Element("remarks") != null)
 			def.Remarks = descriptionXDoc.Root.Element("remarks").Value.Trim();
 		if (descriptionXDoc.Root.Element("returns") != null)

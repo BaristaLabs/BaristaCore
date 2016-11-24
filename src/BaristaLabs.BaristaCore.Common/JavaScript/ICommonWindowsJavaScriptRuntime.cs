@@ -114,7 +114,7 @@
 		void JsSerializeScript(string script, byte[] buffer, ref ulong bufferSize);
 
 		/// <summary>
-		///		Parses a serialized script and returns a function representing the script.Provides the ability to lazy load the script source only if/when it is needed.
+		///		Parses a serialized script and returns a function representing the script. Provides the ability to lazy load the script source only if/when it is needed.
 		/// </summary>
 		/// <remarks>
 		///		Requires an active script context.
@@ -144,7 +144,7 @@
 		JavaScriptValueSafeHandle JsParseSerializedScriptWithCallback(JavaScriptSerializedScriptLoadSourceCallback scriptLoadCallback, JavaScriptSerializedScriptUnloadCallback scriptUnloadCallback, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl);
 
 		/// <summary>
-		///		Runs a serialized script.Provides the ability to lazy load the script source only if/when it is needed.
+		///		Runs a serialized script. Provides the ability to lazy load the script source only if/when it is needed.
 		/// </summary>
 		/// <remarks>
 		///		Requires an active script context.

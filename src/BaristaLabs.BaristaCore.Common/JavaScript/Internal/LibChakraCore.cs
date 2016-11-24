@@ -405,7 +405,7 @@
 		public static extern JavaScriptErrorCode JsSerialize(JavaScriptValueSafeHandle script, byte[] buffer, ref ulong bufferSize, JavaScriptParseScriptAttributes parseAttributes);
 
 		/// <summary>
-		///		Parses a serialized script and returns a function representing the script.Provides the ability to lazy load the script source only if/when it is needed.
+		///		Parses a serialized script and returns a function representing the script. Provides the ability to lazy load the script source only if/when it is needed.
 		/// </summary>
 		/// <remarks>
 		///		Requires an active script context.
@@ -434,7 +434,7 @@
 		public static extern JavaScriptErrorCode JsParseSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
-		///		Runs a serialized script.Provides the ability to lazy load the script source only if/when it is needed.
+		///		Runs a serialized script. Provides the ability to lazy load the script source only if/when it is needed.
 		/// </summary>
 		/// <remarks>
 		///		Requires an active script context.
@@ -759,7 +759,7 @@
 		public static extern JavaScriptErrorCode JsRelease(IntPtr @ref, out uint count);
 
 		/// <summary>
-		///		Sets a callback function that is called by the runtime before garbage collection ofan object.
+		///		Sets a callback function that is called by the runtime before garbage collection of an object.
 		/// </summary>
 		/// <remarks>
 		///		The callback is invoked on the current runtime execution thread, therefore execution is
@@ -1612,7 +1612,7 @@
 		public static extern JavaScriptErrorCode JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, IntPtr data, out JavaScriptTypedArrayType arrayType, out uint elementLength);
 
 		/// <summary>
-		///		Sets an object's indexed properties to external data. The external data will be used as backstore for the object's indexed properties and accessed like a typed array.
+		///		Sets an object's indexed properties to external data. The external data will be used as back store for the object's indexed properties and accessed like a typed array.
 		/// </summary>
 		/// <remarks>
 		///		Requires an active script context.
@@ -2087,7 +2087,7 @@
 		public static extern JavaScriptErrorCode JsHasException(out bool hasException);
 
 		/// <summary>
-		///		Returns the exception that caused the runtime of the current context to be in theexception state and resets the exception state for that runtime.
+		///		Returns the exception that caused the runtime of the current context to be in the exception state and resets the exception state for that runtime.
 		/// </summary>
 		/// <remarks>
 		///		If the runtime of the current context is not in an exception state, this API will return
@@ -2169,7 +2169,7 @@
 		public static extern JavaScriptErrorCode JsIsRuntimeExecutionDisabled(JavaScriptRuntimeSafeHandle runtime, out bool isDisabled);
 
 		/// <summary>
-		///		Sets a promise continuation callback function that is called by the context when a taskneeds to be queued for future execution
+		///		Sets a promise continuation callback function that is called by the context when a task needs to be queued for future execution
 		/// </summary>
 		/// <remarks>
 		///		Requires an active script context.
@@ -2311,7 +2311,7 @@
 		public static extern JavaScriptErrorCode JsSerializeScript(string script, byte[] buffer, ref ulong bufferSize);
 
 		/// <summary>
-		///		Parses a serialized script and returns a function representing the script.Provides the ability to lazy load the script source only if/when it is needed.
+		///		Parses a serialized script and returns a function representing the script. Provides the ability to lazy load the script source only if/when it is needed.
 		/// </summary>
 		/// <remarks>
 		///		Requires an active script context.
@@ -2345,7 +2345,7 @@
 		public static extern JavaScriptErrorCode JsParseSerializedScriptWithCallback(JavaScriptSerializedScriptLoadSourceCallback scriptLoadCallback, JavaScriptSerializedScriptUnloadCallback scriptUnloadCallback, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
-		///		Runs a serialized script.Provides the ability to lazy load the script source only if/when it is needed.
+		///		Runs a serialized script. Provides the ability to lazy load the script source only if/when it is needed.
 		/// </summary>
 		/// <remarks>
 		///		Requires an active script context.

@@ -245,7 +245,7 @@
 		uint JsRelease(IntPtr @ref);
 
 		/// <summary>
-		///		Sets a callback function that is called by the runtime before garbage collection ofan object.
+		///		Sets a callback function that is called by the runtime before garbage collection of an object.
 		/// </summary>
 		/// <remarks>
 		///		The callback is invoked on the current runtime execution thread, therefore execution is
@@ -921,7 +921,7 @@
 		JavaScriptTypedArrayType JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, IntPtr data, out uint elementLength);
 
 		/// <summary>
-		///		Sets an object's indexed properties to external data. The external data will be used as backstore for the object's indexed properties and accessed like a typed array.
+		///		Sets an object's indexed properties to external data. The external data will be used as back store for the object's indexed properties and accessed like a typed array.
 		/// </summary>
 		/// <remarks>
 		///		Requires an active script context.
@@ -1317,7 +1317,7 @@
 		bool JsHasException();
 
 		/// <summary>
-		///		Returns the exception that caused the runtime of the current context to be in theexception state and resets the exception state for that runtime.
+		///		Returns the exception that caused the runtime of the current context to be in the exception state and resets the exception state for that runtime.
 		/// </summary>
 		/// <remarks>
 		///		If the runtime of the current context is not in an exception state, this API will return
@@ -1382,7 +1382,7 @@
 		bool JsIsRuntimeExecutionDisabled(JavaScriptRuntimeSafeHandle runtime);
 
 		/// <summary>
-		///		Sets a promise continuation callback function that is called by the context when a taskneeds to be queued for future execution
+		///		Sets a promise continuation callback function that is called by the context when a task needs to be queued for future execution
 		/// </summary>
 		/// <remarks>
 		///		Requires an active script context.
