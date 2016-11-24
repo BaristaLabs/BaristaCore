@@ -16,7 +16,7 @@
         { "JsRuntimeHandle", "JavaScriptRuntimeSafeHandle" },
 		{ "JsContextRef", "JavaScriptContextSafeHandle" },
 		{ "JsSourceContext", "JavaScriptSourceContext" },
-        { "JsRef", "JavaScriptValueSafeHandle" }, //Not sure about this one...
+        { "JsRef", "SafeHandle" },
 		{ "JsValueRef", "JavaScriptValueSafeHandle" },
 		{ "JsValueRef[]", "IntPtr[]" },
         { "JsPropertyIdRef", "JavaScriptPropertyIdSafeHandle" },

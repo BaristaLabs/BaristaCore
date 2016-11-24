@@ -44,22 +44,6 @@ public class ChakraExternManager {
 			{ "JavaScriptValueSafeHandle", "JavaScriptValueSafeHandle" }
 		};
 
-		public bool HasOutContextSafeHandles
-        {
-			get
-            {
-				return Parameters.Any( p => p.Direction == ParameterDirection.Out && p.Type == "JavaScriptContextSafeHandle" );
-            }
-        }
-
-		public bool HasOutValueSafeHandles
-        {
-			get
-            {
-				return Parameters.Any( p => p.Direction == ParameterDirection.Out && p.Type == "JavaScriptValueSafeHandle" );
-            }
-        }
-
 		public ChakraExtern InterfaceExtern
         {
 			get
@@ -150,16 +134,8 @@ public class ChakraExternManager {
             }
         }
 
-		public List<ExternParameter> GetOutParameters() {
-			return Parameters.FindAll( p => p.Direction == ParameterDirection.Out);
-        }
-
-		public List<ExternParameter> GetOutContextSafeHandles() {
-			return Parameters.FindAll( p => p.Direction == ParameterDirection.Out && p.Type == "JavaScriptContextSafeHandle");
-        }
-
 		public List<ExternParameter> GetOutValueSafeHandles() {
-			return Parameters.FindAll( p => p.Direction == ParameterDirection.Out && p.Type == "JavaScriptValueSafeHandle");
+			return Parameters.FindAll( p => p.Direction == ParameterDirection.Out && (p.Type == "JavaScriptRuntimeSafeHandle" || p.Type == "JavaScriptContextSafeHandle" || p.Type == "JavaScriptValueSafeHandle" || p.Type == "JavaScriptPropertyIdSafeHandle"));
         }
     }
 

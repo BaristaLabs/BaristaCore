@@ -3,6 +3,7 @@
 	using Internal;
 
     using System;
+	using System.Runtime.InteropServices;
 
     /// <summary>
     /// ChakraCommon.h interface
@@ -154,81 +155,7 @@
 		/// <returns>
 		///		The object's new reference count (can pass in null).
 		/// </returns>
-		uint JsAddContextRef(JavaScriptContextSafeHandle @ref);
-
-		/// <summary>
-		///		Adds a reference to a garbage collected object.
-		/// </summary>
-		/// <remarks>
-		///		This only needs to be called on JsRef handles that are not going to be stored
-		///		somewhere on the stack. Calling JsAddRef ensures that the object the JsRef
-		///		refers to will not be freed until JsRelease is called.
-		/// </remarks>
-		/// <param name="@ref">
-		///		The object to add a reference to.
-		/// </param>
-		/// <returns>
-		///		The object's new reference count (can pass in null).
-		/// </returns>
-		uint JsAddValueRef(JavaScriptValueSafeHandle @ref);
-
-		/// <summary>
-		///		Adds a reference to a garbage collected object.
-		/// </summary>
-		/// <remarks>
-		///		This only needs to be called on JsRef handles that are not going to be stored
-		///		somewhere on the stack. Calling JsAddRef ensures that the object the JsRef
-		///		refers to will not be freed until JsRelease is called.
-		/// </remarks>
-		/// <param name="@ref">
-		///		The object to add a reference to.
-		/// </param>
-		/// <returns>
-		///		The object's new reference count (can pass in null).
-		/// </returns>
-		uint JsAddRef(IntPtr @ref);
-
-		/// <summary>
-		///		Releases a reference to a garbage collected object.
-		/// </summary>
-		/// <remarks>
-		///		Removes a reference to a context handle that was created by JsAddRef.
-		/// </remarks>
-		/// <param name="context">
-		///		The object to add a reference to.
-		/// </param>
-		/// <returns>
-		///		The object's new reference count (can pass in null).
-		/// </returns>
-		uint JsReleaseContext(JavaScriptContextSafeHandle context);
-
-		/// <summary>
-		///		Releases a reference to a garbage collected object.
-		/// </summary>
-		/// <remarks>
-		///		Removes a reference to a JsRef handle that was created by JsAddRef.
-		/// </remarks>
-		/// <param name="propertyId">
-		///		The object to add a reference to.
-		/// </param>
-		/// <returns>
-		///		The object's new reference count (can pass in null).
-		/// </returns>
-		uint JsReleasePropertyId(JavaScriptPropertyIdSafeHandle propertyId);
-
-		/// <summary>
-		///		Releases a reference to a garbage collected object.
-		/// </summary>
-		/// <remarks>
-		///		Removes a reference to a JsRef handle that was created by JsAddRef.
-		/// </remarks>
-		/// <param name="value">
-		///		The object to add a reference to.
-		/// </param>
-		/// <returns>
-		///		The object's new reference count (can pass in null).
-		/// </returns>
-		uint JsReleaseValue(JavaScriptValueSafeHandle value);
+		uint JsAddRef(SafeHandle @ref);
 
 		/// <summary>
 		///		Releases a reference to a garbage collected object.
@@ -242,7 +169,7 @@
 		/// <returns>
 		///		The object's new reference count (can pass in null).
 		/// </returns>
-		uint JsRelease(IntPtr @ref);
+		uint JsRelease(SafeHandle @ref);
 
 		/// <summary>
 		///		Sets a callback function that is called by the runtime before garbage collection of an object.
@@ -261,7 +188,7 @@
 		///		The callback function being set. Use null to clear
 		///		previously registered callback.
 		/// </param>
-		void JsSetObjectBeforeCollectCallback(JavaScriptValueSafeHandle @ref, IntPtr callbackState, JavaScriptObjectBeforeCollectCallback objectBeforeCollectCallback);
+		void JsSetObjectBeforeCollectCallback(SafeHandle @ref, IntPtr callbackState, JavaScriptObjectBeforeCollectCallback objectBeforeCollectCallback);
 
 		/// <summary>
 		///		Creates a script context for running scripts.

@@ -134,11 +134,6 @@
             Assert.True(called);
         }
 
-        private struct MyPoint
-        {
-            public int x, y;
-        }
-
         [Fact]
         public void JsValueRefCanBeAdded()
         {
@@ -151,7 +146,7 @@
                     var myString = "Have you ever questioned the nature of your reality?";
                     var stringHandle = Jsrt.JsCreateStringUtf8(myString, new UIntPtr((uint)myString.Length));
 
-                    var count = Jsrt.JsAddValueRef(stringHandle);
+                    var count = Jsrt.JsAddRef(stringHandle);
 
                     //2 because the safe interface adds a reference.
                     Assert.Equal((uint)2, count);
@@ -159,42 +154,6 @@
                     Jsrt.JsCollectGarbage(runtimeHandle);
 
                     stringHandle.Dispose();
-                }
-            }
-        }
-
-        [Fact]
-        public void JsRefIsNotAddedOnNonJsObjects()
-        {
-            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
-            {
-                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
-                {
-                    Jsrt.JsSetCurrentContext(contextHandle);
-
-                    var point = new MyPoint()
-                    {
-                        x = 64,
-                        y = 64
-                    };
-
-                    IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf<MyPoint>());
-                    try
-                    {
-                        Marshal.StructureToPtr(point, ptr, false);
-
-                        var count = Jsrt.JsAddRef(ptr);
-
-                        //0 because the ptr isn't associated with the runtime.
-                        Assert.True(count == 0);
-
-                        Jsrt.JsCollectGarbage(runtimeHandle);
-                    }
-                    finally
-                    {
-                        Marshal.DestroyStructure<MyPoint>(ptr);
-                        Marshal.FreeHGlobal(ptr);
-                    }
                 }
             }
         }

@@ -643,102 +643,8 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName, EntryPoint = "JsAddRef" )]
-		public static extern JavaScriptErrorCode JsAddContextRef(JavaScriptContextSafeHandle @ref, out uint count);
-
-		/// <summary>
-		///		Adds a reference to a garbage collected object.
-		/// </summary>
-		/// <remarks>
-		///		This only needs to be called on JsRef handles that are not going to be stored
-		///		somewhere on the stack. Calling JsAddRef ensures that the object the JsRef
-		///		refers to will not be freed until JsRelease is called.
-		/// </remarks>
-		/// <param name="@ref">
-		///		The object to add a reference to.
-		/// </param>
-		/// <param name="count">
-		///		The object's new reference count (can pass in null).
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, EntryPoint = "JsAddRef" )]
-		public static extern JavaScriptErrorCode JsAddValueRef(JavaScriptValueSafeHandle @ref, out uint count);
-
-		/// <summary>
-		///		Adds a reference to a garbage collected object.
-		/// </summary>
-		/// <remarks>
-		///		This only needs to be called on JsRef handles that are not going to be stored
-		///		somewhere on the stack. Calling JsAddRef ensures that the object the JsRef
-		///		refers to will not be freed until JsRelease is called.
-		/// </remarks>
-		/// <param name="@ref">
-		///		The object to add a reference to.
-		/// </param>
-		/// <param name="count">
-		///		The object's new reference count (can pass in null).
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsAddRef(IntPtr @ref, out uint count);
-
-		/// <summary>
-		///		Releases a reference to a garbage collected object.
-		/// </summary>
-		/// <remarks>
-		///		Removes a reference to a context handle that was created by JsAddRef.
-		/// </remarks>
-		/// <param name="context">
-		///		The object to add a reference to.
-		/// </param>
-		/// <param name="count">
-		///		The object's new reference count (can pass in null).
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, EntryPoint = "JsRelease" )]
-		public static extern JavaScriptErrorCode JsReleaseContext(JavaScriptContextSafeHandle context, out uint count);
-
-		/// <summary>
-		///		Releases a reference to a garbage collected object.
-		/// </summary>
-		/// <remarks>
-		///		Removes a reference to a JsRef handle that was created by JsAddRef.
-		/// </remarks>
-		/// <param name="propertyId">
-		///		The object to add a reference to.
-		/// </param>
-		/// <param name="count">
-		///		The object's new reference count (can pass in null).
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, EntryPoint = "JsRelease" )]
-		public static extern JavaScriptErrorCode JsReleasePropertyId(JavaScriptPropertyIdSafeHandle propertyId, out uint count);
-
-		/// <summary>
-		///		Releases a reference to a garbage collected object.
-		/// </summary>
-		/// <remarks>
-		///		Removes a reference to a JsRef handle that was created by JsAddRef.
-		/// </remarks>
-		/// <param name="value">
-		///		The object to add a reference to.
-		/// </param>
-		/// <param name="count">
-		///		The object's new reference count (can pass in null).
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, EntryPoint = "JsRelease" )]
-		public static extern JavaScriptErrorCode JsReleaseValue(JavaScriptValueSafeHandle value, out uint count);
+		public static extern JavaScriptErrorCode JsAddRef(SafeHandle @ref, out uint count);
 
 		/// <summary>
 		///		Releases a reference to a garbage collected object.
@@ -756,7 +662,7 @@
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsRelease(IntPtr @ref, out uint count);
+		public static extern JavaScriptErrorCode JsRelease(SafeHandle @ref, out uint count);
 
 		/// <summary>
 		///		Sets a callback function that is called by the runtime before garbage collection of an object.
@@ -779,7 +685,7 @@
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsSetObjectBeforeCollectCallback(JavaScriptValueSafeHandle @ref, IntPtr callbackState, JavaScriptObjectBeforeCollectCallback objectBeforeCollectCallback);
+		public static extern JavaScriptErrorCode JsSetObjectBeforeCollectCallback(SafeHandle @ref, IntPtr callbackState, JavaScriptObjectBeforeCollectCallback objectBeforeCollectCallback);
 
 		/// <summary>
 		///		Creates a script context for running scripts.

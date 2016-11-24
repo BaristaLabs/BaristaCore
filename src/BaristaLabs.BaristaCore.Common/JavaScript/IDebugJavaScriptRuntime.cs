@@ -3,6 +3,7 @@
 	using Internal;
 
     using System;
+	using System.Runtime.InteropServices;
 
     /// <summary>
     /// ChakraDebug.h interface
