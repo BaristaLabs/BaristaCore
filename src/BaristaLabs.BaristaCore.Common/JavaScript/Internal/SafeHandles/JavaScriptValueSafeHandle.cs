@@ -31,6 +31,12 @@
         {
         }
 
+        public JavaScriptValueSafeHandle(IntPtr handle) :
+            base(IntPtr.Zero, ownsHandle: true)
+        {
+            this.handle = handle;
+        }
+
         /// <summary>
         ///     Releases resources associated with the property ID.
         /// </summary>

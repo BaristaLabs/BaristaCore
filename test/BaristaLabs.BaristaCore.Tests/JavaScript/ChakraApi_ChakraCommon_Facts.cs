@@ -3,6 +3,7 @@
     using Internal;
 
     using System;
+    using System.Collections.Generic;
     using System.Runtime.InteropServices;
     using System.Text;
     using Xunit;
@@ -1509,7 +1510,7 @@ return obj;
                     //array[0] = 0;
                     Jsrt.JsSetIndexedProperty(arrayHandle, arrayIndexHandle, arrayIndexHandle);
 
-                    
+
                     var hasArrayIndex = Jsrt.JsHasIndexedProperty(arrayHandle, arrayIndexHandle);
                     Assert.True(hasArrayIndex);
 
@@ -1599,7 +1600,7 @@ return arr;
                     var arrayHandle = Jsrt.JsCreateArray(50);
 
                     var value = "The Bicameral Mind";
-                    var valueHandle= Jsrt.JsCreateStringUtf8(value, new UIntPtr((uint)value.Length));
+                    var valueHandle = Jsrt.JsCreateStringUtf8(value, new UIntPtr((uint)value.Length));
 
                     var arrayIndexHandle = Jsrt.JsIntToNumber(42);
 
@@ -1882,6 +1883,112 @@ return arr;
                     arrayBufferHandle.Dispose();
                 }
             }
+        }
+
+        [Fact]
+        public void JsPromisesCannotResolveWithoutCallback()
+        {
+            var script = @"
+var allDone = false;
+new Promise(function(resolve, reject) {
+        resolve('basic:success');
+    }).then(function() {
+        return new Promise(function(resolve, reject) {
+            resolve('second:success');
+        });
+    }).then(function() { 
+        allDone = true
+    });";
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    try
+                    {
+                        var promiseHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                        Assert.True(false, "Promises should not be able to be resolved without a promise continuation callback defined.");
+                    }
+                    catch(JavaScriptScriptException ex)
+                    {
+                        Assert.Equal("Object doesn't support this action", ex.ErrorMessage);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsPromisesContinuationCallbacksAreExecuted()
+        {
+            int calledCount = 0;
+            var taskQueue = new Stack<JavaScriptValueSafeHandle>();
+
+            JavaScriptPromiseContinuationCallback promiseContinuationCallback = (IntPtr task, IntPtr callbackState) =>
+            {
+                calledCount++;
+                taskQueue.Push(new JavaScriptValueSafeHandle(task));
+            };
+
+            var script = @"
+var allDone = false;
+new Promise(function(resolve, reject) {
+        resolve('basic:success');
+    }).then(function() {
+        return new Promise(function(resolve, reject) {
+            resolve('second:success');
+        });
+    }).then(function() { 
+        allDone = true
+    });";
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    Jsrt.JsSetPromiseContinuationCallback(promiseContinuationCallback, IntPtr.Zero);
+
+                    var promiseHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    Assert.True(promiseHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var undefinedHandle = Jsrt.JsGetUndefinedValue();
+                    var trueHandle = Jsrt.JsGetTrueValue();
+                    var falseHandle = Jsrt.JsGetFalseValue();
+
+                    var allDonePropertyName = "allDone";
+                    var allDonePropertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(allDonePropertyName, new UIntPtr((uint)allDonePropertyName.Length));
+
+                    var globalObjectHandle = Jsrt.JsGetGlobalObject();
+                    var allDoneHandle = Jsrt.JsGetProperty(globalObjectHandle, allDonePropertyIdHandle);
+                    Assert.True(allDoneHandle == falseHandle);
+
+                    
+                    var args = new IntPtr[] { undefinedHandle.DangerousGetHandle() };
+
+                    do
+                    {
+                        var task = taskQueue.Pop();
+                        var handleType = Jsrt.JsGetValueType(task);
+                        Assert.True(handleType == JavaScriptValueType.Function);
+                        var result = Jsrt.JsCallFunction(task, args, (ushort)args.Length);
+                    } while (taskQueue.Count > 0);
+
+                    allDoneHandle = Jsrt.JsGetProperty(globalObjectHandle, allDonePropertyIdHandle);
+                    Assert.True(allDoneHandle == trueHandle);
+
+                    allDoneHandle.Dispose();
+                    allDonePropertyIdHandle.Dispose();
+                    trueHandle.Dispose();
+                    falseHandle.Dispose();
+                    undefinedHandle.Dispose();
+                    globalObjectHandle.Dispose();
+                    promiseHandle.Dispose();
+                }
+            }
+
+            Assert.True(calledCount > 0);
         }
     }
 }
