@@ -164,7 +164,7 @@
         }
 
         [Fact]
-        public void JsRefCanBeAdded()
+        public void JsRefIsNotAddedOnNonJsObjects()
         {
             using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
@@ -218,14 +218,37 @@
 
                     Jsrt.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback);
 
-                    //The callback is executed during runtime release.
+                    //The callback is executed once the context is released and garbage is collected.
                     valueHandle.Dispose();
-                    Jsrt.JsCollectGarbage(runtimeHandle);
-
-                    //Commenting this as apparently on linux/osx, JsCollectGarbage does call the callback,
-                    //while on windows it does not. Might be related to timing, garbage collection, or idle.
-                    //Assert.False(called);
                 }
+
+                Jsrt.JsCollectGarbage(runtimeHandle);
+                Assert.True(called);
+            }
+        }
+
+        [Fact]
+        public void JsObjectBeforeCollectCallbackIsCalledIfObjectIsNotDisposed()
+        {
+            bool called = false;
+            JavaScriptObjectBeforeCollectCallback callback = (IntPtr sender, IntPtr callbackState) =>
+            {
+                called = true;
+            };
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var valueHandle = Jsrt.JsCreateStringUtf8("superman", new UIntPtr((uint)"superman".Length));
+
+                    Jsrt.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback);
+                }
+
+                Jsrt.JsCollectGarbage(runtimeHandle);
+                Assert.False(called);
             }
 
             Assert.True(called);
@@ -1970,9 +1993,17 @@ new Promise(function(resolve, reject) {
                     do
                     {
                         var task = taskQueue.Pop();
-                        var handleType = Jsrt.JsGetValueType(task);
-                        Assert.True(handleType == JavaScriptValueType.Function);
-                        var result = Jsrt.JsCallFunction(task, args, (ushort)args.Length);
+                        try
+                        {
+                            var handleType = Jsrt.JsGetValueType(task);
+                            Assert.True(handleType == JavaScriptValueType.Function);
+                            var result = Jsrt.JsCallFunction(task, args, (ushort)args.Length);
+                            result.Dispose();
+                        }
+                        finally
+                        {
+                            task.Dispose();
+                        }
                     } while (taskQueue.Count > 0);
 
                     allDoneHandle = Jsrt.JsGetProperty(globalObjectHandle, allDonePropertyIdHandle);
