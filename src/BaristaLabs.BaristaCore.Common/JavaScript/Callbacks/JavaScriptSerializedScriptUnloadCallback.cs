@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
+﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     /// <summary>
     ///     Called by the runtime when it is finished with all resources related to the script execution.

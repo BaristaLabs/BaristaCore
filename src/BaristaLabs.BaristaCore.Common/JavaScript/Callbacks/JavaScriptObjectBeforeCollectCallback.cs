@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
+﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using System;
 

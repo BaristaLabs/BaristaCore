@@ -94,7 +94,7 @@
 
             if (sourceContext == default(JavaScriptSourceContext))
             {
-                sourceContext = new JavaScriptSourceContext();
+                sourceContext = JavaScriptSourceContext.None;
             }
 
             if (sourceUrl == null)
@@ -173,7 +173,7 @@
 
             if (sourceContext == default(JavaScriptSourceContext))
             {
-                sourceContext = new JavaScriptSourceContext();
+                sourceContext = JavaScriptSourceContext.None;
             }
 
             if (sourceUrl == null)
@@ -231,7 +231,7 @@
 
             if (sourceContext == default(JavaScriptSourceContext))
             {
-                sourceContext = new JavaScriptSourceContext();
+                sourceContext = JavaScriptSourceContext.None;
             }
 
             JavaScriptValueSafeHandle sourceUrlHandle;

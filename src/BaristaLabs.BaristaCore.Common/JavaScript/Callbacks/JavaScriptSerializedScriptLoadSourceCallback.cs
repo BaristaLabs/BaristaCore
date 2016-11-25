@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
+﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     /// <summary>
     ///     Called by the runtime to load the source code of the serialized script.

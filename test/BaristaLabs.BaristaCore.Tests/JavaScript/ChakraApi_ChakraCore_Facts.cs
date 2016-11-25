@@ -188,7 +188,7 @@
                     try
                     {
                         var scriptHandle = Jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero);
-                        var sourceContext = new JavaScriptSourceContext();
+                        var sourceContext = JavaScriptSourceContext.None;
                         var sourceUrlHandle = Jsrt.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
                         var resultHandle = Jsrt.JsParse(scriptHandle, sourceContext, sourceUrlHandle, JavaScriptParseScriptAttributes.None);
 
@@ -226,7 +226,7 @@
                     {
                         var scriptHandle = Jsrt.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero);
 
-                        JavaScriptSourceContext sourceContext = new JavaScriptSourceContext();
+                        JavaScriptSourceContext sourceContext = JavaScriptSourceContext.None;
 
                         var sourceUrlHandle = Jsrt.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
 

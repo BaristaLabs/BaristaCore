@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
+﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using System;
 
@@ -26,6 +26,7 @@
         /// </summary>
         public static JavaScriptSourceContext None = new JavaScriptSourceContext(new IntPtr(-1));
 
+        #region Operators
         /// <summary>
         ///     The equality operator for source contexts.
         /// </summary>
@@ -131,6 +132,7 @@
         {
             return ++left;
         }
+        #endregion
 
         /// <summary>
         ///     Creates a new source context. 
@@ -156,6 +158,7 @@
             return new JavaScriptSourceContext(new IntPtr(cookie));
         }
 
+        #region Equality
         /// <summary>
         ///     Checks for equality between source contexts.
         /// </summary>
@@ -180,6 +183,7 @@
 
             return obj is JavaScriptSourceContext && Equals((JavaScriptSourceContext)obj);
         }
+        #endregion
 
         /// <summary>
         ///     The hash code.
