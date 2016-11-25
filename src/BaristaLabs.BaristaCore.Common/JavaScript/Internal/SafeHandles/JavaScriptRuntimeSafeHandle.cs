@@ -14,8 +14,6 @@
 
                 error = LibChakraCore.JsDisposeRuntime(handle);
                 Debug.Assert(error == JavaScriptErrorCode.NoError);
-                IsCollected = true;
-                SetHandleAsInvalid();
             }
 
             base.Dispose(disposing);

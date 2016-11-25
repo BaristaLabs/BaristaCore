@@ -1,5 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
 {
+    using System.Diagnostics;
+
     public class JavaScriptContextSafeHandle : JavaScriptSafeHandle<JavaScriptContextSafeHandle>
     {
         /// <summary>

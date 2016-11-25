@@ -1904,10 +1904,11 @@ new Promise(function(resolve, reject) {
             int calledCount = 0;
             var taskQueue = new Stack<JavaScriptValueSafeHandle>();
 
-            JavaScriptPromiseContinuationCallback promiseContinuationCallback = (IntPtr task, IntPtr callbackState) =>
+            JavaScriptPromiseContinuationCallback promiseContinuationCallback = (IntPtr taskHandle, IntPtr callbackState) =>
             {
                 calledCount++;
-                taskQueue.Push(new JavaScriptValueSafeHandle(task));
+                var task = JavaScriptValueSafeHandle.CreateJavaScriptValueFromHandle(taskHandle);
+                taskQueue.Push(task);
             };
 
             var script = @"

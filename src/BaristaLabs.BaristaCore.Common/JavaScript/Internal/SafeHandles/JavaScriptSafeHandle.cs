@@ -173,20 +173,5 @@
         {
             return handle.GetHashCode();
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (!m_objectHasBeenCollected && !IsClosed)
-            {
-                uint count;
-                var error = LibChakraCore.JsRelease(this, out count);
-                Debug.Assert(error == JavaScriptErrorCode.NoError);
-                m_objectHasBeenCollected = true;
-                SetHandleAsInvalid();
-            }
-
-            base.Dispose(disposing);
-        }
-
     }
 }

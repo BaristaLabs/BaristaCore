@@ -231,14 +231,12 @@
                         var sourceUrlHandle = Jsrt.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
 
                         var resultHandle = Jsrt.JsRun(scriptHandle, sourceContext, sourceUrlHandle, JavaScriptParseScriptAttributes.None);
-
                         Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
 
                         var handleType = Jsrt.JsGetValueType(resultHandle);
                         Assert.True(handleType == JavaScriptValueType.Number);
 
                         var resultValue = Jsrt.JsNumberToInt(resultHandle);
-
                         Assert.True(resultValue == 42);
 
                         resultHandle.Dispose();

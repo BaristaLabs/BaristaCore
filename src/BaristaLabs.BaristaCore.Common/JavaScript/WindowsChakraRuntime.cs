@@ -3,14 +3,10 @@
 	using Internal;
 
 	using System;
-	using System.Collections.Concurrent;
 	using System.Runtime.InteropServices;
 
 	public sealed class WindowsChakraRuntime : IJavaScriptRuntime, ICommonWindowsJavaScriptRuntime
 	{
-
-		private ConcurrentDictionary<IntPtr, WeakCollection<JavaScriptObjectBeforeCollectCallback>> m_objectBeforeCollect = new ConcurrentDictionary<IntPtr, WeakCollection<JavaScriptObjectBeforeCollectCallback>> ();
-
 		public IntPtr JsInitializeModuleRecord(IntPtr referencingModule, JavaScriptValueSafeHandle normalizedSpecifier)
 		{
 			IntPtr moduleRecord;
@@ -23,10 +19,12 @@
 			JavaScriptValueSafeHandle exceptionValueRef;
 			Errors.ThrowIfError(LibChakraCore.JsParseModuleSource(requestModule, sourceContext, script, scriptLength, sourceFlag, out exceptionValueRef));
 			exceptionValueRef.NativeFunctionSource = nameof(LibChakraCore.JsParseModuleSource);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(exceptionValueRef, out valueRefCount);
-			MonitorJavaScriptSafeHandle(exceptionValueRef);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(exceptionValueRef, IntPtr.Zero, OnObjectBeforeCollect);
+			if (exceptionValueRef != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(exceptionValueRef, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(exceptionValueRef);
 			return exceptionValueRef;
 		}
 
@@ -35,10 +33,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsModuleEvaluation(requestModule, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsModuleEvaluation);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -59,10 +59,12 @@
 			JavaScriptValueSafeHandle value;
 			Errors.ThrowIfError(LibChakraCore.JsCreateString(content, length, out value));
 			value.NativeFunctionSource = nameof(LibChakraCore.JsCreateString);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(value, out valueRefCount);
-			MonitorJavaScriptSafeHandle(value);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(value, IntPtr.Zero, OnObjectBeforeCollect);
+			if (value != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(value, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(value);
 			return value;
 		}
 
@@ -71,10 +73,12 @@
 			JavaScriptValueSafeHandle value;
 			Errors.ThrowIfError(LibChakraCore.JsCreateStringUtf8(content, length, out value));
 			value.NativeFunctionSource = nameof(LibChakraCore.JsCreateStringUtf8);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(value, out valueRefCount);
-			MonitorJavaScriptSafeHandle(value);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(value, IntPtr.Zero, OnObjectBeforeCollect);
+			if (value != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(value, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(value);
 			return value;
 		}
 
@@ -83,10 +87,12 @@
 			JavaScriptValueSafeHandle value;
 			Errors.ThrowIfError(LibChakraCore.JsCreateStringUtf16(content, length, out value));
 			value.NativeFunctionSource = nameof(LibChakraCore.JsCreateStringUtf16);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(value, out valueRefCount);
-			MonitorJavaScriptSafeHandle(value);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(value, IntPtr.Zero, OnObjectBeforeCollect);
+			if (value != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(value, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(value);
 			return value;
 		}
 
@@ -116,10 +122,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsParse(script, sourceContext, sourceUrl, parseAttributes, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsParse);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -128,10 +136,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsRun(script, sourceContext, sourceUrl, parseAttributes, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsRun);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -140,10 +150,12 @@
 			JavaScriptPropertyIdSafeHandle propertyId;
 			Errors.ThrowIfError(LibChakraCore.JsCreatePropertyIdUtf8(name, length, out propertyId));
 			propertyId.NativeFunctionSource = nameof(LibChakraCore.JsCreatePropertyIdUtf8);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(propertyId, out valueRefCount);
-			MonitorJavaScriptSafeHandle(propertyId);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(propertyId, IntPtr.Zero, OnObjectBeforeCollect);
+			if (propertyId != JavaScriptPropertyIdSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(propertyId, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(propertyId);
 			return propertyId;
 		}
 
@@ -164,10 +176,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsParseSerialized(buffer, scriptLoadCallback, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsParseSerialized);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -176,10 +190,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsRunSerialized(buffer, scriptLoadCallback, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsRunSerialized);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -188,10 +204,7 @@
 			JavaScriptRuntimeSafeHandle runtime;
 			Errors.ThrowIfError(LibChakraCore.JsCreateRuntime(attributes, threadService, out runtime));
 			runtime.NativeFunctionSource = nameof(LibChakraCore.JsCreateRuntime);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(runtime, out valueRefCount);
-			MonitorJavaScriptSafeHandle(runtime);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(runtime, IntPtr.Zero, OnObjectBeforeCollect);
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(runtime);
 			return runtime;
 		}
 
@@ -258,10 +271,12 @@
 			JavaScriptContextSafeHandle newContext;
 			Errors.ThrowIfError(LibChakraCore.JsCreateContext(runtime, out newContext));
 			newContext.NativeFunctionSource = nameof(LibChakraCore.JsCreateContext);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(newContext, out valueRefCount);
-			MonitorJavaScriptSafeHandle(newContext);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(newContext, IntPtr.Zero, OnObjectBeforeCollect);
+			if (newContext != JavaScriptContextSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(newContext, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(newContext);
 			return newContext;
 		}
 
@@ -270,10 +285,12 @@
 			JavaScriptContextSafeHandle currentContext;
 			Errors.ThrowIfError(LibChakraCore.JsGetCurrentContext(out currentContext));
 			currentContext.NativeFunctionSource = nameof(LibChakraCore.JsGetCurrentContext);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(currentContext, out valueRefCount);
-			MonitorJavaScriptSafeHandle(currentContext);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(currentContext, IntPtr.Zero, OnObjectBeforeCollect);
+			if (currentContext != JavaScriptContextSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(currentContext, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(currentContext);
 			return currentContext;
 		}
 
@@ -287,10 +304,12 @@
 			JavaScriptContextSafeHandle context;
 			Errors.ThrowIfError(LibChakraCore.JsGetContextOfObject(@object, out context));
 			context.NativeFunctionSource = nameof(LibChakraCore.JsGetContextOfObject);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(context, out valueRefCount);
-			MonitorJavaScriptSafeHandle(context);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(context, IntPtr.Zero, OnObjectBeforeCollect);
+			if (context != JavaScriptContextSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(context, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(context);
 			return context;
 		}
 
@@ -311,10 +330,7 @@
 			JavaScriptRuntimeSafeHandle runtime;
 			Errors.ThrowIfError(LibChakraCore.JsGetRuntime(context, out runtime));
 			runtime.NativeFunctionSource = nameof(LibChakraCore.JsGetRuntime);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(runtime, out valueRefCount);
-			MonitorJavaScriptSafeHandle(runtime);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(runtime, IntPtr.Zero, OnObjectBeforeCollect);
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(runtime);
 			return runtime;
 		}
 
@@ -330,10 +346,12 @@
 			JavaScriptValueSafeHandle symbol;
 			Errors.ThrowIfError(LibChakraCore.JsGetSymbolFromPropertyId(propertyId, out symbol));
 			symbol.NativeFunctionSource = nameof(LibChakraCore.JsGetSymbolFromPropertyId);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(symbol, out valueRefCount);
-			MonitorJavaScriptSafeHandle(symbol);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(symbol, IntPtr.Zero, OnObjectBeforeCollect);
+			if (symbol != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(symbol, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(symbol);
 			return symbol;
 		}
 
@@ -349,10 +367,12 @@
 			JavaScriptPropertyIdSafeHandle propertyId;
 			Errors.ThrowIfError(LibChakraCore.JsGetPropertyIdFromSymbol(symbol, out propertyId));
 			propertyId.NativeFunctionSource = nameof(LibChakraCore.JsGetPropertyIdFromSymbol);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(propertyId, out valueRefCount);
-			MonitorJavaScriptSafeHandle(propertyId);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(propertyId, IntPtr.Zero, OnObjectBeforeCollect);
+			if (propertyId != JavaScriptPropertyIdSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(propertyId, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(propertyId);
 			return propertyId;
 		}
 
@@ -361,10 +381,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsCreateSymbol(description, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsCreateSymbol);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -373,10 +395,12 @@
 			JavaScriptValueSafeHandle propertySymbols;
 			Errors.ThrowIfError(LibChakraCore.JsGetOwnPropertySymbols(@object, out propertySymbols));
 			propertySymbols.NativeFunctionSource = nameof(LibChakraCore.JsGetOwnPropertySymbols);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(propertySymbols, out valueRefCount);
-			MonitorJavaScriptSafeHandle(propertySymbols);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(propertySymbols, IntPtr.Zero, OnObjectBeforeCollect);
+			if (propertySymbols != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(propertySymbols, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(propertySymbols);
 			return propertySymbols;
 		}
 
@@ -385,10 +409,12 @@
 			JavaScriptValueSafeHandle undefinedValue;
 			Errors.ThrowIfError(LibChakraCore.JsGetUndefinedValue(out undefinedValue));
 			undefinedValue.NativeFunctionSource = nameof(LibChakraCore.JsGetUndefinedValue);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(undefinedValue, out valueRefCount);
-			MonitorJavaScriptSafeHandle(undefinedValue);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(undefinedValue, IntPtr.Zero, OnObjectBeforeCollect);
+			if (undefinedValue != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(undefinedValue, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(undefinedValue);
 			return undefinedValue;
 		}
 
@@ -397,10 +423,12 @@
 			JavaScriptValueSafeHandle nullValue;
 			Errors.ThrowIfError(LibChakraCore.JsGetNullValue(out nullValue));
 			nullValue.NativeFunctionSource = nameof(LibChakraCore.JsGetNullValue);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(nullValue, out valueRefCount);
-			MonitorJavaScriptSafeHandle(nullValue);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(nullValue, IntPtr.Zero, OnObjectBeforeCollect);
+			if (nullValue != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(nullValue, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(nullValue);
 			return nullValue;
 		}
 
@@ -409,10 +437,12 @@
 			JavaScriptValueSafeHandle trueValue;
 			Errors.ThrowIfError(LibChakraCore.JsGetTrueValue(out trueValue));
 			trueValue.NativeFunctionSource = nameof(LibChakraCore.JsGetTrueValue);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(trueValue, out valueRefCount);
-			MonitorJavaScriptSafeHandle(trueValue);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(trueValue, IntPtr.Zero, OnObjectBeforeCollect);
+			if (trueValue != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(trueValue, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(trueValue);
 			return trueValue;
 		}
 
@@ -421,10 +451,12 @@
 			JavaScriptValueSafeHandle falseValue;
 			Errors.ThrowIfError(LibChakraCore.JsGetFalseValue(out falseValue));
 			falseValue.NativeFunctionSource = nameof(LibChakraCore.JsGetFalseValue);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(falseValue, out valueRefCount);
-			MonitorJavaScriptSafeHandle(falseValue);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(falseValue, IntPtr.Zero, OnObjectBeforeCollect);
+			if (falseValue != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(falseValue, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(falseValue);
 			return falseValue;
 		}
 
@@ -433,10 +465,12 @@
 			JavaScriptValueSafeHandle booleanValue;
 			Errors.ThrowIfError(LibChakraCore.JsBoolToBoolean(value, out booleanValue));
 			booleanValue.NativeFunctionSource = nameof(LibChakraCore.JsBoolToBoolean);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(booleanValue, out valueRefCount);
-			MonitorJavaScriptSafeHandle(booleanValue);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(booleanValue, IntPtr.Zero, OnObjectBeforeCollect);
+			if (booleanValue != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(booleanValue, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(booleanValue);
 			return booleanValue;
 		}
 
@@ -452,10 +486,12 @@
 			JavaScriptValueSafeHandle booleanValue;
 			Errors.ThrowIfError(LibChakraCore.JsConvertValueToBoolean(value, out booleanValue));
 			booleanValue.NativeFunctionSource = nameof(LibChakraCore.JsConvertValueToBoolean);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(booleanValue, out valueRefCount);
-			MonitorJavaScriptSafeHandle(booleanValue);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(booleanValue, IntPtr.Zero, OnObjectBeforeCollect);
+			if (booleanValue != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(booleanValue, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(booleanValue);
 			return booleanValue;
 		}
 
@@ -471,10 +507,12 @@
 			JavaScriptValueSafeHandle value;
 			Errors.ThrowIfError(LibChakraCore.JsDoubleToNumber(doubleValue, out value));
 			value.NativeFunctionSource = nameof(LibChakraCore.JsDoubleToNumber);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(value, out valueRefCount);
-			MonitorJavaScriptSafeHandle(value);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(value, IntPtr.Zero, OnObjectBeforeCollect);
+			if (value != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(value, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(value);
 			return value;
 		}
 
@@ -483,10 +521,12 @@
 			JavaScriptValueSafeHandle value;
 			Errors.ThrowIfError(LibChakraCore.JsIntToNumber(intValue, out value));
 			value.NativeFunctionSource = nameof(LibChakraCore.JsIntToNumber);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(value, out valueRefCount);
-			MonitorJavaScriptSafeHandle(value);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(value, IntPtr.Zero, OnObjectBeforeCollect);
+			if (value != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(value, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(value);
 			return value;
 		}
 
@@ -509,10 +549,12 @@
 			JavaScriptValueSafeHandle numberValue;
 			Errors.ThrowIfError(LibChakraCore.JsConvertValueToNumber(value, out numberValue));
 			numberValue.NativeFunctionSource = nameof(LibChakraCore.JsConvertValueToNumber);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(numberValue, out valueRefCount);
-			MonitorJavaScriptSafeHandle(numberValue);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(numberValue, IntPtr.Zero, OnObjectBeforeCollect);
+			if (numberValue != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(numberValue, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(numberValue);
 			return numberValue;
 		}
 
@@ -528,10 +570,12 @@
 			JavaScriptValueSafeHandle stringValue;
 			Errors.ThrowIfError(LibChakraCore.JsConvertValueToString(value, out stringValue));
 			stringValue.NativeFunctionSource = nameof(LibChakraCore.JsConvertValueToString);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(stringValue, out valueRefCount);
-			MonitorJavaScriptSafeHandle(stringValue);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(stringValue, IntPtr.Zero, OnObjectBeforeCollect);
+			if (stringValue != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(stringValue, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(stringValue);
 			return stringValue;
 		}
 
@@ -540,10 +584,12 @@
 			JavaScriptValueSafeHandle globalObject;
 			Errors.ThrowIfError(LibChakraCore.JsGetGlobalObject(out globalObject));
 			globalObject.NativeFunctionSource = nameof(LibChakraCore.JsGetGlobalObject);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(globalObject, out valueRefCount);
-			MonitorJavaScriptSafeHandle(globalObject);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(globalObject, IntPtr.Zero, OnObjectBeforeCollect);
+			if (globalObject != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(globalObject, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(globalObject);
 			return globalObject;
 		}
 
@@ -552,10 +598,12 @@
 			JavaScriptValueSafeHandle @object;
 			Errors.ThrowIfError(LibChakraCore.JsCreateObject(out @object));
 			@object.NativeFunctionSource = nameof(LibChakraCore.JsCreateObject);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(@object, out valueRefCount);
-			MonitorJavaScriptSafeHandle(@object);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(@object, IntPtr.Zero, OnObjectBeforeCollect);
+			if (@object != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(@object, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(@object);
 			return @object;
 		}
 
@@ -564,10 +612,12 @@
 			JavaScriptValueSafeHandle @object;
 			Errors.ThrowIfError(LibChakraCore.JsCreateExternalObject(data, finalizeCallback, out @object));
 			@object.NativeFunctionSource = nameof(LibChakraCore.JsCreateExternalObject);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(@object, out valueRefCount);
-			MonitorJavaScriptSafeHandle(@object);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(@object, IntPtr.Zero, OnObjectBeforeCollect);
+			if (@object != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(@object, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(@object);
 			return @object;
 		}
 
@@ -576,10 +626,12 @@
 			JavaScriptValueSafeHandle @object;
 			Errors.ThrowIfError(LibChakraCore.JsConvertValueToObject(value, out @object));
 			@object.NativeFunctionSource = nameof(LibChakraCore.JsConvertValueToObject);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(@object, out valueRefCount);
-			MonitorJavaScriptSafeHandle(@object);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(@object, IntPtr.Zero, OnObjectBeforeCollect);
+			if (@object != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(@object, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(@object);
 			return @object;
 		}
 
@@ -588,10 +640,12 @@
 			JavaScriptValueSafeHandle prototypeObject;
 			Errors.ThrowIfError(LibChakraCore.JsGetPrototype(@object, out prototypeObject));
 			prototypeObject.NativeFunctionSource = nameof(LibChakraCore.JsGetPrototype);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(prototypeObject, out valueRefCount);
-			MonitorJavaScriptSafeHandle(prototypeObject);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(prototypeObject, IntPtr.Zero, OnObjectBeforeCollect);
+			if (prototypeObject != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(prototypeObject, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(prototypeObject);
 			return prototypeObject;
 		}
 
@@ -624,10 +678,12 @@
 			JavaScriptValueSafeHandle value;
 			Errors.ThrowIfError(LibChakraCore.JsGetProperty(@object, propertyId, out value));
 			value.NativeFunctionSource = nameof(LibChakraCore.JsGetProperty);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(value, out valueRefCount);
-			MonitorJavaScriptSafeHandle(value);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(value, IntPtr.Zero, OnObjectBeforeCollect);
+			if (value != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(value, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(value);
 			return value;
 		}
 
@@ -636,10 +692,12 @@
 			JavaScriptValueSafeHandle propertyDescriptor;
 			Errors.ThrowIfError(LibChakraCore.JsGetOwnPropertyDescriptor(@object, propertyId, out propertyDescriptor));
 			propertyDescriptor.NativeFunctionSource = nameof(LibChakraCore.JsGetOwnPropertyDescriptor);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(propertyDescriptor, out valueRefCount);
-			MonitorJavaScriptSafeHandle(propertyDescriptor);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(propertyDescriptor, IntPtr.Zero, OnObjectBeforeCollect);
+			if (propertyDescriptor != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(propertyDescriptor, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(propertyDescriptor);
 			return propertyDescriptor;
 		}
 
@@ -648,10 +706,12 @@
 			JavaScriptValueSafeHandle propertyNames;
 			Errors.ThrowIfError(LibChakraCore.JsGetOwnPropertyNames(@object, out propertyNames));
 			propertyNames.NativeFunctionSource = nameof(LibChakraCore.JsGetOwnPropertyNames);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(propertyNames, out valueRefCount);
-			MonitorJavaScriptSafeHandle(propertyNames);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(propertyNames, IntPtr.Zero, OnObjectBeforeCollect);
+			if (propertyNames != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(propertyNames, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(propertyNames);
 			return propertyNames;
 		}
 
@@ -672,10 +732,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsDeleteProperty(@object, propertyId, useStrictRules, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsDeleteProperty);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -698,10 +760,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsGetIndexedProperty(@object, index, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsGetIndexedProperty);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -772,10 +836,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsCreateArray(length, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsCreateArray);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -784,10 +850,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsCreateArrayBuffer(byteLength, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsCreateArrayBuffer);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -796,10 +864,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsCreateExternalArrayBuffer(data, byteLength, finalizeCallback, callbackState, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsCreateExternalArrayBuffer);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -808,10 +878,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsCreateTypedArray(arrayType, baseArray, byteOffset, elementLength, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsCreateTypedArray);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -820,10 +892,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsCreateDataView(arrayBuffer, byteOffset, byteLength, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsCreateDataView);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -832,10 +906,12 @@
 			JavaScriptTypedArrayType arrayType;
 			Errors.ThrowIfError(LibChakraCore.JsGetTypedArrayInfo(typedArray, out arrayType, out arrayBuffer, out byteOffset, out byteLength));
 			arrayBuffer.NativeFunctionSource = nameof(LibChakraCore.JsGetTypedArrayInfo);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(arrayBuffer, out valueRefCount);
-			MonitorJavaScriptSafeHandle(arrayBuffer);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(arrayBuffer, IntPtr.Zero, OnObjectBeforeCollect);
+			if (arrayBuffer != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(arrayBuffer, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(arrayBuffer);
 			return arrayType;
 		}
 
@@ -865,10 +941,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsCallFunction(function, arguments, argumentCount, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsCallFunction);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -877,10 +955,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsConstructObject(function, arguments, argumentCount, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsConstructObject);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -889,10 +969,12 @@
 			JavaScriptValueSafeHandle function;
 			Errors.ThrowIfError(LibChakraCore.JsCreateFunction(nativeFunction, callbackState, out function));
 			function.NativeFunctionSource = nameof(LibChakraCore.JsCreateFunction);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(function, out valueRefCount);
-			MonitorJavaScriptSafeHandle(function);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(function, IntPtr.Zero, OnObjectBeforeCollect);
+			if (function != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(function, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(function);
 			return function;
 		}
 
@@ -901,10 +983,12 @@
 			JavaScriptValueSafeHandle function;
 			Errors.ThrowIfError(LibChakraCore.JsCreateNamedFunction(name, nativeFunction, callbackState, out function));
 			function.NativeFunctionSource = nameof(LibChakraCore.JsCreateNamedFunction);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(function, out valueRefCount);
-			MonitorJavaScriptSafeHandle(function);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(function, IntPtr.Zero, OnObjectBeforeCollect);
+			if (function != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(function, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(function);
 			return function;
 		}
 
@@ -913,10 +997,12 @@
 			JavaScriptValueSafeHandle error;
 			Errors.ThrowIfError(LibChakraCore.JsCreateError(message, out error));
 			error.NativeFunctionSource = nameof(LibChakraCore.JsCreateError);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(error, out valueRefCount);
-			MonitorJavaScriptSafeHandle(error);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(error, IntPtr.Zero, OnObjectBeforeCollect);
+			if (error != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(error, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(error);
 			return error;
 		}
 
@@ -925,10 +1011,12 @@
 			JavaScriptValueSafeHandle error;
 			Errors.ThrowIfError(LibChakraCore.JsCreateRangeError(message, out error));
 			error.NativeFunctionSource = nameof(LibChakraCore.JsCreateRangeError);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(error, out valueRefCount);
-			MonitorJavaScriptSafeHandle(error);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(error, IntPtr.Zero, OnObjectBeforeCollect);
+			if (error != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(error, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(error);
 			return error;
 		}
 
@@ -937,10 +1025,12 @@
 			JavaScriptValueSafeHandle error;
 			Errors.ThrowIfError(LibChakraCore.JsCreateReferenceError(message, out error));
 			error.NativeFunctionSource = nameof(LibChakraCore.JsCreateReferenceError);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(error, out valueRefCount);
-			MonitorJavaScriptSafeHandle(error);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(error, IntPtr.Zero, OnObjectBeforeCollect);
+			if (error != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(error, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(error);
 			return error;
 		}
 
@@ -949,10 +1039,12 @@
 			JavaScriptValueSafeHandle error;
 			Errors.ThrowIfError(LibChakraCore.JsCreateSyntaxError(message, out error));
 			error.NativeFunctionSource = nameof(LibChakraCore.JsCreateSyntaxError);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(error, out valueRefCount);
-			MonitorJavaScriptSafeHandle(error);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(error, IntPtr.Zero, OnObjectBeforeCollect);
+			if (error != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(error, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(error);
 			return error;
 		}
 
@@ -961,10 +1053,12 @@
 			JavaScriptValueSafeHandle error;
 			Errors.ThrowIfError(LibChakraCore.JsCreateTypeError(message, out error));
 			error.NativeFunctionSource = nameof(LibChakraCore.JsCreateTypeError);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(error, out valueRefCount);
-			MonitorJavaScriptSafeHandle(error);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(error, IntPtr.Zero, OnObjectBeforeCollect);
+			if (error != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(error, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(error);
 			return error;
 		}
 
@@ -973,10 +1067,12 @@
 			JavaScriptValueSafeHandle error;
 			Errors.ThrowIfError(LibChakraCore.JsCreateURIError(message, out error));
 			error.NativeFunctionSource = nameof(LibChakraCore.JsCreateURIError);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(error, out valueRefCount);
-			MonitorJavaScriptSafeHandle(error);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(error, IntPtr.Zero, OnObjectBeforeCollect);
+			if (error != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(error, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(error);
 			return error;
 		}
 
@@ -992,10 +1088,12 @@
 			JavaScriptValueSafeHandle exception;
 			Errors.ThrowIfError(LibChakraCore.JsGetAndClearException(out exception));
 			exception.NativeFunctionSource = nameof(LibChakraCore.JsGetAndClearException);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(exception, out valueRefCount);
-			MonitorJavaScriptSafeHandle(exception);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(exception, IntPtr.Zero, OnObjectBeforeCollect);
+			if (exception != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(exception, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(exception);
 			return exception;
 		}
 
@@ -1031,10 +1129,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsParseScript(script, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsParseScript);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -1043,10 +1143,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsParseScriptWithAttributes(script, sourceContext, sourceUrl, parseAttributes, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsParseScriptWithAttributes);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -1055,10 +1157,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsRunScript(script, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsRunScript);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -1067,10 +1171,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsExperimentalApiRunModule(script, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsExperimentalApiRunModule);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -1084,10 +1190,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsParseSerializedScriptWithCallback(scriptLoadCallback, scriptUnloadCallback, buffer, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsParseSerializedScriptWithCallback);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -1096,10 +1204,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsRunSerializedScriptWithCallback(scriptLoadCallback, scriptUnloadCallback, buffer, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsRunSerializedScriptWithCallback);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -1108,10 +1218,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsParseSerializedScript(script, buffer, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsParseSerializedScript);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -1120,10 +1232,12 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsRunSerializedScript(script, buffer, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsRunSerializedScript);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(result, out valueRefCount);
-			MonitorJavaScriptSafeHandle(result);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(result, IntPtr.Zero, OnObjectBeforeCollect);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(result);
 			return result;
 		}
 
@@ -1132,10 +1246,12 @@
 			JavaScriptPropertyIdSafeHandle propertyId;
 			Errors.ThrowIfError(LibChakraCore.JsGetPropertyIdFromName(name, out propertyId));
 			propertyId.NativeFunctionSource = nameof(LibChakraCore.JsGetPropertyIdFromName);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(propertyId, out valueRefCount);
-			MonitorJavaScriptSafeHandle(propertyId);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(propertyId, IntPtr.Zero, OnObjectBeforeCollect);
+			if (propertyId != JavaScriptPropertyIdSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(propertyId, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(propertyId);
 			return propertyId;
 		}
 
@@ -1151,10 +1267,12 @@
 			JavaScriptValueSafeHandle value;
 			Errors.ThrowIfError(LibChakraCore.JsPointerToString(stringValue, stringLength, out value));
 			value.NativeFunctionSource = nameof(LibChakraCore.JsPointerToString);
-			uint valueRefCount;
-			LibChakraCore.JsAddRef(value, out valueRefCount);
-			MonitorJavaScriptSafeHandle(value);
-			LibChakraCore.JsSetObjectBeforeCollectCallback(value, IntPtr.Zero, OnObjectBeforeCollect);
+			if (value != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(value, out valueRefCount));
+			}
+			JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(value);
 			return value;
 		}
 
@@ -1170,40 +1288,5 @@
 			Errors.ThrowIfError(LibChakraCore.JsDiagStartDebugging(runtimeHandle, debugEventCallback, callbackState));
 		}
 
-		private void MonitorJavaScriptSafeHandle<T>(T handle) where T : JavaScriptSafeHandle<T>
-        {
-            IntPtr handlePtr = handle.DangerousGetHandle();
-            
-            if (m_objectBeforeCollect.ContainsKey(handlePtr))
-            {
-                WeakCollection<JavaScriptObjectBeforeCollectCallback> callbacks;
-                if (m_objectBeforeCollect.TryGetValue(handlePtr, out callbacks))
-                {
-                    if (!callbacks.Contains(handle.ObjectBeforeCollectCallback))
-                    {
-                        callbacks.Add(handle.ObjectBeforeCollectCallback);
-                    }
-                }
-            }
-            else
-            {
-                var callbacks = new WeakCollection<JavaScriptObjectBeforeCollectCallback>();
-                callbacks.Add(handle.ObjectBeforeCollectCallback);
-                m_objectBeforeCollect.TryAdd(handlePtr, callbacks);
-            }
-        }
-
-        private void OnObjectBeforeCollect(IntPtr handle, IntPtr callbackState)
-        {
-            WeakCollection<JavaScriptObjectBeforeCollectCallback> callbacks;
-            if (m_objectBeforeCollect.TryGetValue(handle, out callbacks))
-            {
-                foreach (var objectBeforeCollectCallback in callbacks)
-                {
-                    objectBeforeCollectCallback.Invoke(handle, callbackState);
-                }
-                callbacks.Clear();
-            }
-        }
 	}
 }

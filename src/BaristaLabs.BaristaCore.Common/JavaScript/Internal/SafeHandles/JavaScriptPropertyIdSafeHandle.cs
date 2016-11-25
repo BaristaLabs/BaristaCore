@@ -1,6 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
 {
     using System;
+    using System.Diagnostics;
     using System.Text;
 
     /// <summary>
@@ -63,6 +64,20 @@
         public override string ToString()
         {
             return Name;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!IsCollected && !IsClosed)
+            {
+                uint count;
+                var error = LibChakraCore.JsRelease(this, out count);
+                Debug.Assert(error == JavaScriptErrorCode.NoError);
+                IsCollected = true;
+                SetHandleAsInvalid();
+            }
+
+            base.Dispose(disposing);
         }
 
         /// <summary>
