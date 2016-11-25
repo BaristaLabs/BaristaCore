@@ -21,9 +21,13 @@
             using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
                 contextHandle = Jsrt.JsCreateContext(runtimeHandle);
+                JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(contextHandle);
+
                 Jsrt.JsSetCurrentContext(contextHandle);
 
                 anotherContextHandle = Jsrt.JsGetCurrentContext();
+                JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(anotherContextHandle);
+
                 Assert.Equal(contextHandle, anotherContextHandle);
                 Assert.NotSame(contextHandle, anotherContextHandle);
             }
@@ -48,7 +52,9 @@
 
                     var superman = "superman";
                     valueHandle = Jsrt.JsCreateStringUtf8(superman, new UIntPtr((uint)superman.Length));
+                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(valueHandle);
                     anotherValueHandle = Jsrt.JsCreateStringUtf8(superman, new UIntPtr((uint)superman.Length));
+                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(anotherValueHandle);
                 }
 
                 Jsrt.JsCollectGarbage(runtimeHandle);
@@ -73,7 +79,7 @@
                     Jsrt.JsSetCurrentContext(contextHandle);
 
                     valueHandle = Jsrt.JsCreateStringUtf8("superman", new UIntPtr((uint)"superman".Length));
-
+                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(valueHandle);
                     valueHandle.Dispose();
                 }
 
@@ -96,7 +102,9 @@
                     Jsrt.JsSetCurrentContext(contextHandle);
 
                     trueHandle = Jsrt.JsGetTrueValue();
+                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(trueHandle);
                     anotherTrueHandle = Jsrt.JsBoolToBoolean(true);
+                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(anotherTrueHandle);
 
                     Assert.Equal(trueHandle, anotherTrueHandle);
                 }
@@ -121,7 +129,9 @@
                     Jsrt.JsSetCurrentContext(contextHandle);
 
                     trueHandle = Jsrt.JsGetTrueValue();
+                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(trueHandle);
                     anotherTrueHandle = Jsrt.JsBoolToBoolean(true);
+                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(anotherTrueHandle);
 
                     Assert.Equal(trueHandle, anotherTrueHandle);
                     trueHandle.Dispose();
@@ -151,45 +161,6 @@
                     Assert.Equal(trueHandle, anotherTrueHandle);
                     Assert.NotSame(trueHandle, anotherTrueHandle);
                 }
-            }
-        }
-
-        ConcurrentDictionary<IntPtr, WeakCollection<JavaScriptObjectBeforeCollectCallback>> m_objectBeforeCollect = new ConcurrentDictionary<IntPtr, WeakCollection<JavaScriptObjectBeforeCollectCallback>> ();
-
-        
-        private void MonitorJavaScriptSafeHandle(JavaScriptValue handle)
-        {
-            IntPtr handlePtr = handle.DangerousGetHandle();
-            
-            if (m_objectBeforeCollect.ContainsKey(handlePtr))
-            {
-                WeakCollection<JavaScriptObjectBeforeCollectCallback> callbacks;
-                if (m_objectBeforeCollect.TryGetValue(handlePtr, out callbacks))
-                {
-                    if (!callbacks.Contains(handle.ObjectBeforeCollectCallback))
-                    {
-                        callbacks.Add(handle.ObjectBeforeCollectCallback);
-                    }
-                }
-            }
-            else
-            {
-                var callbacks = new WeakCollection<JavaScriptObjectBeforeCollectCallback>();
-                callbacks.Add(handle.ObjectBeforeCollectCallback);
-                m_objectBeforeCollect.TryAdd(handlePtr, callbacks);
-            }
-        }
-
-        private void OnObjectBeforeCollect(IntPtr handle, IntPtr callbackState)
-        {
-            WeakCollection<JavaScriptObjectBeforeCollectCallback> callbacks;
-            if (m_objectBeforeCollect.TryGetValue(handle, out callbacks))
-            {
-                foreach (var objectBeforeCollectCallback in callbacks)
-                {
-                    objectBeforeCollectCallback.Invoke(handle, callbackState);
-                }
-                callbacks.Clear();
             }
         }
     }

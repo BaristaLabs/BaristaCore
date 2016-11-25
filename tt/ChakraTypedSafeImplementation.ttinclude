@@ -24,7 +24,6 @@ namespace BaristaLabs.BaristaCore.JavaScript
         {
 #>
 			<#= outSafeHandle.Name #>.NativeFunctionSource = nameof(LibChakraCore.<#= ex.Name #>);
-			JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(<#= outSafeHandle.Name #>);
 <#
 		}
 #>
