@@ -18,7 +18,6 @@
         public bool IsCollected
         {
             get { return m_objectHasBeenCollected; }
-            protected set { m_objectHasBeenCollected = value; }
         }
 
         public override bool IsInvalid

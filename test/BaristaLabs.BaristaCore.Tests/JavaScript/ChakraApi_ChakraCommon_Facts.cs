@@ -148,8 +148,7 @@
 
                     var count = Jsrt.JsAddRef(stringHandle);
 
-                    //2 because the safe interface adds a reference.
-                    Assert.Equal((uint)2, count);
+                    Assert.Equal((uint)1, count);
 
                     Jsrt.JsCollectGarbage(runtimeHandle);
 
@@ -207,10 +206,8 @@
                 }
 
                 Jsrt.JsCollectGarbage(runtimeHandle);
-                Assert.False(called);
+                Assert.True(called);
             }
-
-            Assert.True(called);
         }
 
         [Fact]

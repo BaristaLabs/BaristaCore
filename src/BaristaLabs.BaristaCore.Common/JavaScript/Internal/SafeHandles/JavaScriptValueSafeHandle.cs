@@ -15,20 +15,6 @@
         {
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (!IsCollected && !IsClosed)
-            {
-                uint count;
-                var error = LibChakraCore.JsRelease(this, out count);
-                Debug.Assert(error == JavaScriptErrorCode.NoError);
-                IsCollected = true;
-                SetHandleAsInvalid();
-            }
-
-            base.Dispose(disposing);
-        }
-
         /// <summary>
         /// Returns a new JavaScriptValueSafeHandle for the specified handle, ensuring that the handle's lifecycle is monitored.
         /// </summary>
