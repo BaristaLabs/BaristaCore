@@ -13,7 +13,8 @@
     "BaristaLabs.BaristaCore.Common": "1.0.0-*",
     "System.Runtime.Serialization.Primitives": "4.3.0",
     "xunit": "2.1.0",
-    "dotnet-test-xunit": "1.0.0-rc2-build10015"
+    "dotnet-test-xunit": "1.0.0-rc2-build10015",
+    "Microsoft.CodeCoverage": "1.0.2"
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -22,8 +23,7 @@
         "Microsoft.NETCore.App": {
           "type": "platform",
           "version": "1.1.0"
-        },
-        "Microsoft.CodeCoverage": "1.0.1"
+        }
       },
       "imports": [
         "dotnet5.4",
