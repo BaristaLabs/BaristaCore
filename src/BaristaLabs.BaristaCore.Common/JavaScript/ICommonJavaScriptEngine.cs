@@ -8,7 +8,7 @@
     /// <summary>
     /// ChakraCommon.h interface
     /// </summary>
-    public interface ICommonJavaScriptRuntime
+    public interface ICommonJavaScriptEngine
 	{
 		/// <summary>
 		///		Creates a new runtime.

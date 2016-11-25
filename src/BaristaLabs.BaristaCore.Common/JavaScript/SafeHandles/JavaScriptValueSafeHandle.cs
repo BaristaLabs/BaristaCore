@@ -1,9 +1,8 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
+﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using System;
-    using System.Diagnostics;
 
-    public class JavaScriptValueSafeHandle : JavaScriptSafeHandle<JavaScriptValueSafeHandle>
+    public class JavaScriptValueSafeHandle : JavaScriptReference<JavaScriptValueSafeHandle>
     {
         public JavaScriptValueSafeHandle() :
             base()
@@ -23,7 +22,7 @@
         public static JavaScriptValueSafeHandle CreateJavaScriptValueFromHandle(IntPtr handle)
         {
             var safeHandle = new JavaScriptValueSafeHandle(handle);
-            JavaScriptSafeHandleManager.MonitorJavaScriptSafeHandle(safeHandle);
+            JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(safeHandle);
             return safeHandle;
         }
 

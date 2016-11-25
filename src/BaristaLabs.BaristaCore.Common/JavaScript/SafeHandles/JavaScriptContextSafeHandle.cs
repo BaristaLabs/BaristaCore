@@ -1,8 +1,6 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
+﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
-    using System.Diagnostics;
-
-    public class JavaScriptContextSafeHandle : JavaScriptSafeHandle<JavaScriptContextSafeHandle>
+    public class JavaScriptContextSafeHandle : JavaScriptReference<JavaScriptContextSafeHandle>
     {
         /// <summary>
         /// Gets an invalid context.

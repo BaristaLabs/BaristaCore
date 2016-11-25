@@ -6,11 +6,11 @@
     using System.Text;
     using System.Threading.Tasks;
 
-    public static class IJavaScriptRuntimeExtensions
+    public static class IJavaScriptEngineExtensions
     {
         private const string EvalSourceUrl = "[eval code]";
 
-        public static string GetStringUtf8(this IJavaScriptRuntime jsrt, JavaScriptValueSafeHandle stringHandle, bool autoConvert = false)
+        public static string GetStringUtf8(this IJavaScriptEngine jsrt, JavaScriptValueSafeHandle stringHandle, bool autoConvert = false)
         {
             bool stringHandleWasCreated = false;
             if (stringHandle == null || stringHandle == JavaScriptValueSafeHandle.Invalid)
@@ -53,7 +53,7 @@
         /// <param name="scriptSource"></param>
         /// <param name="attributes"></param>
         /// <returns></returns>
-        public static async Task<JavaScriptValueSafeHandle> JsParseScriptAsync(this IJavaScriptRuntime jsrt, IScriptSource scriptSource, JavaScriptParseScriptAttributes attributes)
+        public static async Task<JavaScriptValueSafeHandle> JsParseScriptAsync(this IJavaScriptEngine jsrt, IScriptSource scriptSource, JavaScriptParseScriptAttributes attributes)
         {
             if (scriptSource == null)
                 throw new ArgumentNullException(nameof(scriptSource));
@@ -85,7 +85,7 @@
         /// <param name="parseAttributes"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static JavaScriptValueSafeHandle JsParseScript(this IJavaScriptRuntime jsrt, string script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes)
+        public static JavaScriptValueSafeHandle JsParseScript(this IJavaScriptEngine jsrt, string script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes)
         {
             IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
             bool createdSourceUrl = false;
@@ -132,7 +132,7 @@
         /// <param name="scriptSource"></param>
         /// <param name="attributes"></param>
         /// <returns></returns>
-        public static async Task<JavaScriptValueSafeHandle> JsRunScriptAsync(this IJavaScriptRuntime jsrt, IScriptSource scriptSource, JavaScriptParseScriptAttributes attributes)
+        public static async Task<JavaScriptValueSafeHandle> JsRunScriptAsync(this IJavaScriptEngine jsrt, IScriptSource scriptSource, JavaScriptParseScriptAttributes attributes)
         {
             if (scriptSource == null)
                 throw new ArgumentNullException(nameof(scriptSource));
@@ -164,7 +164,7 @@
         /// <param name="parseAttributes"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static JavaScriptValueSafeHandle JsRunScript(this IJavaScriptRuntime jsrt, string script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes)
+        public static JavaScriptValueSafeHandle JsRunScript(this IJavaScriptEngine jsrt, string script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes)
         {
             var ptrScript = Marshal.StringToHGlobalAnsi(script);
             var createdSourceUrl = false;
@@ -217,7 +217,7 @@
         /// <param name="parseAttributes"></param>
         /// <param name="result"></param>
         /// <returns>A JavaScriptValueSafeHandle containing the result.</returns>
-        public static JavaScriptValueSafeHandle JsRunScript(this IJavaScriptRuntime jsrt, string script, JavaScriptSourceContext sourceContext = default(JavaScriptSourceContext), string sourceUrl = "[eval code]", JavaScriptParseScriptAttributes parseAttributes = JavaScriptParseScriptAttributes.None)
+        public static JavaScriptValueSafeHandle JsRunScript(this IJavaScriptEngine jsrt, string script, JavaScriptSourceContext sourceContext = default(JavaScriptSourceContext), string sourceUrl = "[eval code]", JavaScriptParseScriptAttributes parseAttributes = JavaScriptParseScriptAttributes.None)
         {
             var ptrScript = Marshal.StringToHGlobalAnsi(script);
 
@@ -268,7 +268,7 @@
         /// <param name="bufferSize"></param>
         /// <param name="parseAttributes"></param>
         /// <returns></returns>
-        public static void JsSerializeScript(this IJavaScriptRuntime jsrt, string script, byte[] buffer, ref ulong bufferSize, JavaScriptParseScriptAttributes parseAttributes)
+        public static void JsSerializeScript(this IJavaScriptEngine jsrt, string script, byte[] buffer, ref ulong bufferSize, JavaScriptParseScriptAttributes parseAttributes)
         {
             IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
 

@@ -1,8 +1,9 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
+﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using Internal;
     using System.Diagnostics;
 
-    public class JavaScriptRuntimeSafeHandle : JavaScriptSafeHandle<JavaScriptRuntimeSafeHandle>
+    public class JavaScriptRuntimeSafeHandle : JavaScriptReference<JavaScriptRuntimeSafeHandle>
     {
         protected override void Dispose(bool disposing)
         {

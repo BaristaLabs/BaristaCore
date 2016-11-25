@@ -2,17 +2,17 @@
 {
     using System;
 
-    public static class JavaScriptRuntimeFactory
+    public static class JavaScriptEngineFactory
     {
-        public static IJavaScriptRuntime CreateChakraRuntime()
+        public static IJavaScriptEngine CreateChakraRuntime()
         {
             if (PlatformApis.IsWindows)
             {
-                return new WindowsChakraRuntime();
+                return new WindowsChakraEngine();
             }
             else if (PlatformApis.IsDarwin || PlatformApis.IsLinux)
             {
-                return new LinuxChakraRuntime();
+                return new LinuxChakraEngine();
             }
 
             throw new PlatformNotSupportedException("ChakraCore is currently only supported on Windows, macOS and Linux.");

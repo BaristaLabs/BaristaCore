@@ -13,11 +13,11 @@
     /// </summary>
     public class ChakraApi_ChakraCommon_Facts
     {
-        private IJavaScriptRuntime Jsrt;
+        private IJavaScriptEngine Jsrt;
 
         public ChakraApi_ChakraCommon_Facts()
         {
-            Jsrt = JavaScriptRuntimeFactory.CreateChakraRuntime();
+            Jsrt = JavaScriptEngineFactory.CreateChakraRuntime();
         }
 
         [Fact]
@@ -25,7 +25,7 @@
         {
             using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
-                Assert.True(runtimeHandle != JavaScriptRuntimeSafeHandle.Invalid);
+                Assert.True(runtimeHandle != JavaScriptRuntime.Invalid);
                 Assert.False(runtimeHandle.IsClosed);
                 Assert.False(runtimeHandle.IsInvalid);
             }
@@ -34,7 +34,7 @@
         [Fact]
         public void JsRuntimeCanBeDisposed()
         {
-            JavaScriptRuntimeSafeHandle runtimeHandle = JavaScriptRuntimeSafeHandle.Invalid;
+            var runtimeHandle = JavaScriptRuntime.Invalid;
             try
             {
                 runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null);
@@ -219,7 +219,7 @@
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    Assert.False(contextHandle == JavaScriptContextSafeHandle.Invalid);
+                    Assert.False(contextHandle == JavaScriptContext.Invalid);
                     Assert.False(contextHandle.IsClosed);
                     Assert.False(contextHandle.IsInvalid);
                 }
@@ -444,7 +444,7 @@
                     var symbolHandle = Jsrt.JsCreateSymbol(propertyNameHandle);
                     var propertyIdHandle = Jsrt.JsGetPropertyIdFromSymbol(symbolHandle);
 
-                    Assert.True(propertyIdHandle != JavaScriptPropertyIdSafeHandle.Invalid);
+                    Assert.True(propertyIdHandle != JavaScriptPropertyId.Invalid);
 
                     propertyIdHandle.Dispose();
                     symbolHandle.Dispose();
@@ -542,7 +542,7 @@ return obj;
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
 
                     var propertySymbols = Jsrt.JsGetOwnPropertySymbols(objHandle);
 
@@ -1106,7 +1106,7 @@ var oCat = new MammalSpecies('Felis');
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
 
                     var oCatPropertyHandle = Jsrt.JsCreatePropertyIdUtf8("oCat", new UIntPtr((uint)"oCat".Length));
                     var fnMammalSpeciesPropertyHandle = Jsrt.JsCreatePropertyIdUtf8("MammalSpecies", new UIntPtr((uint)"MammalSpecies".Length));
@@ -1192,7 +1192,7 @@ return obj;
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
 
                     var propertyName = "plugh";
                     var propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
@@ -1233,7 +1233,7 @@ return obj;
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
 
                     var propertyName = "corge";
                     var propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
@@ -1275,7 +1275,7 @@ return obj;
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
 
                     var propertySymbols = Jsrt.JsGetOwnPropertyNames(objHandle);
 
@@ -1313,7 +1313,7 @@ return obj;
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
 
                     var propertyName = "baz";
                     var propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
@@ -1359,7 +1359,7 @@ return obj;
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
 
                     var propertyName = "lol";
                     var propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
@@ -1404,7 +1404,7 @@ return obj;
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
 
                     var propertyName = "waldo";
                     var propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
@@ -1451,8 +1451,8 @@ return obj;
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
-                    JavaScriptValueSafeHandle propertyDefHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, propertyDef);
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
+                    JavaScriptValueSafeHandle propertyDefHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, propertyDef);
 
                     var propertyName = "rico";
                     var propertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
@@ -1546,14 +1546,14 @@ return arr;
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle arrayHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    JavaScriptValueSafeHandle arrayHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
 
                     var arrayIndexHandle = Jsrt.JsIntToNumber(10);
                     var valueHandle = Jsrt.JsGetIndexedProperty(arrayHandle, arrayIndexHandle);
 
                     Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
 
-                    var result = Extensions.IJavaScriptRuntimeExtensions.GetStringUtf8(Jsrt, valueHandle);
+                    var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Jsrt, valueHandle);
 
                     Assert.Equal("Robert", result);
 
@@ -1586,7 +1586,7 @@ return arr;
                     var resultHandle = Jsrt.JsGetIndexedProperty(arrayHandle, arrayIndexHandle);
                     Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
 
-                    var result = Extensions.IJavaScriptRuntimeExtensions.GetStringUtf8(Jsrt, valueHandle);
+                    var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Jsrt, valueHandle);
 
                     Assert.Equal("The Bicameral Mind", result);
 
@@ -1614,7 +1614,7 @@ return arr;
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle arrayHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    JavaScriptValueSafeHandle arrayHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
 
                     var arrayIndexHandle = Jsrt.JsIntToNumber(12);
 
@@ -1884,7 +1884,7 @@ new Promise(function(resolve, reject) {
 
                     try
                     {
-                        var promiseHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                        var promiseHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
                         Assert.True(false, "Promises should not be able to be resolved without a promise continuation callback defined.");
                     }
                     catch(JavaScriptScriptException ex)
@@ -1928,7 +1928,7 @@ new Promise(function(resolve, reject) {
 
                     Jsrt.JsSetPromiseContinuationCallback(promiseContinuationCallback, IntPtr.Zero);
 
-                    var promiseHandle = Extensions.IJavaScriptRuntimeExtensions.JsRunScript(Jsrt, script);
+                    var promiseHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
                     Assert.True(promiseHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var undefinedHandle = Jsrt.JsGetUndefinedValue();

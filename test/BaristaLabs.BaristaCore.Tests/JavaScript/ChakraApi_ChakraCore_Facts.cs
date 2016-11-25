@@ -9,11 +9,11 @@
 
     public class ChakraApi_ChakraCore_Facts
     {
-        private IJavaScriptRuntime Jsrt;
+        private IJavaScriptEngine Jsrt;
 
         public ChakraApi_ChakraCore_Facts()
         {
-            Jsrt = JavaScriptRuntimeFactory.CreateChakraRuntime();
+            Jsrt = JavaScriptEngineFactory.CreateChakraRuntime();
         }
 
         [Fact]
@@ -264,7 +264,7 @@
 
                     var propertyHandle = Jsrt.JsCreatePropertyIdUtf8(str, new UIntPtr((uint)str.Length));
 
-                    Assert.True(propertyHandle != JavaScriptPropertyIdSafeHandle.Invalid);
+                    Assert.True(propertyHandle != JavaScriptPropertyId.Invalid);
 
                     propertyHandle.Dispose();
                 }

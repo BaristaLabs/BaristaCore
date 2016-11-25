@@ -8,7 +8,7 @@
     /// <summary>
     /// ChakraCore.h interface
     /// </summary>
-    public interface ICoreJavaScriptRuntime
+    public interface ICoreJavaScriptEngine
 	{
 		/// <summary>
 		///		Initialize a ModuleRecord from host

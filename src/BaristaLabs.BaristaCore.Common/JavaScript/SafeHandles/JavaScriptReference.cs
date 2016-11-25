@@ -1,14 +1,12 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
+﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using System;
-    using System.Diagnostics;
     using System.Runtime.InteropServices;
 
     /// <summary>
-    /// Represents a base implmentation of a JavaScript Safe Handle
+    /// Represents a base implmentation of a Chakra Engine JavaScript Reference Safe Handle
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public abstract class JavaScriptSafeHandle<T> : SafeHandle, IEquatable<JavaScriptSafeHandle<T>> where T : JavaScriptSafeHandle<T>
+    public abstract class JavaScriptReference : SafeHandle
     {
         private volatile bool m_objectHasBeenCollected = false;
 
@@ -43,13 +41,13 @@
             set;
         }
 
-        protected JavaScriptSafeHandle() :
+        protected JavaScriptReference() :
             base(IntPtr.Zero, ownsHandle: true)
         {
         }
 
-        protected JavaScriptSafeHandle(IntPtr handle) :
-            base(IntPtr.Zero, ownsHandle: true)
+        protected JavaScriptReference(IntPtr handle) :
+            this()
         {
             this.handle = handle;
         }
@@ -62,90 +60,6 @@
             //Do nothing.
             return true;
         }
-
-        #region Equality
-        /// <summary>
-        ///     The equality operator for contexts.
-        /// </summary>
-        /// <param name="left">The first context to compare.</param>
-        /// <param name="right">The second context to compare.</param>
-        /// <returns>Whether the two contexts are the same.</returns>
-        public static bool operator ==(JavaScriptSafeHandle<T> left, JavaScriptSafeHandle<T> right)
-        {
-            if (ReferenceEquals(left, right))
-            {
-                return true;
-            }
-
-            if (ReferenceEquals(left, default(JavaScriptSafeHandle<T>)))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(right, default(JavaScriptSafeHandle<T>)))
-            {
-                return false;
-            }
-
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     The inequality operator for contexts.
-        /// </summary>
-        /// <param name="left">The first context to compare.</param>
-        /// <param name="right">The second context to compare.</param>
-        /// <returns>Whether the two contexts are not the same.</returns>
-        public static bool operator !=(JavaScriptSafeHandle<T> left, JavaScriptSafeHandle<T> right)
-        {
-            if (ReferenceEquals(left, right))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(left, default(JavaScriptSafeHandle<T>)))
-            {
-                return true;
-            }
-
-            if (ReferenceEquals(right, default(JavaScriptSafeHandle<T>)))
-            {
-                return true;
-            }
-
-            return !left.Equals(right);
-        }
-
-        /// <summary>
-        ///     Checks for equality between contexts.
-        /// </summary>
-        /// <param name="other">The other context to compare.</param>
-        /// <returns>Whether the two contexts are the same.</returns>
-        public bool Equals(JavaScriptSafeHandle<T> other)
-        {
-            if (ReferenceEquals(default(JavaScriptSafeHandle<T>), other))
-            {
-                return false;
-            }
-
-            return handle == other.handle;
-        }
-
-        /// <summary>
-        ///     Checks for equality between contexts.
-        /// </summary>
-        /// <param name="obj">The other context to compare.</param>
-        /// <returns>Whether the two contexts are the same.</returns>
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(default(JavaScriptSafeHandle<T>), obj))
-            {
-                return false;
-            }
-
-            return obj is JavaScriptSafeHandle<T> && Equals((JavaScriptSafeHandle<T>)obj);
-        }
-        #endregion
 
         /// <summary>
         /// Method that is executed when the runtime collects the handle.
@@ -163,6 +77,107 @@
                 SetHandleAsInvalid();
             }
         }
+    }
+
+    /// <summary>
+    /// Represents a base implmentation of a Chakra Engine JavaScript Reference Safe Handle
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class JavaScriptReference<T> : JavaScriptReference, IEquatable<JavaScriptReference<T>> where T : JavaScriptReference<T>
+    {
+        protected JavaScriptReference() :
+            base()
+        {
+        }
+
+        protected JavaScriptReference(IntPtr handle) :
+            base(handle)
+        {
+        }
+
+        #region Equality
+        /// <summary>
+        ///     The equality operator for contexts.
+        /// </summary>
+        /// <param name="left">The first context to compare.</param>
+        /// <param name="right">The second context to compare.</param>
+        /// <returns>Whether the two contexts are the same.</returns>
+        public static bool operator ==(JavaScriptReference<T> left, JavaScriptReference<T> right)
+        {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(left, default(JavaScriptReference<T>)))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(right, default(JavaScriptReference<T>)))
+            {
+                return false;
+            }
+
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     The inequality operator for contexts.
+        /// </summary>
+        /// <param name="left">The first context to compare.</param>
+        /// <param name="right">The second context to compare.</param>
+        /// <returns>Whether the two contexts are not the same.</returns>
+        public static bool operator !=(JavaScriptReference<T> left, JavaScriptReference<T> right)
+        {
+            if (ReferenceEquals(left, right))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(left, default(JavaScriptReference<T>)))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(right, default(JavaScriptReference<T>)))
+            {
+                return true;
+            }
+
+            return !left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Checks for equality between contexts.
+        /// </summary>
+        /// <param name="other">The other context to compare.</param>
+        /// <returns>Whether the two contexts are the same.</returns>
+        public bool Equals(JavaScriptReference<T> other)
+        {
+            if (ReferenceEquals(default(JavaScriptReference<T>), other))
+            {
+                return false;
+            }
+
+            return handle == other.handle;
+        }
+
+        /// <summary>
+        ///     Checks for equality between contexts.
+        /// </summary>
+        /// <param name="obj">The other context to compare.</param>
+        /// <returns>Whether the two contexts are the same.</returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(default(JavaScriptReference<T>), obj))
+            {
+                return false;
+            }
+
+            return obj is JavaScriptReference<T> && Equals((JavaScriptReference<T>)obj);
+        }
+        #endregion
 
         /// <summary>
         ///     The hash code.

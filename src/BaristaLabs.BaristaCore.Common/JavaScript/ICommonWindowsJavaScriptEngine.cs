@@ -8,7 +8,7 @@
     /// <summary>
     /// ChakraCommonWindows.h interface
     /// </summary>
-    public interface ICommonWindowsJavaScriptRuntime
+    public interface ICommonWindowsJavaScriptEngine
 	{
 		/// <summary>
 		///		Parses a script and returns a function representing the script.

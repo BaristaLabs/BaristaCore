@@ -5,17 +5,17 @@
     using System.Collections.Concurrent;
     using Xunit;
 
-    public class JavaScriptSafeHandle_Facts
+    public class JavaScriptReference_Facts
     {
-        private IJavaScriptRuntime Jsrt;
+        private IJavaScriptEngine Jsrt;
 
-        public JavaScriptSafeHandle_Facts()
+        public JavaScriptReference_Facts()
         {
-            Jsrt = JavaScriptRuntimeFactory.CreateChakraRuntime();
+            Jsrt = JavaScriptEngineFactory.CreateChakraRuntime();
         }
 
         [Fact]
-        public void JsContextsAreSetInvalidWhenHandleIscollected()
+        public void JsContextsAreSetInvalidWhenHandleIsCollected()
         {
             JavaScriptContextSafeHandle contextHandle, anotherContextHandle;
             using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
@@ -157,7 +157,7 @@
         ConcurrentDictionary<IntPtr, WeakCollection<JavaScriptObjectBeforeCollectCallback>> m_objectBeforeCollect = new ConcurrentDictionary<IntPtr, WeakCollection<JavaScriptObjectBeforeCollectCallback>> ();
 
         
-        private void MonitorJavaScriptSafeHandle(JavaScriptValueSafeHandle handle)
+        private void MonitorJavaScriptSafeHandle(JavaScriptValue handle)
         {
             IntPtr handlePtr = handle.DangerousGetHandle();
             

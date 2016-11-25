@@ -8,7 +8,7 @@
     /// <summary>
     /// ChakraDebug.h interface
     /// </summary>
-    public interface IDebugJavaScriptRuntime
+    public interface IDebugJavaScriptEngine
 	{
 		/// <summary>
 		///		Starts debugging in the given runtime.

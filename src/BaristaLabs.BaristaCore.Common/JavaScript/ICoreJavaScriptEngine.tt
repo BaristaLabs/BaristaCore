@@ -2,7 +2,7 @@
 #><#@ include file="$(SolutionDir)/tt/ChakraExternDefinitions.ttinclude"
 #><#
 	var SourceName = "ChakraCore.h";
-	var InterfaceName = "ICoreJavaScriptRuntime";
+	var InterfaceName = "ICoreJavaScriptEngine";
 	Predicate<ChakraExternManager.ChakraExtern> SourceFilePredicate = 
 		(ex => ex.Source == SourceName);
 #><#@ include file="$(SolutionDir)/tt/ChakraTypedInterface.ttinclude"

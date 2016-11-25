@@ -1,16 +1,17 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
+﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using Internal;
     using System;
     using System.Collections.Concurrent;
 
     /// <summary>
-    /// Manages the lifecycle of JavaScriptSafeHandle objects.
+    /// Manages the lifecycle of JavaScriptReference objects.
     /// </summary>
-    internal static class JavaScriptSafeHandleManager
+    internal static class JavaScriptObjectManager
     {
         private static ConcurrentDictionary<IntPtr, WeakCollection<JavaScriptObjectBeforeCollectCallback>> s_objectBeforeCollect = new ConcurrentDictionary<IntPtr, WeakCollection<JavaScriptObjectBeforeCollectCallback>>();
 
-        internal static void MonitorJavaScriptSafeHandle<T>(T handle, IntPtr callbackState = default(IntPtr)) where T : JavaScriptSafeHandle<T>
+        internal static void MonitorJavaScriptObjectLifetime<T>(T handle, IntPtr callbackState = default(IntPtr)) where T : JavaScriptReference<T>
         {
             if (callbackState == default(IntPtr))
                 callbackState = IntPtr.Zero;

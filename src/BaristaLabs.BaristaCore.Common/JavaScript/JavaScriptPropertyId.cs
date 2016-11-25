@@ -1,7 +1,7 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
+﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using Internal;
     using System;
-    using System.Diagnostics;
     using System.Text;
 
     /// <summary>
@@ -11,7 +11,7 @@
     ///     Property identifiers are used to refer to properties of JavaScript objects instead of using
     ///     strings.
     /// </remarks>
-    public class JavaScriptPropertyIdSafeHandle : JavaScriptSafeHandle<JavaScriptPropertyIdSafeHandle>
+    public class JavaScriptPropertyId : JavaScriptPropertyIdSafeHandle
     {
         /// <summary>
         ///     Gets the name associated with the property ID.
@@ -50,11 +50,12 @@
         ///     The name of the property ID to get or create. The name may consist of only digits.
         /// </param>
         /// <returns>The property ID in this runtime for the given name.</returns>
-        public static JavaScriptPropertyIdSafeHandle FromString(string name)
+        public static JavaScriptPropertyId FromString(string name)
         {
-            JavaScriptPropertyIdSafeHandle id;
-            Errors.ThrowIfError(LibChakraCore.JsCreatePropertyIdUtf8(name, new UIntPtr((uint)name.Length), out id));
-            return id;
+            throw new NotImplementedException();
+            //JavaScriptPropertyIdSafeHandle id;
+            //Errors.ThrowIfError(LibChakraCore.JsCreatePropertyIdUtf8(name, new UIntPtr((uint)name.Length), out id));
+            //return id;
         }
         
         /// <summary>
@@ -69,6 +70,6 @@
         /// <summary>
         /// Gets an invalid Property Id.
         /// </summary>
-        public static readonly JavaScriptPropertyIdSafeHandle Invalid = new JavaScriptPropertyIdSafeHandle();
+        //public static readonly JavaScriptPropertyId Invalid = new JavaScriptPropertyId();
     }
 }

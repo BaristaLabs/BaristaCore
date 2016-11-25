@@ -9,11 +9,11 @@
 
     public class ChakraApi_ChakraDebug_Facts
     {
-        private IJavaScriptRuntime Jsrt;
+        private IJavaScriptEngine Jsrt;
 
         public ChakraApi_ChakraDebug_Facts()
         {
-            Jsrt = JavaScriptRuntimeFactory.CreateChakraRuntime();
+            Jsrt = JavaScriptEngineFactory.CreateChakraRuntime();
         }
 
         [Fact]
