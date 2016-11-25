@@ -1,13 +1,12 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
 {
     using System.Diagnostics;
-    using System.Runtime.InteropServices;
 
     public class JavaScriptRuntimeSafeHandle : JavaScriptSafeHandle<JavaScriptRuntimeSafeHandle>
     {
         protected override void Dispose(bool disposing)
         {
-            if (!m_objectHasBeenCollected && !IsClosed)
+            if (!IsCollected && !IsClosed)
             {
                 //Ensure that a context is not active, otherwise the runtime will throw a "Runtime In Use" exception.
                 var error = LibChakraCore.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
@@ -15,7 +14,8 @@
 
                 error = LibChakraCore.JsDisposeRuntime(handle);
                 Debug.Assert(error == JavaScriptErrorCode.NoError);
-                m_objectHasBeenCollected = true;
+                IsCollected = true;
+                SetHandleAsInvalid();
             }
 
             base.Dispose(disposing);

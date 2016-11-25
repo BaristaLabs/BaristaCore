@@ -1,8 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
 {
     using System;
-    using System.Diagnostics;
-    using System.Runtime.InteropServices;
     using System.Text;
 
     /// <summary>
@@ -26,7 +24,7 @@
         {
             get
             {
-                if (m_objectHasBeenCollected)
+                if (IsCollected)
                     throw new ObjectDisposedException("The underlying handle that represents the Property Id has been collected.");
 
                 byte[] buffer = new byte[144];

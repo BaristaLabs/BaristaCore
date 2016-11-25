@@ -10,7 +10,16 @@
     /// <typeparam name="T"></typeparam>
     public abstract class JavaScriptSafeHandle<T> : SafeHandle, IEquatable<JavaScriptSafeHandle<T>> where T : JavaScriptSafeHandle<T>
     {
-        protected bool m_objectHasBeenCollected = false;
+        private volatile bool m_objectHasBeenCollected = false;
+
+        /// <summary>
+        /// Gets a value that indicates if the object has been flagged as collected by the JavaScript Runtime.
+        /// </summary>
+        public bool IsCollected
+        {
+            get { return m_objectHasBeenCollected; }
+            protected set { m_objectHasBeenCollected = value; }
+        }
 
         public override bool IsInvalid
         {
@@ -172,6 +181,8 @@
                 uint count;
                 var error = LibChakraCore.JsRelease(this, out count);
                 Debug.Assert(error == JavaScriptErrorCode.NoError);
+                m_objectHasBeenCollected = true;
+                SetHandleAsInvalid();
             }
 
             base.Dispose(disposing);

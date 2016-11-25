@@ -15,6 +15,27 @@
         }
 
         [Fact]
+        public void JsContextsAreSetInvalidWhenHandleIscollected()
+        {
+            JavaScriptContextSafeHandle contextHandle, anotherContextHandle;
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                contextHandle = Jsrt.JsCreateContext(runtimeHandle);
+                Jsrt.JsSetCurrentContext(contextHandle);
+
+                anotherContextHandle = Jsrt.JsGetCurrentContext();
+                Assert.Equal(contextHandle, anotherContextHandle);
+                Assert.NotSame(contextHandle, anotherContextHandle);
+            }
+
+            Assert.True(contextHandle.IsInvalid);
+            Assert.True(contextHandle.IsClosed);
+
+            Assert.True(anotherContextHandle.IsInvalid);
+            Assert.True(anotherContextHandle.IsClosed);
+        }
+
+        [Fact]
         public void JsValuesAreSetInvalidWhenHandleIsCollected()
         {
             JavaScriptValueSafeHandle valueHandle, anotherValueHandle;

@@ -257,7 +257,6 @@
                 var contextHandle = Jsrt.JsGetCurrentContext();
 
                 Assert.True(contextHandle.IsInvalid);
-
             }
         }
 
@@ -272,7 +271,6 @@
 
                     var currentContextHandle = Jsrt.JsGetCurrentContext();
                     Assert.True(currentContextHandle == contextHandle);
-
                 }
             }
         }
@@ -1965,6 +1963,7 @@ new Promise(function(resolve, reject) {
                         }
                     } while (taskQueue.Count > 0);
 
+                    allDoneHandle.Dispose();
                     allDoneHandle = Jsrt.JsGetProperty(globalObjectHandle, allDonePropertyIdHandle);
                     Assert.True(allDoneHandle == trueHandle);
 
