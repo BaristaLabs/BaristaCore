@@ -1,0 +1,10 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#"
+#><#@ include file="$(SolutionDir)/tt/ChakraExternDefinitions.ttinclude"
+#><#
+    string JavaScriptEngineAccessModifier = "public abstract";
+	string JavaScriptEngineClassName = "ChakraEngineBase";
+	string JavaScriptEngineInterfaces = "IJavaScriptEngine";
+	Predicate<ChakraExternManager.ChakraExtern> ExternPlatformPredicate = 
+		(ex => ex.Target == ChakraExternManager.PlatformTarget.Common);
+#><#@ include file="$(SolutionDir)/tt/ChakraTypedSafeImplementation.ttinclude"
+#>

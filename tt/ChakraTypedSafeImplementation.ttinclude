@@ -5,7 +5,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
 	using System;
 	using System.Runtime.InteropServices;
 
-	public sealed class <#= JavaScriptRuntimeClassName #> : <#= JavaScriptRuntimeInterfaces #>
+	<#= JavaScriptEngineAccessModifier #> class <#= JavaScriptEngineClassName #> : <#= JavaScriptEngineInterfaces #>
 	{
 <#
 	foreach (var ex in ChakraExternManager.Externs.FindAll(ExternPlatformPredicate))
