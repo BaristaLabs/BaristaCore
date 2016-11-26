@@ -235,3 +235,4 @@ ModelManifest.xml
 
 #JetBrains
 .idea/
+opencoverCoverage.xml

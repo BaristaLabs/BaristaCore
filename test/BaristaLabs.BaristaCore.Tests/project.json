@@ -4,6 +4,7 @@
   "buildOptions": {
     "debugType": "portable",
     "copyToOutput": {
+      "include": [ "xunit.runner.json" ],
       "mappings": {
         "ChakraCore/": "../../lib/ChakraCore/**/*"
       }
@@ -14,7 +15,8 @@
     "System.Runtime.Serialization.Primitives": "4.3.0",
     "xunit": "2.1.0",
     "dotnet-test-xunit": "1.0.0-rc2-build10015",
-    "Microsoft.CodeCoverage": "1.0.2"
+    "Microsoft.CodeCoverage": "1.0.2",
+    "coveralls.net": "0.7.0"
   },
   "testRunner": "xunit",
   "frameworks": {

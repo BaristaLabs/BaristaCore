@@ -5,6 +5,7 @@ platform: x64
 environment:
   FRAMEWORK: netcoreapp1.0
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  COVERALLS_REPO_TOKEN: 7c1iHfH8bvABxL9ePXzvukfeVYM2txph8
 init:
   - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
 install:
@@ -16,6 +17,14 @@ install:
   - ps: (New-Object System.Net.WebClient).DownloadFile($url, $tempFile)
   - ps: Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($tempFile, $env:DOTNET_INSTALL_DIR)
   - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
+    # Download OpenCover and add to PATH
+  - ps: $url = "https://github.com/OpenCover/opencover/releases/download/4.6.519/opencover.4.6.519.zip"
+  - ps: $env:OPENCOVER_INSTALL_DIR = "$pwd\.opencover"
+  - ps: mkdir $env:OPENCOVER_INSTALL_DIR -Force | Out-Null
+  - ps: $tempFile = [System.IO.Path]::GetTempFileName()
+  - ps: (New-Object System.Net.WebClient).DownloadFile($url, $tempFile)
+  - ps: Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($tempFile, $env:OPENCOVER_INSTALL_DIR)
+  - ps: $env:Path = "$env:OPENCOVER_INSTALL_DIR;$env:Path"
 before_build:
   - cmd: dotnet --info
   - cmd: appveyor-retry dotnet restore -v Minimal
@@ -23,5 +32,10 @@ build_script:
   - cmd: dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
 test_script:
   - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
+after_test:
+  # Use opencover to gather code coverage and submit to coveralls via coveralls.net (test project dependency)
+  - ps: OpenCover.Console.exe -target:"$env:DOTNET_INSTALL_DIR\dotnet.exe" -targetargs:" test --no-build -c $env:CONFIGURATION -f $env:FRAMEWORK test\BaristaLabs.BaristaCore.Tests\ " -register:user -filter:'+[BaristaLabs*]*' -output:"opencoverCoverage.xml" -excludebyattribute:*.ExcludeFromCodeCoverage* -hideskipped:All -oldStyle
+  - ps: $coveralls = "$env:HOMEPATH\.nuget\packages\coveralls.net\0.7.0\tools\csmacnz.coveralls.exe"
+  - ps: & $coveralls --opencover -i opencoverCoverage.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID
 cache:
   - '%USERPROFILE%\.nuget\packages'
