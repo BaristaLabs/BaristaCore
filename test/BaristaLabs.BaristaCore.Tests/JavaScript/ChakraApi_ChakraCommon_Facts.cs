@@ -35,16 +35,15 @@
         public void JsRuntimeCanBeDisposed()
         {
             var runtimeHandle = JavaScriptRuntimeSafeHandle.Invalid;
-            try
-            {
-                runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null);
-                Assert.False(runtimeHandle.IsClosed);
-            }
-            finally
-            {
-                runtimeHandle.Dispose();
-                Assert.True(runtimeHandle.IsClosed);
-            }
+            runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null);
+            Assert.NotEqual(runtimeHandle, JavaScriptRuntimeSafeHandle.Invalid);
+            Assert.False(runtimeHandle.IsClosed);
+
+            Jsrt.JsDisposeRuntime(runtimeHandle.DangerousGetHandle());
+
+            //Since we disposed of the handle manually, supress the disposal
+            //of the JsRuntimeSafeHandle (otherwise big bad happens.)
+            GC.SuppressFinalize(runtimeHandle);
         }
 
         [Fact]
