@@ -198,13 +198,14 @@
                     var valueHandle = Jsrt.JsCreateStringUtf8("superman", new UIntPtr((uint)"superman".Length));
 
                     Jsrt.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback);
-
-                    valueHandle.Dispose();
                 }
 
                 Jsrt.JsCollectGarbage(runtimeHandle);
-                Assert.True(called);
             }
+
+            //Since the object was not disposed, and a reference still exists,
+            //the callback is called during runtime collection
+            Assert.True(called);
         }
 
         [Fact]
