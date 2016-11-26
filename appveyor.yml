@@ -36,6 +36,6 @@ after_test:
   # Use opencover to gather code coverage and submit to coveralls via coveralls.net (test project dependency)
   - ps: OpenCover.Console.exe -target:"$env:DOTNET_INSTALL_DIR\dotnet.exe" -targetargs:" test --no-build -c $env:CONFIGURATION -f $env:FRAMEWORK test\BaristaLabs.BaristaCore.Tests\ " -register:user -filter:'+[BaristaLabs*]*' -output:"opencoverCoverage.xml" -excludebyattribute:*.ExcludeFromCodeCoverage* -hideskipped:All -oldStyle
   - ps: $coveralls = "$env:HOMEPATH\.nuget\packages\coveralls.net\0.7.0\tools\csmacnz.coveralls.exe"
-  - ps: & $coveralls --opencover -i opencoverCoverage.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID
+  - ps: '& $coveralls --opencover -i opencoverCoverage.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID'
 cache:
   - '%USERPROFILE%\.nuget\packages'
