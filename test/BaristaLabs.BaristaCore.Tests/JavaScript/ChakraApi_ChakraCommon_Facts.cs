@@ -40,10 +40,6 @@
             Assert.False(runtimeHandle.IsClosed);
 
             Jsrt.JsDisposeRuntime(runtimeHandle.DangerousGetHandle());
-
-            //Since we disposed of the handle manually, supress the disposal
-            //of the JsRuntimeSafeHandle (otherwise big bad happens.)
-            GC.SuppressFinalize(runtimeHandle);
         }
 
         [Fact]
@@ -147,7 +143,7 @@
 
                     var count = Jsrt.JsAddRef(stringHandle);
 
-                    Assert.Equal((uint)1, count);
+                    Assert.Equal((uint)2, count);
 
                     Jsrt.JsCollectGarbage(runtimeHandle);
 
@@ -202,6 +198,8 @@
                     var valueHandle = Jsrt.JsCreateStringUtf8("superman", new UIntPtr((uint)"superman".Length));
 
                     Jsrt.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback);
+
+                    valueHandle.Dispose();
                 }
 
                 Jsrt.JsCollectGarbage(runtimeHandle);

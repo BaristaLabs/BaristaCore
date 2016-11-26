@@ -7,7 +7,7 @@
     {
         protected override void Dispose(bool disposing)
         {
-            if (!IsCollected && !IsClosed)
+            if (disposing && !IsCollected && !IsClosed)
             {
                 //Ensure that a context is not active, otherwise the runtime will throw a "Runtime In Use" exception.
                 var error = LibChakraCore.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
@@ -17,7 +17,7 @@
                 Debug.Assert(error == JavaScriptErrorCode.NoError);
             }
 
-            base.Dispose(disposing);
+            //base.Dispose(disposing);
         }
 
         /// <summary>

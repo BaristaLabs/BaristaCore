@@ -1,6 +1,8 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using Internal;
     using System;
+    using System.Diagnostics;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -49,7 +51,7 @@
         protected JavaScriptReference(IntPtr handle) :
             this()
         {
-            this.handle = handle;
+            SetHandle(handle);
         }
 
         /// <summary>
@@ -59,6 +61,19 @@
         {
             //Do nothing.
             return true;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && !IsCollected && !IsClosed)
+            {
+                uint count;
+                var error = LibChakraCore.JsRelease(this, out count);
+                Debug.Assert(error == JavaScriptErrorCode.NoError);
+                SetHandleAsInvalid();
+            }
+
+            base.Dispose(disposing);
         }
 
         /// <summary>

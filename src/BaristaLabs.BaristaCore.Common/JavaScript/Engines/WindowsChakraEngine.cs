@@ -12,7 +12,11 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsParseScript(script, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsParseScript);
-			JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(result);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
 			return result;
 		}
 
@@ -21,7 +25,11 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsParseScriptWithAttributes(script, sourceContext, sourceUrl, parseAttributes, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsParseScriptWithAttributes);
-			JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(result);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
 			return result;
 		}
 
@@ -30,7 +38,11 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsRunScript(script, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsRunScript);
-			JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(result);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
 			return result;
 		}
 
@@ -39,7 +51,11 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsExperimentalApiRunModule(script, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsExperimentalApiRunModule);
-			JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(result);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
 			return result;
 		}
 
@@ -53,7 +69,11 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsParseSerializedScriptWithCallback(scriptLoadCallback, scriptUnloadCallback, buffer, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsParseSerializedScriptWithCallback);
-			JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(result);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
 			return result;
 		}
 
@@ -62,7 +82,11 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsRunSerializedScriptWithCallback(scriptLoadCallback, scriptUnloadCallback, buffer, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsRunSerializedScriptWithCallback);
-			JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(result);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
 			return result;
 		}
 
@@ -71,7 +95,11 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsParseSerializedScript(script, buffer, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsParseSerializedScript);
-			JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(result);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
 			return result;
 		}
 
@@ -80,7 +108,11 @@
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsRunSerializedScript(script, buffer, sourceContext, sourceUrl, out result));
 			result.NativeFunctionSource = nameof(LibChakraCore.JsRunSerializedScript);
-			JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(result);
+			if (result != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
+			}
 			return result;
 		}
 
@@ -89,7 +121,11 @@
 			JavaScriptPropertyIdSafeHandle propertyId;
 			Errors.ThrowIfError(LibChakraCore.JsGetPropertyIdFromName(name, out propertyId));
 			propertyId.NativeFunctionSource = nameof(LibChakraCore.JsGetPropertyIdFromName);
-			JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(propertyId);
+			if (propertyId != JavaScriptPropertyIdSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(propertyId, out valueRefCount));
+			}
 			return propertyId;
 		}
 
@@ -105,7 +141,11 @@
 			JavaScriptValueSafeHandle value;
 			Errors.ThrowIfError(LibChakraCore.JsPointerToString(stringValue, stringLength, out value));
 			value.NativeFunctionSource = nameof(LibChakraCore.JsPointerToString);
-			JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(value);
+			if (value != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(value, out valueRefCount));
+			}
 			return value;
 		}
 

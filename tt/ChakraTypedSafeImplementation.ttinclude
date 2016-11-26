@@ -24,6 +24,14 @@ namespace BaristaLabs.BaristaCore.JavaScript
         {
 #>
 			<#= outSafeHandle.Name #>.NativeFunctionSource = nameof(LibChakraCore.<#= ex.Name #>);
+<#			if (outSafeHandle.Type != "JavaScriptRuntimeSafeHandle")
+            {#>
+			if (<#= outSafeHandle.Name #> != <#= outSafeHandle.Type #>.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(<#= outSafeHandle.Name #>, out valueRefCount));
+			}
+<#			}#>
 <#
 		}
 #>
