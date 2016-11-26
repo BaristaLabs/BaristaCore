@@ -4,7 +4,7 @@
 
     public static class JavaScriptEngineFactory
     {
-        public static IJavaScriptEngine CreateChakraRuntime()
+        public static IJavaScriptEngine CreateChakraEngine()
         {
             if (PlatformApis.IsWindows)
             {

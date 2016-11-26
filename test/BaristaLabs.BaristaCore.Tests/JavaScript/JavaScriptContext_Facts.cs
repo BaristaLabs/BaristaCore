@@ -8,7 +8,7 @@
 
         public JavaScriptContext_Facts()
         {
-            Engine = JavaScriptEngineFactory.CreateChakraRuntime();
+            Engine = JavaScriptEngineFactory.CreateChakraEngine();
         }
 
         //[Fact]

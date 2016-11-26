@@ -17,7 +17,7 @@
 
         public ChakraApi_ChakraCommon_Facts()
         {
-            Jsrt = JavaScriptEngineFactory.CreateChakraRuntime();
+            Jsrt = JavaScriptEngineFactory.CreateChakraEngine();
         }
 
         [Fact]
@@ -25,7 +25,7 @@
         {
             using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
-                Assert.True(runtimeHandle != JavaScriptRuntime.Invalid);
+                Assert.True(runtimeHandle != JavaScriptRuntimeSafeHandle.Invalid);
                 Assert.False(runtimeHandle.IsClosed);
                 Assert.False(runtimeHandle.IsInvalid);
             }
@@ -34,7 +34,7 @@
         [Fact]
         public void JsRuntimeCanBeDisposed()
         {
-            var runtimeHandle = JavaScriptRuntime.Invalid;
+            var runtimeHandle = JavaScriptRuntimeSafeHandle.Invalid;
             try
             {
                 runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null);

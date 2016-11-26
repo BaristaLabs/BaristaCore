@@ -13,7 +13,7 @@
 
         public ChakraApi_ChakraDebug_Facts()
         {
-            Jsrt = JavaScriptEngineFactory.CreateChakraRuntime();
+            Jsrt = JavaScriptEngineFactory.CreateChakraEngine();
         }
 
         [Fact]

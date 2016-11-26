@@ -13,7 +13,7 @@
 
         public JavaScriptRuntime_Facts()
         {
-            Engine = JavaScriptEngineFactory.CreateChakraRuntime();
+            Engine = JavaScriptEngineFactory.CreateChakraEngine();
         }
 
         //[Fact]

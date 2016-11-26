@@ -11,7 +11,7 @@
 
         public JavaScriptReference_Facts()
         {
-            Jsrt = JavaScriptEngineFactory.CreateChakraRuntime();
+            Jsrt = JavaScriptEngineFactory.CreateChakraEngine();
         }
 
         [Fact]
