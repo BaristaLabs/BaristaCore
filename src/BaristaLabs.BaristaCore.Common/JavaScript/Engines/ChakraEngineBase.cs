@@ -747,11 +747,11 @@
 			return value;
 		}
 
-		public JavaScriptTypedArrayType JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, IntPtr data, out uint elementLength)
+		public IntPtr JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out JavaScriptTypedArrayType arrayType, out uint elementLength)
 		{
-			JavaScriptTypedArrayType arrayType;
-			Errors.ThrowIfError(LibChakraCore.JsGetIndexedPropertiesExternalData(@object, data, out arrayType, out elementLength));
-			return arrayType;
+			IntPtr data;
+			Errors.ThrowIfError(LibChakraCore.JsGetIndexedPropertiesExternalData(@object, out data, out arrayType, out elementLength));
+			return data;
 		}
 
 		public void JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JavaScriptTypedArrayType arrayType, uint elementLength)

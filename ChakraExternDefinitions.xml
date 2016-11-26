@@ -1992,7 +1992,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="IntPtr" name="data"/>
+      <Parameter type="IntPtr" name="data" direction="Out"/>
       <Parameter type="JsTypedArrayType" name="arrayType" direction="Out"/>
       <Parameter type="uint" name="elementLength" direction="Out"/>
     </Parameters>

@@ -843,9 +843,9 @@
 		///		Retrieves an object's indexed properties external data information.
 		/// </summary>
 		/// <returns>
-		///		The array element type in external data.
+		///		The external data back store for the object's indexed properties.
 		/// </returns>
-		JavaScriptTypedArrayType JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, IntPtr data, out uint elementLength);
+		IntPtr JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out JavaScriptTypedArrayType arrayType, out uint elementLength);
 
 		/// <summary>
 		///		Sets an object's indexed properties to external data. The external data will be used as back store for the object's indexed properties and accessed like a typed array.

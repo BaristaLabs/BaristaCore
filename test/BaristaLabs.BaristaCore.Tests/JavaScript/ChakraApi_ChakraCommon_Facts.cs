@@ -153,6 +153,34 @@
         }
 
         [Fact]
+        public void JsValueRefCanBeReleased()
+        {
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var myString = "Have you ever questioned the nature of your reality?";
+                    var stringHandle = Jsrt.JsCreateStringUtf8(myString, new UIntPtr((uint)myString.Length));
+
+                    var count = Jsrt.JsAddRef(stringHandle);
+
+                    //ChakraEngine implementation automatically adds a reference, thus the count is now 2.
+                    Assert.Equal((uint)2, count);
+
+                    count = Jsrt.JsRelease(stringHandle);
+
+                    Assert.Equal((uint)1, count);
+
+                    Jsrt.JsCollectGarbage(runtimeHandle);
+
+                    stringHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
         public void JsObjectBeforeCollectCallbackIsCalled()
         {
             bool called = false;
@@ -1523,8 +1551,6 @@ return obj;
                     notAPropertyNameHandle.Dispose();
                     propertyValueHandle.Dispose();
                     objectHandle.Dispose();
-
-
                 }
             }
         }
@@ -1548,11 +1574,9 @@ return arr;
 
                     var arrayIndexHandle = Jsrt.JsIntToNumber(10);
                     var valueHandle = Jsrt.JsGetIndexedProperty(arrayHandle, arrayIndexHandle);
-
                     Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Jsrt, valueHandle);
-
                     Assert.Equal("Robert", result);
 
                     valueHandle.Dispose();
@@ -1585,14 +1609,12 @@ return arr;
                     Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Jsrt, valueHandle);
-
                     Assert.Equal("The Bicameral Mind", result);
 
                     resultHandle.Dispose();
                     valueHandle.Dispose();
                     arrayIndexHandle.Dispose();
                     arrayHandle.Dispose();
-
                 }
             }
         }
@@ -1605,7 +1627,6 @@ var arr = ['Arnold', 'Bernard', 'Charlotte', 'Delores', 'Elsie', 'Felix', 'Hecto
 return arr;
 })();
 ";
-
             using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
                 using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
@@ -1629,7 +1650,180 @@ return arr;
                     valueHandle.Dispose();
                     arrayIndexHandle.Dispose();
                     arrayHandle.Dispose();
+                }
+            }
+        }
 
+        [Fact]
+        public void JsCanDetermineIfIndexedPropertiesExternalDataExists()
+        {
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    //Test on array
+                    var arrayHandle = Jsrt.JsCreateArray(10);
+
+                    var result = Jsrt.JsHasIndexedPropertiesExternalData(arrayHandle);
+                    Assert.False(result);
+
+                    arrayHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanRetrieveIndexedPropertiesExternalData()
+        {
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    byte[] data = new byte[10];
+                    //Populate the array with data.
+                    for (byte i = 0; i < 10; i++)
+                        data[i] = (byte)(42 + i);
+
+                    //Pin data to unmanaged memory;
+                    IntPtr dataPtr = Marshal.AllocHGlobal(sizeof(byte) * data.Length);
+                    Marshal.Copy(data, 0, dataPtr, data.Length);
+
+                    try
+                    {
+                        //Test on object
+                        var objectHandle = Jsrt.JsCreateObject();
+
+                        Jsrt.JsSetIndexedPropertiesToExternalData(objectHandle, dataPtr, JavaScriptTypedArrayType.Int8, (uint)data.Length);
+
+                        JavaScriptTypedArrayType arrayType;
+                        uint length;
+                        IntPtr externalDataPtr = Jsrt.JsGetIndexedPropertiesExternalData(objectHandle, out arrayType, out length);
+
+                        Assert.Equal(JavaScriptTypedArrayType.Int8, arrayType);
+                        Assert.Equal((uint)data.Length, length);
+                        Assert.Equal(externalDataPtr, dataPtr);
+
+                        objectHandle.Dispose();
+                    }
+                    finally
+                    {
+                        //Free our pinned memory.
+                        Marshal.FreeHGlobal(dataPtr);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsEqualsIsEquals()
+        {
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var name = "The Well-Tempered Clavier";
+                    var nameHandle = Jsrt.JsCreateStringUtf8(name, new UIntPtr((uint)name.Length));
+                    var name2Handle = Jsrt.JsCreateStringUtf8(name, new UIntPtr((uint)name.Length));
+                    var areEqual = Jsrt.JsEquals(nameHandle, name2Handle);
+                    Assert.True(areEqual);
+
+                    nameHandle.Dispose();
+                    name2Handle.Dispose();
+
+                    var stringValue = "42";
+                    var stringValueHandle = Jsrt.JsCreateStringUtf8(stringValue, new UIntPtr((uint)stringValue.Length));
+                    var intValueHandle = Jsrt.JsIntToNumber(42);
+                    areEqual = Jsrt.JsEquals(stringValueHandle, intValueHandle);
+                    Assert.True(areEqual);
+
+                    stringValueHandle.Dispose();
+                    intValueHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsStrictEqualsIsStrictEquals()
+        {
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var name = "Trace Decay";
+                    var nameHandle = Jsrt.JsCreateStringUtf8(name, new UIntPtr((uint)name.Length));
+                    var name2Handle = Jsrt.JsCreateStringUtf8(name, new UIntPtr((uint)name.Length));
+                    var areEqual = Jsrt.JsStrictEquals(nameHandle, name2Handle);
+                    Assert.True(areEqual);
+
+                    nameHandle.Dispose();
+                    name2Handle.Dispose();
+
+                    var stringValue = "8";
+                    var stringValueHandle = Jsrt.JsCreateStringUtf8(stringValue, new UIntPtr((uint)stringValue.Length));
+                    var intValueHandle = Jsrt.JsIntToNumber(8);
+                    areEqual = Jsrt.JsStrictEquals(stringValueHandle, intValueHandle);
+                    Assert.False(areEqual);
+
+                    stringValueHandle.Dispose();
+                    intValueHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanSetIndexedPropertiesExternalData()
+        {
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    byte[] data = new byte[10];
+                    //Populate the array with data.
+                    for (byte i = 0; i < 10; i++)
+                        data[i] = (byte)(42+i);
+
+                    //Pin data to unmanaged memory;
+                    IntPtr dataPtr = Marshal.AllocHGlobal(sizeof(byte) * data.Length);
+                    Marshal.Copy(data, 0, dataPtr, data.Length);
+
+                    try
+                    {
+                        //Test on object
+                        var objectHandle = Jsrt.JsCreateObject();
+
+                        Jsrt.JsSetIndexedPropertiesToExternalData(objectHandle, dataPtr, JavaScriptTypedArrayType.Int8, (uint)data.Length);
+                        var hasIndexedPropertiesExternalData = Jsrt.JsHasIndexedPropertiesExternalData(objectHandle);
+                        Assert.True(hasIndexedPropertiesExternalData);
+
+                        var arrayIndexHandle = Jsrt.JsIntToNumber(5);
+                        var propertyHandle = Jsrt.JsGetIndexedProperty(objectHandle, arrayIndexHandle);
+                        Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
+
+                        var handleType = Jsrt.JsGetValueType(propertyHandle);
+                        Assert.True(handleType == JavaScriptValueType.Number);
+
+                        var value = Jsrt.JsNumberToInt(propertyHandle);
+                        Assert.Equal(42 + 5, value);
+
+                        arrayIndexHandle.Dispose();
+                        propertyHandle.Dispose();
+                        objectHandle.Dispose();
+                    }
+                    finally
+                    {
+                        //Free our pinned memory.
+                        Marshal.FreeHGlobal(dataPtr);
+                    }
                 }
             }
         }

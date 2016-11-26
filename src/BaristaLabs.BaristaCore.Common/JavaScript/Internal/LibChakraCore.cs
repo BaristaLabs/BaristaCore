@@ -1515,7 +1515,7 @@
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, IntPtr data, out JavaScriptTypedArrayType arrayType, out uint elementLength);
+		public static extern JavaScriptErrorCode JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out IntPtr data, out JavaScriptTypedArrayType arrayType, out uint elementLength);
 
 		/// <summary>
 		///		Sets an object's indexed properties to external data. The external data will be used as back store for the object's indexed properties and accessed like a typed array.
