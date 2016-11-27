@@ -1,6 +1,9 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
-    public class JavaScriptContextSafeHandle : JavaScriptReference<JavaScriptContextSafeHandle>
+    /// <summary>
+    /// Represents a handle to a JavaScript Context
+    /// </summary>
+    public sealed class JavaScriptContextSafeHandle : JavaScriptReference<JavaScriptContextSafeHandle>
     {
         /// <summary>
         /// Gets an invalid context.

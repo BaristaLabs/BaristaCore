@@ -209,6 +209,41 @@
         }
 
         [Fact]
+        public void JsObjectBeforeCollectCallbackMustHaveACurrentContext()
+        {
+            bool called = false;
+            JavaScriptObjectBeforeCollectCallback callback = (IntPtr sender, IntPtr callbackState) =>
+            {
+                called = true;
+            };
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+                    var valueHandle = Jsrt.JsCreateStringUtf8("superman", new UIntPtr((uint)"superman".Length));
+                    Jsrt.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
+
+                    try
+                    {
+                        Jsrt.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback);
+                        Assert.False(true);
+                    }
+                    catch(JavaScriptUsageException ex)
+                    {
+                        Assert.Equal("No current context.", ex.Message);
+                    }
+
+                    Jsrt.JsSetCurrentContext(contextHandle);
+                    valueHandle.Dispose();
+                }
+            }
+
+            Assert.False(called);
+        }
+
+        [Fact]
         public void JsObjectBeforeCollectCallbackIsCalledIfObjectIsNotDisposed()
         {
             bool called = false;
@@ -237,6 +272,81 @@
         }
 
         [Fact]
+        public void JsObjectBeforeCollectCallbackCannotBeSetOnARuntime()
+        {
+            bool called = false;
+            JavaScriptObjectBeforeCollectCallback callback = (IntPtr sender, IntPtr callbackState) =>
+            {
+                called = true;
+            };
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    try
+                    {
+                        Jsrt.JsSetObjectBeforeCollectCallback(runtimeHandle, IntPtr.Zero, callback);
+                        Assert.False(true);
+                    }
+                    catch (JavaScriptUsageException ex)
+                    {
+                        Assert.Equal("Invalid argument.", ex.Message);
+                    }
+
+                }
+            }
+
+            Assert.False(called);
+        }
+
+        [Fact]
+        public void JsObjectBeforeCollectCallbackCanBeSetOnAPropertyId()
+        {
+            bool called = false;
+            JavaScriptObjectBeforeCollectCallback callback = (IntPtr sender, IntPtr callbackState) =>
+            {
+                called = true;
+            };
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+                    string name = "oof";
+                    var propertyHandle = Jsrt.JsCreatePropertyIdUtf8(name, new UIntPtr((uint)name.Length));
+                    Jsrt.JsSetObjectBeforeCollectCallback(propertyHandle, IntPtr.Zero, callback);
+                    propertyHandle.Dispose();
+                }
+
+                Jsrt.JsCollectGarbage(runtimeHandle);
+                Assert.True(called);
+            }
+        }
+
+        [Fact]
+        public void JsObjectBeforeCollectCallbackCanBeSetOnAContext()
+        {
+            bool called = false;
+            JavaScriptObjectBeforeCollectCallback callback = (IntPtr sender, IntPtr callbackState) =>
+            {
+                called = true;
+            };
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, callback);
+                }
+            }
+            Assert.True(called);
+        }
+
+        [Fact]
         public void JsContextCanBeCreated()
         {
             using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
@@ -245,7 +355,7 @@
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    Assert.False(contextHandle == JavaScriptContext.Invalid);
+                    Assert.False(contextHandle == JavaScriptContextSafeHandle.Invalid);
                     Assert.False(contextHandle.IsClosed);
                     Assert.False(contextHandle.IsInvalid);
                 }
@@ -394,7 +504,6 @@
 
                     var nextTickTime = new DateTime(DateTime.Now.Ticks + nextIdleTick);
                     Assert.True(nextTickTime > DateTime.Now);
-
                 }
             }
         }
@@ -470,7 +579,7 @@
                     var symbolHandle = Jsrt.JsCreateSymbol(propertyNameHandle);
                     var propertyIdHandle = Jsrt.JsGetPropertyIdFromSymbol(symbolHandle);
 
-                    Assert.True(propertyIdHandle != JavaScriptPropertyId.Invalid);
+                    Assert.True(propertyIdHandle != JavaScriptPropertyIdSafeHandle.Invalid);
 
                     propertyIdHandle.Dispose();
                     symbolHandle.Dispose();
@@ -1151,7 +1260,6 @@ var oCat = new MammalSpecies('Felis');
                     oCatHandle.Dispose();
                     fnMammalSpeciesHandle.Dispose();
                     globalHandle.Dispose();
-
                 }
             }
         }
@@ -1232,7 +1340,6 @@ return obj;
                     propertyIdHandle.Dispose();
                     propertyHandle.Dispose();
                     objHandle.Dispose();
-
                 }
             }
         }
@@ -1273,7 +1380,6 @@ return obj;
                     propertyIdHandle.Dispose();
                     propertyDescriptorHandle.Dispose();
                     objHandle.Dispose();
-
                 }
             }
         }
@@ -1312,7 +1418,6 @@ return obj;
 
                     propertySymbols.Dispose();
                     objHandle.Dispose();
-
                 }
             }
         }
@@ -1358,7 +1463,6 @@ return obj;
                     propertyIdHandle.Dispose();
                     propertyHandle.Dispose();
                     objHandle.Dispose();
-
                 }
             }
         }
@@ -1403,7 +1507,6 @@ return obj;
 
                     propertyIdHandle.Dispose();
                     objHandle.Dispose();
-
                 }
             }
         }
@@ -1445,7 +1548,6 @@ return obj;
                     propertyDeletedHandle.Dispose();
                     propertyIdHandle.Dispose();
                     objHandle.Dispose();
-
                 }
             }
         }
@@ -1470,7 +1572,6 @@ var obj = {
 return obj;
 })();
 ";
-
             using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
                 using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
@@ -1492,7 +1593,6 @@ return obj;
                     propertyDefHandle.Dispose();
                     propertyIdHandle.Dispose();
                     objHandle.Dispose();
-
                 }
             }
         }
@@ -1563,7 +1663,6 @@ var arr = ['Arnold', 'Bernard', 'Charlotte', 'Delores', 'Elsie', 'Felix', 'Hecto
 return arr;
 })();
 ";
-
             using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
                 using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
@@ -1582,7 +1681,6 @@ return arr;
                     valueHandle.Dispose();
                     arrayIndexHandle.Dispose();
                     arrayHandle.Dispose();
-
                 }
             }
         }
@@ -1719,6 +1817,56 @@ return arr;
         }
 
         [Fact]
+        public void JsCanSetIndexedPropertiesExternalData()
+        {
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    byte[] data = new byte[10];
+                    //Populate the array with data.
+                    for (byte i = 0; i < 10; i++)
+                        data[i] = (byte)(42 + i);
+
+                    //Pin data to unmanaged memory;
+                    IntPtr dataPtr = Marshal.AllocHGlobal(sizeof(byte) * data.Length);
+                    Marshal.Copy(data, 0, dataPtr, data.Length);
+
+                    try
+                    {
+                        //Test on object
+                        var objectHandle = Jsrt.JsCreateObject();
+
+                        Jsrt.JsSetIndexedPropertiesToExternalData(objectHandle, dataPtr, JavaScriptTypedArrayType.Int8, (uint)data.Length);
+                        var hasIndexedPropertiesExternalData = Jsrt.JsHasIndexedPropertiesExternalData(objectHandle);
+                        Assert.True(hasIndexedPropertiesExternalData);
+
+                        var arrayIndexHandle = Jsrt.JsIntToNumber(5);
+                        var propertyHandle = Jsrt.JsGetIndexedProperty(objectHandle, arrayIndexHandle);
+                        Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
+
+                        var handleType = Jsrt.JsGetValueType(propertyHandle);
+                        Assert.True(handleType == JavaScriptValueType.Number);
+
+                        var value = Jsrt.JsNumberToInt(propertyHandle);
+                        Assert.Equal(42 + 5, value);
+
+                        arrayIndexHandle.Dispose();
+                        propertyHandle.Dispose();
+                        objectHandle.Dispose();
+                    }
+                    finally
+                    {
+                        //Free our pinned memory.
+                        Marshal.FreeHGlobal(dataPtr);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void JsEqualsIsEquals()
         {
             using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
@@ -1778,54 +1926,140 @@ return arr;
             }
         }
 
-        [Fact]
-        public void JsCanSetIndexedPropertiesExternalData()
+        [StructLayout(LayoutKind.Sequential)]
+        public class Point
         {
+            public int x;
+            public int y;
+        }
+
+        public IntPtr GetPtr<T>(T data)
+        {
+            //Pin data to unmanaged memory;
+            IntPtr dataPtr = Marshal.AllocHGlobal(Marshal.SizeOf(data));
+            Marshal.StructureToPtr(data, dataPtr, true);
+            return dataPtr;
+        }
+
+        [Fact]
+        public void JsCanDetermineIfIsExternalData()
+        {
+            var myPoint = new Point()
+            {
+                x = 123,
+                y = 456
+            };
+
+            var myPointPtr = GetPtr(myPoint);
+
+            bool called = false;
+            JavaScriptObjectFinalizeCallback callback = (IntPtr ptr) =>
+            {
+                called = true;
+                Assert.True(myPointPtr == ptr);
+                Marshal.FreeHGlobal(myPointPtr);
+            };
+
             using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
                 using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
                 {
                     Jsrt.JsSetCurrentContext(contextHandle);
 
-                    byte[] data = new byte[10];
-                    //Populate the array with data.
-                    for (byte i = 0; i < 10; i++)
-                        data[i] = (byte)(42+i);
+                    //Test on external object
+                    var objectHandle = Jsrt.JsCreateExternalObject(myPointPtr, callback);
 
-                    //Pin data to unmanaged memory;
-                    IntPtr dataPtr = Marshal.AllocHGlobal(sizeof(byte) * data.Length);
-                    Marshal.Copy(data, 0, dataPtr, data.Length);
+                    var result = Jsrt.JsHasExternalData(objectHandle);
+                    Assert.True(result);
 
-                    try
-                    {
-                        //Test on object
-                        var objectHandle = Jsrt.JsCreateObject();
-
-                        Jsrt.JsSetIndexedPropertiesToExternalData(objectHandle, dataPtr, JavaScriptTypedArrayType.Int8, (uint)data.Length);
-                        var hasIndexedPropertiesExternalData = Jsrt.JsHasIndexedPropertiesExternalData(objectHandle);
-                        Assert.True(hasIndexedPropertiesExternalData);
-
-                        var arrayIndexHandle = Jsrt.JsIntToNumber(5);
-                        var propertyHandle = Jsrt.JsGetIndexedProperty(objectHandle, arrayIndexHandle);
-                        Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
-
-                        var handleType = Jsrt.JsGetValueType(propertyHandle);
-                        Assert.True(handleType == JavaScriptValueType.Number);
-
-                        var value = Jsrt.JsNumberToInt(propertyHandle);
-                        Assert.Equal(42 + 5, value);
-
-                        arrayIndexHandle.Dispose();
-                        propertyHandle.Dispose();
-                        objectHandle.Dispose();
-                    }
-                    finally
-                    {
-                        //Free our pinned memory.
-                        Marshal.FreeHGlobal(dataPtr);
-                    }
+                    objectHandle.Dispose();
                 }
             }
+
+            Assert.True(called);
+        }
+
+        [Fact]
+        public void JsCanRetrieveExternalData()
+        {
+            var myPoint = new Point()
+            {
+                x = 123,
+                y = 456
+            };
+
+            var myPointPtr = GetPtr(myPoint);
+
+            bool called = false;
+            JavaScriptObjectFinalizeCallback callback = (IntPtr ptr) =>
+            {
+                called = true;
+                Assert.True(myPointPtr == ptr);
+                Marshal.FreeHGlobal(myPointPtr);
+            };
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    //Test on external object
+                    var objectHandle = Jsrt.JsCreateExternalObject(myPointPtr, callback);
+
+                    IntPtr externalDataPtr = Jsrt.JsGetExternalData(objectHandle);
+                    Assert.Equal(externalDataPtr, myPointPtr);
+                    objectHandle.Dispose();
+                }
+            }
+
+            Assert.True(called);
+        }
+
+        [Fact]
+        public void JsCanSetExternalData()
+        {
+            var myPoint = new Point()
+            {
+                x = 123,
+                y = 456
+            };
+
+            var myPoint2 = new Point()
+            {
+                x = 789,
+                y = 123
+            };
+
+            var myPointPtr = GetPtr(myPoint);
+            var myPointPtr2 = GetPtr(myPoint2);
+
+            int calledCount = 0;
+            JavaScriptObjectFinalizeCallback callback = (IntPtr ptr) =>
+            {
+                calledCount++;
+                Marshal.FreeHGlobal(ptr);
+            };
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    //Test on external object
+                    var objectHandle = Jsrt.JsCreateExternalObject(myPointPtr, callback);
+
+                    Jsrt.JsSetExternalData(objectHandle, myPointPtr2);
+                    callback(myPointPtr); //Since we set it, I guess we're responsible for clearing it.
+
+                    IntPtr externalDataPtr = Jsrt.JsGetExternalData(objectHandle);
+                    Assert.Equal(externalDataPtr, myPointPtr2);
+                    objectHandle.Dispose();
+                }
+            }
+
+            Assert.Equal(2, calledCount);
         }
 
         [Fact]
@@ -2096,7 +2330,7 @@ new Promise(function(resolve, reject) {
             JavaScriptPromiseContinuationCallback promiseContinuationCallback = (IntPtr taskHandle, IntPtr callbackState) =>
             {
                 calledCount++;
-                var task = JavaScriptValueSafeHandle.CreateJavaScriptValueFromHandle(taskHandle);
+                var task = new JavaScriptValueSafeHandle(taskHandle);
                 taskQueue.Push(task);
             };
 

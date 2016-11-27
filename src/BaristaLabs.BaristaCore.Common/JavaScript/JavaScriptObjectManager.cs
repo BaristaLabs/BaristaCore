@@ -11,7 +11,7 @@
     {
         private static ConcurrentDictionary<IntPtr, WeakCollection<JavaScriptObjectBeforeCollectCallback>> s_objectBeforeCollect = new ConcurrentDictionary<IntPtr, WeakCollection<JavaScriptObjectBeforeCollectCallback>>();
 
-        public static void MonitorJavaScriptObjectLifetime<T>(T handle, IntPtr callbackState = default(IntPtr)) where T : JavaScriptReference<T>
+        public static void MonitorJavaScriptObjectLifetime<T>(T handle, JavaScriptObjectBeforeCollectCallback callback, IntPtr callbackState = default(IntPtr)) where T : JavaScriptReference<T>
         {
             if (callbackState == default(IntPtr))
                 callbackState = IntPtr.Zero;
@@ -33,19 +33,29 @@
                     WeakCollection<JavaScriptObjectBeforeCollectCallback> callbacks;
                     if (s_objectBeforeCollect.TryGetValue(handlePtr, out callbacks))
                     {
-                        if (!callbacks.Contains(handle.ObjectBeforeCollectCallback))
+                        if (!callbacks.Contains(callback))
                         {
-                            callbacks.Add(handle.ObjectBeforeCollectCallback);
+                            callbacks.Add(callback);
                         }
                     }
                 }
                 else
                 {
                     var callbacks = new WeakCollection<JavaScriptObjectBeforeCollectCallback>();
-                    callbacks.Add(handle.ObjectBeforeCollectCallback);
+                    callbacks.Add(callback);
                     s_objectBeforeCollect.TryAdd(handlePtr, callbacks);
                 }
             }
+        }
+
+        public static void DisposeWhenCollected<T>(T handle) where T : JavaScriptReference<T>
+        {
+            IntPtr ptr = handle.DangerousGetHandle();
+            MonitorJavaScriptObjectLifetime(handle, (IntPtr handlePtr, IntPtr callbackState) =>
+            {
+                if (ptr == handlePtr)
+                    handle.Dispose();
+            });
         }
 
         private static void OnObjectBeforeCollect(IntPtr handle, IntPtr callbackState)

@@ -1,27 +1,55 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
-    using Internal;
     using System;
-    using System.Diagnostics;
 
     /// <summary>
-    /// Represents a JavaScript Runtime object.
+    /// Represents a JavaScript Runtime
     /// </summary>
-    public sealed class JavaScriptRuntime : JavaScriptRuntimeSafeHandle
+    /// <remarks>
+    ///     A javascript runtime in which contexts are created and JavaScript is executed.
+    /// </remarks>
+    public sealed class JavaScriptRuntime : IDisposable
     {
         public event EventHandler<JavaScriptMemoryEventArgs> MemoryChanging;
+
+        private readonly IJavaScriptEngine m_javaScriptEngine;
+        private JavaScriptRuntimeSafeHandle m_runtimeSafeHandle;
+
+        /// <summary>
+        /// Gets the JavaScript Engine associated with the JavaScript Runtime.
+        /// </summary>
+        public IJavaScriptEngine Engine
+        {
+            get { return m_javaScriptEngine; }
+        }
+
+        /// <summary>
+        /// Gets a value that indicates if this runtime has been disposed.
+        /// </summary>
+        public bool IsDisposed
+        {
+            get
+            {
+                return m_runtimeSafeHandle == null || m_runtimeSafeHandle.IsClosed;
+            }
+        }
 
         /// <summary>
         /// Private constructor. Runtimes are only creatable through the static factory method.
         /// </summary>
-        private JavaScriptRuntime()
+        private JavaScriptRuntime(IJavaScriptEngine engine, JavaScriptRuntimeSafeHandle runtimeHandle)
         {
-        }
+            if (engine == null)
+                throw new ArgumentNullException(nameof(engine));
 
-        public IJavaScriptEngine Engine
-        {
-            get;
-            private set;
+            if (runtimeHandle == null || runtimeHandle == JavaScriptRuntimeSafeHandle.Invalid)
+                throw new ArgumentNullException(nameof(runtimeHandle));
+
+            engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, RuntimeBeforeCollectCallback);
+            engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, RuntimeMemoryAllocationCallback);
+            
+            m_javaScriptEngine = engine;
+            m_runtimeSafeHandle = runtimeHandle;
         }
 
         /// <summary>
@@ -31,10 +59,10 @@
         {
             get
             {
-                if (IsCollected)
-                    throw new ObjectDisposedException("The runtime has been collected.");
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(JavaScriptRuntime));
 
-                return Engine.JsGetRuntimeMemoryUsage(this);
+                return Engine.JsGetRuntimeMemoryUsage(m_runtimeSafeHandle);
             }
         }
 
@@ -50,7 +78,7 @@
 
         private void RuntimeBeforeCollectCallback(IntPtr callbackState)
         {
-            //TODO: Implement this.
+            Dispose();
         }
 
         private bool RuntimeMemoryAllocationCallback(IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize)
@@ -66,20 +94,29 @@
             return true;
         }
 
-        protected override void Dispose(bool disposing)
+        #region IDisposable
+
+        private void Dispose(bool disposing)
         {
-            if (!IsCollected && !IsClosed)
+            if (disposing && !IsDisposed)
             {
-                //Ensure that a context is not active, otherwise the runtime will throw a "Runtime In Use" exception.
-                var error = LibChakraCore.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
-                Debug.Assert(error == JavaScriptErrorCode.NoError);
-
-                error = LibChakraCore.JsDisposeRuntime(handle);
-                Debug.Assert(error == JavaScriptErrorCode.NoError);
+                //Dispose of the handle
+                m_runtimeSafeHandle.Dispose();
+                m_runtimeSafeHandle = null;
             }
-
-            base.Dispose(disposing);
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~JavaScriptRuntime()
+        {
+            Dispose(false);
+        }
+        #endregion;
 
         /// <summary>
         /// Creates a new JavaScript Runtime.
@@ -92,17 +129,9 @@
             if (engine == null)
                 throw new ArgumentNullException(nameof(engine));
 
-            throw new NotImplementedException();
-            //JavaScriptRuntime javaScriptRuntime = engine.JsCreateRuntime(attributes, null);
-            //javaScriptRuntime.Engine = engine;
-            //engine.JsSetRuntimeBeforeCollectCallback(javaScriptRuntime, IntPtr.Zero, javaScriptRuntime.RuntimeBeforeCollectCallback);
-            //engine.JsSetRuntimeMemoryAllocationCallback(javaScriptRuntime, IntPtr.Zero, javaScriptRuntime.RuntimeMemoryAllocationCallback);
-            //return javaScriptRuntime;
+            var runtimeHandle = engine.JsCreateRuntime(attributes, null);
+            var result = new JavaScriptRuntime(engine, runtimeHandle);
+            return result;
         }
-
-        /// <summary>
-        /// Gets an invalid runtime.
-        /// </summary>
-        //public static readonly JavaScriptRuntime Invalid = new JavaScriptRuntime();
     }
 }

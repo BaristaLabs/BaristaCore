@@ -3,11 +3,14 @@
     using Internal;
     using System.Diagnostics;
 
-    public class JavaScriptRuntimeSafeHandle : JavaScriptReference<JavaScriptRuntimeSafeHandle>
+    /// <summary>
+    /// Represents a handle to a JavaScript Runtime
+    /// </summary>
+    public sealed class JavaScriptRuntimeSafeHandle : JavaScriptReference<JavaScriptRuntimeSafeHandle>
     {
         protected override void Dispose(bool disposing)
         {
-            if (disposing && !IsCollected && !IsClosed)
+            if (disposing && !IsClosed)
             {
                 //Ensure that a context is not active, otherwise the runtime will throw a "Runtime In Use" exception.
                 var error = LibChakraCore.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);

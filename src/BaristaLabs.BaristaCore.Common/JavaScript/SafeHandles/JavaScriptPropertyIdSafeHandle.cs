@@ -1,13 +1,9 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     /// <summary>
-    ///     A property identifier.
+    /// Represents a handle to a JavaScript PropertyId
     /// </summary>
-    /// <remarks>
-    ///     Property identifiers are used to refer to properties of JavaScript objects instead of using
-    ///     strings.
-    /// </remarks>
-    public class JavaScriptPropertyIdSafeHandle : JavaScriptReference<JavaScriptPropertyIdSafeHandle>
+    public sealed class JavaScriptPropertyIdSafeHandle : JavaScriptReference<JavaScriptPropertyIdSafeHandle>
     {
         /// <summary>
         /// Gets an invalid Property Id.

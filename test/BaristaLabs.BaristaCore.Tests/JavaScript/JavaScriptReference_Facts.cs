@@ -15,32 +15,29 @@
         }
 
         [Fact]
-        public void JsContextsAreSetInvalidWhenHandleIsCollected()
+        public void JsContextsAreClosedWhenHandleIsCollected()
         {
             JavaScriptContextSafeHandle contextHandle, anotherContextHandle;
             using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
                 contextHandle = Jsrt.JsCreateContext(runtimeHandle);
-                JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(contextHandle);
+                JavaScriptObjectManager.DisposeWhenCollected(contextHandle);
 
                 Jsrt.JsSetCurrentContext(contextHandle);
 
                 anotherContextHandle = Jsrt.JsGetCurrentContext();
-                JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(anotherContextHandle);
+                JavaScriptObjectManager.DisposeWhenCollected(anotherContextHandle);
 
                 Assert.Equal(contextHandle, anotherContextHandle);
                 Assert.NotSame(contextHandle, anotherContextHandle);
             }
 
-            Assert.True(contextHandle.IsInvalid);
             Assert.True(contextHandle.IsClosed);
-
-            Assert.True(anotherContextHandle.IsInvalid);
             Assert.True(anotherContextHandle.IsClosed);
         }
 
         [Fact]
-        public void JsValuesAreSetInvalidWhenHandleIsCollected()
+        public void JsValuesAreClosedWhenHandleIsCollected()
         {
             JavaScriptValueSafeHandle valueHandle, anotherValueHandle;
 
@@ -52,23 +49,20 @@
 
                     var superman = "superman";
                     valueHandle = Jsrt.JsCreateStringUtf8(superman, new UIntPtr((uint)superman.Length));
-                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(valueHandle);
+                    JavaScriptObjectManager.DisposeWhenCollected(valueHandle);
                     anotherValueHandle = Jsrt.JsCreateStringUtf8(superman, new UIntPtr((uint)superman.Length));
-                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(anotherValueHandle);
+                    JavaScriptObjectManager.DisposeWhenCollected(anotherValueHandle);
                 }
 
                 Jsrt.JsCollectGarbage(runtimeHandle);
             }
 
-            Assert.True(valueHandle.IsInvalid);
             Assert.True(valueHandle.IsClosed);
-
-            Assert.True(anotherValueHandle.IsInvalid);
             Assert.True(anotherValueHandle.IsClosed);
         }
 
         [Fact]
-        public void JsValuesAreSetInvalidWhenHandleIsCollectedWithDispose()
+        public void JsValuesAreClosedWhenHandleIsCollectedWithDispose()
         {
             JavaScriptValueSafeHandle valueHandle;
 
@@ -79,19 +73,18 @@
                     Jsrt.JsSetCurrentContext(contextHandle);
 
                     valueHandle = Jsrt.JsCreateStringUtf8("superman", new UIntPtr((uint)"superman".Length));
-                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(valueHandle);
+                    JavaScriptObjectManager.DisposeWhenCollected(valueHandle);
                     valueHandle.Dispose();
                 }
 
                 Jsrt.JsCollectGarbage(runtimeHandle);
             }
 
-            Assert.True(valueHandle.IsInvalid);
             Assert.True(valueHandle.IsClosed);
         }
 
         [Fact]
-        public void JsValueEqualSafeHandlesAreSetInvalidWhenCollected()
+        public void JsValueEqualSafeHandlesAreClosedWhenCollected()
         {
             JavaScriptValueSafeHandle trueHandle, anotherTrueHandle;
 
@@ -102,23 +95,20 @@
                     Jsrt.JsSetCurrentContext(contextHandle);
 
                     trueHandle = Jsrt.JsGetTrueValue();
-                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(trueHandle);
+                    JavaScriptObjectManager.DisposeWhenCollected(trueHandle);
                     anotherTrueHandle = Jsrt.JsBoolToBoolean(true);
-                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(anotherTrueHandle);
+                    JavaScriptObjectManager.DisposeWhenCollected(anotherTrueHandle);
 
                     Assert.Equal(trueHandle, anotherTrueHandle);
                 }
             }
 
-            Assert.True(trueHandle.IsInvalid);
             Assert.True(trueHandle.IsClosed);
-
-            Assert.True(anotherTrueHandle.IsInvalid);
             Assert.True(anotherTrueHandle.IsClosed);
         }
 
         [Fact]
-        public void JsValueEqualSafeHandlesAreSetInvalidWhenDisposed()
+        public void JsValueEqualSafeHandlesAreClosedWhenDisposed()
         {
             JavaScriptValueSafeHandle trueHandle, anotherTrueHandle;
 
@@ -129,9 +119,9 @@
                     Jsrt.JsSetCurrentContext(contextHandle);
 
                     trueHandle = Jsrt.JsGetTrueValue();
-                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(trueHandle);
+                    JavaScriptObjectManager.DisposeWhenCollected(trueHandle);
                     anotherTrueHandle = Jsrt.JsBoolToBoolean(true);
-                    JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(anotherTrueHandle);
+                    JavaScriptObjectManager.DisposeWhenCollected(anotherTrueHandle);
 
                     Assert.Equal(trueHandle, anotherTrueHandle);
                     trueHandle.Dispose();
@@ -139,10 +129,7 @@
                 }
             }
 
-            Assert.True(trueHandle.IsInvalid);
             Assert.True(trueHandle.IsClosed);
-
-            Assert.True(anotherTrueHandle.IsInvalid);
             Assert.True(anotherTrueHandle.IsClosed);
         }
 

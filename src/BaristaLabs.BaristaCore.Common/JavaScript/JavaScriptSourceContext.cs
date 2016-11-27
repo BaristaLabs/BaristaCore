@@ -1,6 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using System;
+    using System.Threading;
 
     /// <summary>
     ///     A cookie that identifies a script for debugging purposes.
@@ -132,6 +133,11 @@
         {
             return ++left;
         }
+
+        public static explicit operator int(JavaScriptSourceContext context)
+        {
+            return (int)context.m_context;
+        }
         #endregion
 
         /// <summary>
@@ -192,6 +198,27 @@
         public override int GetHashCode()
         {
             return m_context.ToInt32();
+        }
+
+        private static IntPtr s_sourceContextId = IntPtr.Zero;
+
+        /// <summary>
+        /// Gets the next unique source context.
+        /// </summary>
+        /// <returns></returns>
+        public static JavaScriptSourceContext GetNextSourceContext()
+        {
+            while (true)
+            {
+                IntPtr currentSourceContextId = s_sourceContextId;
+                IntPtr incremented = (s_sourceContextId + 1);
+
+                Interlocked.CompareExchange(ref s_sourceContextId, incremented, currentSourceContextId);
+                if (s_sourceContextId == incremented)
+                {
+                    return new JavaScriptSourceContext(currentSourceContextId);
+                }
+            }
         }
     }
 }

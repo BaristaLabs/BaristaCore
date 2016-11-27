@@ -1,17 +1,16 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
-    using System;
     using System.Threading.Tasks;
 
     public class InMemoryScriptSource : IScriptSource
     {
-        private readonly IntPtr m_cookie;
+        private readonly JavaScriptSourceContext m_cookie;
         private readonly string m_description;
         private readonly string m_script;
 
         InMemoryScriptSource(string description, string script)
         {
-            m_cookie = SourceContext.GetNextContextId();
+            m_cookie = JavaScriptSourceContext.GetNextSourceContext();
             m_description = description;
             m_script = script;
         }

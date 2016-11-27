@@ -2,16 +2,16 @@
 {
     using System;
 
-    public class JavaScriptValue : JavaScriptReference<JavaScriptValue>
+    public abstract class JavaScriptValue
     {
-        public JavaScriptValue() :
-            base()
-        {
-        }
+        private readonly JavaScriptValueSafeHandle m_valueSafeHandle;
 
-        protected JavaScriptValue(IntPtr handle) :
-            base(handle)
+        protected JavaScriptValue(IJavaScriptEngine engine, JavaScriptValueSafeHandle value)
         {
+            if (value == null || value == JavaScriptValueSafeHandle.Invalid)
+                throw new ArgumentNullException(nameof(value));
+
+            m_valueSafeHandle = value;
         }
 
         /// <summary>
@@ -19,16 +19,19 @@
         /// </summary>
         /// <param name="handle"></param>
         /// <returns></returns>
-        public static JavaScriptValue CreateJavaScriptValueFromHandle(IntPtr handle)
+        public static JavaScriptValue CreateJavaScriptValueFromHandle(IJavaScriptEngine engine, JavaScriptValueSafeHandle value)
         {
-            var safeHandle = new JavaScriptValue(handle);
-            JavaScriptObjectManager.MonitorJavaScriptObjectLifetime(safeHandle);
-            return safeHandle;
-        }
+            var valueType = engine.JsGetValueType(value);
+            JavaScriptValue result = null;
+            switch (valueType)
+            {
+                case JavaScriptValueType.Object:
+                    break;
+                default:
+                    throw new NotImplementedException($"The type {valueType} is unknown, invalid, or has not been implemented.");
+            }
 
-        /// <summary>
-        /// Gets an invalid value.
-        /// </summary>
-        public static readonly JavaScriptValue Invalid = new JavaScriptValue();
+            return result;
+        }
     }
 }

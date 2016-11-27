@@ -10,23 +10,13 @@
     /// </summary>
     public abstract class JavaScriptReference : SafeHandle
     {
-        private volatile bool m_objectHasBeenCollected = false;
-
         /// <summary>
-        /// Gets a value that indicates if the object has been flagged as collected by the JavaScript Runtime.
+        /// Gets a value that indicates if the JavaScript Reference is invalid.
         /// </summary>
-        public bool IsCollected
-        {
-            get { return m_objectHasBeenCollected; }
-        }
-
         public override bool IsInvalid
         {
             get
             {
-                if (m_objectHasBeenCollected)
-                    return true;
-
                 return handle == IntPtr.Zero;
             }
         }
@@ -43,11 +33,18 @@
             set;
         }
 
+        /// <summary>
+        /// Creates a new Invalid JavaScript Reference
+        /// </summary>
         protected JavaScriptReference() :
             base(IntPtr.Zero, ownsHandle: true)
         {
         }
 
+        /// <summary>
+        /// Creates a new JavaScript Reference with the specified handle.
+        /// </summary>
+        /// <param name="handle"></param>
         protected JavaScriptReference(IntPtr handle) :
             this()
         {
@@ -55,42 +52,32 @@
         }
 
         /// <summary>
-        ///     Releases resources associated with the context.
+        /// Releases resources associated with the context.
         /// </summary>
         protected override bool ReleaseHandle()
         {
+            //This method always executes as part of the object finalization process.
+            //This makes it inappropriate to use for releasing JsRefs as the
+            //JsRuntime is often (but not always) already collected at the point when
+            //this is run. Thus:
+
             //Do nothing.
             return true;
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && !IsCollected && !IsClosed)
+            if (disposing && !IsClosed)
             {
                 uint count;
                 var error = LibChakraCore.JsRelease(this, out count);
                 Debug.Assert(error == JavaScriptErrorCode.NoError);
+
+                //This has no effect.
                 SetHandleAsInvalid();
             }
 
             base.Dispose(disposing);
-        }
-
-        /// <summary>
-        /// Method that is executed when the runtime collects the handle.
-        /// </summary>
-        /// <remarks>
-        /// This prevents .net from attempting to call .JsRelease on a handle that's already deallocated.
-        /// </remarks>
-        /// <param name="handle"></param>
-        /// <param name=""></param>
-        public void ObjectBeforeCollectCallback(IntPtr handle, IntPtr callbackState)
-        {
-            if (Equals(handle, this.handle))
-            {
-                m_objectHasBeenCollected = true;
-                SetHandleAsInvalid();
-            }
         }
     }
 
@@ -100,13 +87,13 @@
     /// <typeparam name="T"></typeparam>
     public abstract class JavaScriptReference<T> : JavaScriptReference, IEquatable<JavaScriptReference<T>> where T : JavaScriptReference<T>
     {
-        protected JavaScriptReference() :
-            base()
+        public JavaScriptReference()
+            : base()
         {
         }
 
-        protected JavaScriptReference(IntPtr handle) :
-            base(handle)
+        public JavaScriptReference(IntPtr handle)
+            : base(handle)
         {
         }
 

@@ -264,7 +264,7 @@
 
                     var propertyHandle = Jsrt.JsCreatePropertyIdUtf8(str, new UIntPtr((uint)str.Length));
 
-                    Assert.True(propertyHandle != JavaScriptPropertyId.Invalid);
+                    Assert.True(propertyHandle != JavaScriptPropertyIdSafeHandle.Invalid);
 
                     propertyHandle.Dispose();
                 }
