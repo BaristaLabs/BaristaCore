@@ -108,9 +108,12 @@ Fiddle Improvements:
  - [ ] TypeScript syntax support
  - [ ] Provide better 'save' support via SourceFileProviders
  - [ ] Debugging support
+ - [ ] Time-Travel Debugging Support
 
 BaristaServer-SharePoint
  - [ ] SP2016 Deployment Scripts
+ - [ ] Less dependency on SharePoint-level services (Farm Property Bag, et. al.)
+ - [ ] Promote Barista Search Index (Lucene.Net 4.8) to be a stand-alone service application
 
 Documentation
  - [x] Barista Site (baristalabs.io)
