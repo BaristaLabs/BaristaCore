@@ -258,7 +258,7 @@
                         Jsrt.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback);
                         Assert.False(true);
                     }
-                    catch(JavaScriptUsageException ex)
+                    catch (JavaScriptUsageException ex)
                     {
                         Assert.Equal("No current context.", ex.Message);
                     }
@@ -2369,7 +2369,7 @@ new Promise(function(resolve, reject) {
                         var promiseHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
                         Assert.True(false, "Promises should not be able to be resolved without a promise continuation callback defined.");
                     }
-                    catch(JavaScriptScriptException ex)
+                    catch (JavaScriptScriptException ex)
                     {
                         Assert.Equal("Object doesn't support this action", ex.ErrorMessage);
                     }
@@ -2424,7 +2424,7 @@ new Promise(function(resolve, reject) {
                     var allDoneHandle = Jsrt.JsGetProperty(globalObjectHandle, allDonePropertyIdHandle);
                     Assert.True(allDoneHandle == falseHandle);
 
-                    
+
                     var args = new IntPtr[] { undefinedHandle.DangerousGetHandle() };
 
                     do
@@ -2458,6 +2458,176 @@ new Promise(function(resolve, reject) {
             }
 
             Assert.True(calledCount > 0);
+        }
+
+        [Fact]
+        public void JsCallFunctionCallsAndReturnsAValue()
+        {
+            string toStringPropertyName = "toString";
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var toStringFunctionPropertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(toStringPropertyName, new UIntPtr((uint)toStringPropertyName.Length));
+
+                    var objectHandle = Jsrt.JsCreateObject();
+                    var objectToStringFnHandle = Jsrt.JsGetProperty(objectHandle, toStringFunctionPropertyIdHandle);
+
+                    var resultHandle = Jsrt.JsCallFunction(objectToStringFnHandle, new IntPtr[] { objectHandle.DangerousGetHandle() }, 1);
+
+                    Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var handleType = Jsrt.JsGetValueType(resultHandle);
+                    Assert.True(handleType == JavaScriptValueType.String);
+
+                    var size = Jsrt.JsCopyStringUtf8(resultHandle, null, UIntPtr.Zero);
+                    if ((int)size > int.MaxValue)
+                        throw new OutOfMemoryException("Exceeded maximum string length.");
+
+                    byte[] result = new byte[(int)size];
+                    var written = Jsrt.JsCopyStringUtf8(resultHandle, result, size);
+                    string resultStr = Encoding.UTF8.GetString(result, 0, result.Length);
+
+                    Assert.True(resultStr == "[object Object]");
+
+                    resultHandle.Dispose();
+                    objectToStringFnHandle.Dispose();
+                    objectHandle.Dispose();
+                    toStringFunctionPropertyIdHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanConstructAnObjectFromAConstructorFunction()
+        {
+            var script = @"(() => {
+var fn = function Tree(name) {
+  this.name = name;
+};
+return fn;
+})()";
+            var nameProperty = "name";
+            var name = "Redwood";
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var fnHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, script);
+                    var nameHandle = Jsrt.JsCreateStringUtf8(name, new UIntPtr((uint)name.Length));
+                    var namePropertyHandle = Jsrt.JsCreatePropertyIdUtf8(nameProperty, new UIntPtr((uint)name.Length));
+
+                    var handleType = Jsrt.JsGetValueType(fnHandle);
+                    Assert.True(handleType == JavaScriptValueType.Function);
+
+                    var objectHandle = Jsrt.JsConstructObject(fnHandle, new IntPtr[] { fnHandle.DangerousGetHandle(), nameHandle.DangerousGetHandle() }, 2);
+                    
+                    Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    handleType = Jsrt.JsGetValueType(objectHandle);
+                    Assert.True(handleType == JavaScriptValueType.Object);
+
+                    var propertyHandle = Jsrt.JsGetProperty(objectHandle, namePropertyHandle);
+                    Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var resultStr = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Jsrt, propertyHandle);
+                    Assert.True(resultStr == name);
+
+                    propertyHandle.Dispose();
+                    objectHandle.Dispose();
+                    namePropertyHandle.Dispose();
+                    nameHandle.Dispose();
+                    fnHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanCreateAFunctionFromANativeFunction()
+        {
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var called = false;
+                    JavaScriptNativeFunction fn = (callee, isConstructCall, arguments, argumentCount, callbackData) => {
+                        called = true;
+                        return null;
+                    };
+
+                    var fnHandle = Jsrt.JsCreateFunction(fn, IntPtr.Zero);
+                    Assert.True(fnHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var handleType = Jsrt.JsGetValueType(fnHandle);
+                    Assert.True(handleType == JavaScriptValueType.Function);
+
+                    var resultHandle = Jsrt.JsCallFunction(fnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
+
+                    handleType = Jsrt.JsGetValueType(resultHandle);
+                    Assert.True(handleType == JavaScriptValueType.Undefined);
+                    Assert.True(called);
+
+                    resultHandle.Dispose();
+                    fnHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanCreateANamedFunctionFromANativeFunction()
+        {
+            string name = "hogwarts";
+            string toStringPropertyName = "toString";
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var called = false;
+                    JavaScriptNativeFunction fn = (callee, isConstructCall, arguments, argumentCount, callbackData) => {
+                        called = true;
+                        return null;
+                    };
+
+                    var nameHandle = Jsrt.JsCreateStringUtf8(name, new UIntPtr((uint)name.Length));
+
+                    var fnHandle = Jsrt.JsCreateNamedFunction(nameHandle, fn, IntPtr.Zero);
+                    Assert.True(fnHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var handleType = Jsrt.JsGetValueType(fnHandle);
+                    Assert.True(handleType == JavaScriptValueType.Function);
+
+                    var resultHandle = Jsrt.JsCallFunction(fnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
+
+                    handleType = Jsrt.JsGetValueType(resultHandle);
+                    Assert.True(handleType == JavaScriptValueType.Undefined);
+                    Assert.True(called);
+
+                    var toStringFunctionPropertyIdHandle = Jsrt.JsCreatePropertyIdUtf8(toStringPropertyName, new UIntPtr((uint)toStringPropertyName.Length));
+                    var fnToStringFnHandle = Jsrt.JsGetProperty(fnHandle, toStringFunctionPropertyIdHandle);
+                    var fnToStringResultHandle = Jsrt.JsCallFunction(fnToStringFnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
+                    var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Jsrt, fnToStringResultHandle);
+                    Assert.Equal("hogwarts", result);
+
+                    toStringFunctionPropertyIdHandle.Dispose();
+                    fnToStringFnHandle.Dispose();
+                    fnToStringResultHandle.Dispose();
+
+                    resultHandle.Dispose();
+                    fnHandle.Dispose();
+                    nameHandle.Dispose();
+                }
+            }
         }
     }
 }

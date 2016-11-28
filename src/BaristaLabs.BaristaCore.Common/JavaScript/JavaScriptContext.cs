@@ -33,6 +33,7 @@
             if (runtime == null)
                 throw new ArgumentNullException(nameof(runtime));
 
+            m_runtime = runtime;
             //engine.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, OnObjectBeforeCollect);
 
             m_undefinedValue = new Lazy<JavaScriptUndefinedValue>(GetUndefinedValue);
