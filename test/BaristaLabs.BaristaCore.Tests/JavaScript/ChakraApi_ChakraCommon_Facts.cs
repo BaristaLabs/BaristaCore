@@ -2560,7 +2560,7 @@ return fn;
                     var called = false;
                     JavaScriptNativeFunction fn = (callee, isConstructCall, arguments, argumentCount, callbackData) => {
                         called = true;
-                        return null;
+                        return IntPtr.Zero;
                     };
 
                     var fnHandle = Jsrt.JsCreateFunction(fn, IntPtr.Zero);
@@ -2596,7 +2596,7 @@ return fn;
                     var called = false;
                     JavaScriptNativeFunction fn = (callee, isConstructCall, arguments, argumentCount, callbackData) => {
                         called = true;
-                        return null;
+                        return IntPtr.Zero;
                     };
 
                     var nameHandle = Jsrt.JsCreateStringUtf8(name, new UIntPtr((uint)name.Length));
