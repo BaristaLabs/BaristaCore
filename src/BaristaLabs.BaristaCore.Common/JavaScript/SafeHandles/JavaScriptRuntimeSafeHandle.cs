@@ -9,16 +9,6 @@
     /// </summary>
     public sealed class JavaScriptRuntimeSafeHandle : JavaScriptReference<JavaScriptRuntimeSafeHandle>
     {
-        public JavaScriptRuntimeSafeHandle()
-            : base()
-        {
-        }
-
-        public JavaScriptRuntimeSafeHandle(IntPtr handle)
-            : base(handle)
-        {
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing && !IsClosed)
@@ -31,6 +21,7 @@
                 Debug.Assert(error == JavaScriptErrorCode.NoError);
             }
 
+            //Do not call the base implementation as we have no references to free.
             //base.Dispose(disposing);
         }
 
