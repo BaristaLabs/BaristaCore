@@ -17,4 +17,5 @@
     /// <returns>
     ///     true if the operation succeeded, false otherwise.
     /// </returns>
+    public delegate bool JavaScriptFetchImportedModuleCallback(IntPtr referencingModule, IntPtr specifier, ref IntPtr dependentModuleRecord);
 }
