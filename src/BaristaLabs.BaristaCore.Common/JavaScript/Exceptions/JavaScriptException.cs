@@ -5,7 +5,7 @@
     /// <summary>
     ///     An exception returned from the Chakra engine.
     /// </summary>
-    public class JavaScriptException : Exception
+    public abstract class JavaScriptException : Exception
     {
         /// <summary>
         /// The error code.
@@ -29,7 +29,7 @@
         public JavaScriptException(JavaScriptErrorCode code, string message) :
             base(message)
         {
-            this.m_code = code;
+            m_code = code;
         }
 
         /// <summary>

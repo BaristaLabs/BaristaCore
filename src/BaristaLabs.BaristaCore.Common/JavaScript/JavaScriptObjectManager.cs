@@ -11,6 +11,13 @@
     {
         private static ConcurrentDictionary<IntPtr, WeakCollection<JavaScriptObjectBeforeCollectCallback>> s_objectBeforeCollect = new ConcurrentDictionary<IntPtr, WeakCollection<JavaScriptObjectBeforeCollectCallback>>();
 
+        /// <summary>
+        /// Monitors the specified JavaScript Reference and executes the specified delegate on the before collect callback.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="handle"></param>
+        /// <param name="callback"></param>
+        /// <param name="callbackState"></param>
         public static void MonitorJavaScriptObjectLifetime<T>(T handle, JavaScriptObjectBeforeCollectCallback callback, IntPtr callbackState = default(IntPtr)) where T : JavaScriptReference<T>
         {
             if (callbackState == default(IntPtr))
@@ -48,6 +55,11 @@
             }
         }
 
+        /// <summary>
+        /// Monitors the specified JavaScript Reference and disposes of the object on the before collect callback.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="handle"></param>
         public static void DisposeWhenCollected<T>(T handle) where T : JavaScriptReference<T>
         {
             IntPtr ptr = handle.DangerousGetHandle();

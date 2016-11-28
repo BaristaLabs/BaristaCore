@@ -1,6 +1,9 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using System;
+    using Microsoft.Extensions.DependencyInjection;
+    using System.Runtime.InteropServices;
+    using System.Diagnostics;
 
     /// <summary>
     /// Represents a JavaScript Runtime
@@ -8,48 +11,19 @@
     /// <remarks>
     ///     A javascript runtime in which contexts are created and JavaScript is executed.
     /// </remarks>
-    public sealed class JavaScriptRuntime : IDisposable
+    public sealed class JavaScriptRuntime : JavaScriptReferenceWrapper<JavaScriptRuntimeSafeHandle>
     {
         public event EventHandler<JavaScriptMemoryEventArgs> MemoryChanging;
-
-        private readonly IJavaScriptEngine m_javaScriptEngine;
-        private JavaScriptRuntimeSafeHandle m_runtimeSafeHandle;
-
-        /// <summary>
-        /// Gets the JavaScript Engine associated with the JavaScript Runtime.
-        /// </summary>
-        public IJavaScriptEngine Engine
-        {
-            get { return m_javaScriptEngine; }
-        }
-
-        /// <summary>
-        /// Gets a value that indicates if this runtime has been disposed.
-        /// </summary>
-        public bool IsDisposed
-        {
-            get
-            {
-                return m_runtimeSafeHandle == null || m_runtimeSafeHandle.IsClosed;
-            }
-        }
 
         /// <summary>
         /// Private constructor. Runtimes are only creatable through the static factory method.
         /// </summary>
         private JavaScriptRuntime(IJavaScriptEngine engine, JavaScriptRuntimeSafeHandle runtimeHandle)
+            : base(engine, runtimeHandle)
         {
-            if (engine == null)
-                throw new ArgumentNullException(nameof(engine));
-
-            if (runtimeHandle == null || runtimeHandle == JavaScriptRuntimeSafeHandle.Invalid)
-                throw new ArgumentNullException(nameof(runtimeHandle));
-
-            engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, RuntimeBeforeCollectCallback);
-            engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, RuntimeMemoryAllocationCallback);
-            
-            m_javaScriptEngine = engine;
-            m_runtimeSafeHandle = runtimeHandle;
+            //engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, RuntimeBeforeCollectCallback);
+            GCHandle handle = GCHandle.Alloc(this, GCHandleType.Weak);
+            engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, GCHandle.ToIntPtr(handle), RuntimeMemoryAllocationCallback);
         }
 
         /// <summary>
@@ -62,7 +36,7 @@
                 if (IsDisposed)
                     throw new ObjectDisposedException(nameof(JavaScriptRuntime));
 
-                return Engine.JsGetRuntimeMemoryUsage(m_runtimeSafeHandle);
+                return Engine.JsGetRuntimeMemoryUsage(Handle);
             }
         }
 
@@ -72,8 +46,22 @@
         /// <returns></returns>
         public JavaScriptContext CreateContext()
         {
-            throw new NotImplementedException();
-            //return Engine.JsCreateContext(this);
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(JavaScriptRuntime));
+
+            var contextHandle = Engine.JsCreateContext(Handle);
+            return new JavaScriptContext(Engine, contextHandle, this);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && !IsDisposed)
+            {
+                //We don't need no more steekin' memory monitoring.
+                Engine.JsSetRuntimeMemoryAllocationCallback(Handle, IntPtr.Zero, null);
+            }
+            
+            base.Dispose(disposing);
         }
 
         private void RuntimeBeforeCollectCallback(IntPtr callbackState)
@@ -81,12 +69,20 @@
             Dispose();
         }
 
-        private bool RuntimeMemoryAllocationCallback(IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize)
+        private static bool RuntimeMemoryAllocationCallback(IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize)
         {
-            if (MemoryChanging != null)
+            GCHandle handle = GCHandle.FromIntPtr(callbackState);
+            JavaScriptRuntime runtime = handle.Target as JavaScriptRuntime;
+            if (runtime == null)
+            {
+                Debug.Assert(false, "Runtime has been freed.");
+                return false;
+            }
+
+            if (!runtime.IsDisposed && runtime.MemoryChanging != null)
             {
                 var args = new JavaScriptMemoryEventArgs(allocationSize, allocationEvent);
-                MemoryChanging(this, args);
+                runtime.MemoryChanging(runtime, args);
                 if (args.IsCancelable && args.Cancel)
                     return false;
             }
@@ -94,44 +90,67 @@
             return true;
         }
 
-        #region IDisposable
-
-        private void Dispose(bool disposing)
-        {
-            if (disposing && !IsDisposed)
-            {
-                //Dispose of the handle
-                m_runtimeSafeHandle.Dispose();
-                m_runtimeSafeHandle = null;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~JavaScriptRuntime()
-        {
-            Dispose(false);
-        }
-        #endregion;
-
         /// <summary>
         /// Creates a new JavaScript Runtime.
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="attributes"></param>
         /// <returns></returns>
-        public static JavaScriptRuntime CreateJavaScriptRuntime(IJavaScriptEngine engine, JavaScriptRuntimeAttributes attributes = JavaScriptRuntimeAttributes.None)
+        public static JavaScriptRuntime CreateJavaScriptRuntime(IServiceProvider provider, JavaScriptRuntimeAttributes attributes = JavaScriptRuntimeAttributes.None)
         {
-            if (engine == null)
-                throw new ArgumentNullException(nameof(engine));
+            if (provider == null)
+                throw new ArgumentNullException(nameof(provider));
+
+            var engine = provider.GetRequiredService<IJavaScriptEngine>();
+            var runtimeObserver = provider.GetRequiredService<JavaScriptRuntimeObserver>();
 
             var runtimeHandle = engine.JsCreateRuntime(attributes, null);
+            
             var result = new JavaScriptRuntime(engine, runtimeHandle);
+            runtimeObserver.MonitorJavaScriptReference(result);
             return result;
+        }
+
+        public sealed class JavaScriptRuntimeObserver : JavaScriptReferenceObserver<JavaScriptRuntime, JavaScriptRuntimeSafeHandle>
+        {
+            public JavaScriptRuntimeObserver(IJavaScriptEngine engine)
+                : base(engine)
+            {
+            }
+
+            protected override IntPtr StartMonitor(JavaScriptRuntime runtime)
+            {
+                var handle = runtime.Handle;
+                IntPtr handlePtr = handle.DangerousGetHandle();
+                GCHandle runtimeHandle = GCHandle.Alloc(this, GCHandleType.Weak);
+                if (!IsMonitoringHandle(handlePtr))
+                    Engine.JsSetRuntimeBeforeCollectCallback(handle, GCHandle.ToIntPtr(runtimeHandle), OnRuntimeBeforeCollect);
+                return handlePtr;
+            }
+
+            private void OnRuntimeBeforeCollect(IntPtr callbackState)
+            {
+                GCHandle runtimeHandle = GCHandle.FromIntPtr(callbackState);
+                JavaScriptRuntime targetRuntime = runtimeHandle.Target as JavaScriptRuntime;
+                if (targetRuntime == null)
+                {
+                    Debug.Assert(false, "Runtime has been freed.");
+                    return;
+                }
+
+                var handle = targetRuntime.Handle;
+                IntPtr handlePtr = handle.DangerousGetHandle();
+
+                NotifyAll(handlePtr, (runtime) => {
+                    if (runtime == null || runtime.IsDisposed)
+                        return;
+
+                    runtime.Dispose(false);
+                }, true);
+
+
+                Engine.JsSetRuntimeBeforeCollectCallback(targetRuntime.Handle, IntPtr.Zero, null);
+            }
         }
     }
 }

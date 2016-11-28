@@ -1,44 +1,53 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
+    using Microsoft.Extensions.DependencyInjection;
+    using System;
     using Xunit;
 
     public class JavaScriptContext_Facts
     {
-        private IJavaScriptEngine Engine;
+        private IServiceProvider Provider;
 
         public JavaScriptContext_Facts()
         {
-            Engine = JavaScriptEngineFactory.CreateChakraEngine();
+            var serviceCollection = new ServiceCollection();
+
+            var chakraEngine = JavaScriptEngineFactory.CreateChakraEngine();
+
+            serviceCollection.AddSingleton(chakraEngine);
+            serviceCollection.AddSingleton(new JavaScriptRuntime.JavaScriptRuntimeObserver(chakraEngine));
+
+            Provider = serviceCollection.BuildServiceProvider();
         }
 
-        //[Fact]
-        //public void JavaScriptContextCanBeCreated()
-        //{
-        //    using (var rt = JavaScriptRuntime.CreateJavaScriptRuntime(Engine))
-        //    {
-        //        using (var ctx = rt.CreateContext())
-        //        {
+        [Fact]
+        public void JavaScriptContextCanBeCreated()
+        {
+            using (var rt = JavaScriptRuntime.CreateJavaScriptRuntime(Provider))
+            {
+                using (var ctx = rt.CreateContext())
+                {
 
-        //        }
-        //    }
-        //    Assert.True(true);
-        //}
+                }
+            }
+            Assert.True(true);
+        }
 
         [Fact]
         public void JavaScriptContextShouldEvaluateScriptText()
         {
             //dynamic result;
-            //using (var rt = new JavaScriptRuntime())
-            //{
-            //    using (var ctx = rt.CreateContext())
-            //    {
-            //        using (var xc = ctx.AcquireExecutionContext())
-            //        {
-            //            var fn = ctx.EvaluateScriptText("41+1;");
-            //            result = fn.Invoke();
-            //        }
-            //    }
-            //}
+            using (var rt = JavaScriptRuntime.CreateJavaScriptRuntime(Provider))
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    //using (var xc = ctx.AcquireExecutionContext())
+                    //{
+                    //    var fn = ctx.EvaluateScriptText("41+1;");
+                    //    result = fn.Invoke();
+                    //}
+                }
+            }
             //Assert.True((int)result == 42);
         }
 
@@ -52,10 +61,10 @@
             //})()";
             //            string result;
 
-            //using (var rt = new JavaScriptRuntime())
-            //{
-            //    using (var ctx = rt.CreateContext())
-            //    {
+            using (var rt = JavaScriptRuntime.CreateJavaScriptRuntime(Provider))
+            {
+                using (var ctx = rt.CreateContext())
+                {
             //        using (var xc = ctx.AcquireExecutionContext())
             //        {
             //            JavaScriptValueSafeHandle obj;
@@ -77,8 +86,8 @@
             //            Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf16(propertyHandle, 0, -1, propertyValue, out written));
             //            result = Encoding.Unicode.GetString(propertyValue, 0, propertyValue.Length);
             //        }
-            //    }
-            //}
+                }
+            }
 
             //Assert.True("bar" == result);
         }

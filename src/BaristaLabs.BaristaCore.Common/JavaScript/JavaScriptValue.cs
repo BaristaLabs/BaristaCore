@@ -1,17 +1,43 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using System;
+    using System.Text;
 
-    public abstract class JavaScriptValue
+    public abstract class JavaScriptValue : JavaScriptReferenceWrapper<JavaScriptValueSafeHandle>
     {
-        private readonly JavaScriptValueSafeHandle m_valueSafeHandle;
-
         protected JavaScriptValue(IJavaScriptEngine engine, JavaScriptValueSafeHandle value)
+            : base(engine, value)
         {
-            if (value == null || value == JavaScriptValueSafeHandle.Invalid)
-                throw new ArgumentNullException(nameof(value));
+        }
 
-            m_valueSafeHandle = value;
+        /// <summary>
+        /// Gets the actual value type of the object.
+        /// </summary>
+        /// <returns></returns>
+        protected JavaScriptValueType GetValueType()
+        {
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(JavaScriptValue));
+
+            return Engine.JsGetValueType(Handle);
+        }
+
+        public override string ToString()
+        {
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(JavaScriptValue));
+
+            using (var stringValueHandle = Engine.JsConvertValueToString(Handle))
+            {
+                //Get the size
+                var size = Engine.JsCopyStringUtf8(stringValueHandle, null, UIntPtr.Zero);
+                if ((int)size > int.MaxValue)
+                    throw new OutOfMemoryException("Exceeded maximum string length.");
+
+                byte[] result = new byte[(int)size];
+                var written = Engine.JsCopyStringUtf8(stringValueHandle, result, new UIntPtr((uint)result.Length));
+                return Encoding.UTF8.GetString(result, 0, result.Length);
+            }
         }
 
         /// <summary>
@@ -33,5 +59,6 @@
 
             return result;
         }
+
     }
 }

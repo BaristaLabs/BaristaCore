@@ -1,6 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
-    using Internal;
     using System;
 
     /// <summary>

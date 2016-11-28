@@ -13,12 +13,40 @@
     /// </summary>
     public class ChakraApi_ChakraCommon_Facts
     {
+        #region Test Support
         private IJavaScriptEngine Jsrt;
 
         public ChakraApi_ChakraCommon_Facts()
         {
             Jsrt = JavaScriptEngineFactory.CreateChakraEngine();
         }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public class Point
+        {
+            public int x;
+            public int y;
+        }
+
+
+        [StructLayout(LayoutKind.Sequential)]
+        public class Foo
+        {
+            public string Bar
+            {
+                get;
+                set;
+            }
+        }
+
+        public IntPtr GetPtr<T>(T data)
+        {
+            //Pin data to unmanaged memory;
+            IntPtr dataPtr = Marshal.AllocHGlobal(Marshal.SizeOf(data));
+            Marshal.StructureToPtr(data, dataPtr, true);
+            return dataPtr;
+        }
+        #endregion
 
         [Fact]
         public void JsRuntimeCanBeConstructed()
@@ -343,6 +371,34 @@
                     Jsrt.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, callback);
                 }
             }
+            Assert.True(called);
+        }
+
+        [Fact]
+        public void JsObjectBeforeCollectCallbackCanBeSetOnUndefined()
+        {
+            bool called = false;
+            JavaScriptObjectBeforeCollectCallback callback = (IntPtr sender, IntPtr callbackState) =>
+            {
+                called = true;
+            };
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var valueHandle = Jsrt.JsGetUndefinedValue();
+
+                    Jsrt.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback);
+
+                    //The callback is executed once the context is released and garbage is collected.
+                    valueHandle.Dispose();
+                }
+            }
+
+            //As "Undefined" is a 'const' it disposes when the runtime itself cleans up.
             Assert.True(called);
         }
 
@@ -715,6 +771,31 @@ return obj;
         }
 
         [Fact]
+        public void JsUndefinedHandlesFromDifferentContextsAreDifferent()
+        {
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                JavaScriptValueSafeHandle undefinedHandle1;
+                JavaScriptValueSafeHandle undefinedHandle2;
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    undefinedHandle1 = Jsrt.JsGetUndefinedValue();
+                }
+
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    undefinedHandle2 = Jsrt.JsGetUndefinedValue();
+                }
+
+                Assert.NotEqual(undefinedHandle1, undefinedHandle2);
+            }
+        }
+
+        [Fact]
         public void JsNullValueCanBeRetrieved()
         {
             using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
@@ -1063,16 +1144,6 @@ return obj;
 
                     objectHandle.Dispose();
                 }
-            }
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public class Foo
-        {
-            public string Bar
-            {
-                get;
-                set;
             }
         }
 
@@ -1924,21 +1995,6 @@ return arr;
                     intValueHandle.Dispose();
                 }
             }
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public class Point
-        {
-            public int x;
-            public int y;
-        }
-
-        public IntPtr GetPtr<T>(T data)
-        {
-            //Pin data to unmanaged memory;
-            IntPtr dataPtr = Marshal.AllocHGlobal(Marshal.SizeOf(data));
-            Marshal.StructureToPtr(data, dataPtr, true);
-            return dataPtr;
         }
 
         [Fact]

@@ -1,6 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using Internal;
+    using System;
     using System.Diagnostics;
 
     /// <summary>
@@ -8,6 +9,16 @@
     /// </summary>
     public sealed class JavaScriptRuntimeSafeHandle : JavaScriptReference<JavaScriptRuntimeSafeHandle>
     {
+        public JavaScriptRuntimeSafeHandle()
+            : base()
+        {
+        }
+
+        public JavaScriptRuntimeSafeHandle(IntPtr handle)
+            : base(handle)
+        {
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && !IsClosed)

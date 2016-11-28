@@ -8,36 +8,58 @@
     /// <remarks>
     ///     Each script context has its own global object that is isolated from all other script contexts.
     /// </remarks>
-    public sealed class JavaScriptContext : IDisposable
+    public sealed class JavaScriptContext : JavaScriptReferenceWrapper<JavaScriptContextSafeHandle>
     {
-        private JavaScriptContextSafeHandle m_contextSafeHandle;
+        private readonly JavaScriptRuntime m_runtime;
+        private readonly Lazy<JavaScriptUndefinedValue> m_undefinedValue;
 
-        public bool IsDisposed
+        /// <summary>
+        /// Gets the Undefined Value associated with the context.
+        /// </summary>
+        public JavaScriptValue Undefined
         {
-            get { return m_contextSafeHandle == null; }
-        }
-
-        #region IDisposable
-        private void Dispose(bool disposing)
-        {
-            if (disposing && !IsDisposed)
+            get
             {
-                m_contextSafeHandle.Dispose();
-                m_contextSafeHandle = null;
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(JavaScriptContext));
+
+                return m_undefinedValue.Value;
             }
         }
 
-        public void Dispose()
+        internal JavaScriptContext(IJavaScriptEngine engine, JavaScriptContextSafeHandle contextHandle, JavaScriptRuntime runtime)
+            : base(engine, contextHandle)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (runtime == null)
+                throw new ArgumentNullException(nameof(runtime));
+
+            //engine.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, OnObjectBeforeCollect);
+
+            m_undefinedValue = new Lazy<JavaScriptUndefinedValue>(GetUndefinedValue);
         }
 
-        ~JavaScriptContext()
+        private JavaScriptUndefinedValue GetUndefinedValue()
         {
-            Dispose(false);
+            var undefined = Engine.JsGetUndefinedValue();
+            
+            //Global 'const' values don't participate in Object Collection, return the value.
+            return new JavaScriptUndefinedValue(Engine, undefined);
         }
-        #endregion
 
+        private void OnObjectBeforeCollect(IntPtr handle, IntPtr callbackState)
+        {
+            Dispose();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && !IsDisposed)
+            {
+                if (m_undefinedValue.IsValueCreated)
+                    m_undefinedValue.Value.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
     }
 }

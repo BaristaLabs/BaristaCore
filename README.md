@@ -64,6 +64,8 @@ Core Functionality:
   - [ ] High-Level Object Model around ChakraCore
   - [ ] Automatic TypeScript transpilation
   - [ ] Built-in Swagger/Apiary API mocks, ability to implement.
+  - [ ] Provide for WASM support, allowing *any* front-end language to be used (so long as there's a WASM compiler)
+	- [ ] Have Fiddle provide automatic WASM compilation for a variety of languages.
 
 New Services:
  - [ ] Define 'apps' as logical containers of files
