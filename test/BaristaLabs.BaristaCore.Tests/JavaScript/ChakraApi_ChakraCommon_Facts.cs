@@ -48,6 +48,66 @@
         }
         #endregion
 
+//        [Fact]
+//        public void JsModuleCanBeImported()
+//        {
+//            var moduleName = "foo";
+//            var moduleSource = @"
+//export default function() {return ""hello world"";}
+//";
+//            var importScript = @"
+//import * as foo from ""foo"";
+////var foo = 'bar';
+//foo;";
+
+//            JavaScriptFetchImportedModuleCallback fetchCallback = (IntPtr referencingModule, IntPtr specifier, ref IntPtr dependentModuleRecord) =>
+//            {
+//                //var specifierHandle = new JavaScriptValueSafeHandle(specifier);
+//                //var specifierName = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Jsrt, specifierHandle);
+//                //dependentModuleRecord = IntPtr.Zero;
+//                //dependentModuleRecord = new IntPtr(0);
+//                var moduleRecord = Jsrt.JsInitializeModuleRecord(referencingModule, new JavaScriptValueSafeHandle(specifier));
+//                dependentModuleRecord = moduleRecord;
+//                return true;
+//            };
+
+//            JavaScriptNotifyModuleReadyCallback notifyCallback = (IntPtr referencingModule, IntPtr specifier) => {
+//                //var specifierHandle = new JavaScriptValueSafeHandle(specifier);
+//                //var specifierName = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Jsrt, specifierHandle);
+//                //dependentModuleRecord = IntPtr.Zero;
+//                return true;
+//            };
+
+//            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableExperimentalFeatures, null))
+//            {
+//                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+//                {
+//                    Jsrt.JsSetCurrentContext(contextHandle);
+
+//                    var moduleNameHandle = Jsrt.JsCreateStringUtf8(moduleName, new UIntPtr((uint)moduleName.Length));
+//                    var moduleHandle = Jsrt.JsInitializeModuleRecord(IntPtr.Zero, moduleNameHandle);
+//                    IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchCallback);
+//                    Jsrt.JsSetModuleHostInfo(moduleHandle, JavaScriptModuleHostInfoKind.JsModuleHostInfo_FetchImportedModuleCallback, fetchCallbackPtr);
+
+//                    IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchCallback);
+//                    Jsrt.JsSetModuleHostInfo(moduleHandle, JavaScriptModuleHostInfoKind.JsModuleHostInfo_NotifyModuleReadyCallback, notifyCallbackPtr);
+
+//                    Jsrt.JsSetModuleHostInfo(moduleHandle, JavaScriptModuleHostInfoKind.JsModuleHostInfo_HostDefined, moduleNameHandle.DangerousGetHandle());
+
+//                    // ParseModuleSource is sync, while additional fetch & evaluation are async.
+//                    var scriptBuffer = Encoding.UTF8.GetBytes(moduleSource);
+//                    JavaScriptSourceContext.GetNextSourceContext();
+//                    JavaScriptSourceContext.GetNextSourceContext();
+//                    JavaScriptSourceContext.GetNextSourceContext();
+//                    JavaScriptSourceContext.GetNextSourceContext();
+//                    var moduleSourceHandle = Jsrt.JsParseModuleSource(moduleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.JsParseModuleSourceFlags_DataIsUTF8);
+
+
+//                    var result = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, importScript);
+//                }
+//            }
+//        }
+
         [Fact]
         public void JsRuntimeCanBeConstructed()
         {
@@ -2582,6 +2642,45 @@ return fn;
         }
 
         [Fact]
+        public void JsNativeFunctionsCanReturnValues()
+        {
+            string foo = "Contrapasso";
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+                    var called = false;
+                    JavaScriptNativeFunction fn = (callee, isConstructCall, arguments, argumentCount, callbackData) => {
+                        called = true;
+                        
+                        var fooHandle = Jsrt.JsCreateStringUtf8(foo, new UIntPtr((uint)foo.Length));
+                        return fooHandle.DangerousGetHandle();
+                    };
+
+                    var fnHandle = Jsrt.JsCreateFunction(fn, IntPtr.Zero);
+                    Assert.True(fnHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var handleType = Jsrt.JsGetValueType(fnHandle);
+                    Assert.True(handleType == JavaScriptValueType.Function);
+
+                    var resultHandle = Jsrt.JsCallFunction(fnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
+
+                    handleType = Jsrt.JsGetValueType(resultHandle);
+                    Assert.True(handleType == JavaScriptValueType.String);
+                    Assert.True(called);
+
+                    var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Jsrt, resultHandle);
+                    Assert.Equal(foo, result);
+
+                    resultHandle.Dispose();
+                    resultHandle.Dispose();
+                    fnHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
         public void JsCanCreateANamedFunctionFromANativeFunction()
         {
             string name = "hogwarts";
@@ -2626,6 +2725,302 @@ return fn;
                     resultHandle.Dispose();
                     fnHandle.Dispose();
                     nameHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanCreateErrors()
+        {
+            var message = "Dormammu, I've come to bargain.";
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var messageHandle = Jsrt.JsCreateStringUtf8(message, new UIntPtr((uint)message.Length));
+
+                    var errorHandle = Jsrt.JsCreateError(messageHandle);
+                    Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var handleType = Jsrt.JsGetValueType(errorHandle);
+                    Assert.True(handleType == JavaScriptValueType.Error);
+
+                    errorHandle.Dispose();
+                    messageHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanCreateRangeErrors()
+        {
+            var message = "William of Occam was a 13th century monk. He can't help us now, Bernard. He would have us burned at the stake.";
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var messageHandle = Jsrt.JsCreateStringUtf8(message, new UIntPtr((uint)message.Length));
+
+                    var errorHandle = Jsrt.JsCreateRangeError(messageHandle);
+                    Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var handleType = Jsrt.JsGetValueType(errorHandle);
+                    Assert.True(handleType == JavaScriptValueType.Error);
+
+                    errorHandle.Dispose();
+                    messageHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanCreateReferenceErrors()
+        {
+            var message = "Dormammu, I've come to bargain.";
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var messageHandle = Jsrt.JsCreateStringUtf8(message, new UIntPtr((uint)message.Length));
+
+                    var errorHandle = Jsrt.JsCreateReferenceError(messageHandle);
+                    Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var handleType = Jsrt.JsGetValueType(errorHandle);
+                    Assert.True(handleType == JavaScriptValueType.Error);
+
+                    errorHandle.Dispose();
+                    messageHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanCreateSyntaxErrors()
+        {
+            var message = "Dormammu, I've come to bargain.";
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var messageHandle = Jsrt.JsCreateStringUtf8(message, new UIntPtr((uint)message.Length));
+
+                    var errorHandle = Jsrt.JsCreateSyntaxError(messageHandle);
+                    Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var handleType = Jsrt.JsGetValueType(errorHandle);
+                    Assert.True(handleType == JavaScriptValueType.Error);
+
+                    errorHandle.Dispose();
+                    messageHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanCreateTypeErrors()
+        {
+            var message = "Dormammu, I've come to bargain.";
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var messageHandle = Jsrt.JsCreateStringUtf8(message, new UIntPtr((uint)message.Length));
+
+                    var errorHandle = Jsrt.JsCreateTypeError(messageHandle);
+                    Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var handleType = Jsrt.JsGetValueType(errorHandle);
+                    Assert.True(handleType == JavaScriptValueType.Error);
+
+                    errorHandle.Dispose();
+                    messageHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanCreateUriErrors()
+        {
+            var message = "Dormammu, I've come to bargain.";
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var messageHandle = Jsrt.JsCreateStringUtf8(message, new UIntPtr((uint)message.Length));
+
+                    var errorHandle = Jsrt.JsCreateURIError(messageHandle);
+                    Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var handleType = Jsrt.JsGetValueType(errorHandle);
+                    Assert.True(handleType == JavaScriptValueType.Error);
+
+                    errorHandle.Dispose();
+                    messageHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanDetermineIfHasException()
+        {
+            var message = "Dormammu, I've come to bargain.";
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var hasException = Jsrt.JsHasException();
+                    Assert.False(hasException);
+
+                    var messageHandle = Jsrt.JsCreateStringUtf8(message, new UIntPtr((uint)message.Length));
+                    var errorHandle = Jsrt.JsCreateError(messageHandle);
+
+                    Jsrt.JsSetException(errorHandle);
+
+                    hasException = Jsrt.JsHasException();
+                    Assert.True(hasException);
+
+                    errorHandle.Dispose();
+                    messageHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanGetAndClearException()
+        {
+            var message = "Dormammu, I've come to bargain.";
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var messageHandle = Jsrt.JsCreateStringUtf8(message, new UIntPtr((uint)message.Length));
+                    var errorHandle = Jsrt.JsCreateError(messageHandle);
+
+                    Jsrt.JsSetException(errorHandle);
+
+                    var hasException = Jsrt.JsHasException();
+                    Assert.True(hasException);
+
+                    var exceptionHandle = Jsrt.JsGetAndClearException();
+                    Assert.True(exceptionHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    hasException = Jsrt.JsHasException();
+                    Assert.False(hasException);
+
+                    errorHandle.Dispose();
+                    messageHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanSetException()
+        {
+            var message = "Dormammu, I've come to bargain.";
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    var messageHandle = Jsrt.JsCreateStringUtf8(message, new UIntPtr((uint)message.Length));
+                    var errorHandle = Jsrt.JsCreateError(messageHandle);
+
+                    var hasException = Jsrt.JsHasException();
+                    Assert.False(hasException);
+
+                    Jsrt.JsSetException(errorHandle);
+
+                    hasException = Jsrt.JsHasException();
+                    Assert.True(hasException);
+
+                    errorHandle.Dispose();
+                    messageHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanDisableRuntimeExecution()
+        {
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.AllowScriptInterrupt, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    Jsrt.JsDisableRuntimeExecution(runtimeHandle);
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanEnableRuntimeExecution()
+        {
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.AllowScriptInterrupt, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    bool isRuntimeExecutionDisabled = Jsrt.JsIsRuntimeExecutionDisabled(runtimeHandle);
+                    Assert.False(isRuntimeExecutionDisabled);
+
+                    Jsrt.JsDisableRuntimeExecution(runtimeHandle);
+
+                    isRuntimeExecutionDisabled = Jsrt.JsIsRuntimeExecutionDisabled(runtimeHandle);
+                    Assert.True(isRuntimeExecutionDisabled);
+
+                    Jsrt.JsEnableRuntimeExecution(runtimeHandle);
+
+                    isRuntimeExecutionDisabled = Jsrt.JsIsRuntimeExecutionDisabled(runtimeHandle);
+                    Assert.False(isRuntimeExecutionDisabled);
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanRetrieveRuntimeDisabledState()
+        {
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.AllowScriptInterrupt, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    bool isRuntimeExecutionDisabled = Jsrt.JsIsRuntimeExecutionDisabled(runtimeHandle);
+                    Assert.False(isRuntimeExecutionDisabled);
+
+                    Jsrt.JsDisableRuntimeExecution(runtimeHandle);
+
+                    isRuntimeExecutionDisabled = Jsrt.JsIsRuntimeExecutionDisabled(runtimeHandle);
+                    Assert.True(isRuntimeExecutionDisabled);
                 }
             }
         }

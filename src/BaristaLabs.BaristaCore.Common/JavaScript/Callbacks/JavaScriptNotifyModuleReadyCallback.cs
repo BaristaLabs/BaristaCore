@@ -15,5 +15,5 @@
     /// <returns>
     ///     true if the operation succeeded, false otherwise.
     /// </returns>
-    public delegate bool JavaScriptNotifyModuleReadyCallback(IntPtr referencingModule, JavaScriptValueSafeHandle exceptionVar);
+    public delegate bool JavaScriptNotifyModuleReadyCallback(IntPtr referencingModule, IntPtr exceptionVar);
 }
