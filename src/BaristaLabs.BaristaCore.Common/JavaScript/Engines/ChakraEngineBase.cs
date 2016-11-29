@@ -1073,5 +1073,148 @@
 			Errors.ThrowIfError(LibChakraCore.JsDiagStartDebugging(runtimeHandle, debugEventCallback, callbackState));
 		}
 
+		public IntPtr JsDiagStopDebugging(JavaScriptRuntimeSafeHandle runtimeHandle)
+		{
+			IntPtr callbackState;
+			Errors.ThrowIfError(LibChakraCore.JsDiagStopDebugging(runtimeHandle, out callbackState));
+			return callbackState;
+		}
+
+		public void JsDiagRequestAsyncBreak(JavaScriptRuntimeSafeHandle runtimeHandle)
+		{
+			Errors.ThrowIfError(LibChakraCore.JsDiagRequestAsyncBreak(runtimeHandle));
+		}
+
+		public void JsDiagGetBreakpoints(JavaScriptValueSafeHandle breakpoints)
+		{
+			Errors.ThrowIfError(LibChakraCore.JsDiagGetBreakpoints(breakpoints));
+		}
+
+		public JavaScriptValueSafeHandle JsDiagSetBreakpoint(uint scriptId, uint lineNumber, uint columnNumber)
+		{
+			JavaScriptValueSafeHandle breakpoint;
+			Errors.ThrowIfError(LibChakraCore.JsDiagSetBreakpoint(scriptId, lineNumber, columnNumber, out breakpoint));
+			breakpoint.NativeFunctionSource = nameof(LibChakraCore.JsDiagSetBreakpoint);
+			if (breakpoint != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(breakpoint, out valueRefCount));
+			}
+			return breakpoint;
+		}
+
+		public void JsDiagRemoveBreakpoint(uint breakpointId)
+		{
+			Errors.ThrowIfError(LibChakraCore.JsDiagRemoveBreakpoint(breakpointId));
+		}
+
+		public void JsDiagSetBreakOnException(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagBreakOnExceptionAttributes exceptionAttributes)
+		{
+			Errors.ThrowIfError(LibChakraCore.JsDiagSetBreakOnException(runtimeHandle, exceptionAttributes));
+		}
+
+		public JavaScriptDiagBreakOnExceptionAttributes JsDiagGetBreakOnException(JavaScriptRuntimeSafeHandle runtimeHandle)
+		{
+			JavaScriptDiagBreakOnExceptionAttributes exceptionAttributes;
+			Errors.ThrowIfError(LibChakraCore.JsDiagGetBreakOnException(runtimeHandle, out exceptionAttributes));
+			return exceptionAttributes;
+		}
+
+		public void JsDiagSetStepType(JavaScriptDiagStepType stepType)
+		{
+			Errors.ThrowIfError(LibChakraCore.JsDiagSetStepType(stepType));
+		}
+
+		public JavaScriptValueSafeHandle JsDiagGetScripts()
+		{
+			JavaScriptValueSafeHandle scriptsArray;
+			Errors.ThrowIfError(LibChakraCore.JsDiagGetScripts(out scriptsArray));
+			scriptsArray.NativeFunctionSource = nameof(LibChakraCore.JsDiagGetScripts);
+			if (scriptsArray != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(scriptsArray, out valueRefCount));
+			}
+			return scriptsArray;
+		}
+
+		public JavaScriptValueSafeHandle JsDiagGetSource(uint scriptId)
+		{
+			JavaScriptValueSafeHandle source;
+			Errors.ThrowIfError(LibChakraCore.JsDiagGetSource(scriptId, out source));
+			source.NativeFunctionSource = nameof(LibChakraCore.JsDiagGetSource);
+			if (source != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(source, out valueRefCount));
+			}
+			return source;
+		}
+
+		public JavaScriptValueSafeHandle JsDiagGetFunctionPosition(JavaScriptValueSafeHandle function)
+		{
+			JavaScriptValueSafeHandle functionPosition;
+			Errors.ThrowIfError(LibChakraCore.JsDiagGetFunctionPosition(function, out functionPosition));
+			functionPosition.NativeFunctionSource = nameof(LibChakraCore.JsDiagGetFunctionPosition);
+			if (functionPosition != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(functionPosition, out valueRefCount));
+			}
+			return functionPosition;
+		}
+
+		public JavaScriptValueSafeHandle JsDiagGetStackTrace()
+		{
+			JavaScriptValueSafeHandle Name;
+			Errors.ThrowIfError(LibChakraCore.JsDiagGetStackTrace(out Name));
+			Name.NativeFunctionSource = nameof(LibChakraCore.JsDiagGetStackTrace);
+			if (Name != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(Name, out valueRefCount));
+			}
+			return Name;
+		}
+
+		public JavaScriptValueSafeHandle JsDiagGetStackProperties(uint stackFrameIndex)
+		{
+			JavaScriptValueSafeHandle properties;
+			Errors.ThrowIfError(LibChakraCore.JsDiagGetStackProperties(stackFrameIndex, out properties));
+			properties.NativeFunctionSource = nameof(LibChakraCore.JsDiagGetStackProperties);
+			if (properties != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(properties, out valueRefCount));
+			}
+			return properties;
+		}
+
+		public JavaScriptValueSafeHandle JsDiagGetProperties(uint objectHandle, uint fromCount, uint totalCount)
+		{
+			JavaScriptValueSafeHandle propertiesObject;
+			Errors.ThrowIfError(LibChakraCore.JsDiagGetProperties(objectHandle, fromCount, totalCount, out propertiesObject));
+			propertiesObject.NativeFunctionSource = nameof(LibChakraCore.JsDiagGetProperties);
+			if (propertiesObject != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(propertiesObject, out valueRefCount));
+			}
+			return propertiesObject;
+		}
+
+		public JavaScriptValueSafeHandle JsDiagGetObjectFromHandle(uint objectHandle)
+		{
+			JavaScriptValueSafeHandle handleObject;
+			Errors.ThrowIfError(LibChakraCore.JsDiagGetObjectFromHandle(objectHandle, out handleObject));
+			handleObject.NativeFunctionSource = nameof(LibChakraCore.JsDiagGetObjectFromHandle);
+			if (handleObject != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(handleObject, out valueRefCount));
+			}
+			return handleObject;
+		}
+
 	}
 }

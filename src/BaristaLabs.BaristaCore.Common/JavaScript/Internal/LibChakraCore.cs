@@ -2449,5 +2449,360 @@
 		[DllImport(DllName)]
 		public static extern JavaScriptErrorCode JsDiagStartDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagDebugEventCallback debugEventCallback, IntPtr callbackState);
 
+		/// <summary>
+		///		Stops debugging in the given runtime.
+		/// </summary>
+		/// <remarks>
+		///		The runtime should be active on the current thread and in debug state.
+		/// </remarks>
+		/// <param name="runtimeHandle">
+		///		Runtime to stop debugging.
+		/// </param>
+		/// <param name="callbackState">
+		///		User provided state that was passed in JsDiagStartDebugging.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagStopDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, out IntPtr callbackState);
+
+		/// <summary>
+		///		Request the runtime to break on next JavaScript statement.
+		/// </summary>
+		/// <remarks>
+		///		The runtime should be in debug state. This API can be called from another runtime.
+		/// </remarks>
+		/// <param name="runtimeHandle">
+		///		Runtime to request break.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagRequestAsyncBreak(JavaScriptRuntimeSafeHandle runtimeHandle);
+
+		/// <summary>
+		///		List all breakpoints in the current runtime.
+		/// </summary>
+		/// <remarks>
+		///		[{
+		///		"breakpointId" : 1,
+		///		"scriptId" : 1,
+		///		"line" : 0,
+		///		"column" : 62
+		///		}]
+		/// </remarks>
+		/// <param name="breakpoints">
+		///		Array of breakpoints.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagGetBreakpoints(JavaScriptValueSafeHandle breakpoints);
+
+		/// <summary>
+		///		Sets breakpoint in the specified script at give location.
+		/// </summary>
+		/// <remarks>
+		///		{
+		///		"breakpointId" : 1,
+		///		"line" : 2,
+		///		"column" : 4
+		///		}
+		/// </remarks>
+		/// <param name="scriptId">
+		///		Id of script from JsDiagGetScripts or JsDiagGetSource to put breakpoint.
+		/// </param>
+		/// <param name="lineNumber">
+		///		0 based line number to put breakpoint.
+		/// </param>
+		/// <param name="columnNumber">
+		///		0 based column number to put breakpoint.
+		/// </param>
+		/// <param name="breakpoint">
+		///		Breakpoint object with id, line and column if success.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagSetBreakpoint(uint scriptId, uint lineNumber, uint columnNumber, out JavaScriptValueSafeHandle breakpoint);
+
+		/// <summary>
+		///		Remove a breakpoint.
+		/// </summary>
+		/// <remarks>
+		///		The current runtime should be in debug state. This API can be called when runtime is at a break or running.
+		/// </remarks>
+		/// <param name="breakpointId">
+		///		Breakpoint id returned from JsDiagSetBreakpoint.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagRemoveBreakpoint(uint breakpointId);
+
+		/// <summary>
+		///		Sets break on exception handling.
+		/// </summary>
+		/// <remarks>
+		///		If this API is not called the default value is set to JsDiagBreakOnExceptionAttributeUncaught in the runtime.
+		/// </remarks>
+		/// <param name="runtimeHandle">
+		///		Runtime to set break on exception attributes.
+		/// </param>
+		/// <param name="exceptionAttributes">
+		///		Mask of JsDiagBreakOnExceptionAttributes to set.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagSetBreakOnException(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagBreakOnExceptionAttributes exceptionAttributes);
+
+		/// <summary>
+		///		Gets break on exception setting.
+		/// </summary>
+		/// <remarks>
+		///		The runtime should be in debug state. This API can be called from another runtime.
+		/// </remarks>
+		/// <param name="runtimeHandle">
+		///		Runtime from which to get break on exception attributes, should be in debug mode.
+		/// </param>
+		/// <param name="exceptionAttributes">
+		///		Mask of JsDiagBreakOnExceptionAttributes.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagGetBreakOnException(JavaScriptRuntimeSafeHandle runtimeHandle, out JavaScriptDiagBreakOnExceptionAttributes exceptionAttributes);
+
+		/// <summary>
+		///		Sets the step type in the runtime after a debug break.
+		/// </summary>
+		/// <remarks>
+		///		Requires to be at a debug break.
+		/// </remarks>
+		/// <param name="stepType">
+		///		NO DESCRIPTION PROVIDED
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagSetStepType(JavaScriptDiagStepType stepType);
+
+		/// <summary>
+		///		Gets list of scripts.
+		/// </summary>
+		/// <remarks>
+		///		[{
+		///		"scriptId" : 2,
+		///		"fileName" : "c:\\Test\\Test.js",
+		///		"lineCount" : 4,
+		///		"sourceLength" : 111
+		///		}, {
+		///		"scriptId" : 3,
+		///		"parentScriptId" : 2,
+		///		"scriptType" : "eval code",
+		///		"lineCount" : 1,
+		///		"sourceLength" : 12
+		///		}]
+		/// </remarks>
+		/// <param name="scriptsArray">
+		///		Array of script objects.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagGetScripts(out JavaScriptValueSafeHandle scriptsArray);
+
+		/// <summary>
+		///		Gets source for a specific script identified by scriptId from JsDiagGetScripts.
+		/// </summary>
+		/// <remarks>
+		///		{
+		///		"scriptId" : 1,
+		///		"fileName" : "c:\\Test\\Test.js",
+		///		"lineCount" : 12,
+		///		"sourceLength" : 15154,
+		///		"source" : "var x = 1;"
+		///		}
+		/// </remarks>
+		/// <param name="scriptId">
+		///		Id of the script.
+		/// </param>
+		/// <param name="source">
+		///		Source object.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagGetSource(uint scriptId, out JavaScriptValueSafeHandle source);
+
+		/// <summary>
+		///		Gets the source information for a function object.
+		/// </summary>
+		/// <remarks>
+		///		{
+		///		"scriptId" : 1,
+		///		"fileName" : "c:\\Test\\Test.js",
+		///		"line" : 1,
+		///		"column" : 2,
+		///		"firstStatementLine" : 6,
+		///		"firstStatementColumn" : 0
+		///		}
+		/// </remarks>
+		/// <param name="function">
+		///		JavaScript function.
+		/// </param>
+		/// <param name="functionPosition">
+		///		Function position - scriptId, start line, start column, line number of first statement, column number of first statement.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagGetFunctionPosition(JavaScriptValueSafeHandle function, out JavaScriptValueSafeHandle functionPosition);
+
+		/// <summary>
+		///		Gets the stack trace information.
+		/// </summary>
+		/// <remarks>
+		///		[{
+		///		"index" : 0,
+		///		"scriptId" : 2,
+		///		"line" : 3,
+		///		"column" : 0,
+		///		"sourceLength" : 9,
+		///		"sourceText" : "var x = 1",
+		///		"functionHandle" : 1
+		///		}]
+		/// </remarks>
+		/// <param name="Name">
+		///		NO DESCRIPTION PROVIDED
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagGetStackTrace(out JavaScriptValueSafeHandle Name);
+
+		/// <summary>
+		///		Gets the list of properties corresponding to the frame.
+		/// </summary>
+		/// <remarks>
+		///		propertyAttributes is a bit mask of
+		///		NONE = 0x1,
+		///		HAVE_CHILDRENS = 0x2,
+		///		READ_ONLY_VALUE = 0x4,
+		/// </remarks>
+		/// <param name="stackFrameIndex">
+		///		Index of stack frame from JsDiagGetStackTrace.
+		/// </param>
+		/// <param name="properties">
+		///		Object of properties array (properties, scopes and globals).
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagGetStackProperties(uint stackFrameIndex, out JavaScriptValueSafeHandle properties);
+
+		/// <summary>
+		///		Gets the list of children of a handle.
+		/// </summary>
+		/// <remarks>
+		///		Handle should be from objects returned from call to JsDiagGetStackProperties.
+		/// </remarks>
+		/// <param name="objectHandle">
+		///		Handle of object.
+		/// </param>
+		/// <param name="fromCount">
+		///		0-based from count of properties, usually 0.
+		/// </param>
+		/// <param name="totalCount">
+		///		Number of properties to return.
+		/// </param>
+		/// <param name="propertiesObject">
+		///		Array of properties.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagGetProperties(uint objectHandle, uint fromCount, uint totalCount, out JavaScriptValueSafeHandle propertiesObject);
+
+		/// <summary>
+		///		Gets the object corresponding to handle.
+		/// </summary>
+		/// <remarks>
+		///		{
+		///		"scriptId" : 24,
+		///		"line" : 1,
+		///		"column" : 63,
+		///		"name" : "foo",
+		///		"type" : "function",
+		///		"handle" : 2
+		///		}
+		/// </remarks>
+		/// <param name="objectHandle">
+		///		Handle of object.
+		/// </param>
+		/// <param name="handleObject">
+		///		Object corresponding to the handle.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName)]
+		public static extern JavaScriptErrorCode JsDiagGetObjectFromHandle(uint objectHandle, out JavaScriptValueSafeHandle handleObject);
+
+		/// <summary>
+		///		Evaluates an expression on given frame.
+		/// </summary>
+		/// <remarks>
+		///		evalResult when evaluating 'this' and return is JsNoError
+		///		{
+		///		"name" : "this",
+		///		"type" : "object",
+		///		"className" : "Object",
+		///		"display" : "{...}",
+		///		"propertyAttributes" : 1,
+		///		"handle" : 18
+		///		}
+		///		evalResult when evaluating a script which throws JavaScript error and return is JsErrorScriptException
+		///		{
+		///		"name" : "a.b.c",
+		///		"type" : "object",
+		///		"className" : "Error",
+		///		"display" : "'a' is undefined",
+		///		"propertyAttributes" : 1,
+		///		"handle" : 18
+		///		}
+		/// </remarks>
+		/// <param name="expression">
+		///		A null-terminated expression to evaluate.
+		/// </param>
+		/// <param name="stackFrameIndex">
+		///		Index of stack frame on which to evaluate the expression.
+		/// </param>
+		/// <param name="evalResult">
+		///		Result of evaluation.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, evalResult will contain the result
+		///		The code JsErrorScriptException if evaluate generated a JavaScript exception, evalResult will contain the error details
+		///		Other error code for invalid parameters or API was not called at break
+		/// </returns>
+		[DllImport(DllName, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsDiagEvaluate(string expression, uint stackFrameIndex, out JavaScriptValueSafeHandle evalResult);
+
 	}
 }

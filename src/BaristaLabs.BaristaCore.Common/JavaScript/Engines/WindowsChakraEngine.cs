@@ -5,7 +5,7 @@
 	using System;
 	using System.Runtime.InteropServices;
 
-	public sealed class WindowsChakraEngine : ChakraEngineBase, ICommonWindowsJavaScriptEngine
+	public sealed class WindowsChakraEngine : ChakraEngineBase, ICommonWindowsJavaScriptEngine, IDebugWindowsJavaScriptEngine
 	{
 		public JavaScriptValueSafeHandle JsParseScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl)
 		{
@@ -154,6 +154,19 @@
 			IntPtr stringValue;
 			Errors.ThrowIfError(LibChakraCore.JsStringToPointer(value, out stringValue, out stringLength));
 			return stringValue;
+		}
+
+		public JavaScriptValueSafeHandle JsDiagEvaluate(string expression, uint stackFrameIndex)
+		{
+			JavaScriptValueSafeHandle evalResult;
+			Errors.ThrowIfError(LibChakraCore.JsDiagEvaluate(expression, stackFrameIndex, out evalResult));
+			evalResult.NativeFunctionSource = nameof(LibChakraCore.JsDiagEvaluate);
+			if (evalResult != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(evalResult, out valueRefCount));
+			}
+			return evalResult;
 		}
 
 	}

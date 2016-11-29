@@ -29,6 +29,9 @@
 		{ "JsParseScriptAttributes", "JavaScriptParseScriptAttributes"},
 		{ "JsValueType", "JavaScriptValueType"},
         { "JsTypedArrayType", "JavaScriptTypedArrayType"},
+		{ "JsDiagBreakOnExceptionAttributes", "JavaScriptDiagBreakOnExceptionAttributes"},
+		{ "JsDiagStepType", "JavaScriptDiagStepType"},
+
         { "JsNativeFunction", "JavaScriptNativeFunction"},
 
         { "JsSerializedLoadScriptCallback", "JavaScriptSerializedLoadScriptCallback" },
