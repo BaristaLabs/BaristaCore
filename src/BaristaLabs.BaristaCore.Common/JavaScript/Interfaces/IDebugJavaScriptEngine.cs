@@ -63,10 +63,10 @@
 		///		"column" : 62
 		///		}]
 		/// </remarks>
-		/// <param name="breakpoints">
+		/// <returns>
 		///		Array of breakpoints.
-		/// </param>
-		void JsDiagGetBreakpoints(JavaScriptValueSafeHandle breakpoints);
+		/// </returns>
+		JavaScriptValueSafeHandle JsDiagGetBreakpoints();
 
 		/// <summary>
 		///		Sets breakpoint in the specified script at give location.

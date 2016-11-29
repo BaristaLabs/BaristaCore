@@ -1085,9 +1085,17 @@
 			Errors.ThrowIfError(LibChakraCore.JsDiagRequestAsyncBreak(runtimeHandle));
 		}
 
-		public void JsDiagGetBreakpoints(JavaScriptValueSafeHandle breakpoints)
+		public JavaScriptValueSafeHandle JsDiagGetBreakpoints()
 		{
-			Errors.ThrowIfError(LibChakraCore.JsDiagGetBreakpoints(breakpoints));
+			JavaScriptValueSafeHandle breakpoints;
+			Errors.ThrowIfError(LibChakraCore.JsDiagGetBreakpoints(out breakpoints));
+			breakpoints.NativeFunctionSource = nameof(LibChakraCore.JsDiagGetBreakpoints);
+			if (breakpoints != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(breakpoints, out valueRefCount));
+			}
+			return breakpoints;
 		}
 
 		public JavaScriptValueSafeHandle JsDiagSetBreakpoint(uint scriptId, uint lineNumber, uint columnNumber)

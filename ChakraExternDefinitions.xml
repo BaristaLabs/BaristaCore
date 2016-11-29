@@ -3357,7 +3357,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="breakpoints"/>
+      <Parameter type="JsValueRef" name="breakpoints" direction="Out"/>
     </Parameters>
   </Export>
 

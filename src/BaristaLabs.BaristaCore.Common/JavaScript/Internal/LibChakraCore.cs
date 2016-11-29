@@ -2500,7 +2500,7 @@
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsDiagGetBreakpoints(JavaScriptValueSafeHandle breakpoints);
+		public static extern JavaScriptErrorCode JsDiagGetBreakpoints(out JavaScriptValueSafeHandle breakpoints);
 
 		/// <summary>
 		///		Sets breakpoint in the specified script at give location.
