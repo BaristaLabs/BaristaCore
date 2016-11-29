@@ -48,66 +48,6 @@
         }
         #endregion
 
-//        [Fact]
-//        public void JsModuleCanBeImported()
-//        {
-//            var moduleName = "foo";
-//            var moduleSource = @"
-//export default function() {return ""hello world"";}
-//";
-//            var importScript = @"
-//import * as foo from ""foo"";
-////var foo = 'bar';
-//foo;";
-
-//            JavaScriptFetchImportedModuleCallback fetchCallback = (IntPtr referencingModule, IntPtr specifier, ref IntPtr dependentModuleRecord) =>
-//            {
-//                //var specifierHandle = new JavaScriptValueSafeHandle(specifier);
-//                //var specifierName = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Jsrt, specifierHandle);
-//                //dependentModuleRecord = IntPtr.Zero;
-//                //dependentModuleRecord = new IntPtr(0);
-//                var moduleRecord = Jsrt.JsInitializeModuleRecord(referencingModule, new JavaScriptValueSafeHandle(specifier));
-//                dependentModuleRecord = moduleRecord;
-//                return true;
-//            };
-
-//            JavaScriptNotifyModuleReadyCallback notifyCallback = (IntPtr referencingModule, IntPtr specifier) => {
-//                //var specifierHandle = new JavaScriptValueSafeHandle(specifier);
-//                //var specifierName = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Jsrt, specifierHandle);
-//                //dependentModuleRecord = IntPtr.Zero;
-//                return true;
-//            };
-
-//            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableExperimentalFeatures, null))
-//            {
-//                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
-//                {
-//                    Jsrt.JsSetCurrentContext(contextHandle);
-
-//                    var moduleNameHandle = Jsrt.JsCreateStringUtf8(moduleName, new UIntPtr((uint)moduleName.Length));
-//                    var moduleHandle = Jsrt.JsInitializeModuleRecord(IntPtr.Zero, moduleNameHandle);
-//                    IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchCallback);
-//                    Jsrt.JsSetModuleHostInfo(moduleHandle, JavaScriptModuleHostInfoKind.JsModuleHostInfo_FetchImportedModuleCallback, fetchCallbackPtr);
-
-//                    IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchCallback);
-//                    Jsrt.JsSetModuleHostInfo(moduleHandle, JavaScriptModuleHostInfoKind.JsModuleHostInfo_NotifyModuleReadyCallback, notifyCallbackPtr);
-
-//                    Jsrt.JsSetModuleHostInfo(moduleHandle, JavaScriptModuleHostInfoKind.JsModuleHostInfo_HostDefined, moduleNameHandle.DangerousGetHandle());
-
-//                    // ParseModuleSource is sync, while additional fetch & evaluation are async.
-//                    var scriptBuffer = Encoding.UTF8.GetBytes(moduleSource);
-//                    JavaScriptSourceContext.GetNextSourceContext();
-//                    JavaScriptSourceContext.GetNextSourceContext();
-//                    JavaScriptSourceContext.GetNextSourceContext();
-//                    JavaScriptSourceContext.GetNextSourceContext();
-//                    var moduleSourceHandle = Jsrt.JsParseModuleSource(moduleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.JsParseModuleSourceFlags_DataIsUTF8);
-
-
-//                    var result = Extensions.IJavaScriptEngineExtensions.JsRunScript(Jsrt, importScript);
-//                }
-//            }
-//        }
-
         [Fact]
         public void JsRuntimeCanBeConstructed()
         {

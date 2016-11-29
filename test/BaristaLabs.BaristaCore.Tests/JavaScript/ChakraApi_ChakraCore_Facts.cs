@@ -17,6 +17,87 @@
         }
 
         [Fact]
+        public void JsModuleCanBeImportedAndExecuted()
+        {
+            var mainModuleName = "";
+            var mainModuleSource = @"
+import x from 'foo.js'
+return x();
+";
+            var fooModuleSource = @"
+export default function() { return ""Hello, World.""; }
+";
+            var mainModuleReady = false;
+            IntPtr childModuleHandle = IntPtr.Zero;
+
+            JavaScriptFetchImportedModuleCallback fetchCallback = (IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModuleRecord) =>
+            {
+                var moduleName = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Jsrt, new JavaScriptValueSafeHandle(specifier));
+                if (string.IsNullOrWhiteSpace(moduleName))
+                {
+                    dependentModuleRecord = referencingModule;
+                    return false;
+                }
+
+                Assert.True(moduleName == "foo.js");
+                var moduleRecord = Jsrt.JsInitializeModuleRecord(referencingModule, new JavaScriptValueSafeHandle((IntPtr)specifier));
+                dependentModuleRecord = moduleRecord;
+                childModuleHandle = moduleRecord;
+                return false;
+            };
+
+            JavaScriptNotifyModuleReadyCallback notifyCallback = (IntPtr referencingModule, IntPtr exceptionVar) =>
+            {
+                mainModuleReady = true;
+                return false;
+            };
+
+            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableExperimentalFeatures, null))
+            {
+                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                {
+                    Jsrt.JsSetCurrentContext(contextHandle);
+
+                    //Initialize the "main" module (Empty-string specifier.
+                    var moduleNameHandle = Jsrt.JsCreateStringUtf8(mainModuleName, new UIntPtr((uint)mainModuleName.Length));
+                    var mainModuleHandle = Jsrt.JsInitializeModuleRecord(IntPtr.Zero, moduleNameHandle);
+
+                    IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchCallback);
+                    Jsrt.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, fetchCallbackPtr);
+
+                    IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate(notifyCallback);
+                    Jsrt.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, notifyCallbackPtr);
+
+                    Jsrt.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.HostDefined, moduleNameHandle.DangerousGetHandle());
+
+                    // ParseModuleSource is sync, while additional fetch & evaluation are async.
+                    var scriptBuffer = Encoding.UTF8.GetBytes(mainModuleSource);
+                    var errorHandle = Jsrt.JsParseModuleSource(mainModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)mainModuleSource.Length, JavaScriptParseModuleSourceFlags.JsParseModuleSourceFlags_DataIsUTF8);
+                    Assert.True(errorHandle == JavaScriptValueSafeHandle.Invalid);
+                    Assert.True(childModuleHandle != IntPtr.Zero);
+                    Assert.False(mainModuleReady);
+
+                    //Parse the foo now.
+                    scriptBuffer = Encoding.UTF8.GetBytes(fooModuleSource);
+                    errorHandle = Jsrt.JsParseModuleSource(childModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)fooModuleSource.Length, JavaScriptParseModuleSourceFlags.JsParseModuleSourceFlags_DataIsUTF8);
+                    Assert.True(errorHandle == JavaScriptValueSafeHandle.Invalid);
+
+                    Assert.True(mainModuleReady);
+
+                    //Now we're ready, evaluate the main module.
+                    var resultHandle = Jsrt.JsModuleEvaluation(mainModuleHandle);
+                    Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var handleType = Jsrt.JsGetValueType(resultHandle);
+                    Assert.True(handleType == JavaScriptValueType.String);
+
+                    var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Jsrt, resultHandle);
+                    Assert.Equal("Hello, World.", result);
+                }
+            }
+        }
+
+        [Fact]
         public void JsCreateStringTest()
         {
             var str = "Hello, World!";

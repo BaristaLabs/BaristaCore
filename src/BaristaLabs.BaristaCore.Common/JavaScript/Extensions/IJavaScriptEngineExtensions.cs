@@ -1,6 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Extensions
 {
-    using Internal;
     using System;
     using System.Runtime.InteropServices;
     using System.Text;
