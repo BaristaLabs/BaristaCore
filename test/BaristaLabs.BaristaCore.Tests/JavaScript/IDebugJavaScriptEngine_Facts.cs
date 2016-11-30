@@ -7,23 +7,23 @@
     using System.Text;
     using Xunit;
 
-    public class ChakraApi_ChakraDebug_Facts
+    public class IDebugJavaScriptEngine_Facts
     {
-        private IJavaScriptEngine Jsrt;
+        private IJavaScriptEngine Engine;
 
-        public ChakraApi_ChakraDebug_Facts()
+        public IDebugJavaScriptEngine_Facts()
         {
-            Jsrt = JavaScriptEngineFactory.CreateChakraEngine();
+            Engine = JavaScriptEngineFactory.CreateChakraEngine();
         }
 
         [Fact]
         public void JsCanStartDebugging()
         {
-            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
-                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
                 {
-                    Jsrt.JsSetCurrentContext(contextHandle);
+                    Engine.JsSetCurrentContext(contextHandle);
 
                     bool called = false;
                     JavaScriptDiagDebugEventCallback callback = (JavaScriptDiagDebugEventType eventType, JavaScriptValueSafeHandle eventData, IntPtr callbackState) =>
@@ -32,7 +32,7 @@
                         return true;
                     };
 
-                    Jsrt.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero);
+                    Engine.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero);
 
                     //We didn't specify any breakpoints so...
                     Assert.False(called);
@@ -43,11 +43,11 @@
         [Fact]
         public void JsCanStopDebugging()
         {
-            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
-                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
                 {
-                    Jsrt.JsSetCurrentContext(contextHandle);
+                    Engine.JsSetCurrentContext(contextHandle);
 
                     bool called = false;
                     JavaScriptDiagDebugEventCallback callback = (JavaScriptDiagDebugEventType eventType, JavaScriptValueSafeHandle eventData, IntPtr callbackState) =>
@@ -56,9 +56,9 @@
                         return true;
                     };
 
-                    Jsrt.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero);
+                    Engine.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero);
 
-                    Jsrt.JsDiagStopDebugging(runtimeHandle);
+                    Engine.JsDiagStopDebugging(runtimeHandle);
 
                     //We didn't specify any breakpoints so...
                     Assert.False(called);
@@ -69,11 +69,11 @@
         [Fact]
         public void JsCanRequestAsyncBreak()
         {
-            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
-                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
                 {
-                    Jsrt.JsSetCurrentContext(contextHandle);
+                    Engine.JsSetCurrentContext(contextHandle);
 
                     bool called = false;
                     JavaScriptDiagDebugEventCallback callback = (JavaScriptDiagDebugEventType eventType, JavaScriptValueSafeHandle eventData, IntPtr callbackState) =>
@@ -82,9 +82,9 @@
                         return true;
                     };
 
-                    Jsrt.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero);
+                    Engine.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero);
 
-                    Jsrt.JsDiagRequestAsyncBreak(runtimeHandle);
+                    Engine.JsDiagRequestAsyncBreak(runtimeHandle);
 
                     //We didn't specify any breakpoints so...
                     Assert.False(called);
@@ -95,11 +95,11 @@
         [Fact]
         public void JsCanRetrieveBreakpoints()
         {
-            using (var runtimeHandle = Jsrt.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
-                using (var contextHandle = Jsrt.JsCreateContext(runtimeHandle))
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
                 {
-                    Jsrt.JsSetCurrentContext(contextHandle);
+                    Engine.JsSetCurrentContext(contextHandle);
 
                     bool called = false;
                     JavaScriptDiagDebugEventCallback callback = (JavaScriptDiagDebugEventType eventType, JavaScriptValueSafeHandle eventData, IntPtr callbackState) =>
@@ -108,12 +108,12 @@
                         return true;
                     };
 
-                    Jsrt.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero);
+                    Engine.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero);
 
-                    var breakpoints = Jsrt.JsDiagGetBreakpoints();
+                    var breakpoints = Engine.JsDiagGetBreakpoints();
                     Assert.True(breakpoints != JavaScriptValueSafeHandle.Invalid);
 
-                    Jsrt.JsDiagStopDebugging(runtimeHandle);
+                    Engine.JsDiagStopDebugging(runtimeHandle);
 
                     //We didn't specify any breakpoints so...
                     Assert.False(called);

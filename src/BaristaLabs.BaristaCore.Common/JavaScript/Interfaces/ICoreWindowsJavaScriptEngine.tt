@@ -2,8 +2,8 @@
 #><#@ include file="$(SolutionDir)/tt/ChakraExternDefinitions.ttinclude"
 #><#
 	var SourceName = "ChakraCore.h";
-	var InterfaceName = "ICoreJavaScriptEngine";
+	var InterfaceName = "ICoreWindowsJavaScriptEngine";
 	Predicate<ChakraExternManager.ChakraExtern> SourceFilePredicate = 
-		(ex => ex.Source == SourceName && ex.Target == ChakraExternManager.PlatformTarget.Common);
+		(ex => ex.Source == SourceName && ex.Target == ChakraExternManager.PlatformTarget.WindowsOnly);
 #><#@ include file="$(SolutionDir)/tt/ChakraTypedInterface.ttinclude"
 #>

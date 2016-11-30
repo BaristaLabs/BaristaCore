@@ -7,51 +7,6 @@
 
 	public abstract class ChakraEngineBase : IJavaScriptEngine
 	{
-		public IntPtr JsInitializeModuleRecord(IntPtr referencingModule, JavaScriptValueSafeHandle normalizedSpecifier)
-		{
-			IntPtr moduleRecord;
-			Errors.ThrowIfError(LibChakraCore.JsInitializeModuleRecord(referencingModule, normalizedSpecifier, out moduleRecord));
-			return moduleRecord;
-		}
-
-		public JavaScriptValueSafeHandle JsParseModuleSource(IntPtr requestModule, JavaScriptSourceContext sourceContext, byte[] script, uint scriptLength, JavaScriptParseModuleSourceFlags sourceFlag)
-		{
-			JavaScriptValueSafeHandle exceptionValueRef;
-			Errors.ThrowIfError(LibChakraCore.JsParseModuleSource(requestModule, sourceContext, script, scriptLength, sourceFlag, out exceptionValueRef));
-			exceptionValueRef.NativeFunctionSource = nameof(LibChakraCore.JsParseModuleSource);
-			if (exceptionValueRef != JavaScriptValueSafeHandle.Invalid)
-			{
-				uint valueRefCount;
-				Errors.ThrowIfError(LibChakraCore.JsAddRef(exceptionValueRef, out valueRefCount));
-			}
-			return exceptionValueRef;
-		}
-
-		public JavaScriptValueSafeHandle JsModuleEvaluation(IntPtr requestModule)
-		{
-			JavaScriptValueSafeHandle result;
-			Errors.ThrowIfError(LibChakraCore.JsModuleEvaluation(requestModule, out result));
-			result.NativeFunctionSource = nameof(LibChakraCore.JsModuleEvaluation);
-			if (result != JavaScriptValueSafeHandle.Invalid)
-			{
-				uint valueRefCount;
-				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
-			}
-			return result;
-		}
-
-		public void JsSetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, IntPtr hostInfo)
-		{
-			Errors.ThrowIfError(LibChakraCore.JsSetModuleHostInfo(requestModule, moduleHostInfo, hostInfo));
-		}
-
-		public IntPtr JsGetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo)
-		{
-			IntPtr hostInfo;
-			Errors.ThrowIfError(LibChakraCore.JsGetModuleHostInfo(requestModule, moduleHostInfo, out hostInfo));
-			return hostInfo;
-		}
-
 		public JavaScriptValueSafeHandle JsCreateString(string content, UIntPtr length)
 		{
 			JavaScriptValueSafeHandle value;
@@ -1222,6 +1177,19 @@
 				Errors.ThrowIfError(LibChakraCore.JsAddRef(handleObject, out valueRefCount));
 			}
 			return handleObject;
+		}
+
+		public JavaScriptValueSafeHandle JsDiagEvaluateUtf8(string expression, uint stackFrameIndex)
+		{
+			JavaScriptValueSafeHandle evalResult;
+			Errors.ThrowIfError(LibChakraCore.JsDiagEvaluateUtf8(expression, stackFrameIndex, out evalResult));
+			evalResult.NativeFunctionSource = nameof(LibChakraCore.JsDiagEvaluateUtf8);
+			if (evalResult != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(evalResult, out valueRefCount));
+			}
+			return evalResult;
 		}
 
 	}
