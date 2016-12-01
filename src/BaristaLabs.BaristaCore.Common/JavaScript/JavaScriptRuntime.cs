@@ -11,7 +11,7 @@
     /// <remarks>
     ///     A javascript runtime in which contexts are created and JavaScript is executed.
     /// </remarks>
-    public sealed class JavaScriptRuntime : JavaScriptReferenceWrapper<JavaScriptRuntimeSafeHandle>
+    public sealed class JavaScriptRuntime : JavaScriptReferenceFlyweight<JavaScriptRuntimeSafeHandle>
     {
         public event EventHandler<JavaScriptMemoryEventArgs> MemoryChanging;
 
@@ -96,7 +96,7 @@
         /// <param name="engine"></param>
         /// <param name="attributes"></param>
         /// <returns></returns>
-        public static JavaScriptRuntime CreateJavaScriptRuntime(IServiceProvider provider, JavaScriptRuntimeAttributes attributes = JavaScriptRuntimeAttributes.None)
+        public static JavaScriptRuntime CreateRuntime(IServiceProvider provider, JavaScriptRuntimeAttributes attributes = JavaScriptRuntimeAttributes.None)
         {
             if (provider == null)
                 throw new ArgumentNullException(nameof(provider));
@@ -111,7 +111,7 @@
             return result;
         }
 
-        public sealed class JavaScriptRuntimeObserver : JavaScriptReferenceObserver<JavaScriptRuntime, JavaScriptRuntimeSafeHandle>
+        internal sealed class JavaScriptRuntimeObserver : JavaScriptReferenceObserver<JavaScriptRuntime, JavaScriptRuntimeSafeHandle>
         {
             public JavaScriptRuntimeObserver(IJavaScriptEngine engine)
                 : base(engine)

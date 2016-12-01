@@ -1,7 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
-    using Internal;
-
     using System;
     using System.Runtime.InteropServices;
     using System.Text;

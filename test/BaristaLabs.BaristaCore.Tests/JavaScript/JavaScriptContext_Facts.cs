@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
+    using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using Xunit;
@@ -11,11 +12,7 @@
         public JavaScriptContext_Facts()
         {
             var serviceCollection = new ServiceCollection();
-
-            var chakraEngine = JavaScriptEngineFactory.CreateChakraEngine();
-
-            serviceCollection.AddSingleton(chakraEngine);
-            serviceCollection.AddSingleton(new JavaScriptRuntime.JavaScriptRuntimeObserver(chakraEngine));
+            serviceCollection.AddBaristaCore();
 
             Provider = serviceCollection.BuildServiceProvider();
         }
@@ -23,7 +20,7 @@
         [Fact]
         public void JavaScriptContextCanBeCreated()
         {
-            using (var rt = JavaScriptRuntime.CreateJavaScriptRuntime(Provider))
+            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -34,21 +31,27 @@
         }
 
         [Fact]
-        public void JavaScriptContextShouldEvaluateScriptText()
+        public void JavaScriptContextShouldParseAndInvokeScriptText()
         {
-            //dynamic result;
-            using (var rt = JavaScriptRuntime.CreateJavaScriptRuntime(Provider))
+            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
             {
                 using (var ctx = rt.CreateContext())
                 {
-                    //using (var xc = ctx.AcquireExecutionContext())
-                    //{
-                    //    var fn = ctx.EvaluateScriptText("41+1;");
-                    //    result = fn.Invoke();
-                    //}
+                    using (ctx.Scope())
+                    {
+                        var script = "41+1";
+                        var fn = ctx.ParseScriptText(script);
+
+                        //Assert that the function is the script we passed in.
+                        var fnText = fn.ToString();
+                        Assert.Equal(script, fnText);
+
+                        //Invoke it.
+                        dynamic result = fn.Invoke();
+                        Assert.True((int)result == 42);
+                    }
                 }
             }
-            //Assert.True((int)result == 42);
         }
 
         [Fact]
@@ -61,7 +64,7 @@
             //})()";
             //            string result;
 
-            using (var rt = JavaScriptRuntime.CreateJavaScriptRuntime(Provider))
+            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
             {
                 using (var ctx = rt.CreateContext())
                 {

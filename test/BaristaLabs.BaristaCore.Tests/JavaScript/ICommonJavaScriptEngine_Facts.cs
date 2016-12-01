@@ -1,7 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
-    using Internal;
-
     using System;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
@@ -2544,6 +2542,60 @@ return fn;
                     namePropertyHandle.Dispose();
                     nameHandle.Dispose();
                     fnHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsToStringOnAFunctionOutputsTheCode()
+        {
+            string myCode = "'12345678'";
+            string toStringPropertyName = "toString";
+            string sourceUrl = "[eval code]";
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyIdUtf8(toStringPropertyName, new UIntPtr((uint)toStringPropertyName.Length));
+
+                    IntPtr ptrScript = Marshal.StringToHGlobalAnsi(myCode);
+                    try
+                    {
+                        var scriptHandle = Engine.JsCreateExternalArrayBuffer(ptrScript, (uint)myCode.Length, null, IntPtr.Zero);
+                        var sourceUrlHandle = Engine.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
+                        var fnHandle = Engine.JsParse(scriptHandle, JavaScriptSourceContext.GetNextSourceContext(), sourceUrlHandle, JavaScriptParseScriptAttributes.None);
+                        var fnToStringFnHandle = Engine.JsGetProperty(fnHandle, toStringFunctionPropertyIdHandle);
+                        var resultHandle = Engine.JsCallFunction(fnToStringFnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
+
+                        Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
+
+                        var handleType = Engine.JsGetValueType(resultHandle);
+                        Assert.True(handleType == JavaScriptValueType.String);
+
+                        var size = Engine.JsCopyStringUtf8(resultHandle, null, UIntPtr.Zero);
+                        if ((int)size > int.MaxValue)
+                            throw new OutOfMemoryException("Exceeded maximum string length.");
+
+                        byte[] result = new byte[(int)size];
+                        var written = Engine.JsCopyStringUtf8(resultHandle, result, size);
+                        string resultStr = Encoding.UTF8.GetString(result, 0, result.Length);
+
+                        Assert.Equal(myCode, resultStr);
+
+                        resultHandle.Dispose();
+                        fnToStringFnHandle.Dispose();
+                        fnHandle.Dispose();
+                        scriptHandle.Dispose();
+                        sourceUrlHandle.Dispose();
+                        toStringFunctionPropertyIdHandle.Dispose();
+                    }
+                    finally
+                    {
+                        Marshal.ZeroFreeGlobalAllocAnsi(ptrScript);
+                    }
                 }
             }
         }

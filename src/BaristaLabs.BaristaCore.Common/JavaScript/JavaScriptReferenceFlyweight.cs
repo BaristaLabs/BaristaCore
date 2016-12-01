@@ -1,8 +1,10 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using System;
+    using System.Dynamic;
 
-    public abstract class JavaScriptReferenceWrapper<T> : IDisposable where T : JavaScriptReference<T>
+    public abstract class JavaScriptReferenceFlyweight<T> : DynamicObject, IDisposable
+        where T : JavaScriptReference<T>
     {
         private readonly IJavaScriptEngine m_javaScriptEngine;
         private T m_javaScriptReference;
@@ -18,7 +20,7 @@
         /// <summary>
         /// Gets the underlying JavaScript Reference
         /// </summary>
-        protected T Handle
+        internal T Handle
         {
             get
             {
@@ -30,7 +32,7 @@
         }
 
         /// <summary>
-        /// Gets a value that indicates if this runtime has been disposed.
+        /// Gets a value that indicates if this reference has been disposed.
         /// </summary>
         public bool IsDisposed
         {
@@ -45,7 +47,7 @@
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="javaScriptReference"></param>
-        protected JavaScriptReferenceWrapper(IJavaScriptEngine engine, T javaScriptReference)
+        protected JavaScriptReferenceFlyweight(IJavaScriptEngine engine, T javaScriptReference)
         {
             if (engine == null)
                 throw new ArgumentNullException(nameof(engine));
@@ -75,11 +77,10 @@
             GC.SuppressFinalize(this);
         }
 
-        ~JavaScriptReferenceWrapper()
+        ~JavaScriptReferenceFlyweight()
         {
             Dispose(false);
         }
         #endregion;
-
     }
 }

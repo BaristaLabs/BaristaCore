@@ -7,8 +7,8 @@
     /// </summary>
     public sealed class JavaScriptUndefinedValue : JavaScriptValue
     {
-        internal JavaScriptUndefinedValue(IJavaScriptEngine engine, JavaScriptValueSafeHandle handle)
-            : base(engine, handle)
+        internal JavaScriptUndefinedValue(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle handle)
+            : base(engine, context, handle)
         {
 #if DEBUG
             var valueType = GetValueType();

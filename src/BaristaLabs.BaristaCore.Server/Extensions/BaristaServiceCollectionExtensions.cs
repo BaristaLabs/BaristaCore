@@ -1,6 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore.Http
 {
-    using JavaScript;
     using Microsoft.AspNetCore.Mvc.Internal;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -15,7 +14,6 @@
                 ServiceDescriptor.Transient<IConfigureOptions<BaristaOptions>, BaristaCoreBaristaOptionsSetup>());
 
             services.TryAddSingleton<IHttpResponseStreamWriterFactory, MemoryPoolHttpResponseStreamWriterFactory>();
-            //services.TryAddSingleton<JavaScriptRuntime>();
             services.TryAddSingleton<JavaScriptValueResultExecutor>();
 
             return services;

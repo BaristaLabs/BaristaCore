@@ -84,7 +84,7 @@
         /// <param name="parseAttributes"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static JavaScriptValueSafeHandle JsParseScript(this IJavaScriptEngine jsrt, string script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes)
+        public static JavaScriptValueSafeHandle JsParseScript(this IJavaScriptEngine jsrt, string script, JavaScriptSourceContext sourceContext = default(JavaScriptSourceContext), JavaScriptValueSafeHandle sourceUrl = null, JavaScriptParseScriptAttributes parseAttributes = JavaScriptParseScriptAttributes.None)
         {
             IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
             bool createdSourceUrl = false;

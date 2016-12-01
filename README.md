@@ -53,6 +53,7 @@ Core Functionality:
   - [X] Use ChakraCore as the JavaScript Engine
     - [X] Enables ECMAScript 6+ support (classes, arrow functions, etc), and beyond.
     - [ ] ES6 Promises (Requires additional impl.)
+    - [ ] ES6 Modules (Currently windows only, experimental)
     - [X] More performant script execution
 	- [X] T4 Template driven generation of P/Invoke classes
 	- [ ] Full unit test suite surrounding managed/unmanaged interop layer

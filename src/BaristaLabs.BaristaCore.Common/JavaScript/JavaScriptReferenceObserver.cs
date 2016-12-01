@@ -7,7 +7,7 @@
     /// Represents the base class of an observer that monitors JavaScript References and notifies all active instances.
     /// </summary>
     public abstract class JavaScriptReferenceObserver<TJavaScriptReferenceWrapper, TJavaScriptReference>
-        where TJavaScriptReferenceWrapper : JavaScriptReferenceWrapper<TJavaScriptReference>
+        where TJavaScriptReferenceWrapper : JavaScriptReferenceFlyweight<TJavaScriptReference>
         where TJavaScriptReference : JavaScriptReference<TJavaScriptReference>
     {
         private ConcurrentDictionary<IntPtr, WeakCollection<TJavaScriptReferenceWrapper>> m_handleReferences = new ConcurrentDictionary<IntPtr, WeakCollection<TJavaScriptReferenceWrapper>>();

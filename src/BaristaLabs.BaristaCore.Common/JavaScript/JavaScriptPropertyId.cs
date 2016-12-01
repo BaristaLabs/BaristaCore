@@ -9,7 +9,7 @@
     /// <remarks>
     ///     Property identifiers are used to refer to properties of JavaScript objects instead of using strings.
     /// </remarks>
-    public sealed class JavaScriptPropertyId : JavaScriptReferenceWrapper<JavaScriptPropertyIdSafeHandle>
+    public sealed class JavaScriptPropertyId : JavaScriptReferenceFlyweight<JavaScriptPropertyIdSafeHandle>
     {
         #region Properties
         /// <summary>

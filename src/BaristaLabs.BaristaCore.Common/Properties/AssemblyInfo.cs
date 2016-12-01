@@ -17,7 +17,3 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("16a6d8b0-b004-426c-9c09-dc2e7d9df2a6")]
-
-#if DEBUG
-[assembly: InternalsVisibleTo("BaristaLabs.BaristaCore.Tests")]
-#endif
