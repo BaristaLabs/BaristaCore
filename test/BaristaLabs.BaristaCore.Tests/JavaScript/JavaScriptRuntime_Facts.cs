@@ -48,13 +48,41 @@
 
             using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
             {
-                rt.MemoryChanging += handler;
+                rt.MemoryAllocationChanging += handler;
                 using (var ctx = rt.CreateContext())
                 {
                 }
-                rt.MemoryChanging -= handler;
+                rt.MemoryAllocationChanging -= handler;
             }
             Assert.True(changeCount > 0);
+        }
+
+        [Fact]
+        public void JavaScriptRuntimeShouldFireGarbageCollectionCallbacks()
+        {
+            int collectingCount = 0;
+            EventHandler<EventArgs> handler = (sender, e) =>
+            {
+                collectingCount++;
+            };
+
+            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            {
+                rt.GarbageCollecting += handler;
+                rt.CollectGarbage();
+                rt.GarbageCollecting -= handler;
+            }
+
+            Assert.True(collectingCount > 0);
+        }
+
+        [Fact]
+        public void JavaScriptRuntimeShouldIndicateDisposedState()
+        {
+            var rt = JavaScriptRuntime.CreateRuntime(Provider);
+            rt.Dispose();
+
+            Assert.True(rt.IsDisposed);
         }
     }
 }

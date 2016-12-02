@@ -14,8 +14,8 @@
     {
         private const string ParseScriptSourceUrl = "[eval code]";
 
-        private readonly Lazy<JavaScriptUndefinedValue> m_undefinedValue;
-        private readonly Lazy<JavaScriptNullValue> m_nullValue;
+        private readonly Lazy<JavaScriptUndefined> m_undefinedValue;
+        private readonly Lazy<JavaScriptNull> m_nullValue;
 
         private JavaScriptValuePool m_valuePool;
         private JavaScriptExecutionScope m_currentExecutionScope;
@@ -67,8 +67,8 @@
         internal JavaScriptContext(IJavaScriptEngine engine, JavaScriptContextSafeHandle contextHandle)
             : base(engine, contextHandle)
         {
-            m_undefinedValue = new Lazy<JavaScriptUndefinedValue>(GetUndefinedValue);
-            m_nullValue = new Lazy<JavaScriptNullValue>(GetNullValue);
+            m_undefinedValue = new Lazy<JavaScriptUndefined>(GetUndefinedValue);
+            m_nullValue = new Lazy<JavaScriptNull>(GetNullValue);
 
             m_valuePool = new JavaScriptValuePool(engine, this);
         }
@@ -130,21 +130,26 @@
             return new JavaScriptExecutionScope(ReleaseScope);
         }
 
-        private JavaScriptNullValue GetNullValue()
+        private JavaScriptNull GetNullValue()
         {
             var nullValue = Engine.JsGetNullValue();
-            return (JavaScriptNullValue)m_valuePool.GetOrAdd(nullValue);
+            var result = new JavaScriptNull(Engine, this, nullValue);
+            if (m_valuePool.TryAdd(result))
+                return result;
+
+            result.Dispose();
+            throw new InvalidOperationException("Could not add JsNull to the Value Pool associated with the context.");
         }
 
-        private JavaScriptUndefinedValue GetUndefinedValue()
+        private JavaScriptUndefined GetUndefinedValue()
         {
             var undefinedValue = Engine.JsGetUndefinedValue();
-            return (JavaScriptUndefinedValue)m_valuePool.GetOrAdd(undefinedValue);
-        }
+            var result = new JavaScriptUndefined(Engine, this, undefinedValue);
+            if (m_valuePool.TryAdd(result))
+                return result;
 
-        private void OnObjectBeforeCollect(IntPtr handle, IntPtr callbackState)
-        {
-            Dispose();
+            result.Dispose();
+            throw new InvalidOperationException("Could not add JsUndefined to the Value Pool associated with the context.");
         }
 
         private void ReleaseScope()
@@ -157,12 +162,6 @@
         {
             if (disposing && !IsDisposed)
             {
-                if (m_nullValue.IsValueCreated)
-                    m_nullValue.Value.Dispose();
-
-                if (m_undefinedValue.IsValueCreated)
-                    m_undefinedValue.Value.Dispose();
-
                 if (m_valuePool != null)
                 {
                     JavaScriptExecutionScope scope = null;

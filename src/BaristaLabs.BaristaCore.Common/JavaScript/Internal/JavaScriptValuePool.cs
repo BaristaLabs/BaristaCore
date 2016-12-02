@@ -29,7 +29,7 @@
 
             //Certain types do not participate in collect callback.
             //These throw an invalid argument exception when attempting to set a beforecollectcallback.
-            if (target is JavaScriptNumberValue)
+            if (target is JavaScriptNumber)
                 return target;
 
             Engine.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, OnBeforeCollectCallback);
@@ -40,7 +40,7 @@
         {
             //Certain types do not participate in collect callback.
             //These throw an invalid argument exception when attempting to set a beforecollectcallback.
-            if (target is JavaScriptNumberValue)
+            if (target is JavaScriptNumber)
                 return;
 
             Engine.JsSetObjectBeforeCollectCallback(target.Handle, IntPtr.Zero, null);

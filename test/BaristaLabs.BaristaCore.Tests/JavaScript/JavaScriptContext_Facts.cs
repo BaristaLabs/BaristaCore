@@ -31,6 +31,48 @@
         }
 
         [Fact]
+        public void MultipleJavaScriptContextsCanBeCreated()
+        {
+            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            {
+                var ctx1 = rt.CreateContext();
+                var ctx2 = rt.CreateContext();
+
+                Assert.NotEqual(ctx1, ctx2);
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextShouldGetNull()
+        {
+            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.Null);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextShouldGetUndefined()
+        {
+            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.Undefined);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void JavaScriptContextShouldParseAndInvokeScriptText()
         {
             using (var rt = JavaScriptRuntime.CreateRuntime(Provider))

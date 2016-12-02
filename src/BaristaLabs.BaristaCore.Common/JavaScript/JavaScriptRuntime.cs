@@ -12,7 +12,8 @@
     /// </remarks>
     public sealed class JavaScriptRuntime : JavaScriptReferenceFlyweight<JavaScriptRuntimeSafeHandle>
     {
-        public event EventHandler<JavaScriptMemoryEventArgs> MemoryChanging;
+        public event EventHandler<JavaScriptMemoryEventArgs> MemoryAllocationChanging;
+        public event EventHandler<EventArgs> GarbageCollecting;
 
         private JavaScriptContextPool m_contextPool;
 
@@ -23,6 +24,9 @@
             : base(engine, runtimeHandle)
         {
             m_contextPool = new JavaScriptContextPool(engine);
+
+            Engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, OnRuntimeMemoryAllocationChanging);
+            Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, OnRuntimeGarbageCollecting);
         }
 
         /// <summary>
@@ -52,17 +56,54 @@
             return m_contextPool.GetOrAdd(contextHandle);
         }
 
-        internal bool RuntimeMemoryAllocationChanging(JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize)
+        /// <summary>
+        /// Performs a full garbage collection.
+        /// </summary>
+        public void CollectGarbage()
         {
-            if (!IsDisposed && MemoryChanging != null)
+            Engine.JsCollectGarbage(Handle);
+        }
+
+        private bool OnRuntimeMemoryAllocationChanging(IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize)
+        {
+            if (!IsDisposed && MemoryAllocationChanging != null)
             {
                 var args = new JavaScriptMemoryEventArgs(allocationSize, allocationEvent);
-                MemoryChanging(this, args);
+                MemoryAllocationChanging(this, args);
                 if (args.IsCancelable && args.Cancel)
                     return false;
             }
 
             return true;
+        }
+
+        private void OnRuntimeGarbageCollecting(IntPtr callbackState)
+        {
+            if (!IsDisposed && GarbageCollecting != null)
+            {
+                var args = new EventArgs();
+                GarbageCollecting(this, args);
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && !IsDisposed)
+            {
+                if (m_contextPool != null)
+                {
+                    m_contextPool.Dispose();
+                    m_contextPool = null;
+                }
+
+                //We don't need no more steekin' memory monitoring.
+                Engine.JsSetRuntimeMemoryAllocationCallback(Handle, IntPtr.Zero, null);
+
+                //Don't need no before collect monitoring either!
+                Engine.JsSetRuntimeBeforeCollectCallback(Handle, IntPtr.Zero, null);
+            }
+
+            base.Dispose(disposing);
         }
 
         /// <summary>

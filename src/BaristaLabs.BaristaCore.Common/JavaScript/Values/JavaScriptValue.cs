@@ -65,13 +65,14 @@
         }
         #endregion
 
-        public double ToDouble()
+        /// <summary>
+        /// Converts the value to a number and returns the double representation
+        /// </summary>
+        /// <returns></returns>
+        public virtual double ToDouble()
         {
             if (IsDisposed)
                 throw new ObjectDisposedException(nameof(JavaScriptValue));
-
-            if (this is JavaScriptNumberValue)
-                return Engine.JsNumberToDouble(Handle);
 
             using (var numberValueHandle = Engine.JsConvertValueToNumber(Handle))
             {
@@ -79,13 +80,14 @@
             }
         }
 
-        public int ToInt32()
+        /// <summary>
+        /// Converts the value to a number and returns the integer representation
+        /// </summary>
+        /// <returns></returns>
+        public virtual int ToInt32()
         {
             if (IsDisposed)
                 throw new ObjectDisposedException(nameof(JavaScriptValue));
-
-            if (this is JavaScriptNumberValue)
-                return Engine.JsNumberToInt(Handle);
 
             using (var numberValueHandle = Engine.JsConvertValueToNumber(Handle))
             {
@@ -125,11 +127,11 @@
                 case JavaScriptValueType.Function:
                     return new JavaScriptFunction(engine, context, valueHandle);
                 case JavaScriptValueType.Number:
-                    return new JavaScriptNumberValue(engine, context, valueHandle);
+                    return new JavaScriptNumber(engine, context, valueHandle);
                 case JavaScriptValueType.Null:
-                    return new JavaScriptNullValue(engine, context, valueHandle);
+                    return new JavaScriptNull(engine, context, valueHandle);
                 case JavaScriptValueType.Undefined:
-                    return new JavaScriptUndefinedValue(engine, context, valueHandle);
+                    return new JavaScriptUndefined(engine, context, valueHandle);
                 default:
                     throw new NotImplementedException($"Error Creating JavaScript Value: The JavaScript Value Type '{valueType}' is unknown, invalid, or has not been implemented.");
             }
