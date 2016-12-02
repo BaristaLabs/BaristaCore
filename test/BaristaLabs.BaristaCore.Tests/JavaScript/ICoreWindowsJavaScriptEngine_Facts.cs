@@ -74,10 +74,22 @@ export default function() { return ""Hello, World.""; }
                     IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchCallback);
                     CoreWindowsEngine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, fetchCallbackPtr);
 
+                    //Ensure the callback was set properly.
+                    var moduleHostPtr = CoreWindowsEngine.JsGetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback);
+                    Assert.Equal(fetchCallbackPtr, moduleHostPtr);
+                    
                     IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate(notifyCallback);
                     CoreWindowsEngine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, notifyCallbackPtr);
 
+                    //Ensure the callback was set properly.
+                    moduleHostPtr = CoreWindowsEngine.JsGetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback);
+                    Assert.Equal(notifyCallbackPtr, moduleHostPtr);
+
                     CoreWindowsEngine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.HostDefined, moduleNameHandle.DangerousGetHandle());
+
+                    //Ensure the callback was set properly.
+                    moduleHostPtr = CoreWindowsEngine.JsGetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.HostDefined);
+                    Assert.Equal(moduleNameHandle.DangerousGetHandle(), moduleHostPtr);
 
                     // ParseModuleSource is sync, while additional fetch & evaluation are async.
                     var scriptBuffer = Encoding.UTF8.GetBytes(mainModuleSource);
