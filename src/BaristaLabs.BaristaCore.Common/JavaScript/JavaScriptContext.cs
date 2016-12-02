@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using Internal;
     using System;
     using System.Runtime.InteropServices;
 
@@ -13,7 +14,6 @@
     {
         private const string ParseScriptSourceUrl = "[eval code]";
 
-        private readonly JavaScriptRuntime m_runtime;
         private readonly Lazy<JavaScriptUndefinedValue> m_undefinedValue;
         private readonly Lazy<JavaScriptNullValue> m_nullValue;
 
@@ -64,14 +64,9 @@
             get { return m_valuePool; }
         }
 
-        internal JavaScriptContext(IJavaScriptEngine engine, JavaScriptContextSafeHandle contextHandle, JavaScriptRuntime runtime)
+        internal JavaScriptContext(IJavaScriptEngine engine, JavaScriptContextSafeHandle contextHandle)
             : base(engine, contextHandle)
         {
-            if (runtime == null)
-                throw new ArgumentNullException(nameof(runtime));
-
-            m_runtime = runtime;
-
             m_undefinedValue = new Lazy<JavaScriptUndefinedValue>(GetUndefinedValue);
             m_nullValue = new Lazy<JavaScriptNullValue>(GetNullValue);
 

@@ -2,8 +2,7 @@
 {
     using System;
     using Microsoft.Extensions.DependencyInjection;
-    using System.Runtime.InteropServices;
-    using System.Diagnostics;
+    using Internal;
 
     /// <summary>
     /// Represents a JavaScript Runtime
@@ -15,15 +14,15 @@
     {
         public event EventHandler<JavaScriptMemoryEventArgs> MemoryChanging;
 
+        private JavaScriptContextPool m_contextPool;
+
         /// <summary>
         /// Private constructor. Runtimes are only creatable through the static factory method.
         /// </summary>
-        private JavaScriptRuntime(IJavaScriptEngine engine, JavaScriptRuntimeSafeHandle runtimeHandle)
+        internal JavaScriptRuntime(IJavaScriptEngine engine, JavaScriptRuntimeSafeHandle runtimeHandle)
             : base(engine, runtimeHandle)
         {
-            //engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, RuntimeBeforeCollectCallback);
-            GCHandle handle = GCHandle.Alloc(this, GCHandleType.Weak);
-            engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, GCHandle.ToIntPtr(handle), RuntimeMemoryAllocationCallback);
+            m_contextPool = new JavaScriptContextPool(engine);
         }
 
         /// <summary>
@@ -50,39 +49,15 @@
                 throw new ObjectDisposedException(nameof(JavaScriptRuntime));
 
             var contextHandle = Engine.JsCreateContext(Handle);
-            return new JavaScriptContext(Engine, contextHandle, this);
+            return m_contextPool.GetOrAdd(contextHandle);
         }
 
-        protected override void Dispose(bool disposing)
+        internal bool RuntimeMemoryAllocationChanging(JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize)
         {
-            if (disposing && !IsDisposed)
-            {
-                //We don't need no more steekin' memory monitoring.
-                Engine.JsSetRuntimeMemoryAllocationCallback(Handle, IntPtr.Zero, null);
-            }
-            
-            base.Dispose(disposing);
-        }
-
-        private void RuntimeBeforeCollectCallback(IntPtr callbackState)
-        {
-            Dispose();
-        }
-
-        private static bool RuntimeMemoryAllocationCallback(IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize)
-        {
-            GCHandle handle = GCHandle.FromIntPtr(callbackState);
-            JavaScriptRuntime runtime = handle.Target as JavaScriptRuntime;
-            if (runtime == null)
-            {
-                Debug.Assert(false, "Runtime has been freed.");
-                return false;
-            }
-
-            if (!runtime.IsDisposed && runtime.MemoryChanging != null)
+            if (!IsDisposed && MemoryChanging != null)
             {
                 var args = new JavaScriptMemoryEventArgs(allocationSize, allocationEvent);
-                runtime.MemoryChanging(runtime, args);
+                MemoryChanging(this, args);
                 if (args.IsCancelable && args.Cancel)
                     return false;
             }
@@ -102,55 +77,10 @@
                 throw new ArgumentNullException(nameof(provider));
 
             var engine = provider.GetRequiredService<IJavaScriptEngine>();
-            var runtimeObserver = provider.GetRequiredService<JavaScriptRuntimeObserver>();
+            var runtimePool = provider.GetRequiredService<JavaScriptRuntimePool>();
 
             var runtimeHandle = engine.JsCreateRuntime(attributes, null);
-            
-            var result = new JavaScriptRuntime(engine, runtimeHandle);
-            runtimeObserver.MonitorJavaScriptReference(result);
-            return result;
-        }
-
-        internal sealed class JavaScriptRuntimeObserver : JavaScriptReferenceObserver<JavaScriptRuntime, JavaScriptRuntimeSafeHandle>
-        {
-            public JavaScriptRuntimeObserver(IJavaScriptEngine engine)
-                : base(engine)
-            {
-            }
-
-            protected override IntPtr StartMonitor(JavaScriptRuntime runtime)
-            {
-                var handle = runtime.Handle;
-                IntPtr handlePtr = handle.DangerousGetHandle();
-                GCHandle runtimeHandle = GCHandle.Alloc(this, GCHandleType.Weak);
-                if (!IsMonitoringHandle(handlePtr))
-                    Engine.JsSetRuntimeBeforeCollectCallback(handle, GCHandle.ToIntPtr(runtimeHandle), OnRuntimeBeforeCollect);
-                return handlePtr;
-            }
-
-            private void OnRuntimeBeforeCollect(IntPtr callbackState)
-            {
-                GCHandle runtimeHandle = GCHandle.FromIntPtr(callbackState);
-                JavaScriptRuntime targetRuntime = runtimeHandle.Target as JavaScriptRuntime;
-                if (targetRuntime == null)
-                {
-                    Debug.Assert(false, "Runtime has been freed.");
-                    return;
-                }
-
-                var handle = targetRuntime.Handle;
-                IntPtr handlePtr = handle.DangerousGetHandle();
-
-                NotifyAll(handlePtr, (runtime) => {
-                    if (runtime == null || runtime.IsDisposed)
-                        return;
-
-                    runtime.Dispose(false);
-                }, true);
-
-
-                Engine.JsSetRuntimeBeforeCollectCallback(targetRuntime.Handle, IntPtr.Zero, null);
-            }
+            return runtimePool.GetOrAdd(runtimeHandle);
         }
     }
 }

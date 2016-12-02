@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
 {
     using System;
     using System.Collections.Concurrent;
@@ -98,7 +98,17 @@
         /// <param name="target"></param>
         protected virtual void ReleaseJavaScriptReference(TJavaScriptReferenceFlyweight target)
         {
-            //Do Nothing;
+            //Base implementation: Do Nothing;
+        }
+
+        /// <summary>
+        /// Removes the specified handle from the pool, disposing of it.
+        /// </summary>
+        /// <param name="handle"></param>
+        protected void RemoveHandle(TJavaScriptReference handle)
+        {
+            var handlePtr = handle.DangerousGetHandle();
+            RemoveHandle(handlePtr);
         }
 
         /// <summary>
