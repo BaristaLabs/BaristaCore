@@ -11,5 +11,5 @@
     /// <param name="debugEvent">The type of JsDiagDebugEvent event.</param>
     /// <param name="eventData">Additional data related to the debug event.</param>
     /// <param name="callbackState">The state passed to <c>JsDiagStartDebugging</c>.</param>
-    public delegate bool JavaScriptDiagDebugEventCallback(JavaScriptDiagDebugEventType debugEvent, JavaScriptValueSafeHandle eventData, IntPtr callbackState);
+    public delegate bool JavaScriptDiagDebugEventCallback(JavaScriptDiagDebugEventType debugEvent, IntPtr eventData, IntPtr callbackState);
 }

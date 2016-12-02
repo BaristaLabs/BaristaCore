@@ -15,5 +15,10 @@
             var target = new JavaScriptRuntime(Engine, runtimeHandle);
             return target;
         }
+
+        protected override void ReleaseJavaScriptReference(JavaScriptRuntime target)
+        {
+            //Do Nothing...
+        }
     }
 }

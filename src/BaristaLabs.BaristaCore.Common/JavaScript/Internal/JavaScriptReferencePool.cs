@@ -65,7 +65,6 @@
 
             IntPtr handle = jsRef.DangerousGetHandle();
 
-            var fn = new Func<string, string>((str) => str);
             //For the specified handle, attempt to get or add a flyweight.
             var weakReferenceToTarget = m_javaScriptReferencePool.GetOrAdd(handle, (ptr) => 
             {
@@ -93,23 +92,10 @@
         }
 
         /// <summary>
-        /// Override this method to perform any cleanup prior to disposal of the flyweight.
+        /// Performs any cleanup prior to disposal of the flyweight.
         /// </summary>
         /// <param name="target"></param>
-        protected virtual void ReleaseJavaScriptReference(TJavaScriptReferenceFlyweight target)
-        {
-            //Base implementation: Do Nothing;
-        }
-
-        /// <summary>
-        /// Removes the specified handle from the pool, disposing of it.
-        /// </summary>
-        /// <param name="handle"></param>
-        protected void RemoveHandle(TJavaScriptReference handle)
-        {
-            var handlePtr = handle.DangerousGetHandle();
-            RemoveHandle(handlePtr);
-        }
+        protected abstract void ReleaseJavaScriptReference(TJavaScriptReferenceFlyweight target);
 
         /// <summary>
         /// Removes the specified handle from the pool, disposing of it.
