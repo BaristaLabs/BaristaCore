@@ -3634,14 +3634,6 @@
 /// <param name="properties">Object of properties array (properties, scopes and globals).</param>
 /// <remarks>
 ///     <para>
-///     propertyAttributes is a bit mask of
-///         NONE = 0x1,
-///         HAVE_CHILDRENS = 0x2,
-///         READ_ONLY_VALUE = 0x4,
-///     </para>
-/// </remarks>
-/// <remarks>
-///     <para>
 ///     {
 ///         "thisObject": {
 ///             "name": "this",

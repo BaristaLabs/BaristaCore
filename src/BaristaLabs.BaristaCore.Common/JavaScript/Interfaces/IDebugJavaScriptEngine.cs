@@ -228,10 +228,55 @@
 		///		Gets the list of properties corresponding to the frame.
 		/// </summary>
 		/// <remarks>
-		///		propertyAttributes is a bit mask of
-		///		NONE = 0x1,
-		///		HAVE_CHILDRENS = 0x2,
-		///		READ_ONLY_VALUE = 0x4,
+		///		{
+		///		"thisObject": {
+		///		"name": "this",
+		///		"type" : "object",
+		///		"className" : "Object",
+		///		"display" : "{...}",
+		///		"propertyAttributes" : 1,
+		///		"handle" : 306
+		///		},
+		///		"exception" : {
+		///		"name" : "{exception}",
+		///		"type" : "object",
+		///		"display" : "'a' is undefined",
+		///		"className" : "Error",
+		///		"propertyAttributes" : 1,
+		///		"handle" : 307
+		///		}
+		///		"arguments" : {
+		///		"name" : "arguments",
+		///		"type" : "object",
+		///		"display" : "{...}",
+		///		"className" : "Object",
+		///		"propertyAttributes" : 1,
+		///		"handle" : 190
+		///		},
+		///		"returnValue" : {
+		///		"name" : "[Return value]",
+		///		"type" : "undefined",
+		///		"propertyAttributes" : 0,
+		///		"handle" : 192
+		///		},
+		///		"functionCallsReturn" : [{
+		///		"name" : "[foo1 returned]",
+		///		"type" : "number",
+		///		"value" : 1,
+		///		"propertyAttributes" : 2,
+		///		"handle" : 191
+		///		}
+		///		],
+		///		"locals" : [],
+		///		"scopes" : [{
+		///		"index" : 0,
+		///		"handle" : 193
+		///		}
+		///		],
+		///		"globals" : {
+		///		"handle" : 194
+		///		}
+		///		}
 		/// </remarks>
 		/// <param name="stackFrameIndex">
 		///		Index of stack frame from JsDiagGetStackTrace.
