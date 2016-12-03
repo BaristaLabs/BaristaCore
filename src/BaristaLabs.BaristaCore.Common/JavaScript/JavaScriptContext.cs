@@ -73,6 +73,20 @@
             m_valuePool = new JavaScriptValuePool(engine, this);
         }
 
+        public JavaScriptString CreateString(string str)
+        {
+            if (str == null)
+                throw new ArgumentNullException(nameof(str));
+
+            var stringHandle = Engine.JsCreateStringUtf8(str, new UIntPtr((uint)str.Length));
+            var flyweight = new JavaScriptString(Engine, this, stringHandle);
+            if (m_valuePool.TryAdd(flyweight))
+                return flyweight;
+
+            flyweight.Dispose();
+            throw new InvalidOperationException("Could not create string. The string already exists at that location in memory.");
+        }
+
         public JavaScriptExternalArrayBuffer CreateExternalArrayBufferFromString(string data)
         {
             if (data == null)
@@ -92,7 +106,10 @@
                 throw;
             }
 
-            var flyweight =  new JavaScriptManagedExternalArrayBuffer(Engine, this, externalArrayHandle, ptrData, (ptr) => Marshal.ZeroFreeGlobalAllocAnsi(ptr));
+            var flyweight = new JavaScriptManagedExternalArrayBuffer(Engine, this, externalArrayHandle, ptrData, (ptr) =>
+            {
+                Marshal.ZeroFreeGlobalAllocAnsi(ptr);
+            });
             if (m_valuePool.TryAdd(flyweight))
                 return flyweight;
 
@@ -109,11 +126,10 @@
         public JavaScriptFunction ParseScriptText(string scriptText)
         {
             var externalArrayBuffer = CreateExternalArrayBufferFromString(scriptText);
-            using (var sourceUrlHandle = Engine.JsCreateStringUtf8(ParseScriptSourceUrl, new UIntPtr((uint)ParseScriptSourceUrl.Length)))
-            {
-                var resultHandle = Engine.JsParse(externalArrayBuffer.Handle, JavaScriptSourceContext.GetNextSourceContext(), sourceUrlHandle, JavaScriptParseScriptAttributes.None);
-                return (JavaScriptFunction)m_valuePool.GetOrAdd(resultHandle);
-            }
+            var sourceUrl = CreateString(ParseScriptSourceUrl);
+
+            var resultHandle = Engine.JsParse(externalArrayBuffer.Handle, JavaScriptSourceContext.GetNextSourceContext(), sourceUrl.Handle, JavaScriptParseScriptAttributes.None);
+            return (JavaScriptFunction)m_valuePool.GetOrAdd(resultHandle);
         }
 
         /// <summary>

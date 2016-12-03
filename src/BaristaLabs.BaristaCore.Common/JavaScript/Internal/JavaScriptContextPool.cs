@@ -7,6 +7,10 @@
         public JavaScriptContextPool(IJavaScriptEngine engine)
             : base(engine)
         {
+            ReleaseJavaScriptReference = (target) =>
+            {
+                Engine.JsSetObjectBeforeCollectCallback(target.Handle, IntPtr.Zero, null);
+            };
         }
 
         protected override JavaScriptContext FlyweightFactory(JavaScriptContextSafeHandle contextHandle)
@@ -14,11 +18,6 @@
             var target = new JavaScriptContext(Engine, contextHandle);
             Engine.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, OnBeforeCollectCallback);
             return target;
-        }
-
-        protected override void ReleaseJavaScriptReference(JavaScriptContext target)
-        {
-            Engine.JsSetObjectBeforeCollectCallback(target.Handle, IntPtr.Zero, null);
         }
 
         private void OnBeforeCollectCallback(IntPtr handle, IntPtr callbackState)

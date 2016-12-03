@@ -58,7 +58,7 @@
         /// <param name="parseAttributes"></param>
         /// <param name="result"></param>
         /// <returns>A JavaScriptValueSafeHandle containing the result.</returns>
-        public static JavaScriptValueSafeHandle JsRunScript(this IJavaScriptEngine jsrt, string script, JavaScriptSourceContext sourceContext = default(JavaScriptSourceContext), string sourceUrl = "[eval code]", JavaScriptParseScriptAttributes parseAttributes = JavaScriptParseScriptAttributes.None)
+        public static JavaScriptValueSafeHandle JsRunScript(this IJavaScriptEngine jsrt, string script, JavaScriptSourceContext sourceContext = default(JavaScriptSourceContext), string sourceUrl = null, JavaScriptParseScriptAttributes parseAttributes = JavaScriptParseScriptAttributes.None)
         {
             var ptrScript = Marshal.StringToHGlobalAnsi(script);
 

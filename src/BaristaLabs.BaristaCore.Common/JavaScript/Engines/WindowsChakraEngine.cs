@@ -174,9 +174,9 @@
 			return propertyId;
 		}
 
-		public string JsGetPropertyNameFromId(JavaScriptPropertyIdSafeHandle propertyId)
+		public IntPtr JsGetPropertyNameFromId(JavaScriptPropertyIdSafeHandle propertyId)
 		{
-			string name;
+			IntPtr name;
 			Errors.ThrowIfError(LibChakraCore.JsGetPropertyNameFromId(propertyId, out name));
 			return name;
 		}

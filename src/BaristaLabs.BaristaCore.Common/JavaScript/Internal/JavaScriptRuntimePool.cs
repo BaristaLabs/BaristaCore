@@ -1,8 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
 {
-    using System;
-    using System.Runtime.InteropServices;
-
     internal class JavaScriptRuntimePool : JavaScriptReferencePool<JavaScriptRuntime, JavaScriptRuntimeSafeHandle>
     {
         public JavaScriptRuntimePool(IJavaScriptEngine engine)
@@ -14,11 +11,6 @@
         {
             var target = new JavaScriptRuntime(Engine, runtimeHandle);
             return target;
-        }
-
-        protected override void ReleaseJavaScriptReference(JavaScriptRuntime target)
-        {
-            //Do Nothing...
         }
     }
 }

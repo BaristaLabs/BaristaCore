@@ -7,14 +7,15 @@
 
     public class JavaScriptRuntime_Facts
     {
-        private IServiceProvider Provider;
+        private readonly ServiceCollection ServiceCollection;
+        private readonly IServiceProvider Provider;
 
         public JavaScriptRuntime_Facts()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddBaristaCore();
+            ServiceCollection = new ServiceCollection();
+            ServiceCollection.AddBaristaCore();
             
-            Provider = serviceCollection.BuildServiceProvider();
+            Provider = ServiceCollection.BuildServiceProvider();
         }
 
         [Fact]
@@ -83,6 +84,9 @@
             rt.Dispose();
 
             Assert.True(rt.IsDisposed);
+
+            //Explicitly Dispose of the RuntimePool of the provider to check full disposal.
+            ServiceCollection.FreeBaristaCoreServices();
         }
     }
 }

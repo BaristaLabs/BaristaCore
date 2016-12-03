@@ -97,6 +97,15 @@
         #endregion
 
         [Fact]
+        public void JsReferencesIndicateNativeFunctionSource()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                Assert.Equal("JsCreateRuntime", runtimeHandle.NativeFunctionSource);
+            }
+        }
+
+        [Fact]
         public void JsContextsAreClosedWhenHandleIsCollected()
         {
             JavaScriptContextSafeHandle contextHandle, anotherContextHandle;

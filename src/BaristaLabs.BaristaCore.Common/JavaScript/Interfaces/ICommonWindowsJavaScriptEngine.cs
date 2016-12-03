@@ -253,7 +253,7 @@
 		/// <returns>
 		///		The name associated with the property ID.
 		/// </returns>
-		string JsGetPropertyNameFromId(JavaScriptPropertyIdSafeHandle propertyId);
+		IntPtr JsGetPropertyNameFromId(JavaScriptPropertyIdSafeHandle propertyId);
 
 		/// <summary>
 		///		Creates a string value from a string pointer.

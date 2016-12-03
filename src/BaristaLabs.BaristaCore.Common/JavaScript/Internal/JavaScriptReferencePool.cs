@@ -27,12 +27,23 @@
             get { return m_engine; }
         }
 
+        /// <summary>
+        /// Performs any cleanup prior to disposal of the flyweight.
+        /// </summary>
+        /// <param name="target"></param>
+        protected Action<TJavaScriptReferenceFlyweight> ReleaseJavaScriptReference
+        {
+            get;
+            set;
+        }
+
         protected JavaScriptReferencePool(IJavaScriptEngine engine)
         {
             if (engine == null)
                 throw new ArgumentNullException(nameof(engine));
 
             m_engine = engine;
+            ReleaseJavaScriptReference = null;
         }
 
         /// <summary>
@@ -92,12 +103,6 @@
         }
 
         /// <summary>
-        /// Performs any cleanup prior to disposal of the flyweight.
-        /// </summary>
-        /// <param name="target"></param>
-        protected abstract void ReleaseJavaScriptReference(TJavaScriptReferenceFlyweight target);
-
-        /// <summary>
         /// Removes the specified handle from the pool, disposing of it.
         /// </summary>
         /// <param name="handle"></param>
@@ -111,7 +116,7 @@
                 {
                     if (jsRef != null && !jsRef.IsDisposed)
                     {
-                        ReleaseJavaScriptReference(jsRef);
+                        ReleaseJavaScriptReference?.Invoke(jsRef);
                         jsRef.Dispose();
                     }
                 }

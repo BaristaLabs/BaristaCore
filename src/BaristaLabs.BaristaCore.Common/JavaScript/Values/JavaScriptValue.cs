@@ -126,6 +126,8 @@
                     return new JavaScriptObject(engine, context, valueHandle);
                 case JavaScriptValueType.Function:
                     return new JavaScriptFunction(engine, context, valueHandle);
+                case JavaScriptValueType.String:
+                    return new JavaScriptString(engine, context, valueHandle);
                 case JavaScriptValueType.Number:
                     return new JavaScriptNumber(engine, context, valueHandle);
                 case JavaScriptValueType.Null:

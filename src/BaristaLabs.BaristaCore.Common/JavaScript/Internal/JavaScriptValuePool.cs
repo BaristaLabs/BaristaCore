@@ -21,6 +21,16 @@
                 throw new ArgumentNullException(nameof(context));
 
             m_context = context;
+
+            ReleaseJavaScriptReference = (target) =>
+            {
+                //Certain types do not participate in collect callback.
+                //These throw an invalid argument exception when attempting to set a beforecollectcallback.
+                if (target is JavaScriptNumber)
+                    return;
+
+                Engine.JsSetObjectBeforeCollectCallback(target.Handle, IntPtr.Zero, null);
+            };
         }
 
         protected override JavaScriptValue FlyweightFactory(JavaScriptValueSafeHandle valueHandle)
@@ -34,16 +44,6 @@
 
             Engine.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, OnBeforeCollectCallback);
             return target;
-        }
-
-        protected override void ReleaseJavaScriptReference(JavaScriptValue target)
-        {
-            //Certain types do not participate in collect callback.
-            //These throw an invalid argument exception when attempting to set a beforecollectcallback.
-            if (target is JavaScriptNumber)
-                return;
-
-            Engine.JsSetObjectBeforeCollectCallback(target.Handle, IntPtr.Zero, null);
         }
 
         private void OnBeforeCollectCallback(IntPtr handle, IntPtr callbackState)

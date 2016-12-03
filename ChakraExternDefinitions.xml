@@ -3196,7 +3196,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsPropertyIdRef" name="propertyId"/>
-      <Parameter type="string" name="name" direction="Out"/>
+      <Parameter type="IntPtr" name="name" direction="Out"/>
     </Parameters>
   </Export>
 

@@ -73,6 +73,23 @@
         }
 
         [Fact]
+        public void JavaScriptContextCanCreateString()
+        {
+            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var jsString = ctx.CreateString("Hello, world!");
+                        Assert.NotNull(jsString);
+                        jsString.Dispose();
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void JavaScriptContextShouldParseAndInvokeScriptText()
         {
             using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
@@ -89,8 +106,8 @@
                         Assert.Equal(script, fnText);
 
                         //Invoke it.
-                        dynamic result = fn.Invoke();
-                        Assert.True((int)result == 42);
+                        JavaScriptNumber result = (JavaScriptNumber)fn.Invoke();
+                        Assert.True(result.ToInt32() == 42);
                     }
                 }
             }

@@ -371,6 +371,42 @@ return obj;
         }
 
         [Fact]
+        public void JsCanGetPropertyIdFromName()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+                    var propertyIdHandle = CommonWindowsEngine.JsGetPropertyIdFromName("lorax");
+                    Assert.NotEqual(JavaScriptPropertyIdSafeHandle.Invalid, propertyIdHandle);
+
+                    propertyIdHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanGetNameFromPropertyId()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+                    var propertyName = "onefishtwofishredfishbluefish";
+                    var propertyIdHandle = CommonWindowsEngine.JsGetPropertyIdFromName(propertyName);
+
+                    var ptr = CommonWindowsEngine.JsGetPropertyNameFromId(propertyIdHandle);
+                    var name = Marshal.PtrToStringUni(ptr);
+                    Assert.Equal(name, propertyName);
+
+                    propertyIdHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
         public void JsCanGetPointerFromString()
         {
             if (CommonWindowsEngine == null)

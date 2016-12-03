@@ -2379,7 +2379,7 @@
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsGetPropertyNameFromId(JavaScriptPropertyIdSafeHandle propertyId, out string name);
+		public static extern JavaScriptErrorCode JsGetPropertyNameFromId(JavaScriptPropertyIdSafeHandle propertyId, out IntPtr name);
 
 		/// <summary>
 		///		Creates a string value from a string pointer.
