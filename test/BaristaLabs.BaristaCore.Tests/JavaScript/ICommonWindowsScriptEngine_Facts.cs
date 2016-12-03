@@ -373,6 +373,9 @@ return obj;
         [Fact]
         public void JsCanGetPropertyIdFromName()
         {
+            if (CommonWindowsEngine == null)
+                return;
+
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
                 using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
@@ -389,6 +392,9 @@ return obj;
         [Fact]
         public void JsCanGetNameFromPropertyId()
         {
+            if (CommonWindowsEngine == null)
+                return;
+
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
                 using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
