@@ -259,8 +259,10 @@ fibonacci(50);
                         else
                         {
                             var numHandle = Engine.JsDiagEvaluateUtf8("num", 0);
-                            var numNumHandle = Engine.JsConvertValueToNumber(numHandle);
-                            numDecrementing.Add(Engine.JsNumberToInt(numNumHandle));
+
+                            var valuePropertyHandle = Engine.JsCreatePropertyIdUtf8("value", new UIntPtr((uint)"value".Length));
+                            var valueHandle = Engine.JsGetProperty(numHandle, valuePropertyHandle);
+                            numDecrementing.Add(Engine.JsNumberToInt(valueHandle));
                         }
 
                         //Increment our call counter (that we're asserting against) and continue.

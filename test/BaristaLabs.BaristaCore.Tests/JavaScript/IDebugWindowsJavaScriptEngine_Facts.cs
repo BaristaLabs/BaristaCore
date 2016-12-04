@@ -58,13 +58,14 @@ moose;
                     //Callback that is run for each breakpoint.
                     JavaScriptDiagDebugEventCallback callback = (JavaScriptDiagDebugEventType eventType, IntPtr eventData, IntPtr callbackState) =>
                     {
-                        //JsDiagEvaluate differs from JsDiagEvaluateUtf8 in that it returns an object.
                         var evalResultHandle = DebugWindowsEngine.JsDiagEvaluate("i", 0);
                         
                         var handleType = Engine.JsGetValueType(evalResultHandle);
                         Assert.Equal(JavaScriptValueType.Object, handleType);
 
-                        iPod++;
+                        var valuePropertyHandle = CommonWindowsEngine.JsGetPropertyIdFromName("value");
+                        var valueHandle = Engine.JsGetProperty(evalResultHandle, valuePropertyHandle);
+                        iPod = Engine.JsNumberToInt(valueHandle);
 
                         return true;
                     };
@@ -94,7 +95,7 @@ moose;
                         Engine.JsDiagStopDebugging(runtimeHandle);
                     }
 
-                    Assert.Equal(50, iPod);
+                    Assert.Equal(49, iPod);
                 }
             }
         }
