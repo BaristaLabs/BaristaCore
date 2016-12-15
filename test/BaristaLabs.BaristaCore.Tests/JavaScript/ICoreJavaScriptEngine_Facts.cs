@@ -309,17 +309,14 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    byte[] buffer = new byte[1024];
-                    ulong bufferSize = (ulong)buffer.Length;
                     IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
                     try
                     {
                         var scriptHandle = Engine.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero);
+                        var bufferHandle = Engine.JsSerialize(scriptHandle, JavaScriptParseScriptAttributes.None);
 
-                        Engine.JsSerialize(scriptHandle, buffer, ref bufferSize, JavaScriptParseScriptAttributes.None);
-
-                        Assert.True(bufferSize != (ulong)buffer.Length);
-                        Assert.True(buffer[0] != 0);
+                        var handleType = Engine.JsGetValueType(bufferHandle);
+                        Assert.True(handleType == JavaScriptValueType.ArrayBuffer);
 
                         scriptHandle.Dispose();
                     }
@@ -343,22 +340,6 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    byte[] buffer = new byte[1024];
-                    ulong bufferSize = (ulong)buffer.Length;
-
-                    IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
-                    try
-                    {
-                        var scriptHandle = Engine.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero);
-
-                        Engine.JsSerialize(scriptHandle, buffer, ref bufferSize, JavaScriptParseScriptAttributes.None);
-                        scriptHandle.Dispose();
-                    }
-                    finally
-                    {
-                        Marshal.FreeHGlobal(ptrScript);
-                    }
-
                     JavaScriptSerializedLoadScriptCallback callback = (JavaScriptSourceContext sourceContext, out JavaScriptValueSafeHandle value, out JavaScriptParseScriptAttributes parseAttributes) =>
                     {
                         value = null;
@@ -366,16 +347,28 @@
                         return true;
                     };
 
-                    var sourceUrlHandle = Engine.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
-                    var resultHandle = Engine.JsParseSerialized(buffer, callback, JavaScriptSourceContext.None, sourceUrlHandle);
+                    IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
+                    try
+                    {
+                        var scriptHandle = Engine.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero);
+                        var bufferHandle = Engine.JsSerialize(scriptHandle, JavaScriptParseScriptAttributes.None);
 
-                    Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
+                        var sourceUrlHandle = Engine.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
+                        var resultHandle = Engine.JsParseSerialized(bufferHandle, callback, JavaScriptSourceContext.None, sourceUrlHandle);
 
-                    var handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.Function);
+                        Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
 
-                    resultHandle.Dispose();
-                    sourceUrlHandle.Dispose();
+                        var handleType = Engine.JsGetValueType(resultHandle);
+                        Assert.True(handleType == JavaScriptValueType.Function);
+
+                        resultHandle.Dispose();
+                        sourceUrlHandle.Dispose();
+                        scriptHandle.Dispose();
+                    }
+                    finally
+                    {
+                        Marshal.FreeHGlobal(ptrScript);
+                    }
                 }
             }
         }
@@ -392,22 +385,6 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    byte[] buffer = new byte[1024];
-                    ulong bufferSize = (ulong)buffer.Length;
-
-                    IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
-                    try
-                    {
-                        var scriptHandle = Engine.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero);
-
-                        Engine.JsSerialize(scriptHandle, buffer, ref bufferSize, JavaScriptParseScriptAttributes.None);
-                        scriptHandle.Dispose();
-                    }
-                    finally
-                    {
-                        Marshal.FreeHGlobal(ptrScript);
-                    }
-
                     JavaScriptSerializedLoadScriptCallback callback = (JavaScriptSourceContext sourceContext, out JavaScriptValueSafeHandle value, out JavaScriptParseScriptAttributes parseAttributes) =>
                     {
                         value = null;
@@ -415,21 +392,32 @@
                         return true;
                     };
 
-                    var sourceUrlHandle = Engine.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
-                    var resultHandle = Engine.JsRunSerialized(buffer, callback, JavaScriptSourceContext.None, sourceUrlHandle);
+                    IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
+                    try
+                    {
+                        var scriptHandle = Engine.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero);
+                        var bufferHandle = Engine.JsSerialize(scriptHandle, JavaScriptParseScriptAttributes.None);
 
-                    Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
+                        var sourceUrlHandle = Engine.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
+                        var resultHandle = Engine.JsRunSerialized(bufferHandle, callback, JavaScriptSourceContext.None, sourceUrlHandle);
 
-                    var handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.Number);
+                        Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
 
-                    var resultValue = Engine.JsNumberToInt(resultHandle);
+                        var handleType = Engine.JsGetValueType(resultHandle);
+                        Assert.True(handleType == JavaScriptValueType.Number);
 
-                    Assert.True(resultValue == 42);
+                        var resultValue = Engine.JsNumberToInt(resultHandle);
 
-                    sourceUrlHandle.Dispose();
-                    resultHandle.Dispose();
+                        Assert.True(resultValue == 42);
 
+                        sourceUrlHandle.Dispose();
+                        resultHandle.Dispose();
+                        scriptHandle.Dispose();
+                    }
+                    finally
+                    {
+                        Marshal.FreeHGlobal(ptrScript);
+                    }
                 }
             }
         }

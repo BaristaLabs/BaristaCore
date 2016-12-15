@@ -258,17 +258,13 @@
 		/// <param name="script">
 		///		The script to serialize
 		/// </param>
-		/// <param name="buffer">
-		///		The buffer to put the serialized script into. Can be null.
-		/// </param>
-		/// <param name="bufferSize">
-		///		On entry, the size of the buffer, in bytes; on exit, the size of the buffer, in bytes,
-		///		required to hold the serialized script.
-		/// </param>
 		/// <param name="parseAttributes">
 		///		Encoding for the script.
 		/// </param>
-		void JsSerialize(JavaScriptValueSafeHandle script, byte[] buffer, ref ulong bufferSize, JavaScriptParseScriptAttributes parseAttributes);
+		/// <returns>
+		///		The buffer to put the serialized script into. Can be null.
+		/// </returns>
+		JavaScriptValueSafeHandle JsSerialize(JavaScriptValueSafeHandle script, JavaScriptParseScriptAttributes parseAttributes);
 
 		/// <summary>
 		///		Parses a serialized script and returns a function representing the script. Provides the ability to lazy load the script source only if/when it is needed.
@@ -293,7 +289,7 @@
 		/// <returns>
 		///		A function representing the script code.
 		/// </returns>
-		JavaScriptValueSafeHandle JsParseSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl);
+		JavaScriptValueSafeHandle JsParseSerialized(JavaScriptValueSafeHandle buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl);
 
 		/// <summary>
 		///		Runs a serialized script. Provides the ability to lazy load the script source only if/when it is needed.
@@ -319,7 +315,7 @@
 		/// <returns>
 		///		The result of running the script, if any. This parameter can be null.
 		/// </returns>
-		JavaScriptValueSafeHandle JsRunSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl);
+		JavaScriptValueSafeHandle JsRunSerialized(JavaScriptValueSafeHandle buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl);
 
 	}
 }

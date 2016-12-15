@@ -500,8 +500,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsValueRef" name="script"/>
-      <Parameter type="byte[]" name="buffer"/>
-      <Parameter type="ulong" name="bufferSize" direction="Ref"/>
+      <Parameter type="JsValueRef" name="buffer" direction="Out"/>
       <Parameter type="JsParseScriptAttributes" name="parseAttributes"/>
     </Parameters>
   </Export>
@@ -535,7 +534,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="byte[]" name="buffer"/>
+      <Parameter type="JsValueRef" name="buffer"/>
       <Parameter type="JsSerializedLoadScriptCallback" name="scriptLoadCallback"/>
       <Parameter type="JsSourceContext" name="sourceContext"/>
       <Parameter type="JsValueRef" name="sourceUrl"/>
@@ -576,7 +575,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="byte[]" name="buffer"/>
+      <Parameter type="JsValueRef" name="buffer"/>
       <Parameter type="JsSerializedLoadScriptCallback" name="scriptLoadCallback"/>
       <Parameter type="JsSourceContext" name="sourceContext"/>
       <Parameter type="JsValueRef" name="sourceUrl"/>

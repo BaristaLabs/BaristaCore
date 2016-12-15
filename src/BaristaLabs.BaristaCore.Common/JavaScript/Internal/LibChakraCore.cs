@@ -391,10 +391,6 @@
 		/// <param name="buffer">
 		///		The buffer to put the serialized script into. Can be null.
 		/// </param>
-		/// <param name="bufferSize">
-		///		On entry, the size of the buffer, in bytes; on exit, the size of the buffer, in bytes,
-		///		required to hold the serialized script.
-		/// </param>
 		/// <param name="parseAttributes">
 		///		Encoding for the script.
 		/// </param>
@@ -402,7 +398,7 @@
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsSerialize(JavaScriptValueSafeHandle script, byte[] buffer, ref ulong bufferSize, JavaScriptParseScriptAttributes parseAttributes);
+		public static extern JavaScriptErrorCode JsSerialize(JavaScriptValueSafeHandle script, out JavaScriptValueSafeHandle buffer, JavaScriptParseScriptAttributes parseAttributes);
 
 		/// <summary>
 		///		Parses a serialized script and returns a function representing the script. Provides the ability to lazy load the script source only if/when it is needed.
@@ -431,7 +427,7 @@
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsParseSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);
+		public static extern JavaScriptErrorCode JsParseSerialized(JavaScriptValueSafeHandle buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
 		///		Runs a serialized script. Provides the ability to lazy load the script source only if/when it is needed.
@@ -461,7 +457,7 @@
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsRunSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);
+		public static extern JavaScriptErrorCode JsRunSerialized(JavaScriptValueSafeHandle buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
 		///		Creates a new runtime.

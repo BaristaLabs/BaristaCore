@@ -113,12 +113,20 @@
 			return written;
 		}
 
-		public void JsSerialize(JavaScriptValueSafeHandle script, byte[] buffer, ref ulong bufferSize, JavaScriptParseScriptAttributes parseAttributes)
+		public JavaScriptValueSafeHandle JsSerialize(JavaScriptValueSafeHandle script, JavaScriptParseScriptAttributes parseAttributes)
 		{
-			Errors.ThrowIfError(LibChakraCore.JsSerialize(script, buffer, ref bufferSize, parseAttributes));
+			JavaScriptValueSafeHandle buffer;
+			Errors.ThrowIfError(LibChakraCore.JsSerialize(script, out buffer, parseAttributes));
+			buffer.NativeFunctionSource = nameof(LibChakraCore.JsSerialize);
+			if (buffer != JavaScriptValueSafeHandle.Invalid)
+			{
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(buffer, out valueRefCount));
+			}
+			return buffer;
 		}
 
-		public JavaScriptValueSafeHandle JsParseSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl)
+		public JavaScriptValueSafeHandle JsParseSerialized(JavaScriptValueSafeHandle buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl)
 		{
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsParseSerialized(buffer, scriptLoadCallback, sourceContext, sourceUrl, out result));
@@ -131,7 +139,7 @@
 			return result;
 		}
 
-		public JavaScriptValueSafeHandle JsRunSerialized(byte[] buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl)
+		public JavaScriptValueSafeHandle JsRunSerialized(JavaScriptValueSafeHandle buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl)
 		{
 			JavaScriptValueSafeHandle result;
 			Errors.ThrowIfError(LibChakraCore.JsRunSerialized(buffer, scriptLoadCallback, sourceContext, sourceUrl, out result));
