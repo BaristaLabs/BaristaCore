@@ -43,6 +43,22 @@
         }
 
         [Fact]
+        public void JavaScriptContextShouldGetFalse()
+        {
+            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.False);
+                        Assert.Equal(false, ctx.False);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void JavaScriptContextShouldGetNull()
         {
             using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
@@ -52,6 +68,22 @@
                     using (ctx.Scope())
                     {
                         Assert.NotNull(ctx.Null);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextShouldGetTrue()
+        {
+            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.True);
+                        Assert.Equal(true, ctx.True);
                     }
                 }
             }
@@ -89,6 +121,8 @@
             }
         }
 
+        
+
         [Fact]
         public void JavaScriptContextShouldParseAndInvokeScriptText()
         {
@@ -116,42 +150,28 @@
         [Fact]
         public void JsPropertyCanBeRetrievedByName()
         {
-            //            var script = @"( () => { return {
-            //    foo: 'bar',
-            //    baz: 'qix'
-            //  };
-            //})()";
-            //            string result;
+            var script = @"var fooObj = {
+    foo: 'bar',
+    baz: 'qix'
+};
+
+fooObj;";
 
             using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
             {
                 using (var ctx = rt.CreateContext())
                 {
-            //        using (var xc = ctx.AcquireExecutionContext())
-            //        {
-            //            JavaScriptValueSafeHandle obj;
-            //            Errors.ThrowIfIs(ChakraApi.Instance.JsRunScript(script, JavaScriptSourceContext.None, null, JsParseScriptAttributes.JsParseScriptAttributeNone, out obj));
+                    using (ctx.Scope())
+                    {
+                        var fn = ctx.ParseScriptText(script);
+                        var fooObj = fn.Invoke() as JavaScriptObject;
+                        Assert.NotNull(fooObj);
 
-            //            JavaScriptValueSafeHandle foo;
-            //            Errors.ThrowIfIs(ChakraApi.Instance.JsCreateStringUtf16("foo", new UIntPtr((uint)"foo".Length), out foo));
-
-            //            JavaScriptValueSafeHandle propertyHandle;
-            //            Errors.ThrowIfIs(ChakraApi.Instance.JsGetIndexedProperty(obj, foo,out propertyHandle));
-            //            UIntPtr size;
-            //            Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf16(propertyHandle, 0, -1, null, out size));
-
-            //            if ((int)size * 2 > int.MaxValue)
-            //                throw new OutOfMemoryException("Exceeded maximum string length.");
-
-            //            byte[] propertyValue = new byte[(int)size * 2];
-            //            UIntPtr written;
-            //            Errors.ThrowIfIs(ChakraApi.Instance.JsCopyStringUtf16(propertyHandle, 0, -1, propertyValue, out written));
-            //            result = Encoding.Unicode.GetString(propertyValue, 0, propertyValue.Length);
-            //        }
+                        var fooValue = fooObj.GetPropertyByName<string>("foo");
+                        Assert.Equal("bar", fooValue);
+                    }
                 }
             }
-
-            //Assert.True("bar" == result);
         }
 
         [Fact]

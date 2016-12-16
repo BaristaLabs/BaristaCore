@@ -40,12 +40,12 @@
         #region DynamicObject overrides
         public override bool TryConvert(ConvertBinder binder, out object result)
         {
-            //if (binder.Type == typeof(bool))
-            //{
-            //    result = ToBoolean();
-            //    return true;
-            //}
-            if (binder.Type == typeof(int))
+            if (binder.Type == typeof(bool))
+            {
+                result = ToBoolean();
+                return true;
+            }
+            else if (binder.Type == typeof(int))
             {
                 result = ToInt32();
                 return true;
@@ -66,6 +66,21 @@
         #endregion
 
         /// <summary>
+        /// Converts the value to a bool and returns the boolean representation.
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool ToBoolean()
+        {
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(JavaScriptValue));
+
+            using (var numberValueHandle = Engine.JsConvertValueToBoolean(Handle))
+            {
+                return Engine.JsBooleanToBool(numberValueHandle);
+            }
+        }
+
+        /// <summary>
         /// Converts the value to a number and returns the double representation
         /// </summary>
         /// <returns></returns>
@@ -81,7 +96,7 @@
         }
 
         /// <summary>
-        /// Converts the value to a number and returns the integer representation
+        /// Converts the value to a number and returns the integer representation.
         /// </summary>
         /// <returns></returns>
         public virtual int ToInt32()
@@ -95,6 +110,10 @@
             }
         }
 
+        /// <summary>
+        /// Converts the value to a string (using standard JavaScript semantics) and returns the result
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             if (IsDisposed)
@@ -122,16 +141,34 @@
             var valueType = engine.JsGetValueType(valueHandle);
             switch (valueType)
             {
-                case JavaScriptValueType.Object:
-                    return new JavaScriptObject(engine, context, valueHandle);
+                case JavaScriptValueType.Array:
+                    return new JavaScriptArray(engine, context, valueHandle);
+                case JavaScriptValueType.ArrayBuffer:
+                    return new JavaScriptArrayBuffer(engine, context, valueHandle);
+                case JavaScriptValueType.Boolean:
+                    return new JavaScriptBoolean(engine, context, valueHandle);
+                case JavaScriptValueType.DataView:
+                    //TODO: Add a dataview
+                    throw new NotImplementedException();
+                case JavaScriptValueType.Error:
+                    //TODO: Realign exception classes to be JavaScriptValues... or something.
+                    throw new NotImplementedException();
                 case JavaScriptValueType.Function:
                     return new JavaScriptFunction(engine, context, valueHandle);
-                case JavaScriptValueType.String:
-                    return new JavaScriptString(engine, context, valueHandle);
-                case JavaScriptValueType.Number:
-                    return new JavaScriptNumber(engine, context, valueHandle);
                 case JavaScriptValueType.Null:
                     return new JavaScriptNull(engine, context, valueHandle);
+                case JavaScriptValueType.Number:
+                    return new JavaScriptNumber(engine, context, valueHandle);
+                case JavaScriptValueType.Object:
+                    return new JavaScriptObject(engine, context, valueHandle);
+                case JavaScriptValueType.String:
+                    return new JavaScriptString(engine, context, valueHandle);
+                case JavaScriptValueType.Symbol:
+                    //TODO: add symbol class.
+                    throw new NotImplementedException();
+                case JavaScriptValueType.TypedArray:
+                    return new JavaScriptTypedArray(engine, context, valueHandle);
+                    throw new NotImplementedException();
                 case JavaScriptValueType.Undefined:
                     return new JavaScriptUndefined(engine, context, valueHandle);
                 default:
@@ -146,6 +183,8 @@
         internal static T CreateJavaScriptValueFromHandle<T>(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle valueHandle)
             where T : JavaScriptValue
         {
+            //TODO: Come C# 7.0, change this to a type-based switch statement.
+
             switch(typeof(T).ToString())
             {
                 case "JavaScriptFunction":

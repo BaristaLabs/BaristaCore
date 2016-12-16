@@ -16,9 +16,26 @@
 
         private readonly Lazy<JavaScriptUndefined> m_undefinedValue;
         private readonly Lazy<JavaScriptNull> m_nullValue;
+        private readonly Lazy<JavaScriptBoolean> m_trueValue;
+        private readonly Lazy<JavaScriptBoolean> m_falseValue;
 
         private JavaScriptValuePool m_valuePool;
         private JavaScriptExecutionScope m_currentExecutionScope;
+
+        #region Properties
+        /// <summary>
+        /// Gets the False Value associated with the context.
+        /// </summary>
+        public JavaScriptBoolean False
+        {
+            get
+            {
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(JavaScriptContext));
+
+                return m_falseValue.Value;
+            }
+        }
 
         /// <summary>
         /// Gets a value that indicates if a current execution scope exists.
@@ -43,6 +60,20 @@
         }
 
         /// <summary>
+        /// Gets the True Value associated with the context.
+        /// </summary>
+        public JavaScriptBoolean True
+        {
+            get
+            {
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(JavaScriptContext));
+
+                return m_trueValue.Value;
+            }
+        }
+
+        /// <summary>
         /// Gets the Undefined Value associated with the context.
         /// </summary>
         public JavaScriptValue Undefined
@@ -55,6 +86,7 @@
                 return m_undefinedValue.Value;
             }
         }
+        #endregion
 
         /// <summary>
         /// Gets the pool of jsvalue flyweight objects associated with the context.
@@ -69,6 +101,8 @@
         {
             m_undefinedValue = new Lazy<JavaScriptUndefined>(GetUndefinedValue);
             m_nullValue = new Lazy<JavaScriptNull>(GetNullValue);
+            m_trueValue = new Lazy<JavaScriptBoolean>(GetTrueValue);
+            m_falseValue = new Lazy<JavaScriptBoolean>(GetFalseValue);
 
             m_valuePool = new JavaScriptValuePool(engine, this);
         }
@@ -143,7 +177,19 @@
                 return m_currentExecutionScope;
 
             Engine.JsSetCurrentContext(Handle);
-            return new JavaScriptExecutionScope(ReleaseScope);
+            m_currentExecutionScope = new JavaScriptExecutionScope(ReleaseScope);
+            return m_currentExecutionScope;
+        }
+
+        private JavaScriptBoolean GetFalseValue()
+        {
+            var falseValue = Engine.JsGetFalseValue();
+            var result = new JavaScriptBoolean(Engine, this, falseValue);
+            if (m_valuePool.TryAdd(result))
+                return result;
+
+            result.Dispose();
+            throw new InvalidOperationException("Could not add JsFalse to the Value Pool associated with the context.");
         }
 
         private JavaScriptNull GetNullValue()
@@ -155,6 +201,17 @@
 
             result.Dispose();
             throw new InvalidOperationException("Could not add JsNull to the Value Pool associated with the context.");
+        }
+
+        private JavaScriptBoolean GetTrueValue()
+        {
+            var trueValue = Engine.JsGetTrueValue();
+            var result = new JavaScriptBoolean(Engine, this, trueValue);
+            if (m_valuePool.TryAdd(result))
+                return result;
+
+            result.Dispose();
+            throw new InvalidOperationException("Could not add JsTrue to the Value Pool associated with the context.");
         }
 
         private JavaScriptUndefined GetUndefinedValue()
