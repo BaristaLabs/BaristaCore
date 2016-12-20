@@ -74,6 +74,7 @@ New Services:
    - [ ] Source file providers can be defined and configured on a per-app basis
    - [ ] Define environment-variables per app.
    - [ ] Apps automatically include metrics.
+   - [ ] More app-centric services, index, secure key store, etc...
  - [ ] Built-In Scheduling via Quartz.Net
  - [ ] Built-In Lucene.Net 4.8 Support (Lucene .Net Core Support forthcoming)
  - [ ] Global Bundle Management Service
