@@ -150,8 +150,8 @@ fibonacci(50);
 
                     //Get the JSON.stringify function for later...
                     var globalObjectHandle = Engine.JsGetGlobalObject();
-                    var jsonPropertyHandle = Engine.JsCreatePropertyIdUtf8("JSON", new UIntPtr((uint)"JSON".Length));
-                    var stringifyPropertyHandle = Engine.JsCreatePropertyIdUtf8("stringify", new UIntPtr((uint)"stringify".Length));
+                    var jsonPropertyHandle = Engine.JsCreatePropertyId("JSON", new UIntPtr((uint)"JSON".Length));
+                    var stringifyPropertyHandle = Engine.JsCreatePropertyId("stringify", new UIntPtr((uint)"stringify".Length));
                     var jsonObjectHandle = Engine.JsGetProperty(globalObjectHandle, jsonPropertyHandle);
                     var fnStringifyHandle = Engine.JsGetProperty(jsonObjectHandle, stringifyPropertyHandle);
 
@@ -181,20 +181,20 @@ fibonacci(50);
                         var objFrameHandle = Engine.JsGetIndexedProperty(stackTrace, ix);
 
                         //Get the line and the source
-                        var linePropertyHandle = Engine.JsCreatePropertyIdUtf8("line", new UIntPtr((uint)"line".Length));
+                        var linePropertyHandle = Engine.JsCreatePropertyId("line", new UIntPtr((uint)"line".Length));
                         var lineHandle = Engine.JsGetProperty(objFrameHandle, linePropertyHandle);
                         var line = Engine.JsNumberToInt(lineHandle);
 
-                        var functionHandlePropertyHandle = Engine.JsCreatePropertyIdUtf8("functionHandle", new UIntPtr((uint)"functionHandle".Length));
+                        var functionHandlePropertyHandle = Engine.JsCreatePropertyId("functionHandle", new UIntPtr((uint)"functionHandle".Length));
                         var functionHandleHandle = Engine.JsGetProperty(objFrameHandle, functionHandlePropertyHandle);
                         var functionHandle = Engine.JsNumberToInt(functionHandleHandle);
 
-                        var sourceTextPropertyHandle = Engine.JsCreatePropertyIdUtf8("sourceText", new UIntPtr((uint)"sourceText".Length));
+                        var sourceTextPropertyHandle = Engine.JsCreatePropertyId("sourceText", new UIntPtr((uint)"sourceText".Length));
                         var sourceTextHandle = Engine.JsGetProperty(objFrameHandle, sourceTextPropertyHandle);
                         var sourceLength = Engine.JsGetStringLength(sourceTextHandle);
 
                         byte[] buffer = new byte[sourceLength];
-                        var written = Engine.JsCopyStringUtf8(sourceTextHandle, buffer, new UIntPtr((uint)sourceLength));
+                        var written = Engine.JsCopyString(sourceTextHandle, buffer, new UIntPtr((uint)sourceLength));
                         var sourceText = Encoding.UTF8.GetString(buffer);
 
                         //If we hit the first line...
@@ -209,26 +209,26 @@ fibonacci(50);
                             var stringifiedPropertyLength = Engine.JsGetStringLength(stringifiedPropertyHandle);
 
                             byte[] serializedPropertyBuffer = new byte[stringifiedPropertyLength];
-                            var stringifiedPropertyWritten = Engine.JsCopyStringUtf8(stringifiedPropertyHandle, serializedPropertyBuffer, new UIntPtr((uint)stringifiedPropertyLength));
+                            var stringifiedPropertyWritten = Engine.JsCopyString(stringifiedPropertyHandle, serializedPropertyBuffer, new UIntPtr((uint)stringifiedPropertyLength));
                             firstFrameProperties = Encoding.UTF8.GetString(serializedPropertyBuffer);
 
                             //Get information about the 'fibonacci' local -- which should be our function.
-                            var localsPropertyHandle = Engine.JsCreatePropertyIdUtf8("locals", new UIntPtr((uint)"locals".Length));
+                            var localsPropertyHandle = Engine.JsCreatePropertyId("locals", new UIntPtr((uint)"locals".Length));
                             var localsHandle = Engine.JsGetProperty(stackProperties, localsPropertyHandle);
                             var objLocalHandle = Engine.JsGetIndexedProperty(localsHandle, ix);
 
                             //I'm not impressed with the naming of these... ;)
-                            var handlePropertyHandle = Engine.JsCreatePropertyIdUtf8("handle", new UIntPtr((uint)"handle".Length));
+                            var handlePropertyHandle = Engine.JsCreatePropertyId("handle", new UIntPtr((uint)"handle".Length));
                             var handleHandle = Engine.JsGetProperty(objLocalHandle, handlePropertyHandle);
                             var handle = Engine.JsNumberToInt(handleHandle);
 
                             var objectHandle = Engine.JsDiagGetObjectFromHandle((uint)handle);
-                            var namePropertyHandle = Engine.JsCreatePropertyIdUtf8("name", new UIntPtr((uint)"name".Length));
+                            var namePropertyHandle = Engine.JsCreatePropertyId("name", new UIntPtr((uint)"name".Length));
                             var nameHandle = Engine.JsGetProperty(objectHandle, namePropertyHandle);
                             var nameLength = Engine.JsGetStringLength(nameHandle);
 
                             byte [] nameBuffer = new byte[nameLength];
-                            var nameWritten = Engine.JsCopyStringUtf8(nameHandle, nameBuffer, new UIntPtr((uint)nameLength));
+                            var nameWritten = Engine.JsCopyString(nameHandle, nameBuffer, new UIntPtr((uint)nameLength));
                             firstStackObjectName = Encoding.UTF8.GetString(nameBuffer);
 
                             //Get the child properties
@@ -239,7 +239,7 @@ fibonacci(50);
                             var stringifiedChildrenLength = Engine.JsGetStringLength(stringifiedChildrenHandle);
 
                             byte[] serializedChildrenBuffer = new byte[stringifiedChildrenLength];
-                            var stringifiedChildrenWritten = Engine.JsCopyStringUtf8(stringifiedChildrenHandle, serializedChildrenBuffer, new UIntPtr((uint)stringifiedChildrenLength));
+                            var stringifiedChildrenWritten = Engine.JsCopyString(stringifiedChildrenHandle, serializedChildrenBuffer, new UIntPtr((uint)stringifiedChildrenLength));
                             firstFrameChildren = Encoding.UTF8.GetString(serializedChildrenBuffer);
 
                             //Set the step
@@ -260,7 +260,7 @@ fibonacci(50);
                         {
                             var numHandle = Engine.JsDiagEvaluateUtf8("num", 0);
 
-                            var valuePropertyHandle = Engine.JsCreatePropertyIdUtf8("value", new UIntPtr((uint)"value".Length));
+                            var valuePropertyHandle = Engine.JsCreatePropertyId("value", new UIntPtr((uint)"value".Length));
                             var valueHandle = Engine.JsGetProperty(numHandle, valuePropertyHandle);
                             numDecrementing.Add(Engine.JsNumberToInt(valueHandle));
                         }
@@ -284,14 +284,14 @@ fibonacci(50);
                         Assert.True(handleType == JavaScriptValueType.Object);
 
                         //Not sure if the ScriptId varies independently of the ScriptContext cookie
-                        var scriptIdPropertyHandle = Engine.JsCreatePropertyIdUtf8("scriptId", new UIntPtr((uint)"scriptId".Length));
+                        var scriptIdPropertyHandle = Engine.JsCreatePropertyId("scriptId", new UIntPtr((uint)"scriptId".Length));
                         var scriptIdHandle = Engine.JsGetProperty(objScriptHandle, scriptIdPropertyHandle);
 
                         var scriptId = Engine.JsNumberToInt(scriptIdHandle);
 
                         //Assert that we can get the source for the script id.
                         var objSourceHandle = Engine.JsDiagGetSource((uint)scriptId);
-                        var sourcePropertyHandle = Engine.JsCreatePropertyIdUtf8("source", new UIntPtr((uint)"source".Length));
+                        var sourcePropertyHandle = Engine.JsCreatePropertyId("source", new UIntPtr((uint)"source".Length));
                         var sourceHandle = Engine.JsGetProperty(objSourceHandle, sourcePropertyHandle);
 
                         handleType = Engine.JsGetValueType(sourceHandle);
@@ -299,7 +299,7 @@ fibonacci(50);
                         var sourceLength = Engine.JsGetStringLength(sourceHandle);
 
                         byte[] buffer = new byte[sourceLength];
-                        var written = Engine.JsCopyStringUtf8(sourceHandle, buffer, new UIntPtr((uint)sourceLength));
+                        var written = Engine.JsCopyString(sourceHandle, buffer, new UIntPtr((uint)sourceLength));
                         var source = Encoding.UTF8.GetString(buffer);
                         Assert.Equal(fibonacci, source);
 
@@ -310,9 +310,9 @@ fibonacci(50);
                         //Assert that the breakpoint has been set
                         var breakpointsHandle = Engine.JsDiagGetBreakpoints();
                         var objBreakpointHandle = Engine.JsGetIndexedProperty(breakpointsHandle, ix);
-                        var breakpointIdPropertyHandle = Engine.JsCreatePropertyIdUtf8("breakpointId", new UIntPtr((uint)"breakpointId".Length));
+                        var breakpointIdPropertyHandle = Engine.JsCreatePropertyId("breakpointId", new UIntPtr((uint)"breakpointId".Length));
                         var breakpointIdHandle = Engine.JsGetProperty(objBreakpointHandle, breakpointIdPropertyHandle);
-                        var linePropertyHandle = Engine.JsCreatePropertyIdUtf8("line", new UIntPtr((uint)"line".Length));
+                        var linePropertyHandle = Engine.JsCreatePropertyId("line", new UIntPtr((uint)"line".Length));
                         var lineHandle = Engine.JsGetProperty(objBreakpointHandle, linePropertyHandle);
 
                         var line = Engine.JsNumberToInt(lineHandle);
@@ -337,7 +337,7 @@ fibonacci(50);
                         var stringifiedFibonacciLength = Engine.JsGetStringLength(stringifiedFibonacciHandle);
 
                         byte[] serializedFibonacciBuffer = new byte[stringifiedFibonacciLength];
-                        var stringifiedFibonacciWritten = Engine.JsCopyStringUtf8(stringifiedFibonacciHandle, serializedFibonacciBuffer, new UIntPtr((uint)stringifiedFibonacciLength));
+                        var stringifiedFibonacciWritten = Engine.JsCopyString(stringifiedFibonacciHandle, serializedFibonacciBuffer, new UIntPtr((uint)stringifiedFibonacciLength));
                         fibonacciFunctionPosition = Encoding.UTF8.GetString(serializedFibonacciBuffer);
 
                         //Break on the first line

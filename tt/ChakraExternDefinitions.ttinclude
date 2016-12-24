@@ -46,7 +46,9 @@
 		{ "BYTE", "byte[]" },
         { "size_t", "UIntPtr" },
         { "wchar_t", "string" },
+        { "uint16_t", "UIntPtr" },
         { "char*", "byte[]"},
+		{ "uint16_t*", "byte[]" },
         { "UIntPtr", "ulong" }
     };
 

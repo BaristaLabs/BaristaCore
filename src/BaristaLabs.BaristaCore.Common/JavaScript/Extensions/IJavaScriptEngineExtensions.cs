@@ -30,13 +30,13 @@
             }
 
             //Get the size
-            var size = jsrt.JsCopyStringUtf8(stringHandle, null, UIntPtr.Zero);
+            var size = jsrt.JsCopyString(stringHandle, null, UIntPtr.Zero);
  
             if ((int)size > int.MaxValue)
                 throw new OutOfMemoryException("Exceeded maximum string length.");
 
             byte[] result = new byte[(int)size];
-            var written = jsrt.JsCopyStringUtf8(stringHandle, result, new UIntPtr((uint)result.Length));
+            var written = jsrt.JsCopyString(stringHandle, result, new UIntPtr((uint)result.Length));
 
             var strResult = Encoding.UTF8.GetString(result, 0, result.Length);
             if (stringHandleWasCreated)
@@ -81,7 +81,7 @@
                 sourceUrl = "[eval code]";
             }
 
-            sourceUrlHandle = jsrt.JsCreateStringUtf8(EvalSourceUrl, new UIntPtr((uint)EvalSourceUrl.Length));
+            sourceUrlHandle = jsrt.JsCreateString(EvalSourceUrl, new UIntPtr((uint)EvalSourceUrl.Length));
 
             if (parseAttributes == default(JavaScriptParseScriptAttributes))
             {

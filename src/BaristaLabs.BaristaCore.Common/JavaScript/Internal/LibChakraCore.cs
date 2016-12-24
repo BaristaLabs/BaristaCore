@@ -101,10 +101,10 @@
 		public static extern JavaScriptErrorCode JsGetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, out IntPtr hostInfo);
 
 		/// <summary>
-		///		Create JavascriptString variable from C string
+		///		Create JavascriptString variable from ASCII or Utf8 string
 		/// </summary>
 		/// <remarks>
-		///		C string is expected to be ASCII
+		///		Input string can be either ASCII or Utf8
 		/// </remarks>
 		/// <param name="content">
 		///		Pointer to string memory.
@@ -139,66 +139,11 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCreateStringUtf8(string content, UIntPtr length, out JavaScriptValueSafeHandle value);
-
-		/// <summary>
-		///		Create JavascriptString variable from Utf8 string
-		/// </summary>
-		/// <remarks>
-		///		Input string can be either ASCII or Utf8
-		/// </remarks>
-		/// <param name="content">
-		///		Pointer to string memory.
-		/// </param>
-		/// <param name="length">
-		///		Number of bytes within the string
-		/// </param>
-		/// <param name="value">
-		///		JsValueRef representing the JavascriptString
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
 		[DllImport(DllName, CharSet = CharSet.Unicode)]
 		public static extern JavaScriptErrorCode JsCreateStringUtf16(string content, UIntPtr length, out JavaScriptValueSafeHandle value);
 
 		/// <summary>
-		///		Write JavascriptString value into C string buffer
-		/// </summary>
-		/// <remarks>
-		///		When size of the `buffer` is unknown,
-		///		`buffer` argument can be nullptr.
-		///		In that case, `written` argument will return the length needed.
-		///		when start is out of range or < 0, returns JsErrorInvalidArgument
-		///		and `written` will be equal to 0.
-		///		If calculated length is 0 (It can be due to string length or `start`
-		///		and length combination), then `written` will be equal to 0 and call
-		///		returns JsNoError
-		/// </remarks>
-		/// <param name="value">
-		///		JavascriptString value
-		/// </param>
-		/// <param name="start">
-		///		start offset of buffer
-		/// </param>
-		/// <param name="length">
-		///		length to be written
-		/// </param>
-		/// <param name="buffer">
-		///		Pointer to buffer
-		/// </param>
-		/// <param name="written">
-		///		Total number of characters written
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Ansi)]
-		public static extern JavaScriptErrorCode JsCopyString(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer, out UIntPtr written);
-
-		/// <summary>
-		///		Write JavascriptString value into Utf8 string buffer
+		///		Write JavascriptString value into C string buffer (Utf8)
 		/// </summary>
 		/// <remarks>
 		///		When size of the `buffer` is unknown,
@@ -220,8 +165,8 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCopyStringUtf8(JavaScriptValueSafeHandle value, byte[] buffer, UIntPtr bufferSize, out UIntPtr written);
+		[DllImport(DllName, CharSet = CharSet.Ansi)]
+		public static extern JavaScriptErrorCode JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, UIntPtr bufferSize, out UIntPtr written);
 
 		/// <summary>
 		///		Write string value into Utf16 string buffer
@@ -342,7 +287,7 @@
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCreatePropertyIdUtf8(string name, UIntPtr length, out JavaScriptPropertyIdSafeHandle propertyId);
+		public static extern JavaScriptErrorCode JsCreatePropertyId(string name, UIntPtr length, out JavaScriptPropertyIdSafeHandle propertyId);
 
 		/// <summary>
 		///		Copies the name associated with the property ID into a buffer.
@@ -369,7 +314,7 @@
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCopyPropertyIdUtf8(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize, out UIntPtr written);
+		public static extern JavaScriptErrorCode JsCopyPropertyId(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize, out UIntPtr written);
 
 		/// <summary>
 		///		Serializes a parsed script to a buffer than can be reused.

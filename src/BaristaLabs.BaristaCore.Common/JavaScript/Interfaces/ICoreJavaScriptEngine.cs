@@ -11,10 +11,10 @@
     public interface ICoreJavaScriptEngine
 	{
 		/// <summary>
-		///		Create JavascriptString variable from C string
+		///		Create JavascriptString variable from ASCII or Utf8 string
 		/// </summary>
 		/// <remarks>
-		///		C string is expected to be ASCII
+		///		Input string can be either ASCII or Utf8
 		/// </remarks>
 		/// <param name="content">
 		///		Pointer to string memory.
@@ -42,57 +42,10 @@
 		/// <returns>
 		///		JsValueRef representing the JavascriptString
 		/// </returns>
-		JavaScriptValueSafeHandle JsCreateStringUtf8(string content, UIntPtr length);
-
-		/// <summary>
-		///		Create JavascriptString variable from Utf8 string
-		/// </summary>
-		/// <remarks>
-		///		Input string can be either ASCII or Utf8
-		/// </remarks>
-		/// <param name="content">
-		///		Pointer to string memory.
-		/// </param>
-		/// <param name="length">
-		///		Number of bytes within the string
-		/// </param>
-		/// <returns>
-		///		JsValueRef representing the JavascriptString
-		/// </returns>
 		JavaScriptValueSafeHandle JsCreateStringUtf16(string content, UIntPtr length);
 
 		/// <summary>
-		///		Write JavascriptString value into C string buffer
-		/// </summary>
-		/// <remarks>
-		///		When size of the `buffer` is unknown,
-		///		`buffer` argument can be nullptr.
-		///		In that case, `written` argument will return the length needed.
-		///		when start is out of range or < 0, returns JsErrorInvalidArgument
-		///		and `written` will be equal to 0.
-		///		If calculated length is 0 (It can be due to string length or `start`
-		///		and length combination), then `written` will be equal to 0 and call
-		///		returns JsNoError
-		/// </remarks>
-		/// <param name="value">
-		///		JavascriptString value
-		/// </param>
-		/// <param name="start">
-		///		start offset of buffer
-		/// </param>
-		/// <param name="length">
-		///		length to be written
-		/// </param>
-		/// <param name="buffer">
-		///		Pointer to buffer
-		/// </param>
-		/// <returns>
-		///		Total number of characters written
-		/// </returns>
-		UIntPtr JsCopyString(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer);
-
-		/// <summary>
-		///		Write JavascriptString value into Utf8 string buffer
+		///		Write JavascriptString value into C string buffer (Utf8)
 		/// </summary>
 		/// <remarks>
 		///		When size of the `buffer` is unknown,
@@ -111,7 +64,7 @@
 		/// <returns>
 		///		Total number of characters written
 		/// </returns>
-		UIntPtr JsCopyStringUtf8(JavaScriptValueSafeHandle value, byte[] buffer, UIntPtr bufferSize);
+		UIntPtr JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, UIntPtr bufferSize);
 
 		/// <summary>
 		///		Write string value into Utf16 string buffer
@@ -216,7 +169,7 @@
 		/// <returns>
 		///		The property ID in this runtime for the given name.
 		/// </returns>
-		JavaScriptPropertyIdSafeHandle JsCreatePropertyIdUtf8(string name, UIntPtr length);
+		JavaScriptPropertyIdSafeHandle JsCreatePropertyId(string name, UIntPtr length);
 
 		/// <summary>
 		///		Copies the name associated with the property ID into a buffer.
@@ -239,7 +192,7 @@
 		/// <returns>
 		///		Total number of characters written or to be written
 		/// </returns>
-		UIntPtr JsCopyPropertyIdUtf8(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize);
+		UIntPtr JsCopyPropertyId(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize);
 
 		/// <summary>
 		///		Serializes a parsed script to a buffer than can be reused.

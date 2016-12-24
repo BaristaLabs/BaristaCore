@@ -112,7 +112,7 @@
             if (str == null)
                 throw new ArgumentNullException(nameof(str));
 
-            var stringHandle = Engine.JsCreateStringUtf8(str, new UIntPtr((uint)str.Length));
+            var stringHandle = Engine.JsCreateString(str, new UIntPtr((uint)str.Length));
             var flyweight = new JavaScriptString(Engine, this, stringHandle);
             if (m_valuePool.TryAdd(flyweight))
                 return flyweight;

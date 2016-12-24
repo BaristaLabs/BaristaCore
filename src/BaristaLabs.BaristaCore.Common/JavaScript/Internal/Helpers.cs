@@ -44,7 +44,7 @@
 
             //Get the size
             UIntPtr size;
-            innerError = LibChakraCore.JsCopyStringUtf8(stringHandle, null, UIntPtr.Zero, out size);
+            innerError = LibChakraCore.JsCopyString(stringHandle, null, UIntPtr.Zero, out size);
             Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
             if ((int)size > int.MaxValue)
@@ -52,7 +52,7 @@
 
             byte[] result = new byte[(int)size];
             UIntPtr written;
-            innerError = LibChakraCore.JsCopyStringUtf8(stringHandle, result, new UIntPtr((uint)result.Length), out written);
+            innerError = LibChakraCore.JsCopyString(stringHandle, result, new UIntPtr((uint)result.Length), out written);
             Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
             var strResult = Encoding.UTF8.GetString(result, 0, result.Length);

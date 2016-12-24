@@ -20,7 +20,7 @@
             if (!Context.HasCurrentScope)
                 throw new InvalidOperationException("An active execution scope is required.");
 
-            var propertyIdHandle = Engine.JsCreatePropertyIdUtf8(propertyName, new UIntPtr((uint)propertyName.Length));
+            var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, new UIntPtr((uint)propertyName.Length));
 
             try
             {

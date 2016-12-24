@@ -68,7 +68,7 @@ export default function() { return ""Hello, World.""; }
                     Engine.JsSetCurrentContext(contextHandle);
 
                     //Initialize the "main" module (Empty-string specifier.
-                    var moduleNameHandle = Engine.JsCreateStringUtf8(mainModuleName, new UIntPtr((uint)mainModuleName.Length));
+                    var moduleNameHandle = Engine.JsCreateString(mainModuleName, new UIntPtr((uint)mainModuleName.Length));
                     var mainModuleHandle = CoreWindowsEngine.JsInitializeModuleRecord(IntPtr.Zero, moduleNameHandle);
 
                     IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchCallback);

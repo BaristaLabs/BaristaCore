@@ -132,33 +132,7 @@
     <Description>
       <![CDATA[
 /// <summary>
-///     Create JavascriptString variable from C string
-/// </summary>
-/// <remarks>
-///     <para>
-///         C string is expected to be ASCII
-///     </para>
-/// </remarks>
-/// <param name="content">Pointer to string memory.</param>
-/// <param name="length">Number of bytes within the string</param>
-/// <param name="value">JsValueRef representing the JavascriptString</param>
-/// <returns>
-///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
-/// </returns>
-]]>
-    </Description>
-    <Parameters>
-      <Parameter type="string" name="content"/>
-      <Parameter type="size_t" name="length"/>
-      <Parameter type="JsValueRef" name="value" direction="Out"/>
-    </Parameters>
-  </Export>
-
-  <Export name="JsCreateStringUtf8" target="Common" source="ChakraCore.h">
-    <Description>
-      <![CDATA[
-/// <summary>
-///     Create JavascriptString variable from Utf8 string
+///     Create JavascriptString variable from ASCII or Utf8 string
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -201,7 +175,7 @@
     </Description>
     <Parameters>
       <Parameter type="string" name="content"/>
-      <Parameter type="size_t" name="length"/>
+      <Parameter type="uint16_t" name="length"/>
       <Parameter type="JsValueRef" name="value" direction="Out"/>
     </Parameters>
   </Export>
@@ -210,46 +184,7 @@
     <Description>
       <![CDATA[
 /// <summary>
-///     Write JavascriptString value into C string buffer
-/// </summary>
-/// <remarks>
-///     <para>
-///         When size of the `buffer` is unknown,
-///         `buffer` argument can be nullptr.
-///         In that case, `written` argument will return the length needed.
-///     </para>
-///     <para>
-///         when start is out of range or &lt; 0, returns JsErrorInvalidArgument
-///         and `written` will be equal to 0.
-///         If calculated length is 0 (It can be due to string length or `start`
-///         and length combination), then `written` will be equal to 0 and call
-///         returns JsNoError
-///     </para>
-/// </remarks>
-/// <param name="value">JavascriptString value</param>
-/// <param name="start">start offset of buffer</param>
-/// <param name="length">length to be written</param>
-/// <param name="buffer">Pointer to buffer</param>
-/// <param name="written">Total number of characters written</param>
-/// <returns>
-///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
-/// </returns>
-]]>
-    </Description>
-    <Parameters>
-      <Parameter type="JsValueRef" name="value"/>
-      <Parameter type="int" name="start"/>
-      <Parameter type="int" name="length"/>
-      <Parameter type="char*" name="buffer"/>
-      <Parameter type="size_t" name="written" direction="Out"/>
-    </Parameters>
-  </Export>
-
-  <Export name="JsCopyStringUtf8" target="Common" source="ChakraCore.h">
-    <Description>
-      <![CDATA[
-/// <summary>
-///     Write JavascriptString value into Utf8 string buffer
+///     Write JavascriptString value into C string buffer (Utf8)
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -309,7 +244,7 @@
       <Parameter type="JsValueRef" name="value"/>
       <Parameter type="int" name="start"/>
       <Parameter type="int" name="length"/>
-      <Parameter type="char*" name="buffer"/>
+      <Parameter type="uint16_t*" name="buffer"/>
       <Parameter type="size_t" name="written" direction="Out"/>
     </Parameters>
   </Export>
@@ -396,7 +331,7 @@
     </Parameters>
   </Export>
   
-  <Export name="JsCreatePropertyIdUtf8" target="Common" source="ChakraCore.h">
+  <Export name="JsCreatePropertyId" target="Common" source="ChakraCore.h">
     <Description>
       <![CDATA[
 /// <summary>
@@ -428,7 +363,7 @@
     </Parameters>
   </Export>
   
-  <Export name="JsCopyPropertyIdUtf8" target="Common" source="ChakraCore.h">
+  <Export name="JsCopyPropertyId" target="Common" source="ChakraCore.h">
     <Description>
       <![CDATA[
 /// <summary>
@@ -455,7 +390,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsPropertyIdRef" name="propertyId"/>
-      <Parameter type="byte[]" name="buffer"/>
+      <Parameter type="char*" name="buffer"/>
       <Parameter type="size_t" name="bufferSize"/>
       <Parameter type="size_t" name="written" direction="Out"/>
     </Parameters>

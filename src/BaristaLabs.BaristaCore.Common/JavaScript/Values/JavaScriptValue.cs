@@ -122,12 +122,12 @@
             using (var stringValueHandle = Engine.JsConvertValueToString(Handle))
             {
                 //Get the size
-                var size = Engine.JsCopyStringUtf8(stringValueHandle, null, UIntPtr.Zero);
+                var size = Engine.JsCopyString(stringValueHandle, null, UIntPtr.Zero);
                 if ((int)size > int.MaxValue)
                     throw new OutOfMemoryException("Exceeded maximum string length.");
 
                 byte[] result = new byte[(int)size];
-                var written = Engine.JsCopyStringUtf8(stringValueHandle, result, new UIntPtr((uint)result.Length));
+                var written = Engine.JsCopyString(stringValueHandle, result, new UIntPtr((uint)result.Length));
                 return Encoding.UTF8.GetString(result, 0, result.Length);
             }
         }

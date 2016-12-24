@@ -43,7 +43,7 @@
             m_script = script;
             m_ptrScript = Marshal.StringToHGlobalAnsi(script);
             m_scriptHandle = engine.JsCreateExternalArrayBuffer(m_ptrScript, (uint)script.Length, null, IntPtr.Zero);
-            m_sourceUrlHandle = engine.JsCreateStringUtf8(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
+            m_sourceUrlHandle = engine.JsCreateString(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
             m_sourceContext = JavaScriptSourceContext.GetNextSourceContext();
 
             m_fnScript = engine.JsParse(m_scriptHandle, m_sourceContext, m_sourceUrlHandle, JavaScriptParseScriptAttributes.None);

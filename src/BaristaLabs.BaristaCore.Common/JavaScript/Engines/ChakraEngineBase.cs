@@ -20,19 +20,6 @@
 			return value;
 		}
 
-		public JavaScriptValueSafeHandle JsCreateStringUtf8(string content, UIntPtr length)
-		{
-			JavaScriptValueSafeHandle value;
-			Errors.ThrowIfError(LibChakraCore.JsCreateStringUtf8(content, length, out value));
-			value.NativeFunctionSource = nameof(LibChakraCore.JsCreateStringUtf8);
-			if (value != JavaScriptValueSafeHandle.Invalid)
-			{
-				uint valueRefCount;
-				Errors.ThrowIfError(LibChakraCore.JsAddRef(value, out valueRefCount));
-			}
-			return value;
-		}
-
 		public JavaScriptValueSafeHandle JsCreateStringUtf16(string content, UIntPtr length)
 		{
 			JavaScriptValueSafeHandle value;
@@ -46,17 +33,10 @@
 			return value;
 		}
 
-		public UIntPtr JsCopyString(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer)
+		public UIntPtr JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, UIntPtr bufferSize)
 		{
 			UIntPtr written;
-			Errors.ThrowIfError(LibChakraCore.JsCopyString(value, start, length, buffer, out written));
-			return written;
-		}
-
-		public UIntPtr JsCopyStringUtf8(JavaScriptValueSafeHandle value, byte[] buffer, UIntPtr bufferSize)
-		{
-			UIntPtr written;
-			Errors.ThrowIfError(LibChakraCore.JsCopyStringUtf8(value, buffer, bufferSize, out written));
+			Errors.ThrowIfError(LibChakraCore.JsCopyString(value, buffer, bufferSize, out written));
 			return written;
 		}
 
@@ -93,11 +73,11 @@
 			return result;
 		}
 
-		public JavaScriptPropertyIdSafeHandle JsCreatePropertyIdUtf8(string name, UIntPtr length)
+		public JavaScriptPropertyIdSafeHandle JsCreatePropertyId(string name, UIntPtr length)
 		{
 			JavaScriptPropertyIdSafeHandle propertyId;
-			Errors.ThrowIfError(LibChakraCore.JsCreatePropertyIdUtf8(name, length, out propertyId));
-			propertyId.NativeFunctionSource = nameof(LibChakraCore.JsCreatePropertyIdUtf8);
+			Errors.ThrowIfError(LibChakraCore.JsCreatePropertyId(name, length, out propertyId));
+			propertyId.NativeFunctionSource = nameof(LibChakraCore.JsCreatePropertyId);
 			if (propertyId != JavaScriptPropertyIdSafeHandle.Invalid)
 			{
 				uint valueRefCount;
@@ -106,10 +86,10 @@
 			return propertyId;
 		}
 
-		public UIntPtr JsCopyPropertyIdUtf8(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize)
+		public UIntPtr JsCopyPropertyId(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize)
 		{
 			UIntPtr written;
-			Errors.ThrowIfError(LibChakraCore.JsCopyPropertyIdUtf8(propertyId, buffer, bufferSize, out written));
+			Errors.ThrowIfError(LibChakraCore.JsCopyPropertyId(propertyId, buffer, bufferSize, out written));
 			return written;
 		}
 

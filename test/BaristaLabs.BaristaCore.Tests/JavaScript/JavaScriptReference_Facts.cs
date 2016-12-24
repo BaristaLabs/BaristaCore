@@ -139,9 +139,9 @@
                     Engine.JsSetCurrentContext(contextHandle);
 
                     var superman = "superman";
-                    valueHandle = Engine.JsCreateStringUtf8(superman, new UIntPtr((uint)superman.Length));
+                    valueHandle = Engine.JsCreateString(superman, new UIntPtr((uint)superman.Length));
                     JavaScriptObjectManager.DisposeWhenCollected(valueHandle);
-                    anotherValueHandle = Engine.JsCreateStringUtf8(superman, new UIntPtr((uint)superman.Length));
+                    anotherValueHandle = Engine.JsCreateString(superman, new UIntPtr((uint)superman.Length));
                     JavaScriptObjectManager.DisposeWhenCollected(anotherValueHandle);
                 }
 
@@ -163,7 +163,7 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    valueHandle = Engine.JsCreateStringUtf8("superman", new UIntPtr((uint)"superman".Length));
+                    valueHandle = Engine.JsCreateString("superman", new UIntPtr((uint)"superman".Length));
                     JavaScriptObjectManager.DisposeWhenCollected(valueHandle);
                     valueHandle.Dispose();
                 }
