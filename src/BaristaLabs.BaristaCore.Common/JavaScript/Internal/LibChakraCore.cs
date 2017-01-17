@@ -2774,50 +2774,16 @@
 		///		}
 		/// </remarks>
 		/// <param name="expression">
-		///		A null-terminated expression to evaluate.
+		///		Javascript String or ArrayBuffer (incl. ExternalArrayBuffer).
 		/// </param>
 		/// <param name="stackFrameIndex">
 		///		Index of stack frame on which to evaluate the expression.
 		/// </param>
-		/// <param name="evalResult">
-		///		Result of evaluation.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, evalResult will contain the result
-		///		The code JsErrorScriptException if evaluate generated a JavaScript exception, evalResult will contain the error details
-		///		Other error code for invalid parameters or API was not called at break
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsDiagEvaluate(string expression, uint stackFrameIndex, out JavaScriptValueSafeHandle evalResult);
-
-		/// <summary>
-		///		Evaluates an expression on given frame.
-		/// </summary>
-		/// <remarks>
-		///		evalResult when evaluating 'this' and return is JsNoError
-		///		{
-		///		"name" : "this",
-		///		"type" : "object",
-		///		"className" : "Object",
-		///		"display" : "{...}",
-		///		"propertyAttributes" : 1,
-		///		"handle" : 18
-		///		}
-		///		evalResult when evaluating a script which throws JavaScript error and return is JsErrorScriptException
-		///		{
-		///		"name" : "a.b.c",
-		///		"type" : "object",
-		///		"className" : "Error",
-		///		"display" : "'a' is undefined",
-		///		"propertyAttributes" : 1,
-		///		"handle" : 18
-		///		}
-		/// </remarks>
-		/// <param name="expression">
-		///		A null-terminated expression to evaluate.
-		/// </param>
-		/// <param name="stackFrameIndex">
-		///		Index of stack frame on which to evaluate the expression.
+		/// <param name="parseAttributes">
+		///		Defines how `expression` (JsValueRef) should be parsed.
+		///		- `JsParseScriptAttributeNone` when `expression` is a Utf8 encoded ArrayBuffer and/or a Javascript String (encoding independent)
+		///		- `JsParseScriptAttributeArrayBufferIsUtf16Encoded` when `expression` is Utf16 Encoded ArrayBuffer
+		///		- `JsParseScriptAttributeLibraryCode` has no use for this function and has similar effect with `JsParseScriptAttributeNone`
 		/// </param>
 		/// <param name="evalResult">
 		///		Result of evaluation.
@@ -2828,7 +2794,7 @@
 		///		Other error code for invalid parameters or API was not called at break
 		/// </returns>
 		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsDiagEvaluateUtf8(string expression, uint stackFrameIndex, out JavaScriptValueSafeHandle evalResult);
+		public static extern JavaScriptErrorCode JsDiagEvaluate(JavaScriptValueSafeHandle expression, uint stackFrameIndex, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle evalResult);
 
 	}
 }

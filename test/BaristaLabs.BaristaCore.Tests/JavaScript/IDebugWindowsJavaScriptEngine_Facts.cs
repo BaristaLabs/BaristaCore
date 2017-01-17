@@ -58,7 +58,8 @@ moose;
                     //Callback that is run for each breakpoint.
                     JavaScriptDiagDebugEventCallback callback = (JavaScriptDiagDebugEventType eventType, IntPtr eventData, IntPtr callbackState) =>
                     {
-                        var evalResultHandle = DebugWindowsEngine.JsDiagEvaluate("i", 0);
+                        var evalScript = Engine.JsCreateString("i", new UIntPtr((uint)"i".Length));
+                        var evalResultHandle = Engine.JsDiagEvaluate(evalScript, 0, JavaScriptParseScriptAttributes.None);
                         
                         var handleType = Engine.JsGetValueType(evalResultHandle);
                         Assert.Equal(JavaScriptValueType.Object, handleType);
@@ -66,7 +67,7 @@ moose;
                         var valuePropertyHandle = CommonWindowsEngine.JsGetPropertyIdFromName("value");
                         var valueHandle = Engine.JsGetProperty(evalResultHandle, valuePropertyHandle);
                         iPod = Engine.JsNumberToInt(valueHandle);
-
+                        evalScript.Dispose();
                         return true;
                     };
 

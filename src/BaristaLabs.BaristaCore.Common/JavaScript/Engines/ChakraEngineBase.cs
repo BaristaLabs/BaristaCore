@@ -1167,11 +1167,11 @@
 			return handleObject;
 		}
 
-		public JavaScriptValueSafeHandle JsDiagEvaluateUtf8(string expression, uint stackFrameIndex)
+		public JavaScriptValueSafeHandle JsDiagEvaluate(JavaScriptValueSafeHandle expression, uint stackFrameIndex, JavaScriptParseScriptAttributes parseAttributes)
 		{
 			JavaScriptValueSafeHandle evalResult;
-			Errors.ThrowIfError(LibChakraCore.JsDiagEvaluateUtf8(expression, stackFrameIndex, out evalResult));
-			evalResult.NativeFunctionSource = nameof(LibChakraCore.JsDiagEvaluateUtf8);
+			Errors.ThrowIfError(LibChakraCore.JsDiagEvaluate(expression, stackFrameIndex, parseAttributes, out evalResult));
+			evalResult.NativeFunctionSource = nameof(LibChakraCore.JsDiagEvaluate);
 			if (evalResult != JavaScriptValueSafeHandle.Invalid)
 			{
 				uint valueRefCount;

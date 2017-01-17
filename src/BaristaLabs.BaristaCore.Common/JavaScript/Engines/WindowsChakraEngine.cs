@@ -201,18 +201,5 @@
 			return stringValue;
 		}
 
-		public JavaScriptValueSafeHandle JsDiagEvaluate(string expression, uint stackFrameIndex)
-		{
-			JavaScriptValueSafeHandle evalResult;
-			Errors.ThrowIfError(LibChakraCore.JsDiagEvaluate(expression, stackFrameIndex, out evalResult));
-			evalResult.NativeFunctionSource = nameof(LibChakraCore.JsDiagEvaluate);
-			if (evalResult != JavaScriptValueSafeHandle.Invalid)
-			{
-				uint valueRefCount;
-				Errors.ThrowIfError(LibChakraCore.JsAddRef(evalResult, out valueRefCount));
-			}
-			return evalResult;
-		}
-
 	}
 }

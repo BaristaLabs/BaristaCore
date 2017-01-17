@@ -258,7 +258,8 @@ fibonacci(50);
                         //Otherwise...
                         else
                         {
-                            var numHandle = Engine.JsDiagEvaluateUtf8("num", 0);
+                            var evalScript = Engine.JsCreateString("num", new UIntPtr((uint)"num".Length));
+                            var numHandle = Engine.JsDiagEvaluate(evalScript, 0, JavaScriptParseScriptAttributes.None);
 
                             var valuePropertyHandle = Engine.JsCreatePropertyId("value", new UIntPtr((uint)"value".Length));
                             var valueHandle = Engine.JsGetProperty(numHandle, valuePropertyHandle);

@@ -351,15 +351,21 @@
 		///		}
 		/// </remarks>
 		/// <param name="expression">
-		///		A null-terminated expression to evaluate.
+		///		Javascript String or ArrayBuffer (incl. ExternalArrayBuffer).
 		/// </param>
 		/// <param name="stackFrameIndex">
 		///		Index of stack frame on which to evaluate the expression.
 		/// </param>
+		/// <param name="parseAttributes">
+		///		Defines how `expression` (JsValueRef) should be parsed.
+		///		- `JsParseScriptAttributeNone` when `expression` is a Utf8 encoded ArrayBuffer and/or a Javascript String (encoding independent)
+		///		- `JsParseScriptAttributeArrayBufferIsUtf16Encoded` when `expression` is Utf16 Encoded ArrayBuffer
+		///		- `JsParseScriptAttributeLibraryCode` has no use for this function and has similar effect with `JsParseScriptAttributeNone`
+		/// </param>
 		/// <returns>
 		///		Result of evaluation.
 		/// </returns>
-		JavaScriptValueSafeHandle JsDiagEvaluateUtf8(string expression, uint stackFrameIndex);
+		JavaScriptValueSafeHandle JsDiagEvaluate(JavaScriptValueSafeHandle expression, uint stackFrameIndex, JavaScriptParseScriptAttributes parseAttributes);
 
 	}
 }
