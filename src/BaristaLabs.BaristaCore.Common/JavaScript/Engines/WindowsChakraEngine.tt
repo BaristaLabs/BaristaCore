@@ -3,7 +3,7 @@
 #><#
 	string JavaScriptEngineAccessModifier = "public sealed";
 	string JavaScriptEngineClassName = "WindowsChakraEngine";
-	string JavaScriptEngineInterfaces = "ChakraEngineBase, ICoreWindowsJavaScriptEngine, ICommonWindowsJavaScriptEngine, IDebugWindowsJavaScriptEngine";
+	string JavaScriptEngineInterfaces = "ChakraEngineBase, ICommonWindowsJavaScriptEngine, IDebugWindowsJavaScriptEngine";
 	Predicate<ChakraExternManager.ChakraExtern> ExternPlatformPredicate = 
 		(ex => ex.Target == ChakraExternManager.PlatformTarget.WindowsOnly);
 #><#@ include file="$(SolutionDir)/tt/ChakraTypedSafeImplementation.ttinclude"

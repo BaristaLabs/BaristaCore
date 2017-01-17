@@ -7,7 +7,7 @@
   **
   ***************************************
   -->
-  <Export name="JsInitializeModuleRecord" target="WindowsOnly" source="ChakraCore.h">
+  <Export name="JsInitializeModuleRecord" target="Common" source="ChakraCore.h">
     <Description>
       <![CDATA[
 /// <summary>
@@ -32,7 +32,7 @@
     </Parameters>
   </Export>
 
-  <Export name="JsParseModuleSource" target="WindowsOnly" source="ChakraCore.h">
+  <Export name="JsParseModuleSource" target="Common" source="ChakraCore.h">
     <Description>
       <![CDATA[
 /// <summary>
@@ -62,7 +62,7 @@
     </Parameters>
   </Export>
 
-  <Export name="JsModuleEvaluation" target="WindowsOnly" source="ChakraCore.h">
+  <Export name="JsModuleEvaluation" target="Common" source="ChakraCore.h">
     <Description>
       <![CDATA[
 /// <summary>
@@ -86,7 +86,7 @@
     </Parameters>
   </Export>
 
-  <Export name="JsSetModuleHostInfo" target="WindowsOnly" source="ChakraCore.h">
+  <Export name="JsSetModuleHostInfo" target="Common" source="ChakraCore.h">
     <Description>
       <![CDATA[
 /// <summary>
@@ -107,7 +107,7 @@
     </Parameters>
   </Export>
   
-  <Export name="JsGetModuleHostInfo" target="WindowsOnly" source="ChakraCore.h">
+  <Export name="JsGetModuleHostInfo" target="Common" source="ChakraCore.h">
     <Description>
       <![CDATA[
 /// <summary>

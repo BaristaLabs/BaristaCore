@@ -5,53 +5,8 @@
 	using System;
 	using System.Runtime.InteropServices;
 
-	public sealed class WindowsChakraEngine : ChakraEngineBase, ICoreWindowsJavaScriptEngine, ICommonWindowsJavaScriptEngine, IDebugWindowsJavaScriptEngine
+	public sealed class WindowsChakraEngine : ChakraEngineBase, ICommonWindowsJavaScriptEngine, IDebugWindowsJavaScriptEngine
 	{
-		public IntPtr JsInitializeModuleRecord(IntPtr referencingModule, JavaScriptValueSafeHandle normalizedSpecifier)
-		{
-			IntPtr moduleRecord;
-			Errors.ThrowIfError(LibChakraCore.JsInitializeModuleRecord(referencingModule, normalizedSpecifier, out moduleRecord));
-			return moduleRecord;
-		}
-
-		public JavaScriptValueSafeHandle JsParseModuleSource(IntPtr requestModule, JavaScriptSourceContext sourceContext, byte[] script, uint scriptLength, JavaScriptParseModuleSourceFlags sourceFlag)
-		{
-			JavaScriptValueSafeHandle exceptionValueRef;
-			Errors.ThrowIfError(LibChakraCore.JsParseModuleSource(requestModule, sourceContext, script, scriptLength, sourceFlag, out exceptionValueRef));
-			exceptionValueRef.NativeFunctionSource = nameof(LibChakraCore.JsParseModuleSource);
-			if (exceptionValueRef != JavaScriptValueSafeHandle.Invalid)
-			{
-				uint valueRefCount;
-				Errors.ThrowIfError(LibChakraCore.JsAddRef(exceptionValueRef, out valueRefCount));
-			}
-			return exceptionValueRef;
-		}
-
-		public JavaScriptValueSafeHandle JsModuleEvaluation(IntPtr requestModule)
-		{
-			JavaScriptValueSafeHandle result;
-			Errors.ThrowIfError(LibChakraCore.JsModuleEvaluation(requestModule, out result));
-			result.NativeFunctionSource = nameof(LibChakraCore.JsModuleEvaluation);
-			if (result != JavaScriptValueSafeHandle.Invalid)
-			{
-				uint valueRefCount;
-				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out valueRefCount));
-			}
-			return result;
-		}
-
-		public void JsSetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, IntPtr hostInfo)
-		{
-			Errors.ThrowIfError(LibChakraCore.JsSetModuleHostInfo(requestModule, moduleHostInfo, hostInfo));
-		}
-
-		public IntPtr JsGetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo)
-		{
-			IntPtr hostInfo;
-			Errors.ThrowIfError(LibChakraCore.JsGetModuleHostInfo(requestModule, moduleHostInfo, out hostInfo));
-			return hostInfo;
-		}
-
 		public JavaScriptValueSafeHandle JsParseScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl)
 		{
 			JavaScriptValueSafeHandle result;
