@@ -26,9 +26,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsModuleRecord" name="referencingModule"/>
-      <Parameter type="JsValueRef" name="normalizedSpecifier"/>
-      <Parameter type="JsModuleRecord" name="moduleRecord" direction="Out"/>
+      <Parameter type="JsModuleRecord" name="referencingModule" />
+      <Parameter type="JsValueRef" name="normalizedSpecifier" />
+      <Parameter type="JsModuleRecord" name="moduleRecord" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsParseModuleSource" target="Common" source="ChakraCore.h">
@@ -52,12 +52,12 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsModuleRecord" name="requestModule"/>
-      <Parameter type="JsSourceContext" name="sourceContext"/>
-      <Parameter type="byte[]" name="script"/>
-      <Parameter type="uint" name="scriptLength"/>
-      <Parameter type="JsParseModuleSourceFlags" name="sourceFlag"/>
-      <Parameter type="JsValueRef" name="exceptionValueRef" direction="Out"/>
+      <Parameter type="JsModuleRecord" name="requestModule" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="byte[]" name="script" />
+      <Parameter type="uint" name="scriptLength" />
+      <Parameter type="JsParseModuleSourceFlags" name="sourceFlag" />
+      <Parameter type="JsValueRef" name="exceptionValueRef" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsModuleEvaluation" target="Common" source="ChakraCore.h">
@@ -79,8 +79,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsModuleRecord" name="requestModule"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsModuleRecord" name="requestModule" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSetModuleHostInfo" target="Common" source="ChakraCore.h">
@@ -98,9 +98,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsModuleRecord" name="requestModule"/>
-      <Parameter type="JsModuleHostInfoKind" name="moduleHostInfo"/>
-      <Parameter type="IntPtr" name="hostInfo"/>
+      <Parameter type="JsModuleRecord" name="requestModule" />
+      <Parameter type="JsModuleHostInfoKind" name="moduleHostInfo" />
+      <Parameter type="IntPtr" name="hostInfo" />
     </Parameters>
   </Export>
   <Export name="JsGetModuleHostInfo" target="Common" source="ChakraCore.h">
@@ -118,9 +118,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsModuleRecord" name="requestModule"/>
-      <Parameter type="JsModuleHostInfoKind" name="moduleHostInfo"/>
-      <Parameter type="IntPtr" name="hostInfo" direction="Out"/>
+      <Parameter type="JsModuleRecord" name="requestModule" />
+      <Parameter type="JsModuleHostInfoKind" name="moduleHostInfo" />
+      <Parameter type="IntPtr" name="hostInfo" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateString" target="Common" source="ChakraCore.h">
@@ -143,9 +143,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="string" name="content"/>
-      <Parameter type="size_t" name="length"/>
-      <Parameter type="JsValueRef" name="value" direction="Out"/>
+      <Parameter type="string" name="content" />
+      <Parameter type="size_t" name="length" />
+      <Parameter type="JsValueRef" name="value" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateStringUtf16" target="Common" source="ChakraCore.h" dllImportEx=", CharSet = CharSet.Unicode">
@@ -168,9 +168,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="string" name="content"/>
-      <Parameter type="uint16_t" name="length"/>
-      <Parameter type="JsValueRef" name="value" direction="Out"/>
+      <Parameter type="string" name="content" />
+      <Parameter type="uint16_t" name="length" />
+      <Parameter type="JsValueRef" name="value" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCopyString" target="Common" source="ChakraCore.h" dllImportEx=", CharSet = CharSet.Ansi">
@@ -196,10 +196,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="value"/>
-      <Parameter type="char*" name="buffer"/>
-      <Parameter type="size_t" name="bufferSize"/>
-      <Parameter type="size_t" name="written" direction="Out"/>
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="char*" name="buffer" />
+      <Parameter type="size_t" name="bufferSize" />
+      <Parameter type="size_t" name="written" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCopyStringUtf16" target="Common" source="ChakraCore.h">
@@ -233,11 +233,11 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="value"/>
-      <Parameter type="int" name="start"/>
-      <Parameter type="int" name="length"/>
-      <Parameter type="uint16_t*" name="buffer"/>
-      <Parameter type="size_t" name="written" direction="Out"/>
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="int" name="start" />
+      <Parameter type="int" name="length" />
+      <Parameter type="uint16_t*" name="buffer" />
+      <Parameter type="size_t" name="written" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsParse" target="Common" source="ChakraCore.h">
@@ -273,11 +273,11 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="script"/>
-      <Parameter type="JsSourceContext" name="sourceContext"/>
-      <Parameter type="JsValueRef" name="sourceUrl"/>
-      <Parameter type="JsParseScriptAttributes" name="parseAttributes"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="script" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="JsValueRef" name="sourceUrl" />
+      <Parameter type="JsParseScriptAttributes" name="parseAttributes" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsRun" target="Common" source="ChakraCore.h">
@@ -313,11 +313,11 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="script"/>
-      <Parameter type="JsSourceContext" name="sourceContext"/>
-      <Parameter type="JsValueRef" name="sourceUrl"/>
-      <Parameter type="JsParseScriptAttributes" name="parseAttributes"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="script" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="JsValueRef" name="sourceUrl" />
+      <Parameter type="JsParseScriptAttributes" name="parseAttributes" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreatePropertyId" target="Common" source="ChakraCore.h">
@@ -346,9 +346,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="string" name="name"/>
-      <Parameter type="size_t" name="length"/>
-      <Parameter type="JsPropertyIdRef" name="propertyId" direction="Out"/>
+      <Parameter type="string" name="name" />
+      <Parameter type="size_t" name="length" />
+      <Parameter type="JsPropertyIdRef" name="propertyId" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCopyPropertyId" target="Common" source="ChakraCore.h">
@@ -377,10 +377,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsPropertyIdRef" name="propertyId"/>
-      <Parameter type="char*" name="buffer"/>
-      <Parameter type="size_t" name="bufferSize"/>
-      <Parameter type="size_t" name="written" direction="Out"/>
+      <Parameter type="JsPropertyIdRef" name="propertyId" />
+      <Parameter type="char*" name="buffer" />
+      <Parameter type="size_t" name="bufferSize" />
+      <Parameter type="size_t" name="written" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSerialize" target="Common" source="ChakraCore.h">
@@ -417,9 +417,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="script"/>
-      <Parameter type="JsValueRef" name="buffer" direction="Out"/>
-      <Parameter type="JsParseScriptAttributes" name="parseAttributes"/>
+      <Parameter type="JsValueRef" name="script" />
+      <Parameter type="JsValueRef" name="buffer" direction="Out" />
+      <Parameter type="JsParseScriptAttributes" name="parseAttributes" />
     </Parameters>
   </Export>
   <Export name="JsParseSerialized" target="Common" source="ChakraCore.h">
@@ -451,11 +451,11 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="buffer"/>
-      <Parameter type="JsSerializedLoadScriptCallback" name="scriptLoadCallback"/>
-      <Parameter type="JsSourceContext" name="sourceContext"/>
-      <Parameter type="JsValueRef" name="sourceUrl"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="buffer" />
+      <Parameter type="JsSerializedLoadScriptCallback" name="scriptLoadCallback" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="JsValueRef" name="sourceUrl" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsRunSerialized" target="Common" source="ChakraCore.h">
@@ -491,11 +491,11 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="buffer"/>
-      <Parameter type="JsSerializedLoadScriptCallback" name="scriptLoadCallback"/>
-      <Parameter type="JsSourceContext" name="sourceContext"/>
-      <Parameter type="JsValueRef" name="sourceUrl"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="buffer" />
+      <Parameter type="JsSerializedLoadScriptCallback" name="scriptLoadCallback" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="JsValueRef" name="sourceUrl" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <!-- 
@@ -522,9 +522,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeAttributes" name="attributes"/>
-      <Parameter type="JavaScriptThreadServiceCallback" name="threadService"/>
-      <Parameter type="JsRuntimeHandle" name="runtime" direction="Out"/>
+      <Parameter type="JsRuntimeAttributes" name="attributes" />
+      <Parameter type="JavaScriptThreadServiceCallback" name="threadService" />
+      <Parameter type="JsRuntimeHandle" name="runtime" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCollectGarbage" target="Common" source="ChakraCommon.h">
@@ -539,7 +539,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="handle"/>
+      <Parameter type="JsRuntimeHandle" name="handle" />
     </Parameters>
   </Export>
   <Export name="JsDisposeRuntime" target="Common" source="ChakraCommon.h">
@@ -560,7 +560,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="IntPtr" name="runtime"/>
+      <Parameter type="IntPtr" name="runtime" />
     </Parameters>
   </Export>
   <Export name="JsGetRuntimeMemoryUsage" target="Common" source="ChakraCommon.h">
@@ -581,8 +581,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtime"/>
-      <Parameter type="UIntPtr" name="memoryUsage" direction="Out"/>
+      <Parameter type="JsRuntimeHandle" name="runtime" />
+      <Parameter type="UIntPtr" name="memoryUsage" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetRuntimeMemoryLimit" target="Common" source="ChakraCommon.h">
@@ -605,8 +605,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtime"/>
-      <Parameter type="UIntPtr" name="memoryLimit" direction="Out"/>
+      <Parameter type="JsRuntimeHandle" name="runtime" />
+      <Parameter type="UIntPtr" name="memoryLimit" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSetRuntimeMemoryLimit" target="Common" source="ChakraCommon.h">
@@ -638,8 +638,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtime"/>
-      <Parameter type="UIntPtr" name="memoryLimit"/>
+      <Parameter type="JsRuntimeHandle" name="runtime" />
+      <Parameter type="UIntPtr" name="memoryLimit" />
     </Parameters>
   </Export>
   <Export name="JsSetRuntimeMemoryAllocationCallback" target="Common" source="ChakraCommon.h">
@@ -678,9 +678,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtime"/>
-      <Parameter type="IntPtr" name="callbackState"/>
-      <Parameter type="JavaScriptMemoryAllocationCallback" name="allocationCallback"/>
+      <Parameter type="JsRuntimeHandle" name="runtime" />
+      <Parameter type="IntPtr" name="callbackState" />
+      <Parameter type="JavaScriptMemoryAllocationCallback" name="allocationCallback" />
     </Parameters>
   </Export>
   <Export name="JsSetRuntimeBeforeCollectCallback" target="Common" source="ChakraCommon.h">
@@ -710,9 +710,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtime"/>
-      <Parameter type="IntPtr" name="callbackState"/>
-      <Parameter type="JavaScriptBeforeCollectCallback" name="beforeCollectCallback"/>
+      <Parameter type="JsRuntimeHandle" name="runtime" />
+      <Parameter type="IntPtr" name="callbackState" />
+      <Parameter type="JavaScriptBeforeCollectCallback" name="beforeCollectCallback" />
     </Parameters>
   </Export>
   <Export name="JsAddRef" target="Common" source="ChakraCommon.h">
@@ -734,8 +734,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRef" name="@ref"/>
-      <Parameter type="uint" name="count" direction="Out"/>
+      <Parameter type="JsRef" name="@ref" />
+      <Parameter type="uint" name="count" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsRelease" target="Common" source="ChakraCommon.h">
@@ -755,8 +755,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRef" name="@ref"/>
-      <Parameter type="uint" name="count" direction="Out"/>
+      <Parameter type="JsRef" name="@ref" />
+      <Parameter type="uint" name="count" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSetObjectBeforeCollectCallback" target="Common" source="ChakraCommon.h">
@@ -784,9 +784,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRef" name="@ref"/>
-      <Parameter type="IntPtr" name="callbackState"/>
-      <Parameter type="JavaScriptObjectBeforeCollectCallback" name="objectBeforeCollectCallback"/>
+      <Parameter type="JsRef" name="@ref" />
+      <Parameter type="IntPtr" name="callbackState" />
+      <Parameter type="JavaScriptObjectBeforeCollectCallback" name="objectBeforeCollectCallback" />
     </Parameters>
   </Export>
   <Export name="JsCreateContext" target="Common" source="ChakraCommon.h">
@@ -807,8 +807,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtime"/>
-      <Parameter type="JsContextRef" name="newContext" direction="Out"/>
+      <Parameter type="JsRuntimeHandle" name="runtime" />
+      <Parameter type="JsContextRef" name="newContext" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetCurrentContext" target="Common" source="ChakraCommon.h">
@@ -826,7 +826,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsContextRef" name="currentContext" direction="Out"/>
+      <Parameter type="JsContextRef" name="currentContext" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSetCurrentContext" target="Common" source="ChakraCommon.h">
@@ -842,7 +842,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsContextRef" name="context"/>
+      <Parameter type="JsContextRef" name="context" />
     </Parameters>
   </Export>
   <Export name="JsGetContextOfObject" target="Common" source="ChakraCommon.h">
@@ -859,8 +859,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsContextRef" name="context" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsContextRef" name="context" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetContextData" target="Common" source="ChakraCommon.h">
@@ -877,8 +877,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsContextRef" name="context"/>
-      <Parameter type="IntPtr" name="data" direction="Out"/>
+      <Parameter type="JsContextRef" name="context" />
+      <Parameter type="IntPtr" name="data" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSetContextData" target="Common" source="ChakraCommon.h">
@@ -895,8 +895,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsContextRef" name="context"/>
-      <Parameter type="IntPtr" name="data"/>
+      <Parameter type="JsContextRef" name="context" />
+      <Parameter type="IntPtr" name="data" />
     </Parameters>
   </Export>
   <Export name="JsGetRuntime" target="Common" source="ChakraCommon.h">
@@ -913,8 +913,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsContextRef" name="context"/>
-      <Parameter type="JsRuntimeHandle" name="runtime" direction="Out"/>
+      <Parameter type="JsContextRef" name="context" />
+      <Parameter type="JsRuntimeHandle" name="runtime" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsIdle" target="Common" source="ChakraCommon.h">
@@ -948,7 +948,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="uint" name="nextIdleTick" direction="Out"/>
+      <Parameter type="uint" name="nextIdleTick" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetSymbolFromPropertyId" target="Common" source="ChakraCommon.h">
@@ -970,8 +970,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsPropertyIdRef" name="propertyId"/>
-      <Parameter type="JsValueRef" name="symbol" direction="Out"/>
+      <Parameter type="JsPropertyIdRef" name="propertyId" />
+      <Parameter type="JsValueRef" name="symbol" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetPropertyIdType" target="Common" source="ChakraCommon.h">
@@ -993,8 +993,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsPropertyIdRef" name="propertyId"/>
-      <Parameter type="JsPropertyIdType" name="propertyIdType" direction="Out"/>
+      <Parameter type="JsPropertyIdRef" name="propertyId" />
+      <Parameter type="JsPropertyIdType" name="propertyIdType" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetPropertyIdFromSymbol" target="Common" source="ChakraCommon.h">
@@ -1021,8 +1021,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="symbol"/>
-      <Parameter type="JsPropertyIdRef" name="propertyId" direction="Out"/>
+      <Parameter type="JsValueRef" name="symbol" />
+      <Parameter type="JsPropertyIdRef" name="propertyId" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateSymbol" target="Common" source="ChakraCommon.h">
@@ -1042,8 +1042,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="description"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="description" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetOwnPropertySymbols" target="Common" source="ChakraCommon.h">
@@ -1063,8 +1063,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsValueRef" name="propertySymbols" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="propertySymbols" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetUndefinedValue" target="Common" source="ChakraCommon.h">
@@ -1083,7 +1083,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="undefinedValue" direction="Out"/>
+      <Parameter type="JsValueRef" name="undefinedValue" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetNullValue" target="Common" source="ChakraCommon.h">
@@ -1102,7 +1102,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="nullValue" direction="Out"/>
+      <Parameter type="JsValueRef" name="nullValue" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetTrueValue" target="Common" source="ChakraCommon.h">
@@ -1121,7 +1121,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="trueValue" direction="Out"/>
+      <Parameter type="JsValueRef" name="trueValue" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetFalseValue" target="Common" source="ChakraCommon.h">
@@ -1140,7 +1140,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="falseValue" direction="Out"/>
+      <Parameter type="JsValueRef" name="falseValue" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsBoolToBoolean" target="Common" source="ChakraCommon.h">
@@ -1160,8 +1160,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="bool" name="value"/>
-      <Parameter type="JsValueRef" name="booleanValue" direction="Out"/>
+      <Parameter type="bool" name="value" />
+      <Parameter type="JsValueRef" name="booleanValue" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsBooleanToBool" target="Common" source="ChakraCommon.h">
@@ -1178,8 +1178,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="value"/>
-      <Parameter type="bool" name="boolValue" direction="Out"/>
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="bool" name="boolValue" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsConvertValueToBoolean" target="Common" source="ChakraCommon.h">
@@ -1199,8 +1199,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="value"/>
-      <Parameter type="JsValueRef" name="booleanValue" direction="Out"/>
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="JsValueRef" name="booleanValue" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetValueType" target="Common" source="ChakraCommon.h">
@@ -1217,8 +1217,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="value"/>
-      <Parameter type="JsValueType" name="type" direction="Out"/>
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="JsValueType" name="type" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDoubleToNumber" target="Common" source="ChakraCommon.h">
@@ -1238,8 +1238,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="double" name="doubleValue"/>
-      <Parameter type="JsValueRef" name="value" direction="Out"/>
+      <Parameter type="double" name="doubleValue" />
+      <Parameter type="JsValueRef" name="value" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsIntToNumber" target="Common" source="ChakraCommon.h">
@@ -1259,8 +1259,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="int" name="intValue"/>
-      <Parameter type="JsValueRef" name="value" direction="Out"/>
+      <Parameter type="int" name="intValue" />
+      <Parameter type="JsValueRef" name="value" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsNumberToDouble" target="Common" source="ChakraCommon.h">
@@ -1281,8 +1281,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="value"/>
-      <Parameter type="double" name="doubleValue" direction="Out"/>
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="double" name="doubleValue" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsNumberToInt" target="Common" source="ChakraCommon.h">
@@ -1303,8 +1303,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="value"/>
-      <Parameter type="int" name="intValue" direction="Out"/>
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="int" name="intValue" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsConvertValueToNumber" target="Common" source="ChakraCommon.h">
@@ -1324,8 +1324,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="value"/>
-      <Parameter type="JsValueRef" name="numberValue" direction="Out"/>
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="JsValueRef" name="numberValue" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetStringLength" target="Common" source="ChakraCommon.h">
@@ -1342,8 +1342,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="stringValue"/>
-      <Parameter type="int" name="length" direction="Out"/>
+      <Parameter type="JsValueRef" name="stringValue" />
+      <Parameter type="int" name="length" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsConvertValueToString" target="Common" source="ChakraCommon.h">
@@ -1363,8 +1363,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="value"/>
-      <Parameter type="JsValueRef" name="stringValue" direction="Out"/>
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="JsValueRef" name="stringValue" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetGlobalObject" target="Common" source="ChakraCommon.h">
@@ -1383,7 +1383,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="globalObject" direction="Out"/>
+      <Parameter type="JsValueRef" name="globalObject" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateObject" target="Common" source="ChakraCommon.h">
@@ -1402,7 +1402,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateExternalObject" target="Common" source="ChakraCommon.h">
@@ -1425,9 +1425,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="IntPtr" name="data"/>
-      <Parameter type="JsFinalizeCallback" name="finalizeCallback"/>
-      <Parameter type="JsValueRef" name="@object" direction="Out"/>
+      <Parameter type="IntPtr" name="data" />
+      <Parameter type="JsFinalizeCallback" name="finalizeCallback" />
+      <Parameter type="JsValueRef" name="@object" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsConvertValueToObject" target="Common" source="ChakraCommon.h">
@@ -1447,8 +1447,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="value"/>
-      <Parameter type="JsValueRef" name="@object" direction="Out"/>
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="JsValueRef" name="@object" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetPrototype" target="Common" source="ChakraCommon.h">
@@ -1468,8 +1468,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsValueRef" name="prototypeObject" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="prototypeObject" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSetPrototype" target="Common" source="ChakraCommon.h">
@@ -1489,8 +1489,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsValueRef" name="prototypeObject"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="prototypeObject" />
     </Parameters>
   </Export>
   <Export name="JsInstanceOf" target="Common" source="ChakraCommon.h">
@@ -1511,9 +1511,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsValueRef" name="constructor"/>
-      <Parameter type="bool" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="constructor" />
+      <Parameter type="bool" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetExtensionAllowed" target="Common" source="ChakraCommon.h">
@@ -1533,8 +1533,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="bool" name="value" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="bool" name="value" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsPreventExtension" target="Common" source="ChakraCommon.h">
@@ -1553,7 +1553,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
+      <Parameter type="JsValueRef" name="@object" />
     </Parameters>
   </Export>
   <Export name="JsGetProperty" target="Common" source="ChakraCommon.h">
@@ -1574,9 +1574,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsPropertyIdRef" name="propertyId"/>
-      <Parameter type="JsValueRef" name="value" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsPropertyIdRef" name="propertyId" />
+      <Parameter type="JsValueRef" name="value" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetOwnPropertyDescriptor" target="Common" source="ChakraCommon.h">
@@ -1597,9 +1597,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsPropertyIdRef" name="propertyId"/>
-      <Parameter type="JsValueRef" name="propertyDescriptor" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsPropertyIdRef" name="propertyId" />
+      <Parameter type="JsValueRef" name="propertyDescriptor" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetOwnPropertyNames" target="Common" source="ChakraCommon.h">
@@ -1619,8 +1619,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsValueRef" name="propertyNames" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="propertyNames" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSetProperty" target="Common" source="ChakraCommon.h">
@@ -1642,10 +1642,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsPropertyIdRef" name="propertyId"/>
-      <Parameter type="JsValueRef" name="value"/>
-      <Parameter type="bool" name="useStrictRules"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsPropertyIdRef" name="propertyId" />
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="bool" name="useStrictRules" />
     </Parameters>
   </Export>
   <Export name="JsHasProperty" target="Common" source="ChakraCommon.h">
@@ -1666,9 +1666,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsPropertyIdRef" name="propertyId"/>
-      <Parameter type="bool" name="hasProperty" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsPropertyIdRef" name="propertyId" />
+      <Parameter type="bool" name="hasProperty" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDeleteProperty" target="Common" source="ChakraCommon.h">
@@ -1690,10 +1690,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsPropertyIdRef" name="propertyId"/>
-      <Parameter type="bool" name="useStrictRules"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsPropertyIdRef" name="propertyId" />
+      <Parameter type="bool" name="useStrictRules" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDefineProperty" target="Common" source="ChakraCommon.h">
@@ -1715,10 +1715,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsPropertyIdRef" name="propertyId"/>
-      <Parameter type="JsValueRef" name="propertyDescriptor"/>
-      <Parameter type="bool" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsPropertyIdRef" name="propertyId" />
+      <Parameter type="JsValueRef" name="propertyDescriptor" />
+      <Parameter type="bool" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsHasIndexedProperty" target="Common" source="ChakraCommon.h">
@@ -1739,9 +1739,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsValueRef" name="index"/>
-      <Parameter type="bool" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="index" />
+      <Parameter type="bool" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetIndexedProperty" target="Common" source="ChakraCommon.h">
@@ -1762,9 +1762,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsValueRef" name="index"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="index" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSetIndexedProperty" target="Common" source="ChakraCommon.h">
@@ -1785,9 +1785,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsValueRef" name="index"/>
-      <Parameter type="JsValueRef" name="value"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="index" />
+      <Parameter type="JsValueRef" name="value" />
     </Parameters>
   </Export>
   <Export name="JsDeleteIndexedProperty" target="Common" source="ChakraCommon.h">
@@ -1807,8 +1807,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="JsValueRef" name="index"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="index" />
     </Parameters>
   </Export>
   <Export name="JsHasIndexedPropertiesExternalData" target="Common" source="ChakraCommon.h">
@@ -1825,8 +1825,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="bool" name="value" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="bool" name="value" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetIndexedPropertiesExternalData" target="Common" source="ChakraCommon.h">
@@ -1845,10 +1845,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="IntPtr" name="data" direction="Out"/>
-      <Parameter type="JsTypedArrayType" name="arrayType" direction="Out"/>
-      <Parameter type="uint" name="elementLength" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="IntPtr" name="data" direction="Out" />
+      <Parameter type="JsTypedArrayType" name="arrayType" direction="Out" />
+      <Parameter type="uint" name="elementLength" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSetIndexedPropertiesToExternalData" target="Common" source="ChakraCommon.h">
@@ -1871,10 +1871,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="IntPtr" name="data"/>
-      <Parameter type="JsTypedArrayType" name="arrayType"/>
-      <Parameter type="uint" name="elementLength"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="IntPtr" name="data" />
+      <Parameter type="JsTypedArrayType" name="arrayType" />
+      <Parameter type="uint" name="elementLength" />
     </Parameters>
   </Export>
   <Export name="JsEquals" target="Common" source="ChakraCommon.h">
@@ -1900,9 +1900,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="object1"/>
-      <Parameter type="JsValueRef" name="object2"/>
-      <Parameter type="bool" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="object1" />
+      <Parameter type="JsValueRef" name="object2" />
+      <Parameter type="bool" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsStrictEquals" target="Common" source="ChakraCommon.h">
@@ -1928,9 +1928,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="object1"/>
-      <Parameter type="JsValueRef" name="object2"/>
-      <Parameter type="bool" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="object1" />
+      <Parameter type="JsValueRef" name="object2" />
+      <Parameter type="bool" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsHasExternalData" target="Common" source="ChakraCommon.h">
@@ -1947,8 +1947,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="bool" name="value" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="bool" name="value" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetExternalData" target="Common" source="ChakraCommon.h">
@@ -1968,8 +1968,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="IntPtr" name="externalData" direction="Out"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="IntPtr" name="externalData" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSetExternalData" target="Common" source="ChakraCommon.h">
@@ -1989,8 +1989,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="@object"/>
-      <Parameter type="IntPtr" name="externalData"/>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="IntPtr" name="externalData" />
     </Parameters>
   </Export>
   <Export name="JsCreateArray" target="Common" source="ChakraCommon.h">
@@ -2010,8 +2010,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="uint" name="length"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="uint" name="length" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateArrayBuffer" target="Common" source="ChakraCommon.h">
@@ -2033,8 +2033,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="uint" name="byteLength"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="uint" name="byteLength" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateExternalArrayBuffer" target="Common" source="ChakraCommon.h">
@@ -2055,11 +2055,11 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="IntPtr" name="data"/>
-      <Parameter type="uint" name="byteLength"/>
-      <Parameter type="JsFinalizeCallback" name="finalizeCallback"/>
-      <Parameter type="IntPtr" name="callbackState"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="IntPtr" name="data" />
+      <Parameter type="uint" name="byteLength" />
+      <Parameter type="JsFinalizeCallback" name="finalizeCallback" />
+      <Parameter type="IntPtr" name="callbackState" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateTypedArray" target="Common" source="ChakraCommon.h">
@@ -2098,11 +2098,11 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsTypedArrayType" name="arrayType"/>
-      <Parameter type="JsValueRef" name="baseArray"/>
-      <Parameter type="uint" name="byteOffset"/>
-      <Parameter type="uint" name="elementLength"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsTypedArrayType" name="arrayType" />
+      <Parameter type="JsValueRef" name="baseArray" />
+      <Parameter type="uint" name="byteOffset" />
+      <Parameter type="uint" name="elementLength" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateDataView" target="Common" source="ChakraCommon.h">
@@ -2130,10 +2130,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="arrayBuffer"/>
-      <Parameter type="uint" name="byteOffset"/>
-      <Parameter type="uint" name="byteLength"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="arrayBuffer" />
+      <Parameter type="uint" name="byteOffset" />
+      <Parameter type="uint" name="byteLength" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetTypedArrayInfo" target="Common" source="ChakraCommon.h">
@@ -2153,11 +2153,11 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="typedArray"/>
-      <Parameter type="JsTypedArrayType" name="arrayType" direction="Out"/>
-      <Parameter type="JsValueRef" name="arrayBuffer" direction="Out"/>
-      <Parameter type="uint" name="byteOffset" direction="Out"/>
-      <Parameter type="uint" name="byteLength" direction="Out"/>
+      <Parameter type="JsValueRef" name="typedArray" />
+      <Parameter type="JsTypedArrayType" name="arrayType" direction="Out" />
+      <Parameter type="JsValueRef" name="arrayBuffer" direction="Out" />
+      <Parameter type="uint" name="byteOffset" direction="Out" />
+      <Parameter type="uint" name="byteLength" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetArrayBufferStorage" target="Common" source="ChakraCommon.h">
@@ -2179,9 +2179,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="arrayBuffer"/>
-      <Parameter type="IntPtr" name="buffer" direction="Out"/>
-      <Parameter type="uint" name="bufferLength" direction="Out"/>
+      <Parameter type="JsValueRef" name="arrayBuffer" />
+      <Parameter type="IntPtr" name="buffer" direction="Out" />
+      <Parameter type="uint" name="bufferLength" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetTypedArrayStorage" target="Common" source="ChakraCommon.h">
@@ -2207,11 +2207,11 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="typedArray"/>
-      <Parameter type="IntPtr" name="buffer" direction="Out"/>
-      <Parameter type="uint" name="bufferLength" direction="Out"/>
-      <Parameter type="JsTypedArrayType" name="arrayType" direction="Out"/>
-      <Parameter type="int" name="elementSize" direction="Out"/>
+      <Parameter type="JsValueRef" name="typedArray" />
+      <Parameter type="IntPtr" name="buffer" direction="Out" />
+      <Parameter type="uint" name="bufferLength" direction="Out" />
+      <Parameter type="JsTypedArrayType" name="arrayType" direction="Out" />
+      <Parameter type="int" name="elementSize" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetDataViewStorage" target="Common" source="ChakraCommon.h">
@@ -2233,9 +2233,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="dataView"/>
-      <Parameter type="IntPtr" name="buffer" direction="Out"/>
-      <Parameter type="uint" name="bufferLength" direction="Out"/>
+      <Parameter type="JsValueRef" name="dataView" />
+      <Parameter type="IntPtr" name="buffer" direction="Out" />
+      <Parameter type="uint" name="bufferLength" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCallFunction" target="Common" source="ChakraCommon.h">
@@ -2258,10 +2258,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="function"/>
-      <Parameter type="JsValueRef[]" name="arguments"/>
-      <Parameter type="ushort" name="argumentCount"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="function" />
+      <Parameter type="JsValueRef[]" name="arguments" />
+      <Parameter type="ushort" name="argumentCount" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsConstructObject" target="Common" source="ChakraCommon.h">
@@ -2283,10 +2283,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="function"/>
-      <Parameter type="JsValueRef[]" name="arguments"/>
-      <Parameter type="ushort" name="argumentCount"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsValueRef" name="function" />
+      <Parameter type="JsValueRef[]" name="arguments" />
+      <Parameter type="ushort" name="argumentCount" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateFunction" target="Common" source="ChakraCommon.h">
@@ -2309,9 +2309,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsNativeFunction" name="nativeFunction"/>
-      <Parameter type="IntPtr" name="callbackState"/>
-      <Parameter type="JsValueRef" name="function" direction="Out"/>
+      <Parameter type="JsNativeFunction" name="nativeFunction" />
+      <Parameter type="IntPtr" name="callbackState" />
+      <Parameter type="JsValueRef" name="function" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateNamedFunction" target="Common" source="ChakraCommon.h">
@@ -2335,10 +2335,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="name"/>
-      <Parameter type="JsNativeFunction" name="nativeFunction"/>
-      <Parameter type="IntPtr" name="callbackState"/>
-      <Parameter type="JsValueRef" name="function" direction="Out"/>
+      <Parameter type="JsValueRef" name="name" />
+      <Parameter type="JsNativeFunction" name="nativeFunction" />
+      <Parameter type="IntPtr" name="callbackState" />
+      <Parameter type="JsValueRef" name="function" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateError" target="Common" source="ChakraCommon.h">
@@ -2358,8 +2358,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="message"/>
-      <Parameter type="JsValueRef" name="error" direction="Out"/>
+      <Parameter type="JsValueRef" name="message" />
+      <Parameter type="JsValueRef" name="error" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateRangeError" target="Common" source="ChakraCommon.h">
@@ -2379,8 +2379,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="message"/>
-      <Parameter type="JsValueRef" name="error" direction="Out"/>
+      <Parameter type="JsValueRef" name="message" />
+      <Parameter type="JsValueRef" name="error" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateReferenceError" target="Common" source="ChakraCommon.h">
@@ -2400,8 +2400,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="message"/>
-      <Parameter type="JsValueRef" name="error" direction="Out"/>
+      <Parameter type="JsValueRef" name="message" />
+      <Parameter type="JsValueRef" name="error" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateSyntaxError" target="Common" source="ChakraCommon.h">
@@ -2421,8 +2421,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="message"/>
-      <Parameter type="JsValueRef" name="error" direction="Out"/>
+      <Parameter type="JsValueRef" name="message" />
+      <Parameter type="JsValueRef" name="error" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateTypeError" target="Common" source="ChakraCommon.h">
@@ -2442,8 +2442,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="message"/>
-      <Parameter type="JsValueRef" name="error" direction="Out"/>
+      <Parameter type="JsValueRef" name="message" />
+      <Parameter type="JsValueRef" name="error" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCreateURIError" target="Common" source="ChakraCommon.h">
@@ -2463,8 +2463,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="message"/>
-      <Parameter type="JsValueRef" name="error" direction="Out"/>
+      <Parameter type="JsValueRef" name="message" />
+      <Parameter type="JsValueRef" name="error" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsHasException" target="Common" source="ChakraCommon.h">
@@ -2498,7 +2498,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="bool" name="hasException" direction="Out"/>
+      <Parameter type="bool" name="hasException" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetAndClearException" target="Common" source="ChakraCommon.h">
@@ -2527,7 +2527,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="exception" direction="Out"/>
+      <Parameter type="JsValueRef" name="exception" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSetException" target="Common" source="ChakraCommon.h">
@@ -2554,7 +2554,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="exception"/>
+      <Parameter type="JsValueRef" name="exception" />
     </Parameters>
   </Export>
   <Export name="JsDisableRuntimeExecution" target="Common" source="ChakraCommon.h">
@@ -2584,7 +2584,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtime"/>
+      <Parameter type="JsRuntimeHandle" name="runtime" />
     </Parameters>
   </Export>
   <Export name="JsEnableRuntimeExecution" target="Common" source="ChakraCommon.h">
@@ -2604,7 +2604,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtime"/>
+      <Parameter type="JsRuntimeHandle" name="runtime" />
     </Parameters>
   </Export>
   <Export name="JsIsRuntimeExecutionDisabled" target="Common" source="ChakraCommon.h">
@@ -2621,8 +2621,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtime"/>
-      <Parameter type="bool" name="isDisabled" direction="Out"/>
+      <Parameter type="JsRuntimeHandle" name="runtime" />
+      <Parameter type="bool" name="isDisabled" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSetPromiseContinuationCallback" target="Common" source="ChakraCommon.h">
@@ -2647,8 +2647,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsPromiseContinuationCallback" name="promiseContinuationCallback"/>
-      <Parameter type="IntPtr" name="callbackState"/>
+      <Parameter type="JsPromiseContinuationCallback" name="promiseContinuationCallback" />
+      <Parameter type="IntPtr" name="callbackState" />
     </Parameters>
   </Export>
    <!-- 
@@ -2676,9 +2676,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtimeHandle"/>
-      <Parameter type="JsDiagDebugEventCallback" name="debugEventCallback"/>
-      <Parameter type="IntPtr" name="callbackState"/>
+      <Parameter type="JsRuntimeHandle" name="runtimeHandle" />
+      <Parameter type="JsDiagDebugEventCallback" name="debugEventCallback" />
+      <Parameter type="IntPtr" name="callbackState" />
     </Parameters>
   </Export>
   <Export name="JsDiagStopDebugging" target="Common" source="ChakraDebug.h">
@@ -2698,8 +2698,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtimeHandle"/>
-      <Parameter type="IntPtr" name="callbackState" direction="Out"/>
+      <Parameter type="JsRuntimeHandle" name="runtimeHandle" />
+      <Parameter type="IntPtr" name="callbackState" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDiagRequestAsyncBreak" target="Common" source="ChakraDebug.h">
@@ -2718,7 +2718,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtimeHandle"/>
+      <Parameter type="JsRuntimeHandle" name="runtimeHandle" />
     </Parameters>
   </Export>
   <Export name="JsDiagGetBreakpoints" target="Common" source="ChakraDebug.h">
@@ -2747,7 +2747,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="breakpoints" direction="Out"/>
+      <Parameter type="JsValueRef" name="breakpoints" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDiagSetBreakpoint" target="Common" source="ChakraDebug.h">
@@ -2778,10 +2778,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="uint" name="scriptId"/>
-      <Parameter type="uint" name="lineNumber"/>
-      <Parameter type="uint" name="columnNumber"/>
-      <Parameter type="JsValueRef" name="breakpoint" direction="Out"/>
+      <Parameter type="uint" name="scriptId" />
+      <Parameter type="uint" name="lineNumber" />
+      <Parameter type="uint" name="columnNumber" />
+      <Parameter type="JsValueRef" name="breakpoint" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDiagRemoveBreakpoint" target="Common" source="ChakraDebug.h">
@@ -2800,7 +2800,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="uint" name="breakpointId"/>
+      <Parameter type="uint" name="breakpointId" />
     </Parameters>
   </Export>
   <Export name="JsDiagSetBreakOnException" target="Common" source="ChakraDebug.h">
@@ -2825,8 +2825,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtimeHandle"/>
-      <Parameter type="JsDiagBreakOnExceptionAttributes" name="exceptionAttributes"/>
+      <Parameter type="JsRuntimeHandle" name="runtimeHandle" />
+      <Parameter type="JsDiagBreakOnExceptionAttributes" name="exceptionAttributes" />
     </Parameters>
   </Export>
   <Export name="JsDiagGetBreakOnException" target="Common" source="ChakraDebug.h">
@@ -2846,8 +2846,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="runtimeHandle"/>
-      <Parameter type="JsDiagBreakOnExceptionAttributes" name="exceptionAttributes" direction="Out"/>
+      <Parameter type="JsRuntimeHandle" name="runtimeHandle" />
+      <Parameter type="JsDiagBreakOnExceptionAttributes" name="exceptionAttributes" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDiagSetStepType" target="Common" source="ChakraDebug.h">
@@ -2869,7 +2869,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsDiagStepType" name="stepType"/>
+      <Parameter type="JsDiagStepType" name="stepType" />
     </Parameters>
   </Export>
   <Export name="JsDiagGetScripts" target="Common" source="ChakraDebug.h">
@@ -2904,7 +2904,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="scriptsArray" direction="Out"/>
+      <Parameter type="JsValueRef" name="scriptsArray" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDiagGetSource" target="Common" source="ChakraDebug.h">
@@ -2935,8 +2935,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="uint" name="scriptId"/>
-      <Parameter type="JsValueRef" name="source" direction="Out"/>
+      <Parameter type="uint" name="scriptId" />
+      <Parameter type="JsValueRef" name="source" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDiagGetFunctionPosition" target="Common" source="ChakraDebug.h">
@@ -2968,8 +2968,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="function"/>
-      <Parameter type="JsValueRef" name="functionPosition" direction="Out"/>
+      <Parameter type="JsValueRef" name="function" />
+      <Parameter type="JsValueRef" name="functionPosition" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDiagGetStackTrace" target="Common" source="ChakraDebug.h">
@@ -3001,7 +3001,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="Name" direction="Out"/>
+      <Parameter type="JsValueRef" name="Name" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDiagGetStackProperties" target="Common" source="ChakraDebug.h">
@@ -3074,8 +3074,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="uint" name="stackFrameIndex"/>
-      <Parameter type="JsValueRef" name="properties" direction="Out"/>
+      <Parameter type="uint" name="stackFrameIndex" />
+      <Parameter type="JsValueRef" name="properties" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDiagGetProperties" target="Common" source="ChakraDebug.h">
@@ -3123,10 +3123,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="uint" name="objectHandle"/>
-      <Parameter type="uint" name="fromCount"/>
-      <Parameter type="uint" name="totalCount"/>
-      <Parameter type="JsValueRef" name="propertiesObject" direction="Out"/>
+      <Parameter type="uint" name="objectHandle" />
+      <Parameter type="uint" name="fromCount" />
+      <Parameter type="uint" name="totalCount" />
+      <Parameter type="JsValueRef" name="propertiesObject" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDiagGetObjectFromHandle" target="Common" source="ChakraDebug.h">
@@ -3158,8 +3158,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="uint" name="objectHandle"/>
-      <Parameter type="JsValueRef" name="handleObject" direction="Out"/>
+      <Parameter type="uint" name="objectHandle" />
+      <Parameter type="JsValueRef" name="handleObject" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDiagEvaluate" target="Common" source="ChakraDebug.h">
@@ -3213,10 +3213,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="expression"/>
-      <Parameter type="uint" name="stackFrameIndex"/>
-      <Parameter type="JsParseScriptAttributes" name="parseAttributes"/>
-      <Parameter type="JsValueRef" name="evalResult" direction="Out"/>
+      <Parameter type="JsValueRef" name="expression" />
+      <Parameter type="uint" name="stackFrameIndex" />
+      <Parameter type="JsParseScriptAttributes" name="parseAttributes" />
+      <Parameter type="JsValueRef" name="evalResult" direction="Out" />
     </Parameters>
   </Export>
   <!-- 
@@ -3247,10 +3247,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="string" name="script"/>
-      <Parameter type="JsSourceContext" name="sourceContext"/>
-      <Parameter type="string" name="sourceUrl"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="string" name="script" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="string" name="sourceUrl" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsParseScriptWithAttributes" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
@@ -3275,11 +3275,11 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="string" name="script"/>
-      <Parameter type="JsSourceContext" name="sourceContext"/>
-      <Parameter type="string" name="sourceUrl"/>
-      <Parameter type="JsParseScriptAttributes" name="parseAttributes"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="string" name="script" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="string" name="sourceUrl" />
+      <Parameter type="JsParseScriptAttributes" name="parseAttributes" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsRunScript" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
@@ -3303,10 +3303,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="string" name="script"/>
-      <Parameter type="JsSourceContext" name="sourceContext"/>
-      <Parameter type="string" name="sourceUrl"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="string" name="script" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="string" name="sourceUrl" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsExperimentalApiRunModule" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
@@ -3330,10 +3330,10 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="string" name="script"/>
-      <Parameter type="JsSourceContext" name="sourceContext"/>
-      <Parameter type="string" name="sourceUrl"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="string" name="script" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="string" name="sourceUrl" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSerializeScript" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
@@ -3364,9 +3364,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="string" name="script"/>
-      <Parameter type="byte[]" name="buffer"/>
-      <Parameter type="ulong" name="bufferSize" direction="Ref"/>
+      <Parameter type="string" name="script" />
+      <Parameter type="byte[]" name="buffer" />
+      <Parameter type="ulong" name="bufferSize" direction="Ref" />
     </Parameters>
   </Export>
   <Export name="JsParseSerializedScriptWithCallback" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
@@ -3401,12 +3401,12 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsSerializedScriptLoadSourceCallback" name="scriptLoadCallback"/>
-      <Parameter type="JsSerializedScriptUnloadCallback" name="scriptUnloadCallback"/>
-      <Parameter type="byte[]" name="buffer"/>
-      <Parameter type="JsSourceContext" name="sourceContext"/>
-      <Parameter type="string" name="sourceUrl"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsSerializedScriptLoadSourceCallback" name="scriptLoadCallback" />
+      <Parameter type="JsSerializedScriptUnloadCallback" name="scriptUnloadCallback" />
+      <Parameter type="byte[]" name="buffer" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="string" name="sourceUrl" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsRunSerializedScriptWithCallback" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
@@ -3443,12 +3443,12 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsSerializedScriptLoadSourceCallback" name="scriptLoadCallback"/>
-      <Parameter type="JsSerializedScriptUnloadCallback" name="scriptUnloadCallback"/>
-      <Parameter type="byte[]" name="buffer"/>
-      <Parameter type="JsSourceContext" name="sourceContext"/>
-      <Parameter type="string" name="sourceUrl"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="JsSerializedScriptLoadSourceCallback" name="scriptLoadCallback" />
+      <Parameter type="JsSerializedScriptUnloadCallback" name="scriptUnloadCallback" />
+      <Parameter type="byte[]" name="buffer" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="string" name="sourceUrl" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsParseSerializedScript" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
@@ -3479,11 +3479,11 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="string" name="script"/>
-      <Parameter type="byte[]" name="buffer"/>
-      <Parameter type="JsSourceContext" name="sourceContext"/>
-      <Parameter type="string" name="sourceUrl"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="string" name="script" />
+      <Parameter type="byte[]" name="buffer" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="string" name="sourceUrl" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsRunSerializedScript" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
@@ -3516,11 +3516,11 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="string" name="script"/>
-      <Parameter type="byte[]" name="buffer"/>
-      <Parameter type="JsSourceContext" name="sourceContext"/>
-      <Parameter type="string" name="sourceUrl"/>
-      <Parameter type="JsValueRef" name="result" direction="Out"/>
+      <Parameter type="string" name="script" />
+      <Parameter type="byte[]" name="buffer" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="string" name="sourceUrl" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetPropertyIdFromName" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
@@ -3547,8 +3547,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="string" name="name"/>
-      <Parameter type="JsPropertyIdRef" name="propertyId" direction="Out"/>
+      <Parameter type="string" name="name" />
+      <Parameter type="JsPropertyIdRef" name="propertyId" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetPropertyNameFromId" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
@@ -3574,8 +3574,8 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsPropertyIdRef" name="propertyId"/>
-      <Parameter type="IntPtr" name="name" direction="Out"/>
+      <Parameter type="JsPropertyIdRef" name="propertyId" />
+      <Parameter type="IntPtr" name="name" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsPointerToString" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
@@ -3596,9 +3596,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="string" name="stringValue"/>
-      <Parameter type="UIntPtr" name="stringLength"/>
-      <Parameter type="JsValueRef" name="value" direction="Out"/>
+      <Parameter type="string" name="stringValue" />
+      <Parameter type="UIntPtr" name="stringLength" />
+      <Parameter type="JsValueRef" name="value" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsStringToPointer" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
@@ -3628,9 +3628,9 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="value"/>
-      <Parameter type="IntPtr" name="stringValue" direction="Out"/>
-      <Parameter type="UIntPtr" name="stringLength" direction="Out"/>
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="IntPtr" name="stringValue" direction="Out" />
+      <Parameter type="UIntPtr" name="stringLength" direction="Out" />
     </Parameters>
   </Export>
   <!--<Export name="Name" target="Common" source="ChakraDebug.h">
@@ -3640,9 +3640,9 @@ Description
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="Type" name="Name"/>
-      <Parameter type="Type" name="Name"/>
-      <Parameter type="Type" name="Name" direction="Out"/>
+      <Parameter type="Type" name="Name" />
+      <Parameter type="Type" name="Name" />
+      <Parameter type="Type" name="Name" direction="Out" />
     </Parameters>
   </Export>-->
 </ChakraDefinitions>
