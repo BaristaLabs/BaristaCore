@@ -29,7 +29,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsInitializeModuleRecord", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsInitializeModuleRecord(IntPtr referencingModule, JavaScriptValueSafeHandle normalizedSpecifier, out IntPtr moduleRecord);
 
 		/// <summary>
@@ -59,7 +59,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsParseModuleSource", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsParseModuleSource(IntPtr requestModule, JavaScriptSourceContext sourceContext, byte[] script, uint scriptLength, JavaScriptParseModuleSourceFlags sourceFlag, out JavaScriptValueSafeHandle exceptionValueRef);
 
 		/// <summary>
@@ -79,7 +79,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsModuleEvaluation", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsModuleEvaluation(IntPtr requestModule, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -88,7 +88,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetModuleHostInfo", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, IntPtr hostInfo);
 
 		/// <summary>
@@ -97,7 +97,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetModuleHostInfo", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, out IntPtr hostInfo);
 
 		/// <summary>
@@ -118,20 +118,20 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCreateString(string content, UIntPtr length, out JavaScriptValueSafeHandle value);
+		[DllImport(DllName, EntryPoint = "JsCreateString", CallingConvention = CallingConvention.Cdecl)]
+		public static extern JavaScriptErrorCode JsCreateString(string content, ulong length, out JavaScriptValueSafeHandle value);
 
 		/// <summary>
-		///		Create JavascriptString variable from Utf8 string
+		///		Create JavascriptString variable from Utf16 string
 		/// </summary>
 		/// <remarks>
-		///		Input string can be either ASCII or Utf8
+		///		Expects Utf16 string
 		/// </remarks>
 		/// <param name="content">
 		///		Pointer to string memory.
 		/// </param>
 		/// <param name="length">
-		///		Number of bytes within the string
+		///		Number of characters within the string
 		/// </param>
 		/// <param name="value">
 		///		JsValueRef representing the JavascriptString
@@ -139,8 +139,8 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsCreateStringUtf16(string content, UIntPtr length, out JavaScriptValueSafeHandle value);
+		[DllImport(DllName, EntryPoint = "JsCreateStringUtf16", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsCreateStringUtf16(string content, ulong length, out JavaScriptValueSafeHandle value);
 
 		/// <summary>
 		///		Write JavascriptString value into C string buffer (Utf8)
@@ -165,8 +165,8 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Ansi)]
-		public static extern JavaScriptErrorCode JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, UIntPtr bufferSize, out UIntPtr written);
+		[DllImport(DllName, EntryPoint = "JsCopyString", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+		public static extern JavaScriptErrorCode JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, ulong bufferSize, out ulong written);
 
 		/// <summary>
 		///		Write string value into Utf16 string buffer
@@ -199,8 +199,8 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCopyStringUtf16(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer, out UIntPtr written);
+		[DllImport(DllName, EntryPoint = "JsCopyStringUtf16", CallingConvention = CallingConvention.Cdecl)]
+		public static extern JavaScriptErrorCode JsCopyStringUtf16(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer, out ulong written);
 
 		/// <summary>
 		///		Parses a script and returns a function representing the script.
@@ -231,7 +231,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsParse", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsParse(JavaScriptValueSafeHandle script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -263,7 +263,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsRun", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsRun(JavaScriptValueSafeHandle script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -286,8 +286,8 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCreatePropertyId(string name, UIntPtr length, out JavaScriptPropertyIdSafeHandle propertyId);
+		[DllImport(DllName, EntryPoint = "JsCreatePropertyId", CallingConvention = CallingConvention.Cdecl)]
+		public static extern JavaScriptErrorCode JsCreatePropertyId(string name, ulong length, out JavaScriptPropertyIdSafeHandle propertyId);
 
 		/// <summary>
 		///		Copies the name associated with the property ID into a buffer.
@@ -307,14 +307,14 @@
 		/// <param name="bufferSize">
 		///		Size of the buffer.
 		/// </param>
-		/// <param name="written">
-		///		Total number of characters written or to be written
+		/// <param name="length">
+		///		NO DESCRIPTION PROVIDED
 		/// </param>
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCopyPropertyId(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize, out UIntPtr written);
+		[DllImport(DllName, EntryPoint = "JsCopyPropertyId", CallingConvention = CallingConvention.Cdecl)]
+		public static extern JavaScriptErrorCode JsCopyPropertyId(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, ulong bufferSize, out ulong length);
 
 		/// <summary>
 		///		Serializes a parsed script to a buffer than can be reused.
@@ -334,7 +334,7 @@
 		///		The script to serialize
 		/// </param>
 		/// <param name="buffer">
-		///		The buffer to put the serialized script into. Can be null.
+		///		ArrayBuffer
 		/// </param>
 		/// <param name="parseAttributes">
 		///		Encoding for the script.
@@ -342,7 +342,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSerialize", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSerialize(JavaScriptValueSafeHandle script, out JavaScriptValueSafeHandle buffer, JavaScriptParseScriptAttributes parseAttributes);
 
 		/// <summary>
@@ -352,7 +352,7 @@
 		///		Requires an active script context.
 		/// </remarks>
 		/// <param name="buffer">
-		///		The serialized script.
+		///		The serialized script as an ArrayBuffer (preferably ExternalArrayBuffer).
 		/// </param>
 		/// <param name="scriptLoadCallback">
 		///		Callback called when the source code of the script needs to be loaded.
@@ -371,7 +371,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsParseSerialized", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsParseSerialized(JavaScriptValueSafeHandle buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -383,7 +383,7 @@
 		///		the buffer are garbage collected.
 		/// </remarks>
 		/// <param name="buffer">
-		///		The serialized script.
+		///		The serialized script as an ArrayBuffer (preferably ExternalArrayBuffer).
 		/// </param>
 		/// <param name="scriptLoadCallback">
 		///		Callback called when the source code of the script needs to be loaded.
@@ -401,7 +401,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsRunSerialized", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsRunSerialized(JavaScriptValueSafeHandle buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -423,7 +423,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateRuntime", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateRuntime(JavaScriptRuntimeAttributes attributes, JavaScriptThreadServiceCallback threadService, out JavaScriptRuntimeSafeHandle runtime);
 
 		/// <summary>
@@ -432,8 +432,8 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsCollectGarbage(JavaScriptRuntimeSafeHandle handle);
+		[DllImport(DllName, EntryPoint = "JsCollectGarbage", CallingConvention = CallingConvention.Cdecl)]
+		public static extern JavaScriptErrorCode JsCollectGarbage(JavaScriptRuntimeSafeHandle runtime);
 
 		/// <summary>
 		///		Disposes a runtime.
@@ -449,7 +449,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDisposeRuntime", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDisposeRuntime(IntPtr runtime);
 
 		/// <summary>
@@ -468,7 +468,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetRuntimeMemoryUsage", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out ulong memoryUsage);
 
 		/// <summary>
@@ -487,7 +487,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetRuntimeMemoryLimit", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, out ulong memoryLimit);
 
 		/// <summary>
@@ -511,7 +511,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetRuntimeMemoryLimit", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, ulong memoryLimit);
 
 		/// <summary>
@@ -540,7 +540,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetRuntimeMemoryAllocationCallback", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetRuntimeMemoryAllocationCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr callbackState, JavaScriptMemoryAllocationCallback allocationCallback);
 
 		/// <summary>
@@ -564,7 +564,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetRuntimeBeforeCollectCallback", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetRuntimeBeforeCollectCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr callbackState, JavaScriptBeforeCollectCallback beforeCollectCallback);
 
 		/// <summary>
@@ -584,7 +584,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsAddRef", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsAddRef(SafeHandle @ref, out uint count);
 
 		/// <summary>
@@ -602,7 +602,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsRelease", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsRelease(SafeHandle @ref, out uint count);
 
 		/// <summary>
@@ -625,7 +625,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetObjectBeforeCollectCallback", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetObjectBeforeCollectCallback(SafeHandle @ref, IntPtr callbackState, JavaScriptObjectBeforeCollectCallback objectBeforeCollectCallback);
 
 		/// <summary>
@@ -644,7 +644,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateContext", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateContext(JavaScriptRuntimeSafeHandle runtime, out JavaScriptContextSafeHandle newContext);
 
 		/// <summary>
@@ -653,7 +653,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetCurrentContext", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetCurrentContext(out JavaScriptContextSafeHandle currentContext);
 
 		/// <summary>
@@ -662,7 +662,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetCurrentContext", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetCurrentContext(JavaScriptContextSafeHandle context);
 
 		/// <summary>
@@ -671,7 +671,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetContextOfObject", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetContextOfObject(JavaScriptValueSafeHandle @object, out JavaScriptContextSafeHandle context);
 
 		/// <summary>
@@ -680,7 +680,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetContextData", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetContextData(JavaScriptContextSafeHandle context, out IntPtr data);
 
 		/// <summary>
@@ -689,7 +689,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetContextData", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetContextData(JavaScriptContextSafeHandle context, IntPtr data);
 
 		/// <summary>
@@ -698,7 +698,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetRuntime", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetRuntime(JavaScriptContextSafeHandle context, out JavaScriptRuntimeSafeHandle runtime);
 
 		/// <summary>
@@ -720,7 +720,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsIdle", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsIdle(out uint nextIdleTick);
 
 		/// <summary>
@@ -738,7 +738,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetSymbolFromPropertyId", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetSymbolFromPropertyId(JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptValueSafeHandle symbol);
 
 		/// <summary>
@@ -756,7 +756,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetPropertyIdType", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetPropertyIdType(JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptPropertyIdType propertyIdType);
 
 		/// <summary>
@@ -775,7 +775,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetPropertyIdFromSymbol", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetPropertyIdFromSymbol(JavaScriptValueSafeHandle symbol, out JavaScriptPropertyIdSafeHandle propertyId);
 
 		/// <summary>
@@ -793,7 +793,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateSymbol", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateSymbol(JavaScriptValueSafeHandle description, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -811,7 +811,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetOwnPropertySymbols", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetOwnPropertySymbols(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle propertySymbols);
 
 		/// <summary>
@@ -826,7 +826,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetUndefinedValue", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetUndefinedValue(out JavaScriptValueSafeHandle undefinedValue);
 
 		/// <summary>
@@ -841,7 +841,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetNullValue", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetNullValue(out JavaScriptValueSafeHandle nullValue);
 
 		/// <summary>
@@ -856,7 +856,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetTrueValue", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetTrueValue(out JavaScriptValueSafeHandle trueValue);
 
 		/// <summary>
@@ -871,7 +871,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetFalseValue", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetFalseValue(out JavaScriptValueSafeHandle falseValue);
 
 		/// <summary>
@@ -889,7 +889,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsBoolToBoolean", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsBoolToBoolean(bool value, out JavaScriptValueSafeHandle booleanValue);
 
 		/// <summary>
@@ -898,7 +898,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsBooleanToBool", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsBooleanToBool(JavaScriptValueSafeHandle value, out bool boolValue);
 
 		/// <summary>
@@ -916,7 +916,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsConvertValueToBoolean", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsConvertValueToBoolean(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle booleanValue);
 
 		/// <summary>
@@ -925,7 +925,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetValueType", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetValueType(JavaScriptValueSafeHandle value, out JavaScriptValueType type);
 
 		/// <summary>
@@ -943,7 +943,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDoubleToNumber", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDoubleToNumber(double doubleValue, out JavaScriptValueSafeHandle value);
 
 		/// <summary>
@@ -961,7 +961,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsIntToNumber", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsIntToNumber(int intValue, out JavaScriptValueSafeHandle value);
 
 		/// <summary>
@@ -980,7 +980,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsNumberToDouble", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsNumberToDouble(JavaScriptValueSafeHandle value, out double doubleValue);
 
 		/// <summary>
@@ -999,7 +999,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsNumberToInt", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsNumberToInt(JavaScriptValueSafeHandle value, out int intValue);
 
 		/// <summary>
@@ -1017,7 +1017,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsConvertValueToNumber", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsConvertValueToNumber(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle numberValue);
 
 		/// <summary>
@@ -1026,7 +1026,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetStringLength", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetStringLength(JavaScriptValueSafeHandle stringValue, out int length);
 
 		/// <summary>
@@ -1044,7 +1044,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsConvertValueToString", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsConvertValueToString(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle stringValue);
 
 		/// <summary>
@@ -1059,7 +1059,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetGlobalObject", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetGlobalObject(out JavaScriptValueSafeHandle globalObject);
 
 		/// <summary>
@@ -1074,7 +1074,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateObject", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateObject(out JavaScriptValueSafeHandle @object);
 
 		/// <summary>
@@ -1095,7 +1095,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateExternalObject", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateExternalObject(IntPtr data, JavaScriptObjectFinalizeCallback finalizeCallback, out JavaScriptValueSafeHandle @object);
 
 		/// <summary>
@@ -1113,7 +1113,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsConvertValueToObject", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsConvertValueToObject(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle @object);
 
 		/// <summary>
@@ -1131,7 +1131,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetPrototype", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetPrototype(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle prototypeObject);
 
 		/// <summary>
@@ -1149,7 +1149,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetPrototype", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetPrototype(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle prototypeObject);
 
 		/// <summary>
@@ -1170,7 +1170,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsInstanceOf", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsInstanceOf(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle constructor, out bool result);
 
 		/// <summary>
@@ -1188,7 +1188,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetExtensionAllowed", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetExtensionAllowed(JavaScriptValueSafeHandle @object, out bool value);
 
 		/// <summary>
@@ -1203,7 +1203,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsPreventExtension", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsPreventExtension(JavaScriptValueSafeHandle @object);
 
 		/// <summary>
@@ -1224,7 +1224,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetProperty", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptValueSafeHandle value);
 
 		/// <summary>
@@ -1245,7 +1245,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetOwnPropertyDescriptor", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetOwnPropertyDescriptor(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptValueSafeHandle propertyDescriptor);
 
 		/// <summary>
@@ -1263,7 +1263,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetOwnPropertyNames", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetOwnPropertyNames(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle propertyNames);
 
 		/// <summary>
@@ -1287,7 +1287,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetProperty", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, JavaScriptValueSafeHandle value, bool useStrictRules);
 
 		/// <summary>
@@ -1308,7 +1308,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsHasProperty", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsHasProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out bool hasProperty);
 
 		/// <summary>
@@ -1332,7 +1332,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDeleteProperty", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDeleteProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, bool useStrictRules, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -1356,7 +1356,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDefineProperty", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDefineProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, JavaScriptValueSafeHandle propertyDescriptor, out bool result);
 
 		/// <summary>
@@ -1377,7 +1377,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsHasIndexedProperty", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsHasIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index, out bool result);
 
 		/// <summary>
@@ -1398,7 +1398,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetIndexedProperty", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -1419,7 +1419,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetIndexedProperty", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index, JavaScriptValueSafeHandle value);
 
 		/// <summary>
@@ -1437,7 +1437,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDeleteIndexedProperty", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDeleteIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index);
 
 		/// <summary>
@@ -1446,7 +1446,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsHasIndexedPropertiesExternalData", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsHasIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out bool value);
 
 		/// <summary>
@@ -1455,7 +1455,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetIndexedPropertiesExternalData", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out IntPtr data, out JavaScriptTypedArrayType arrayType, out uint elementLength);
 
 		/// <summary>
@@ -1479,7 +1479,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetIndexedPropertiesToExternalData", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JavaScriptTypedArrayType arrayType, uint elementLength);
 
 		/// <summary>
@@ -1501,7 +1501,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsEquals", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsEquals(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2, out bool result);
 
 		/// <summary>
@@ -1523,7 +1523,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsStrictEquals", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsStrictEquals(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2, out bool result);
 
 		/// <summary>
@@ -1532,7 +1532,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsHasExternalData", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsHasExternalData(JavaScriptValueSafeHandle @object, out bool value);
 
 		/// <summary>
@@ -1541,7 +1541,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetExternalData", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetExternalData(JavaScriptValueSafeHandle @object, out IntPtr externalData);
 
 		/// <summary>
@@ -1550,7 +1550,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetExternalData", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetExternalData(JavaScriptValueSafeHandle @object, IntPtr externalData);
 
 		/// <summary>
@@ -1568,7 +1568,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateArray", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateArray(uint length, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -1586,7 +1586,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateArrayBuffer", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateArrayBuffer(uint byteLength, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -1613,7 +1613,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateExternalArrayBuffer", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateExternalArrayBuffer(IntPtr data, uint byteLength, JavaScriptObjectFinalizeCallback finalizeCallback, IntPtr callbackState, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -1646,7 +1646,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateTypedArray", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateTypedArray(JavaScriptTypedArrayType arrayType, JavaScriptValueSafeHandle baseArray, uint byteOffset, uint elementLength, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -1670,7 +1670,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateDataView", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateDataView(JavaScriptValueSafeHandle arrayBuffer, uint byteOffset, uint byteLength, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -1679,7 +1679,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetTypedArrayInfo", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetTypedArrayInfo(JavaScriptValueSafeHandle typedArray, out JavaScriptTypedArrayType arrayType, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength);
 
 		/// <summary>
@@ -1688,7 +1688,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetArrayBufferStorage", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetArrayBufferStorage(JavaScriptValueSafeHandle arrayBuffer, out IntPtr buffer, out uint bufferLength);
 
 		/// <summary>
@@ -1697,7 +1697,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetTypedArrayStorage", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out IntPtr buffer, out uint bufferLength, out JavaScriptTypedArrayType arrayType, out int elementSize);
 
 		/// <summary>
@@ -1706,7 +1706,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetDataViewStorage", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetDataViewStorage(JavaScriptValueSafeHandle dataView, out IntPtr buffer, out uint bufferLength);
 
 		/// <summary>
@@ -1731,7 +1731,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCallFunction", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCallFunction(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -1755,7 +1755,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsConstructObject", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsConstructObject(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
 
 		/// <summary>
@@ -1776,7 +1776,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateFunction", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateFunction(JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle function);
 
 		/// <summary>
@@ -1800,7 +1800,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateNamedFunction", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateNamedFunction(JavaScriptValueSafeHandle name, JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle function);
 
 		/// <summary>
@@ -1818,7 +1818,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateError", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
 
 		/// <summary>
@@ -1836,7 +1836,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateRangeError", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateRangeError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
 
 		/// <summary>
@@ -1854,7 +1854,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateReferenceError", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateReferenceError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
 
 		/// <summary>
@@ -1872,7 +1872,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateSyntaxError", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateSyntaxError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
 
 		/// <summary>
@@ -1890,7 +1890,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateTypeError", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateTypeError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
 
 		/// <summary>
@@ -1908,7 +1908,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsCreateURIError", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsCreateURIError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
 
 		/// <summary>
@@ -1930,7 +1930,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsHasException", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsHasException(out bool hasException);
 
 		/// <summary>
@@ -1950,7 +1950,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsGetAndClearException", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsGetAndClearException(out JavaScriptValueSafeHandle exception);
 
 		/// <summary>
@@ -1967,7 +1967,7 @@
 		/// <returns>
 		///		JsNoError if the engine was set into an exception state, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetException", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetException(JavaScriptValueSafeHandle exception);
 
 		/// <summary>
@@ -1987,7 +1987,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDisableRuntimeExecution", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDisableRuntimeExecution(JavaScriptRuntimeSafeHandle runtime);
 
 		/// <summary>
@@ -2003,7 +2003,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsEnableRuntimeExecution", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsEnableRuntimeExecution(JavaScriptRuntimeSafeHandle runtime);
 
 		/// <summary>
@@ -2012,7 +2012,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsIsRuntimeExecutionDisabled", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsIsRuntimeExecutionDisabled(JavaScriptRuntimeSafeHandle runtime, out bool isDisabled);
 
 		/// <summary>
@@ -2030,344 +2030,8 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsSetPromiseContinuationCallback", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsSetPromiseContinuationCallback(JavaScriptPromiseContinuationCallback promiseContinuationCallback, IntPtr callbackState);
-
-		/// <summary>
-		///		Parses a script and returns a function representing the script.
-		/// </summary>
-		/// <remarks>
-		///		Requires an active script context.
-		/// </remarks>
-		/// <param name="script">
-		///		The script to parse.
-		/// </param>
-		/// <param name="sourceContext">
-		///		A cookie identifying the script that can be used by debuggable script contexts.
-		/// </param>
-		/// <param name="sourceUrl">
-		///		The location the script came from.
-		/// </param>
-		/// <param name="result">
-		///		A function representing the script code.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsParseScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
-
-		/// <summary>
-		///		Parses a script and returns a function representing the script.
-		/// </summary>
-		/// <remarks>
-		///		Requires an active script context.
-		/// </remarks>
-		/// <param name="script">
-		///		The script to parse.
-		/// </param>
-		/// <param name="sourceContext">
-		///		A cookie identifying the script that can be used by debuggable script contexts.
-		/// </param>
-		/// <param name="sourceUrl">
-		///		The location the script came from.
-		/// </param>
-		/// <param name="parseAttributes">
-		///		Attribute mask for parsing the script
-		/// </param>
-		/// <param name="result">
-		///		A function representing the script code.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsParseScriptWithAttributes(string script, JavaScriptSourceContext sourceContext, string sourceUrl, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
-
-		/// <summary>
-		///		Executes a script.
-		/// </summary>
-		/// <remarks>
-		///		Requires an active script context.
-		/// </remarks>
-		/// <param name="script">
-		///		The script to run.
-		/// </param>
-		/// <param name="sourceContext">
-		///		A cookie identifying the script that can be used by debuggable script contexts.
-		/// </param>
-		/// <param name="sourceUrl">
-		///		The location the script came from.
-		/// </param>
-		/// <param name="result">
-		///		The result of the script, if any. This parameter can be null.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsRunScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
-
-		/// <summary>
-		///		Executes a module.
-		/// </summary>
-		/// <remarks>
-		///		Requires an active script context.
-		/// </remarks>
-		/// <param name="script">
-		///		The module script to parse and execute.
-		/// </param>
-		/// <param name="sourceContext">
-		///		A cookie identifying the script that can be used by debuggable script contexts.
-		/// </param>
-		/// <param name="sourceUrl">
-		///		The location the module script came from.
-		/// </param>
-		/// <param name="result">
-		///		The result of executing the module script, if any. This parameter can be null.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsExperimentalApiRunModule(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
-
-		/// <summary>
-		///		Serializes a parsed script to a buffer than can be reused.
-		/// </summary>
-		/// <remarks>
-		///		JsSerializeScript parses a script and then stores the parsed form of the script in a
-		///		runtime-independent format. The serialized script then can be deserialized in any
-		///		runtime without requiring the script to be re-parsed.
-		///		Requires an active script context.
-		/// </remarks>
-		/// <param name="script">
-		///		The script to serialize.
-		/// </param>
-		/// <param name="buffer">
-		///		The buffer to put the serialized script into. Can be null.
-		/// </param>
-		/// <param name="bufferSize">
-		///		On entry, the size of the buffer, in bytes; on exit, the size of the buffer, in bytes,
-		///		required to hold the serialized script.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsSerializeScript(string script, byte[] buffer, ref ulong bufferSize);
-
-		/// <summary>
-		///		Parses a serialized script and returns a function representing the script. Provides the ability to lazy load the script source only if/when it is needed.
-		/// </summary>
-		/// <remarks>
-		///		Requires an active script context.
-		///		The runtime will hold on to the buffer until all instances of any functions created from
-		///		the buffer are garbage collected.  It will then call scriptUnloadCallback to inform the
-		///		caller it is safe to release.
-		/// </remarks>
-		/// <param name="scriptLoadCallback">
-		///		Callback called when the source code of the script needs to be loaded.
-		/// </param>
-		/// <param name="scriptUnloadCallback">
-		///		Callback called when the serialized script and source code are no longer needed.
-		/// </param>
-		/// <param name="buffer">
-		///		The serialized script.
-		/// </param>
-		/// <param name="sourceContext">
-		///		A cookie identifying the script that can be used by debuggable script contexts.
-		///		This context will passed into scriptLoadCallback and scriptUnloadCallback.
-		/// </param>
-		/// <param name="sourceUrl">
-		///		The location the script came from.
-		/// </param>
-		/// <param name="result">
-		///		A function representing the script code.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsParseSerializedScriptWithCallback(JavaScriptSerializedScriptLoadSourceCallback scriptLoadCallback, JavaScriptSerializedScriptUnloadCallback scriptUnloadCallback, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
-
-		/// <summary>
-		///		Runs a serialized script. Provides the ability to lazy load the script source only if/when it is needed.
-		/// </summary>
-		/// <remarks>
-		///		Requires an active script context.
-		///		The runtime will hold on to the buffer until all instances of any functions created from
-		///		the buffer are garbage collected.  It will then call scriptUnloadCallback to inform the
-		///		caller it is safe to release.
-		/// </remarks>
-		/// <param name="scriptLoadCallback">
-		///		Callback called when the source code of the script needs to be loaded.
-		/// </param>
-		/// <param name="scriptUnloadCallback">
-		///		Callback called when the serialized script and source code are no longer needed.
-		/// </param>
-		/// <param name="buffer">
-		///		The serialized script.
-		/// </param>
-		/// <param name="sourceContext">
-		///		A cookie identifying the script that can be used by debuggable script contexts.
-		///		This context will passed into scriptLoadCallback and scriptUnloadCallback.
-		/// </param>
-		/// <param name="sourceUrl">
-		///		The location the script came from.
-		/// </param>
-		/// <param name="result">
-		///		The result of running the script, if any. This parameter can be null.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsRunSerializedScriptWithCallback(JavaScriptSerializedScriptLoadSourceCallback scriptLoadCallback, JavaScriptSerializedScriptUnloadCallback scriptUnloadCallback, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
-
-		/// <summary>
-		///		Parses a serialized script and returns a function representing the script.
-		/// </summary>
-		/// <remarks>
-		///		Requires an active script context.
-		///		The runtime will hold on to the buffer until all instances of any functions created from
-		///		the buffer are garbage collected.
-		/// </remarks>
-		/// <param name="script">
-		///		The script to parse.
-		/// </param>
-		/// <param name="buffer">
-		///		The serialized script.
-		/// </param>
-		/// <param name="sourceContext">
-		///		A cookie identifying the script that can be used by debuggable script contexts.
-		/// </param>
-		/// <param name="sourceUrl">
-		///		The location the script came from.
-		/// </param>
-		/// <param name="result">
-		///		A function representing the script code.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsParseSerializedScript(string script, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
-
-		/// <summary>
-		///		Runs a serialized script.
-		/// </summary>
-		/// <remarks>
-		///		Requires an active script context.
-		///		The runtime will hold on to the buffer until all instances of any functions created from
-		///		the buffer are garbage collected.
-		/// </remarks>
-		/// <param name="script">
-		///		The source code of the serialized script.
-		/// </param>
-		/// <param name="buffer">
-		///		The serialized script.
-		/// </param>
-		/// <param name="sourceContext">
-		///		A cookie identifying the script that can be used by debuggable script contexts.
-		/// </param>
-		/// <param name="sourceUrl">
-		///		The location the script came from.
-		/// </param>
-		/// <param name="result">
-		///		The result of running the script, if any. This parameter can be null.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsRunSerializedScript(string script, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
-
-		/// <summary>
-		///		Gets the property ID associated with the name.
-		/// </summary>
-		/// <remarks>
-		///		Property IDs are specific to a context and cannot be used across contexts.
-		///		Requires an active script context.
-		/// </remarks>
-		/// <param name="name">
-		///		The name of the property ID to get or create. The name may consist of only digits.
-		/// </param>
-		/// <param name="propertyId">
-		///		The property ID in this runtime for the given name.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsGetPropertyIdFromName(string name, out JavaScriptPropertyIdSafeHandle propertyId);
-
-		/// <summary>
-		///		Gets the name associated with the property ID.
-		/// </summary>
-		/// <remarks>
-		///		Requires an active script context.
-		///		The returned buffer is valid as long as the runtime is alive and cannot be used
-		///		once the runtime has been disposed.
-		/// </remarks>
-		/// <param name="propertyId">
-		///		The property ID to get the name of.
-		/// </param>
-		/// <param name="name">
-		///		The name associated with the property ID.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsGetPropertyNameFromId(JavaScriptPropertyIdSafeHandle propertyId, out IntPtr name);
-
-		/// <summary>
-		///		Creates a string value from a string pointer.
-		/// </summary>
-		/// <remarks>
-		///		Requires an active script context.
-		/// </remarks>
-		/// <param name="stringValue">
-		///		The string pointer to convert to a string value.
-		/// </param>
-		/// <param name="stringLength">
-		///		The length of the string to convert.
-		/// </param>
-		/// <param name="value">
-		///		The new string value.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsPointerToString(string stringValue, ulong stringLength, out JavaScriptValueSafeHandle value);
-
-		/// <summary>
-		///		Retrieves the string pointer of a string value.
-		/// </summary>
-		/// <remarks>
-		///		This function retrieves the string pointer of a string value. It will fail with
-		///		JsErrorInvalidArgument if the type of the value is not string. The lifetime
-		///		of the string returned will be the same as the lifetime of the value it came from, however
-		///		the string pointer is not considered a reference to the value (and so will not keep it
-		///		from being collected).
-		///		Requires an active script context.
-		/// </remarks>
-		/// <param name="value">
-		///		The string value to convert to a string pointer.
-		/// </param>
-		/// <param name="stringValue">
-		///		The string pointer.
-		/// </param>
-		/// <param name="stringLength">
-		///		The length of the string.
-		/// </param>
-		/// <returns>
-		///		The code JsNoError if the operation succeeded, a failure code otherwise.
-		/// </returns>
-		[DllImport(DllName, CharSet = CharSet.Unicode)]
-		public static extern JavaScriptErrorCode JsStringToPointer(JavaScriptValueSafeHandle value, out IntPtr stringValue, out ulong stringLength);
 
 		/// <summary>
 		///		Starts debugging in the given runtime.
@@ -2387,7 +2051,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagStartDebugging", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagStartDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagDebugEventCallback debugEventCallback, IntPtr callbackState);
 
 		/// <summary>
@@ -2405,7 +2069,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagStopDebugging", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagStopDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, out IntPtr callbackState);
 
 		/// <summary>
@@ -2420,7 +2084,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagRequestAsyncBreak", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagRequestAsyncBreak(JavaScriptRuntimeSafeHandle runtimeHandle);
 
 		/// <summary>
@@ -2440,7 +2104,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagGetBreakpoints", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagGetBreakpoints(out JavaScriptValueSafeHandle breakpoints);
 
 		/// <summary>
@@ -2468,7 +2132,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagSetBreakpoint", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagSetBreakpoint(uint scriptId, uint lineNumber, uint columnNumber, out JavaScriptValueSafeHandle breakpoint);
 
 		/// <summary>
@@ -2483,7 +2147,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagRemoveBreakpoint", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagRemoveBreakpoint(uint breakpointId);
 
 		/// <summary>
@@ -2501,7 +2165,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagSetBreakOnException", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagSetBreakOnException(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagBreakOnExceptionAttributes exceptionAttributes);
 
 		/// <summary>
@@ -2519,7 +2183,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagGetBreakOnException", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagGetBreakOnException(JavaScriptRuntimeSafeHandle runtimeHandle, out JavaScriptDiagBreakOnExceptionAttributes exceptionAttributes);
 
 		/// <summary>
@@ -2534,7 +2198,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagSetStepType", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagSetStepType(JavaScriptDiagStepType stepType);
 
 		/// <summary>
@@ -2560,7 +2224,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagGetScripts", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagGetScripts(out JavaScriptValueSafeHandle scriptsArray);
 
 		/// <summary>
@@ -2584,7 +2248,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagGetSource", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagGetSource(uint scriptId, out JavaScriptValueSafeHandle source);
 
 		/// <summary>
@@ -2609,7 +2273,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagGetFunctionPosition", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagGetFunctionPosition(JavaScriptValueSafeHandle function, out JavaScriptValueSafeHandle functionPosition);
 
 		/// <summary>
@@ -2626,19 +2290,23 @@
 		///		"functionHandle" : 1
 		///		}]
 		/// </remarks>
-		/// <param name="Name">
-		///		NO DESCRIPTION PROVIDED
+		/// <param name="stackTrace">
+		///		Stack trace information.
 		/// </param>
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
-		public static extern JavaScriptErrorCode JsDiagGetStackTrace(out JavaScriptValueSafeHandle Name);
+		[DllImport(DllName, EntryPoint = "JsDiagGetStackTrace", CallingConvention = CallingConvention.Cdecl)]
+		public static extern JavaScriptErrorCode JsDiagGetStackTrace(out JavaScriptValueSafeHandle stackTrace);
 
 		/// <summary>
 		///		Gets the list of properties corresponding to the frame.
 		/// </summary>
 		/// <remarks>
+		///		propertyAttributes is a bit mask of
+		///		NONE = 0x1,
+		///		HAVE_CHILDRENS = 0x2,
+		///		READ_ONLY_VALUE = 0x4,
 		///		{
 		///		"thisObject": {
 		///		"name": "this",
@@ -2698,7 +2366,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagGetStackProperties", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagGetStackProperties(uint stackFrameIndex, out JavaScriptValueSafeHandle properties);
 
 		/// <summary>
@@ -2722,7 +2390,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagGetProperties", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagGetProperties(uint objectHandle, uint fromCount, uint totalCount, out JavaScriptValueSafeHandle propertiesObject);
 
 		/// <summary>
@@ -2747,7 +2415,7 @@
 		/// <returns>
 		///		The code JsNoError if the operation succeeded, a failure code otherwise.
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagGetObjectFromHandle", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagGetObjectFromHandle(uint objectHandle, out JavaScriptValueSafeHandle handleObject);
 
 		/// <summary>
@@ -2793,8 +2461,344 @@
 		///		The code JsErrorScriptException if evaluate generated a JavaScript exception, evalResult will contain the error details
 		///		Other error code for invalid parameters or API was not called at break
 		/// </returns>
-		[DllImport(DllName)]
+		[DllImport(DllName, EntryPoint = "JsDiagEvaluate", CallingConvention = CallingConvention.Cdecl)]
 		public static extern JavaScriptErrorCode JsDiagEvaluate(JavaScriptValueSafeHandle expression, uint stackFrameIndex, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle evalResult);
+
+		/// <summary>
+		///		Parses a script and returns a function representing the script.
+		/// </summary>
+		/// <remarks>
+		///		Requires an active script context.
+		/// </remarks>
+		/// <param name="script">
+		///		The script to parse.
+		/// </param>
+		/// <param name="sourceContext">
+		///		A cookie identifying the script that can be used by debuggable script contexts.
+		/// </param>
+		/// <param name="sourceUrl">
+		///		The location the script came from.
+		/// </param>
+		/// <param name="result">
+		///		A function representing the script code.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsParseScript", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsParseScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+
+		/// <summary>
+		///		Parses a script and returns a function representing the script.
+		/// </summary>
+		/// <remarks>
+		///		Requires an active script context.
+		/// </remarks>
+		/// <param name="script">
+		///		The script to parse.
+		/// </param>
+		/// <param name="sourceContext">
+		///		A cookie identifying the script that can be used by debuggable script contexts.
+		/// </param>
+		/// <param name="sourceUrl">
+		///		The location the script came from.
+		/// </param>
+		/// <param name="parseAttributes">
+		///		Attribute mask for parsing the script
+		/// </param>
+		/// <param name="result">
+		///		A function representing the script code.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsParseScriptWithAttributes", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsParseScriptWithAttributes(string script, JavaScriptSourceContext sourceContext, string sourceUrl, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
+
+		/// <summary>
+		///		Executes a script.
+		/// </summary>
+		/// <remarks>
+		///		Requires an active script context.
+		/// </remarks>
+		/// <param name="script">
+		///		The script to run.
+		/// </param>
+		/// <param name="sourceContext">
+		///		A cookie identifying the script that can be used by debuggable script contexts.
+		/// </param>
+		/// <param name="sourceUrl">
+		///		The location the script came from.
+		/// </param>
+		/// <param name="result">
+		///		The result of the script, if any. This parameter can be null.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsRunScript", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsRunScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+
+		/// <summary>
+		///		Executes a module.
+		/// </summary>
+		/// <remarks>
+		///		Requires an active script context.
+		/// </remarks>
+		/// <param name="script">
+		///		The module script to parse and execute.
+		/// </param>
+		/// <param name="sourceContext">
+		///		A cookie identifying the script that can be used by debuggable script contexts.
+		/// </param>
+		/// <param name="sourceUrl">
+		///		The location the module script came from.
+		/// </param>
+		/// <param name="result">
+		///		The result of executing the module script, if any. This parameter can be null.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsExperimentalApiRunModule", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsExperimentalApiRunModule(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+
+		/// <summary>
+		///		Serializes a parsed script to a buffer than can be reused.
+		/// </summary>
+		/// <remarks>
+		///		JsSerializeScript parses a script and then stores the parsed form of the script in a
+		///		runtime-independent format. The serialized script then can be deserialized in any
+		///		runtime without requiring the script to be re-parsed.
+		///		Requires an active script context.
+		/// </remarks>
+		/// <param name="script">
+		///		The script to serialize.
+		/// </param>
+		/// <param name="buffer">
+		///		The buffer to put the serialized script into. Can be null.
+		/// </param>
+		/// <param name="bufferSize">
+		///		On entry, the size of the buffer, in bytes; on exit, the size of the buffer, in bytes,
+		///		required to hold the serialized script.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsSerializeScript", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsSerializeScript(string script, byte[] buffer, ref ulong bufferSize);
+
+		/// <summary>
+		///		Parses a serialized script and returns a function representing the script. Provides the ability to lazy load the script source only if/when it is needed.
+		/// </summary>
+		/// <remarks>
+		///		Requires an active script context.
+		///		The runtime will hold on to the buffer until all instances of any functions created from
+		///		the buffer are garbage collected.  It will then call scriptUnloadCallback to inform the
+		///		caller it is safe to release.
+		/// </remarks>
+		/// <param name="scriptLoadCallback">
+		///		Callback called when the source code of the script needs to be loaded.
+		/// </param>
+		/// <param name="scriptUnloadCallback">
+		///		Callback called when the serialized script and source code are no longer needed.
+		/// </param>
+		/// <param name="buffer">
+		///		The serialized script.
+		/// </param>
+		/// <param name="sourceContext">
+		///		A cookie identifying the script that can be used by debuggable script contexts.
+		///		This context will passed into scriptLoadCallback and scriptUnloadCallback.
+		/// </param>
+		/// <param name="sourceUrl">
+		///		The location the script came from.
+		/// </param>
+		/// <param name="result">
+		///		A function representing the script code.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsParseSerializedScriptWithCallback", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsParseSerializedScriptWithCallback(JavaScriptSerializedScriptLoadSourceCallback scriptLoadCallback, JavaScriptSerializedScriptUnloadCallback scriptUnloadCallback, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+
+		/// <summary>
+		///		Runs a serialized script. Provides the ability to lazy load the script source only if/when it is needed.
+		/// </summary>
+		/// <remarks>
+		///		Requires an active script context.
+		///		The runtime will hold on to the buffer until all instances of any functions created from
+		///		the buffer are garbage collected.  It will then call scriptUnloadCallback to inform the
+		///		caller it is safe to release.
+		/// </remarks>
+		/// <param name="scriptLoadCallback">
+		///		Callback called when the source code of the script needs to be loaded.
+		/// </param>
+		/// <param name="scriptUnloadCallback">
+		///		Callback called when the serialized script and source code are no longer needed.
+		/// </param>
+		/// <param name="buffer">
+		///		The serialized script.
+		/// </param>
+		/// <param name="sourceContext">
+		///		A cookie identifying the script that can be used by debuggable script contexts.
+		///		This context will passed into scriptLoadCallback and scriptUnloadCallback.
+		/// </param>
+		/// <param name="sourceUrl">
+		///		The location the script came from.
+		/// </param>
+		/// <param name="result">
+		///		The result of running the script, if any. This parameter can be null.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsRunSerializedScriptWithCallback", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsRunSerializedScriptWithCallback(JavaScriptSerializedScriptLoadSourceCallback scriptLoadCallback, JavaScriptSerializedScriptUnloadCallback scriptUnloadCallback, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+
+		/// <summary>
+		///		Parses a serialized script and returns a function representing the script.
+		/// </summary>
+		/// <remarks>
+		///		Requires an active script context.
+		///		The runtime will hold on to the buffer until all instances of any functions created from
+		///		the buffer are garbage collected.
+		/// </remarks>
+		/// <param name="script">
+		///		The script to parse.
+		/// </param>
+		/// <param name="buffer">
+		///		The serialized script.
+		/// </param>
+		/// <param name="sourceContext">
+		///		A cookie identifying the script that can be used by debuggable script contexts.
+		/// </param>
+		/// <param name="sourceUrl">
+		///		The location the script came from.
+		/// </param>
+		/// <param name="result">
+		///		A function representing the script code.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsParseSerializedScript", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsParseSerializedScript(string script, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+
+		/// <summary>
+		///		Runs a serialized script.
+		/// </summary>
+		/// <remarks>
+		///		Requires an active script context.
+		///		The runtime will hold on to the buffer until all instances of any functions created from
+		///		the buffer are garbage collected.
+		/// </remarks>
+		/// <param name="script">
+		///		The source code of the serialized script.
+		/// </param>
+		/// <param name="buffer">
+		///		The serialized script.
+		/// </param>
+		/// <param name="sourceContext">
+		///		A cookie identifying the script that can be used by debuggable script contexts.
+		/// </param>
+		/// <param name="sourceUrl">
+		///		The location the script came from.
+		/// </param>
+		/// <param name="result">
+		///		The result of running the script, if any. This parameter can be null.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsRunSerializedScript", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsRunSerializedScript(string script, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+
+		/// <summary>
+		///		Gets the property ID associated with the name.
+		/// </summary>
+		/// <remarks>
+		///		Property IDs are specific to a context and cannot be used across contexts.
+		///		Requires an active script context.
+		/// </remarks>
+		/// <param name="name">
+		///		The name of the property ID to get or create. The name may consist of only digits.
+		/// </param>
+		/// <param name="propertyId">
+		///		The property ID in this runtime for the given name.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsGetPropertyIdFromName", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsGetPropertyIdFromName(string name, out JavaScriptPropertyIdSafeHandle propertyId);
+
+		/// <summary>
+		///		Gets the name associated with the property ID.
+		/// </summary>
+		/// <remarks>
+		///		Requires an active script context.
+		///		The returned buffer is valid as long as the runtime is alive and cannot be used
+		///		once the runtime has been disposed.
+		/// </remarks>
+		/// <param name="propertyId">
+		///		The property ID to get the name of.
+		/// </param>
+		/// <param name="name">
+		///		The name associated with the property ID.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsGetPropertyNameFromId", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsGetPropertyNameFromId(JavaScriptPropertyIdSafeHandle propertyId, out IntPtr name);
+
+		/// <summary>
+		///		Creates a string value from a string pointer.
+		/// </summary>
+		/// <remarks>
+		///		Requires an active script context.
+		/// </remarks>
+		/// <param name="stringValue">
+		///		The string pointer to convert to a string value.
+		/// </param>
+		/// <param name="stringLength">
+		///		The length of the string to convert.
+		/// </param>
+		/// <param name="value">
+		///		The new string value.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsPointerToString", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsPointerToString(string stringValue, ulong stringLength, out JavaScriptValueSafeHandle value);
+
+		/// <summary>
+		///		Retrieves the string pointer of a string value.
+		/// </summary>
+		/// <remarks>
+		///		This function retrieves the string pointer of a string value. It will fail with
+		///		JsErrorInvalidArgument if the type of the value is not string. The lifetime
+		///		of the string returned will be the same as the lifetime of the value it came from, however
+		///		the string pointer is not considered a reference to the value (and so will not keep it
+		///		from being collected).
+		///		Requires an active script context.
+		/// </remarks>
+		/// <param name="value">
+		///		The string value to convert to a string pointer.
+		/// </param>
+		/// <param name="stringValue">
+		///		The string pointer.
+		/// </param>
+		/// <param name="stringLength">
+		///		The length of the string.
+		/// </param>
+		/// <returns>
+		///		The code JsNoError if the operation succeeded, a failure code otherwise.
+		/// </returns>
+		[DllImport(DllName, EntryPoint = "JsStringToPointer", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+		public static extern JavaScriptErrorCode JsStringToPointer(JavaScriptValueSafeHandle value, out IntPtr stringValue, out ulong stringLength);
 
 	}
 }

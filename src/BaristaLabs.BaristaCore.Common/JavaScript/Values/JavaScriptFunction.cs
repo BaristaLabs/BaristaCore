@@ -23,12 +23,12 @@
 
         public override string ToString()
         {
-            var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyId(toStringPropertyName, new UIntPtr((uint)toStringPropertyName.Length));
+            var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyId(toStringPropertyName, (ulong)toStringPropertyName.Length);
             var toStringFnHandle = Engine.JsGetProperty(Handle, toStringFunctionPropertyIdHandle);
 
             var resultHandle = Engine.JsCallFunction(toStringFnHandle, new IntPtr[] { Handle.DangerousGetHandle() }, 1);
 
-            var size = Engine.JsCopyString(resultHandle, null, UIntPtr.Zero);
+            var size = Engine.JsCopyString(resultHandle, null, 0);
             if ((int)size > int.MaxValue)
                 throw new OutOfMemoryException("Exceeded maximum string length.");
 

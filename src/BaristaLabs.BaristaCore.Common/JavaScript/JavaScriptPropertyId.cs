@@ -28,12 +28,12 @@
                     throw new ObjectDisposedException(nameof(JavaScriptPropertyId));
 
                 //Get the size
-                var size = Engine.JsCopyPropertyId(Handle, null, UIntPtr.Zero);
+                var size = Engine.JsCopyPropertyId(Handle, null, 0);
                 if ((int)size > int.MaxValue)
                     throw new OutOfMemoryException("Exceeded maximum string length.");
 
                 byte[] result = new byte[(int)size];
-                var written = Engine.JsCopyPropertyId(Handle, result, new UIntPtr((uint)result.Length));
+                var written = Engine.JsCopyPropertyId(Handle, result, (ulong)result.Length);
                 return Encoding.UTF8.GetString(result, 0, result.Length);
             }
         }
@@ -77,7 +77,7 @@
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name));
 
-            var propertyHandle = engine.JsCreatePropertyId(name, new UIntPtr((uint)name.Length));
+            var propertyHandle = engine.JsCreatePropertyId(name, (ulong)name.Length);
             return new JavaScriptPropertyId(engine, propertyHandle);
         }
         #endregion

@@ -43,13 +43,13 @@
 		{ "FetchImportedModuleCallBack", "JavaScriptFetchImportedModuleCallBack" },
 		{ "NotifyModuleReadyCallback", "JavaScriptNotifyModuleReadyCallback" },
 
-		{ "BYTE", "byte[]" },
-        { "size_t", "UIntPtr" },
+        { "size_t", "ulong" },
+		{ "uint16_t", "ulong" },
+		{ "UIntPtr", "ulong" },
         { "wchar_t", "string" },
-        { "uint16_t", "UIntPtr" },
+		{ "BYTE", "byte[]" },
         { "char*", "byte[]"},
-		{ "uint16_t*", "byte[]" },
-        { "UIntPtr", "ulong" }
+		{ "uint16_t*", "byte[]" }
     };
 
 	var hostServiceProvider = (IServiceProvider)this.Host;

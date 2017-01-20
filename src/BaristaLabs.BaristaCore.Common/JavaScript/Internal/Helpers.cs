@@ -43,16 +43,16 @@
             }
 
             //Get the size
-            UIntPtr size;
-            innerError = LibChakraCore.JsCopyString(stringHandle, null, UIntPtr.Zero, out size);
+            ulong size;
+            innerError = LibChakraCore.JsCopyString(stringHandle, null, 0, out size);
             Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
             if ((int)size > int.MaxValue)
                 throw new OutOfMemoryException("Exceeded maximum string length.");
 
             byte[] result = new byte[(int)size];
-            UIntPtr written;
-            innerError = LibChakraCore.JsCopyString(stringHandle, result, new UIntPtr((uint)result.Length), out written);
+            ulong written;
+            innerError = LibChakraCore.JsCopyString(stringHandle, result, (ulong)result.Length, out written);
             Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
             var strResult = Encoding.UTF8.GetString(result, 0, result.Length);

@@ -165,7 +165,7 @@
                     Engine.JsSetCurrentContext(contextHandle);
 
                     var myString = "Have you ever questioned the nature of your reality?";
-                    var stringHandle = Engine.JsCreateString(myString, new UIntPtr((uint)myString.Length));
+                    var stringHandle = Engine.JsCreateString(myString, (ulong)myString.Length);
 
                     var count = Engine.JsAddRef(stringHandle);
 
@@ -188,7 +188,7 @@
                     Engine.JsSetCurrentContext(contextHandle);
 
                     var myString = "Have you ever questioned the nature of your reality?";
-                    var stringHandle = Engine.JsCreateString(myString, new UIntPtr((uint)myString.Length));
+                    var stringHandle = Engine.JsCreateString(myString, (ulong)myString.Length);
 
                     var count = Engine.JsAddRef(stringHandle);
 
@@ -221,7 +221,7 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var valueHandle = Engine.JsCreateString("superman", new UIntPtr((uint)"superman".Length));
+                    var valueHandle = Engine.JsCreateString("superman", (ulong)"superman".Length);
 
                     Engine.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback);
 
@@ -248,7 +248,7 @@
                 using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
                 {
                     Engine.JsSetCurrentContext(contextHandle);
-                    var valueHandle = Engine.JsCreateString("superman", new UIntPtr((uint)"superman".Length));
+                    var valueHandle = Engine.JsCreateString("superman", (ulong)"superman".Length);
                     Engine.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
 
                     try
@@ -284,7 +284,7 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var valueHandle = Engine.JsCreateString("superman", new UIntPtr((uint)"superman".Length));
+                    var valueHandle = Engine.JsCreateString("superman", (ulong)"superman".Length);
 
                     Engine.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback);
                 }
@@ -343,7 +343,7 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
                     string name = "oof";
-                    var propertyHandle = Engine.JsCreatePropertyId(name, new UIntPtr((uint)name.Length));
+                    var propertyHandle = Engine.JsCreatePropertyId(name, (ulong)name.Length);
                     Engine.JsSetObjectBeforeCollectCallback(propertyHandle, IntPtr.Zero, callback);
                     propertyHandle.Dispose();
                 }
@@ -472,7 +472,7 @@
                     Engine.JsSetCurrentContext(contextHandle);
 
                     string str = "I do not fear computers. I fear the lack of them.";
-                    var stringHandle = Engine.JsCreateString(str, new UIntPtr((uint)str.Length));
+                    var stringHandle = Engine.JsCreateString(str, (ulong)str.Length);
 
                     var objectContextHandle = Engine.JsGetContextOfObject(stringHandle);
 
@@ -573,7 +573,7 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var propertyNameHandle = Engine.JsCreateString(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyNameHandle = Engine.JsCreateString(propertyName, (ulong)propertyName.Length);
                     var symbolHandle = Engine.JsCreateSymbol(propertyNameHandle);
                     var propertyIdHandle = Engine.JsGetPropertyIdFromSymbol(symbolHandle);
                     var retrievedSymbolHandle = Engine.JsGetSymbolFromPropertyId(propertyIdHandle);
@@ -599,10 +599,10 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var propertyNameHandle = Engine.JsCreateString(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyNameHandle = Engine.JsCreateString(propertyName, (ulong)propertyName.Length);
                     var symbolHandle = Engine.JsCreateSymbol(propertyNameHandle);
                     var symbolPropertyIdHandle = Engine.JsGetPropertyIdFromSymbol(symbolHandle);
-                    var stringPropertyIdHandle = Engine.JsCreatePropertyId(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var stringPropertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
 
                     var symbolPropertyType = Engine.JsGetPropertyIdType(symbolPropertyIdHandle);
                     Assert.True(symbolPropertyType == JavaScriptPropertyIdType.Symbol);
@@ -629,7 +629,7 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var propertyNameHandle = Engine.JsCreateString(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyNameHandle = Engine.JsCreateString(propertyName, (ulong)propertyName.Length);
                     var symbolHandle = Engine.JsCreateSymbol(propertyNameHandle);
                     var propertyIdHandle = Engine.JsGetPropertyIdFromSymbol(symbolHandle);
 
@@ -653,7 +653,7 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var propertyNameHandle = Engine.JsCreateString(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyNameHandle = Engine.JsCreateString(propertyName, (ulong)propertyName.Length);
                     var symbolHandle = Engine.JsCreateSymbol(propertyNameHandle);
 
                     Assert.True(symbolHandle != JavaScriptValueSafeHandle.Invalid);
@@ -679,18 +679,18 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var propertyNameHandle = Engine.JsCreateString(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyNameHandle = Engine.JsCreateString(propertyName, (ulong)propertyName.Length);
                     var symbolHandle = Engine.JsCreateSymbol(propertyNameHandle);
 
 
-                    var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyId(toStringPropertyName, new UIntPtr((uint)toStringPropertyName.Length));
+                    var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyId(toStringPropertyName, (ulong)toStringPropertyName.Length);
 
                     var symbolObjHandle = Engine.JsConvertValueToObject(symbolHandle);
                     var symbolToStringFnHandle = Engine.JsGetProperty(symbolObjHandle, toStringFunctionPropertyIdHandle);
 
                     var resultHandle = Engine.JsCallFunction(symbolToStringFnHandle, new IntPtr[] { symbolObjHandle.DangerousGetHandle() }, 1);
 
-                    var size = Engine.JsCopyString(resultHandle, null, UIntPtr.Zero);
+                    var size = Engine.JsCopyString(resultHandle, null, 0);
                     if ((int)size > int.MaxValue)
                         throw new OutOfMemoryException("Exceeded maximum string length.");
 
@@ -907,7 +907,7 @@ return obj;
                     Engine.JsSetCurrentContext(contextHandle);
 
                     var stringValue = "true";
-                    var stringHandle = Engine.JsCreateString(stringValue, new UIntPtr((uint)stringValue.Length));
+                    var stringHandle = Engine.JsCreateString(stringValue, (ulong)stringValue.Length);
 
                     var boolHandle = Engine.JsConvertValueToBoolean(stringHandle);
 
@@ -933,7 +933,7 @@ return obj;
                     Engine.JsSetCurrentContext(contextHandle);
 
                     var stringValue = "Dear future generations: Please accept our apologies. We were rolling drunk on petroleum.";
-                    var stringHandle = Engine.JsCreateString(stringValue, new UIntPtr((uint)stringValue.Length));
+                    var stringHandle = Engine.JsCreateString(stringValue, (ulong)stringValue.Length);
 
                     var handleType = Engine.JsGetValueType(stringHandle);
                     Assert.True(handleType == JavaScriptValueType.String);
@@ -1034,7 +1034,7 @@ return obj;
                     Engine.JsSetCurrentContext(contextHandle);
 
                     var stringValue = "2.71828";
-                    var stringHandle = Engine.JsCreateString(stringValue, new UIntPtr((uint)stringValue.Length));
+                    var stringHandle = Engine.JsCreateString(stringValue, (ulong)stringValue.Length);
                     var numberHandle = Engine.JsConvertValueToNumber(stringHandle);
 
                     var handleType = Engine.JsGetValueType(numberHandle);
@@ -1059,7 +1059,7 @@ return obj;
                     Engine.JsSetCurrentContext(contextHandle);
 
                     var stringValue = "If your brains were dynamite there wouldn't be enough to blow your hat off.";
-                    var stringHandle = Engine.JsCreateString(stringValue, new UIntPtr((uint)stringValue.Length));
+                    var stringHandle = Engine.JsCreateString(stringValue, (ulong)stringValue.Length);
 
                     var result = Engine.JsGetStringLength(stringHandle);
                     Assert.True(stringValue.Length == result);
@@ -1087,12 +1087,12 @@ return obj;
                     Assert.True(handleType == JavaScriptValueType.String);
 
                     //Get the size
-                    var size = Engine.JsCopyString(stringHandle, null, UIntPtr.Zero);
+                    var size = Engine.JsCopyString(stringHandle, null, 0);
                     if ((int)size > int.MaxValue)
                         throw new OutOfMemoryException("Exceeded maximum string length.");
 
                     byte[] result = new byte[(int)size];
-                    var written = Engine.JsCopyString(stringHandle, result, new UIntPtr((uint)result.Length));
+                    var written = Engine.JsCopyString(stringHandle, result, (ulong)result.Length);
                     string resultStr = Encoding.UTF8.GetString(result, 0, result.Length);
 
                     Assert.True(resultStr == "2.71828");
@@ -1221,7 +1221,7 @@ return obj;
                     Engine.JsSetCurrentContext(contextHandle);
 
                     string stringValue = "Just what do you think you’re doing, Dave?";
-                    var stringHandle = Engine.JsCreateString(stringValue, new UIntPtr((uint)stringValue.Length));
+                    var stringHandle = Engine.JsCreateString(stringValue, (ulong)stringValue.Length);
                     var objectHandle = Engine.JsConvertValueToObject(stringHandle);
                     var prototypeHandle = Engine.JsGetPrototype(objectHandle);
 
@@ -1250,7 +1250,7 @@ return obj;
                     var mammalHandle = Engine.JsCreateObject();
 
                     string isMammal = "isMammal";
-                    var isMammalPropertyHandle = Engine.JsCreatePropertyId(isMammal, new UIntPtr((uint)isMammal.Length));
+                    var isMammalPropertyHandle = Engine.JsCreatePropertyId(isMammal, (ulong)isMammal.Length);
 
                     var trueHandle = Engine.JsGetTrueValue();
 
@@ -1312,8 +1312,8 @@ var oCat = new MammalSpecies('Felis');
 
                     JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
 
-                    var oCatPropertyHandle = Engine.JsCreatePropertyId("oCat", new UIntPtr((uint)"oCat".Length));
-                    var fnMammalSpeciesPropertyHandle = Engine.JsCreatePropertyId("MammalSpecies", new UIntPtr((uint)"MammalSpecies".Length));
+                    var oCatPropertyHandle = Engine.JsCreatePropertyId("oCat", (ulong)"oCat".Length);
+                    var fnMammalSpeciesPropertyHandle = Engine.JsCreatePropertyId("MammalSpecies", (ulong)"MammalSpecies".Length);
 
 
                     var globalHandle = Engine.JsGetGlobalObject();
@@ -1398,7 +1398,7 @@ return obj;
                     JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
 
                     var propertyName = "plugh";
-                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
                     var propertyHandle = Engine.JsGetProperty(objHandle, propertyIdHandle);
 
                     Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
@@ -1438,7 +1438,7 @@ return obj;
                     JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
 
                     var propertyName = "corge";
-                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
                     var propertyDescriptorHandle = Engine.JsGetOwnPropertyDescriptor(objHandle, propertyIdHandle);
 
                     Assert.True(propertyDescriptorHandle != JavaScriptValueSafeHandle.Invalid);
@@ -1516,7 +1516,7 @@ return obj;
                     JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
 
                     var propertyName = "baz";
-                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
                     var newPropertyValue = Engine.JsDoubleToNumber(3.14159);
 
                     //Set the property
@@ -1561,14 +1561,14 @@ return obj;
                     JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
 
                     var propertyName = "lol";
-                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
 
                     var propertyExists = Engine.JsHasProperty(objHandle, propertyIdHandle);
                     Assert.True(propertyExists);
 
                     propertyName = "asdf";
                     propertyIdHandle.Dispose();
-                    propertyIdHandle = Engine.JsCreatePropertyId(propertyName, new UIntPtr((uint)propertyName.Length));
+                    propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
 
                     propertyExists = Engine.JsHasProperty(objHandle, propertyIdHandle);
                     Assert.False(propertyExists);
@@ -1605,7 +1605,7 @@ return obj;
                     JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
 
                     var propertyName = "waldo";
-                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
                     var propertyDeletedHandle = Engine.JsDeleteProperty(objHandle, propertyIdHandle, true);
 
                     var wasPropertyDeleted = Engine.JsBooleanToBool(propertyDeletedHandle);
@@ -1651,7 +1651,7 @@ return obj;
                     JavaScriptValueSafeHandle propertyDefHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, propertyDef);
 
                     var propertyName = "rico";
-                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
 
                     var result = Engine.JsDefineProperty(objHandle, propertyIdHandle, propertyDefHandle);
                     Assert.True(result);
@@ -1698,14 +1698,14 @@ return obj;
                     var objectHandle = Engine.JsCreateObject();
 
                     string propertyName = "foo";
-                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, new UIntPtr((uint)propertyName.Length));
-                    var propertyNameHandle = Engine.JsCreateString(propertyName, new UIntPtr((uint)propertyName.Length));
+                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
+                    var propertyNameHandle = Engine.JsCreateString(propertyName, (ulong)propertyName.Length);
 
                     string notAPropertyName = "bar";
-                    var notAPropertyNameHandle = Engine.JsCreateString(notAPropertyName, new UIntPtr((uint)notAPropertyName.Length));
+                    var notAPropertyNameHandle = Engine.JsCreateString(notAPropertyName, (ulong)notAPropertyName.Length);
 
                     string propertyValue = "Some people choose to see the ugliness in this world. The disarray. I choose to see the beauty.";
-                    var propertyValueHandle = Engine.JsCreateString(propertyValue, new UIntPtr((uint)propertyValue.Length));
+                    var propertyValueHandle = Engine.JsCreateString(propertyValue, (ulong)propertyValue.Length);
 
                     Engine.JsSetProperty(objectHandle, propertyIdHandle, propertyValueHandle, true);
 
@@ -1766,7 +1766,7 @@ return arr;
                     var arrayHandle = Engine.JsCreateArray(50);
 
                     var value = "The Bicameral Mind";
-                    var valueHandle = Engine.JsCreateString(value, new UIntPtr((uint)value.Length));
+                    var valueHandle = Engine.JsCreateString(value, (ulong)value.Length);
 
                     var arrayIndexHandle = Engine.JsIntToNumber(42);
 
@@ -1945,8 +1945,8 @@ return arr;
                     Engine.JsSetCurrentContext(contextHandle);
 
                     var name = "The Well-Tempered Clavier";
-                    var nameHandle = Engine.JsCreateString(name, new UIntPtr((uint)name.Length));
-                    var name2Handle = Engine.JsCreateString(name, new UIntPtr((uint)name.Length));
+                    var nameHandle = Engine.JsCreateString(name, (ulong)name.Length);
+                    var name2Handle = Engine.JsCreateString(name, (ulong)name.Length);
                     var areEqual = Engine.JsEquals(nameHandle, name2Handle);
                     Assert.True(areEqual);
 
@@ -1954,7 +1954,7 @@ return arr;
                     name2Handle.Dispose();
 
                     var stringValue = "42";
-                    var stringValueHandle = Engine.JsCreateString(stringValue, new UIntPtr((uint)stringValue.Length));
+                    var stringValueHandle = Engine.JsCreateString(stringValue, (ulong)stringValue.Length);
                     var intValueHandle = Engine.JsIntToNumber(42);
                     areEqual = Engine.JsEquals(stringValueHandle, intValueHandle);
                     Assert.True(areEqual);
@@ -1975,8 +1975,8 @@ return arr;
                     Engine.JsSetCurrentContext(contextHandle);
 
                     var name = "Trace Decay";
-                    var nameHandle = Engine.JsCreateString(name, new UIntPtr((uint)name.Length));
-                    var name2Handle = Engine.JsCreateString(name, new UIntPtr((uint)name.Length));
+                    var nameHandle = Engine.JsCreateString(name, (ulong)name.Length);
+                    var name2Handle = Engine.JsCreateString(name, (ulong)name.Length);
                     var areEqual = Engine.JsStrictEquals(nameHandle, name2Handle);
                     Assert.True(areEqual);
 
@@ -1984,7 +1984,7 @@ return arr;
                     name2Handle.Dispose();
 
                     var stringValue = "8";
-                    var stringValueHandle = Engine.JsCreateString(stringValue, new UIntPtr((uint)stringValue.Length));
+                    var stringValueHandle = Engine.JsCreateString(stringValue, (ulong)stringValue.Length);
                     var intValueHandle = Engine.JsIntToNumber(8);
                     areEqual = Engine.JsStrictEquals(stringValueHandle, intValueHandle);
                     Assert.False(areEqual);
@@ -2416,7 +2416,7 @@ new Promise(function(resolve, reject) {
                     var falseHandle = Engine.JsGetFalseValue();
 
                     var allDonePropertyName = "allDone";
-                    var allDonePropertyIdHandle = Engine.JsCreatePropertyId(allDonePropertyName, new UIntPtr((uint)allDonePropertyName.Length));
+                    var allDonePropertyIdHandle = Engine.JsCreatePropertyId(allDonePropertyName, (ulong)allDonePropertyName.Length);
 
                     var globalObjectHandle = Engine.JsGetGlobalObject();
                     var allDoneHandle = Engine.JsGetProperty(globalObjectHandle, allDonePropertyIdHandle);
@@ -2469,7 +2469,7 @@ new Promise(function(resolve, reject) {
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyId(toStringPropertyName, new UIntPtr((uint)toStringPropertyName.Length));
+                    var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyId(toStringPropertyName, (ulong)toStringPropertyName.Length);
 
                     var objectHandle = Engine.JsCreateObject();
                     var objectToStringFnHandle = Engine.JsGetProperty(objectHandle, toStringFunctionPropertyIdHandle);
@@ -2481,7 +2481,7 @@ new Promise(function(resolve, reject) {
                     var handleType = Engine.JsGetValueType(resultHandle);
                     Assert.True(handleType == JavaScriptValueType.String);
 
-                    var size = Engine.JsCopyString(resultHandle, null, UIntPtr.Zero);
+                    var size = Engine.JsCopyString(resultHandle, null, 0);
                     if ((int)size > int.MaxValue)
                         throw new OutOfMemoryException("Exceeded maximum string length.");
 
@@ -2518,8 +2518,8 @@ return fn;
                     Engine.JsSetCurrentContext(contextHandle);
 
                     var fnHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
-                    var nameHandle = Engine.JsCreateString(name, new UIntPtr((uint)name.Length));
-                    var namePropertyHandle = Engine.JsCreatePropertyId(nameProperty, new UIntPtr((uint)name.Length));
+                    var nameHandle = Engine.JsCreateString(name, (ulong)name.Length);
+                    var namePropertyHandle = Engine.JsCreatePropertyId(nameProperty, (ulong)name.Length);
 
                     var handleType = Engine.JsGetValueType(fnHandle);
                     Assert.True(handleType == JavaScriptValueType.Function);
@@ -2559,13 +2559,13 @@ return fn;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyId(toStringPropertyName, new UIntPtr((uint)toStringPropertyName.Length));
+                    var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyId(toStringPropertyName, (ulong)toStringPropertyName.Length);
 
                     IntPtr ptrScript = Marshal.StringToHGlobalAnsi(myCode);
                     try
                     {
                         var scriptHandle = Engine.JsCreateExternalArrayBuffer(ptrScript, (uint)myCode.Length, null, IntPtr.Zero);
-                        var sourceUrlHandle = Engine.JsCreateString(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
+                        var sourceUrlHandle = Engine.JsCreateString(sourceUrl, (ulong)sourceUrl.Length);
                         var fnHandle = Engine.JsParse(scriptHandle, JavaScriptSourceContext.GetNextSourceContext(), sourceUrlHandle, JavaScriptParseScriptAttributes.None);
                         var fnToStringFnHandle = Engine.JsGetProperty(fnHandle, toStringFunctionPropertyIdHandle);
                         var resultHandle = Engine.JsCallFunction(fnToStringFnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
@@ -2575,7 +2575,7 @@ return fn;
                         var handleType = Engine.JsGetValueType(resultHandle);
                         Assert.True(handleType == JavaScriptValueType.String);
 
-                        var size = Engine.JsCopyString(resultHandle, null, UIntPtr.Zero);
+                        var size = Engine.JsCopyString(resultHandle, null, 0);
                         if ((int)size > int.MaxValue)
                             throw new OutOfMemoryException("Exceeded maximum string length.");
 
@@ -2646,7 +2646,7 @@ return fn;
                     JavaScriptNativeFunction fn = (callee, isConstructCall, arguments, argumentCount, callbackData) => {
                         called = true;
                         
-                        var fooHandle = Engine.JsCreateString(foo, new UIntPtr((uint)foo.Length));
+                        var fooHandle = Engine.JsCreateString(foo, (ulong)foo.Length);
                         return fooHandle.DangerousGetHandle();
                     };
 
@@ -2690,7 +2690,7 @@ return fn;
                         return IntPtr.Zero;
                     };
 
-                    var nameHandle = Engine.JsCreateString(name, new UIntPtr((uint)name.Length));
+                    var nameHandle = Engine.JsCreateString(name, (ulong)name.Length);
 
                     var fnHandle = Engine.JsCreateNamedFunction(nameHandle, fn, IntPtr.Zero);
                     Assert.True(fnHandle != JavaScriptValueSafeHandle.Invalid);
@@ -2704,7 +2704,7 @@ return fn;
                     Assert.True(handleType == JavaScriptValueType.Undefined);
                     Assert.True(called);
 
-                    var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyId(toStringPropertyName, new UIntPtr((uint)toStringPropertyName.Length));
+                    var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyId(toStringPropertyName, (ulong)toStringPropertyName.Length);
                     var fnToStringFnHandle = Engine.JsGetProperty(fnHandle, toStringFunctionPropertyIdHandle);
                     var fnToStringResultHandle = Engine.JsCallFunction(fnToStringFnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
                     var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, fnToStringResultHandle);
@@ -2732,7 +2732,7 @@ return fn;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var messageHandle = Engine.JsCreateString(message, new UIntPtr((uint)message.Length));
+                    var messageHandle = Engine.JsCreateString(message, (ulong)message.Length);
 
                     var errorHandle = Engine.JsCreateError(messageHandle);
                     Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
@@ -2757,7 +2757,7 @@ return fn;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var messageHandle = Engine.JsCreateString(message, new UIntPtr((uint)message.Length));
+                    var messageHandle = Engine.JsCreateString(message, (ulong)message.Length);
 
                     var errorHandle = Engine.JsCreateRangeError(messageHandle);
                     Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
@@ -2782,7 +2782,7 @@ return fn;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var messageHandle = Engine.JsCreateString(message, new UIntPtr((uint)message.Length));
+                    var messageHandle = Engine.JsCreateString(message, (ulong)message.Length);
 
                     var errorHandle = Engine.JsCreateReferenceError(messageHandle);
                     Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
@@ -2807,7 +2807,7 @@ return fn;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var messageHandle = Engine.JsCreateString(message, new UIntPtr((uint)message.Length));
+                    var messageHandle = Engine.JsCreateString(message, (ulong)message.Length);
 
                     var errorHandle = Engine.JsCreateSyntaxError(messageHandle);
                     Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
@@ -2832,7 +2832,7 @@ return fn;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var messageHandle = Engine.JsCreateString(message, new UIntPtr((uint)message.Length));
+                    var messageHandle = Engine.JsCreateString(message, (ulong)message.Length);
 
                     var errorHandle = Engine.JsCreateTypeError(messageHandle);
                     Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
@@ -2857,7 +2857,7 @@ return fn;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var messageHandle = Engine.JsCreateString(message, new UIntPtr((uint)message.Length));
+                    var messageHandle = Engine.JsCreateString(message, (ulong)message.Length);
 
                     var errorHandle = Engine.JsCreateURIError(messageHandle);
                     Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
@@ -2885,7 +2885,7 @@ return fn;
                     var hasException = Engine.JsHasException();
                     Assert.False(hasException);
 
-                    var messageHandle = Engine.JsCreateString(message, new UIntPtr((uint)message.Length));
+                    var messageHandle = Engine.JsCreateString(message, (ulong)message.Length);
                     var errorHandle = Engine.JsCreateError(messageHandle);
 
                     Engine.JsSetException(errorHandle);
@@ -2910,7 +2910,7 @@ return fn;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var messageHandle = Engine.JsCreateString(message, new UIntPtr((uint)message.Length));
+                    var messageHandle = Engine.JsCreateString(message, (ulong)message.Length);
                     var errorHandle = Engine.JsCreateError(messageHandle);
 
                     Engine.JsSetException(errorHandle);
@@ -2941,7 +2941,7 @@ return fn;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var messageHandle = Engine.JsCreateString(message, new UIntPtr((uint)message.Length));
+                    var messageHandle = Engine.JsCreateString(message, (ulong)message.Length);
                     var errorHandle = Engine.JsCreateError(messageHandle);
 
                     var hasException = Engine.JsHasException();

@@ -98,24 +98,24 @@
 		/// <returns>
 		///		JsValueRef representing the JavascriptString
 		/// </returns>
-		JavaScriptValueSafeHandle JsCreateString(string content, UIntPtr length);
+		JavaScriptValueSafeHandle JsCreateString(string content, ulong length);
 
 		/// <summary>
-		///		Create JavascriptString variable from Utf8 string
+		///		Create JavascriptString variable from Utf16 string
 		/// </summary>
 		/// <remarks>
-		///		Input string can be either ASCII or Utf8
+		///		Expects Utf16 string
 		/// </remarks>
 		/// <param name="content">
 		///		Pointer to string memory.
 		/// </param>
 		/// <param name="length">
-		///		Number of bytes within the string
+		///		Number of characters within the string
 		/// </param>
 		/// <returns>
 		///		JsValueRef representing the JavascriptString
 		/// </returns>
-		JavaScriptValueSafeHandle JsCreateStringUtf16(string content, UIntPtr length);
+		JavaScriptValueSafeHandle JsCreateStringUtf16(string content, ulong length);
 
 		/// <summary>
 		///		Write JavascriptString value into C string buffer (Utf8)
@@ -137,7 +137,7 @@
 		/// <returns>
 		///		Total number of characters written
 		/// </returns>
-		UIntPtr JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, UIntPtr bufferSize);
+		ulong JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, ulong bufferSize);
 
 		/// <summary>
 		///		Write string value into Utf16 string buffer
@@ -167,7 +167,7 @@
 		/// <returns>
 		///		Total number of characters written
 		/// </returns>
-		UIntPtr JsCopyStringUtf16(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer);
+		ulong JsCopyStringUtf16(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer);
 
 		/// <summary>
 		///		Parses a script and returns a function representing the script.
@@ -242,7 +242,7 @@
 		/// <returns>
 		///		The property ID in this runtime for the given name.
 		/// </returns>
-		JavaScriptPropertyIdSafeHandle JsCreatePropertyId(string name, UIntPtr length);
+		JavaScriptPropertyIdSafeHandle JsCreatePropertyId(string name, ulong length);
 
 		/// <summary>
 		///		Copies the name associated with the property ID into a buffer.
@@ -263,9 +263,9 @@
 		///		Size of the buffer.
 		/// </param>
 		/// <returns>
-		///		Total number of characters written or to be written
+		///		NO DESCRIPTION PROVIDED
 		/// </returns>
-		UIntPtr JsCopyPropertyId(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize);
+		ulong JsCopyPropertyId(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, ulong bufferSize);
 
 		/// <summary>
 		///		Serializes a parsed script to a buffer than can be reused.
@@ -288,7 +288,7 @@
 		///		Encoding for the script.
 		/// </param>
 		/// <returns>
-		///		The buffer to put the serialized script into. Can be null.
+		///		ArrayBuffer
 		/// </returns>
 		JavaScriptValueSafeHandle JsSerialize(JavaScriptValueSafeHandle script, JavaScriptParseScriptAttributes parseAttributes);
 
@@ -299,7 +299,7 @@
 		///		Requires an active script context.
 		/// </remarks>
 		/// <param name="buffer">
-		///		The serialized script.
+		///		The serialized script as an ArrayBuffer (preferably ExternalArrayBuffer).
 		/// </param>
 		/// <param name="scriptLoadCallback">
 		///		Callback called when the source code of the script needs to be loaded.
@@ -326,7 +326,7 @@
 		///		the buffer are garbage collected.
 		/// </remarks>
 		/// <param name="buffer">
-		///		The serialized script.
+		///		The serialized script as an ArrayBuffer (preferably ExternalArrayBuffer).
 		/// </param>
 		/// <param name="scriptLoadCallback">
 		///		Callback called when the source code of the script needs to be loaded.

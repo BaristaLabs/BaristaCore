@@ -25,7 +25,7 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var stringHandle = Engine.JsCreateString(str, new UIntPtr((uint)str.Length));
+                    var stringHandle = Engine.JsCreateString(str, (ulong)str.Length);
 
                     Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
 
@@ -48,7 +48,7 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var stringHandle = Engine.JsCreateStringUtf16(str, new UIntPtr((uint)str.Length));
+                    var stringHandle = Engine.JsCreateStringUtf16(str, (ulong)str.Length);
 
                     Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
 
@@ -71,15 +71,15 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var stringHandle = Engine.JsCreateString(str, new UIntPtr((uint)str.Length));
+                    var stringHandle = Engine.JsCreateString(str, (ulong)str.Length);
 
                     //Get the size
-                    var size = Engine.JsCopyString(stringHandle, null, UIntPtr.Zero);
+                    var size = Engine.JsCopyString(stringHandle, null, 0);
                     if ((int)size > int.MaxValue)
                         throw new OutOfMemoryException("Exceeded maximum string length.");
 
                     byte[] result = new byte[(int)size];
-                    var written = Engine.JsCopyString(stringHandle, result, new UIntPtr((uint)result.Length));
+                    var written = Engine.JsCopyString(stringHandle, result, (ulong)result.Length);
                     string resultStr = Encoding.UTF8.GetString(result, 0, result.Length);
 
                     Assert.True(str == resultStr);
@@ -100,7 +100,7 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var stringHandle = Engine.JsCreateStringUtf16(str, new UIntPtr((uint)str.Length));
+                    var stringHandle = Engine.JsCreateStringUtf16(str, (ulong)str.Length);
 
                     //Get the size
                     var size = Engine.JsCopyStringUtf16(stringHandle, 0, -1, null);
@@ -135,7 +135,7 @@
                     {
                         var scriptHandle = Engine.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero);
                         var sourceContext = JavaScriptSourceContext.None;
-                        var sourceUrlHandle = Engine.JsCreateString(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
+                        var sourceUrlHandle = Engine.JsCreateString(sourceUrl, (ulong)sourceUrl.Length);
                         var resultHandle = Engine.JsParse(scriptHandle, sourceContext, sourceUrlHandle, JavaScriptParseScriptAttributes.None);
 
                         Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
@@ -174,7 +174,7 @@
 
                         JavaScriptSourceContext sourceContext = JavaScriptSourceContext.None;
 
-                        var sourceUrlHandle = Engine.JsCreateString(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
+                        var sourceUrlHandle = Engine.JsCreateString(sourceUrl, (ulong)sourceUrl.Length);
 
                         var resultHandle = Engine.JsRun(scriptHandle, sourceContext, sourceUrlHandle, JavaScriptParseScriptAttributes.None);
                         Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
@@ -208,7 +208,7 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var propertyHandle = Engine.JsCreatePropertyId(str, new UIntPtr((uint)str.Length));
+                    var propertyHandle = Engine.JsCreatePropertyId(str, (ulong)str.Length);
 
                     Assert.True(propertyHandle != JavaScriptPropertyIdSafeHandle.Invalid);
 
@@ -228,15 +228,15 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var propertyHandle = Engine.JsCreatePropertyId(str, new UIntPtr((uint)str.Length));
+                    var propertyHandle = Engine.JsCreatePropertyId(str, (ulong)str.Length);
 
                     //Get the size
-                    var size = Engine.JsCopyPropertyId(propertyHandle, null, UIntPtr.Zero);
+                    var size = Engine.JsCopyPropertyId(propertyHandle, null, 0);
                     if ((int)size > int.MaxValue)
                         throw new OutOfMemoryException("Exceeded maximum string length.");
 
                     byte[] result = new byte[(int)size];
-                    var written = Engine.JsCopyPropertyId(propertyHandle, result, new UIntPtr((uint)result.Length));
+                    var written = Engine.JsCopyPropertyId(propertyHandle, result, (ulong)result.Length);
                     string resultStr = Encoding.UTF8.GetString(result, 0, result.Length);
 
                     Assert.True(str == resultStr);
@@ -301,7 +301,7 @@
                         var scriptHandle = Engine.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero);
                         var bufferHandle = Engine.JsSerialize(scriptHandle, JavaScriptParseScriptAttributes.None);
 
-                        var sourceUrlHandle = Engine.JsCreateString(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
+                        var sourceUrlHandle = Engine.JsCreateString(sourceUrl, (ulong)sourceUrl.Length);
                         var resultHandle = Engine.JsParseSerialized(bufferHandle, callback, JavaScriptSourceContext.None, sourceUrlHandle);
 
                         Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
@@ -346,7 +346,7 @@
                         var scriptHandle = Engine.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero);
                         var bufferHandle = Engine.JsSerialize(scriptHandle, JavaScriptParseScriptAttributes.None);
 
-                        var sourceUrlHandle = Engine.JsCreateString(sourceUrl, new UIntPtr((uint)sourceUrl.Length));
+                        var sourceUrlHandle = Engine.JsCreateString(sourceUrl, (ulong)sourceUrl.Length);
                         var resultHandle = Engine.JsRunSerialized(bufferHandle, callback, JavaScriptSourceContext.None, sourceUrlHandle);
 
                         Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
@@ -413,7 +413,7 @@ export default function() { return ""Hello, World.""; }
                     Engine.JsSetCurrentContext(contextHandle);
 
                     //Initialize the "main" module (Empty-string specifier.
-                    var moduleNameHandle = Engine.JsCreateString(mainModuleName, new UIntPtr((uint)mainModuleName.Length));
+                    var moduleNameHandle = Engine.JsCreateString(mainModuleName, (ulong)mainModuleName.Length);
                     var mainModuleHandle = Engine.JsInitializeModuleRecord(IntPtr.Zero, moduleNameHandle);
 
                     IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchCallback);

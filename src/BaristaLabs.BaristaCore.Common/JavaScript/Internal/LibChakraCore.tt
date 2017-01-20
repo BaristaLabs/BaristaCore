@@ -64,7 +64,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
 #>
 		/// </returns>
 <#	} #>
-		[DllImport(DllName<# if (!String.IsNullOrWhiteSpace(ex.DllImportEx)) { #><#= ex.DllImportEx #><# } #>)]
+		[DllImport(DllName, EntryPoint = "<#= ex.Name #>", CallingConvention = CallingConvention.Cdecl<# if (!String.IsNullOrWhiteSpace(ex.DllImportEx)) { #><#= ex.DllImportEx #><# } #>)]
 		public static extern JavaScriptErrorCode <#= ex.Name #>(<#= ex.Signature #>);
 
 <#

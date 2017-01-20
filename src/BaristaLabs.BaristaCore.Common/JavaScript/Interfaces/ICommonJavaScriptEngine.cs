@@ -31,7 +31,7 @@
 		/// <summary>
 		///		Performs a full garbage collection.
 		/// </summary>
-		void JsCollectGarbage(JavaScriptRuntimeSafeHandle handle);
+		void JsCollectGarbage(JavaScriptRuntimeSafeHandle runtime);
 
 		/// <summary>
 		///		Disposes a runtime.

@@ -44,7 +44,7 @@
 
             //Get the message of the Script Error.            
             JavaScriptPropertyIdSafeHandle messagePropertyHandle;
-            innerError = LibChakraCore.JsCreatePropertyId(MessagePropertyName, new UIntPtr((uint)MessagePropertyName.Length), out messagePropertyHandle);
+            innerError = LibChakraCore.JsCreatePropertyId(MessagePropertyName, (ulong)MessagePropertyName.Length, out messagePropertyHandle);
             Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
             JavaScriptValueSafeHandle messageValue;

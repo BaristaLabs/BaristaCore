@@ -58,7 +58,7 @@ moose;
                     //Callback that is run for each breakpoint.
                     JavaScriptDiagDebugEventCallback callback = (JavaScriptDiagDebugEventType eventType, IntPtr eventData, IntPtr callbackState) =>
                     {
-                        var evalScript = Engine.JsCreateString("i", new UIntPtr((uint)"i".Length));
+                        var evalScript = Engine.JsCreateString("i", (ulong)"i".Length);
                         var evalResultHandle = Engine.JsDiagEvaluate(evalScript, 0, JavaScriptParseScriptAttributes.None);
                         
                         var handleType = Engine.JsGetValueType(evalResultHandle);

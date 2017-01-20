@@ -52,7 +52,7 @@
 			return hostInfo;
 		}
 
-		public JavaScriptValueSafeHandle JsCreateString(string content, UIntPtr length)
+		public JavaScriptValueSafeHandle JsCreateString(string content, ulong length)
 		{
 			JavaScriptValueSafeHandle value;
 			Errors.ThrowIfError(LibChakraCore.JsCreateString(content, length, out value));
@@ -65,7 +65,7 @@
 			return value;
 		}
 
-		public JavaScriptValueSafeHandle JsCreateStringUtf16(string content, UIntPtr length)
+		public JavaScriptValueSafeHandle JsCreateStringUtf16(string content, ulong length)
 		{
 			JavaScriptValueSafeHandle value;
 			Errors.ThrowIfError(LibChakraCore.JsCreateStringUtf16(content, length, out value));
@@ -78,16 +78,16 @@
 			return value;
 		}
 
-		public UIntPtr JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, UIntPtr bufferSize)
+		public ulong JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, ulong bufferSize)
 		{
-			UIntPtr written;
+			ulong written;
 			Errors.ThrowIfError(LibChakraCore.JsCopyString(value, buffer, bufferSize, out written));
 			return written;
 		}
 
-		public UIntPtr JsCopyStringUtf16(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer)
+		public ulong JsCopyStringUtf16(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer)
 		{
-			UIntPtr written;
+			ulong written;
 			Errors.ThrowIfError(LibChakraCore.JsCopyStringUtf16(value, start, length, buffer, out written));
 			return written;
 		}
@@ -118,7 +118,7 @@
 			return result;
 		}
 
-		public JavaScriptPropertyIdSafeHandle JsCreatePropertyId(string name, UIntPtr length)
+		public JavaScriptPropertyIdSafeHandle JsCreatePropertyId(string name, ulong length)
 		{
 			JavaScriptPropertyIdSafeHandle propertyId;
 			Errors.ThrowIfError(LibChakraCore.JsCreatePropertyId(name, length, out propertyId));
@@ -131,11 +131,11 @@
 			return propertyId;
 		}
 
-		public UIntPtr JsCopyPropertyId(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, UIntPtr bufferSize)
+		public ulong JsCopyPropertyId(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, ulong bufferSize)
 		{
-			UIntPtr written;
-			Errors.ThrowIfError(LibChakraCore.JsCopyPropertyId(propertyId, buffer, bufferSize, out written));
-			return written;
+			ulong length;
+			Errors.ThrowIfError(LibChakraCore.JsCopyPropertyId(propertyId, buffer, bufferSize, out length));
+			return length;
 		}
 
 		public JavaScriptValueSafeHandle JsSerialize(JavaScriptValueSafeHandle script, JavaScriptParseScriptAttributes parseAttributes)
@@ -185,9 +185,9 @@
 			return runtime;
 		}
 
-		public void JsCollectGarbage(JavaScriptRuntimeSafeHandle handle)
+		public void JsCollectGarbage(JavaScriptRuntimeSafeHandle runtime)
 		{
-			Errors.ThrowIfError(LibChakraCore.JsCollectGarbage(handle));
+			Errors.ThrowIfError(LibChakraCore.JsCollectGarbage(runtime));
 		}
 
 		public void JsDisposeRuntime(IntPtr runtime)
@@ -1162,15 +1162,15 @@
 
 		public JavaScriptValueSafeHandle JsDiagGetStackTrace()
 		{
-			JavaScriptValueSafeHandle Name;
-			Errors.ThrowIfError(LibChakraCore.JsDiagGetStackTrace(out Name));
-			Name.NativeFunctionSource = nameof(LibChakraCore.JsDiagGetStackTrace);
-			if (Name != JavaScriptValueSafeHandle.Invalid)
+			JavaScriptValueSafeHandle stackTrace;
+			Errors.ThrowIfError(LibChakraCore.JsDiagGetStackTrace(out stackTrace));
+			stackTrace.NativeFunctionSource = nameof(LibChakraCore.JsDiagGetStackTrace);
+			if (stackTrace != JavaScriptValueSafeHandle.Invalid)
 			{
 				uint valueRefCount;
-				Errors.ThrowIfError(LibChakraCore.JsAddRef(Name, out valueRefCount));
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(stackTrace, out valueRefCount));
 			}
-			return Name;
+			return stackTrace;
 		}
 
 		public JavaScriptValueSafeHandle JsDiagGetStackProperties(uint stackFrameIndex)

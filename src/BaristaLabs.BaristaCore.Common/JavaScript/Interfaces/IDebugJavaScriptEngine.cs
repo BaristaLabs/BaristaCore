@@ -220,7 +220,7 @@
 		///		}]
 		/// </remarks>
 		/// <returns>
-		///		NO DESCRIPTION PROVIDED
+		///		Stack trace information.
 		/// </returns>
 		JavaScriptValueSafeHandle JsDiagGetStackTrace();
 
@@ -228,6 +228,10 @@
 		///		Gets the list of properties corresponding to the frame.
 		/// </summary>
 		/// <remarks>
+		///		propertyAttributes is a bit mask of
+		///		NONE = 0x1,
+		///		HAVE_CHILDRENS = 0x2,
+		///		READ_ONLY_VALUE = 0x4,
 		///		{
 		///		"thisObject": {
 		///		"name": "this",

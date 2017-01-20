@@ -1,6 +1,6 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<ChakraDefinitions githubCommit="f7f71322487efdbab12b37ed9e11258cb9a8af70">
-  <!-- 
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<ChakraDefinitions>
+  <!--
   ***************************************
   **
   ** ChakraCore.h
@@ -152,15 +152,15 @@
     <Description>
       <![CDATA[
 /// <summary>
-///     Create JavascriptString variable from Utf8 string
+///     Create JavascriptString variable from Utf16 string
 /// </summary>
 /// <remarks>
 ///     <para>
-///         Input string can be either ASCII or Utf8
+///         Expects Utf16 string
 ///     </para>
 /// </remarks>
 /// <param name="content">Pointer to string memory.</param>
-/// <param name="length">Number of bytes within the string</param>
+/// <param name="length">Number of characters within the string</param>
 /// <param name="value">JsValueRef representing the JavascriptString</param>
 /// <returns>
 ///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
@@ -169,7 +169,7 @@
     </Description>
     <Parameters>
       <Parameter type="string" name="content" />
-      <Parameter type="uint16_t" name="length" />
+      <Parameter type="size_t" name="length" />
       <Parameter type="JsValueRef" name="value" direction="Out" />
     </Parameters>
   </Export>
@@ -380,7 +380,7 @@
       <Parameter type="JsPropertyIdRef" name="propertyId" />
       <Parameter type="char*" name="buffer" />
       <Parameter type="size_t" name="bufferSize" />
-      <Parameter type="size_t" name="written" direction="Out" />
+      <Parameter type="size_t" name="length" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSerialize" target="Common" source="ChakraCore.h">
@@ -409,7 +409,7 @@
 ///     </para>
 /// </remarks>
 /// <param name="script">The script to serialize</param>
-/// <param name="buffer">The buffer to put the serialized script into. Can be null.</param>
+/// <param name="buffer">ArrayBuffer</param>
 /// <param name="parseAttributes">Encoding for the script.</param>
 /// <returns>
 ///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
@@ -434,7 +434,7 @@
 ///     Requires an active script context.
 ///     </para>
 /// </remarks>
-/// <param name="buffer">The serialized script.</param>
+/// <param name="buffer">The serialized script as an ArrayBuffer (preferably ExternalArrayBuffer).</param>
 /// <param name="scriptLoadCallback">
 ///     Callback called when the source code of the script needs to be loaded.
 ///     This is an optional parameter, set to null if not needed.
@@ -461,7 +461,6 @@
   <Export name="JsRunSerialized" target="Common" source="ChakraCore.h">
     <Description>
       <![CDATA[
-
 /// <summary>
 ///     Runs a serialized script.
 ///     Provides the ability to lazy load the script source only if/when it is needed.
@@ -475,7 +474,7 @@
 ///     the buffer are garbage collected.
 ///     </para>
 /// </remarks>
-/// <param name="buffer">The serialized script.</param>
+/// <param name="buffer">The serialized script as an ArrayBuffer (preferably ExternalArrayBuffer).</param>
 /// <param name="scriptLoadCallback">Callback called when the source code of the script needs to be loaded.</param>
 /// <param name="sourceContext">
 ///     A cookie identifying the script that can be used by debuggable script contexts.
@@ -498,7 +497,7 @@
       <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
-  <!-- 
+  <!--
   ***************************************
   **
   ** ChakraCommon.h
@@ -533,13 +532,14 @@
 /// <summary>
 ///     Performs a full garbage collection.
 /// </summary>
+/// <param name="runtime">The runtime in which the garbage collection will be performed.</param>
 /// <returns>
 ///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 /// </returns>
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsRuntimeHandle" name="handle" />
+      <Parameter type="JsRuntimeHandle" name="runtime" />
     </Parameters>
   </Export>
   <Export name="JsDisposeRuntime" target="Common" source="ChakraCommon.h">
@@ -582,7 +582,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsRuntimeHandle" name="runtime" />
-      <Parameter type="UIntPtr" name="memoryUsage" direction="Out" />
+      <Parameter type="size_t" name="memoryUsage" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsGetRuntimeMemoryLimit" target="Common" source="ChakraCommon.h">
@@ -606,7 +606,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsRuntimeHandle" name="runtime" />
-      <Parameter type="UIntPtr" name="memoryLimit" direction="Out" />
+      <Parameter type="size_t" name="memoryLimit" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsSetRuntimeMemoryLimit" target="Common" source="ChakraCommon.h">
@@ -639,7 +639,7 @@
     </Description>
     <Parameters>
       <Parameter type="JsRuntimeHandle" name="runtime" />
-      <Parameter type="UIntPtr" name="memoryLimit" />
+      <Parameter type="size_t" name="memoryLimit" />
     </Parameters>
   </Export>
   <Export name="JsSetRuntimeMemoryAllocationCallback" target="Common" source="ChakraCommon.h">
@@ -2651,7 +2651,7 @@
       <Parameter type="IntPtr" name="callbackState" />
     </Parameters>
   </Export>
-   <!-- 
+  <!--
   ***************************************
   **
   ** ChakraDebug.h
@@ -3001,7 +3001,7 @@
 ]]>
     </Description>
     <Parameters>
-      <Parameter type="JsValueRef" name="Name" direction="Out" />
+      <Parameter type="JsValueRef" name="stackTrace" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsDiagGetStackProperties" target="Common" source="ChakraDebug.h">
@@ -3013,6 +3013,12 @@
 /// <param name="stackFrameIndex">Index of stack frame from JsDiagGetStackTrace.</param>
 /// <param name="properties">Object of properties array (properties, scopes and globals).</param>
 /// <remarks>
+///     <para>
+///     propertyAttributes is a bit mask of
+///         NONE = 0x1,
+///         HAVE_CHILDRENS = 0x2,
+///         READ_ONLY_VALUE = 0x4,
+///     </para>
 ///     <para>
 ///     {
 ///         "thisObject": {
@@ -3633,16 +3639,4 @@
       <Parameter type="UIntPtr" name="stringLength" direction="Out" />
     </Parameters>
   </Export>
-  <!--<Export name="Name" target="Common" source="ChakraDebug.h">
-    <Description>
-      <![CDATA[
-Description
-]]>
-    </Description>
-    <Parameters>
-      <Parameter type="Type" name="Name" />
-      <Parameter type="Type" name="Name" />
-      <Parameter type="Type" name="Name" direction="Out" />
-    </Parameters>
-  </Export>-->
 </ChakraDefinitions>
