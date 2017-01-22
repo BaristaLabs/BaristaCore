@@ -44,10 +44,7 @@
 		{ "NotifyModuleReadyCallback", "JavaScriptNotifyModuleReadyCallback" },
 
         { "size_t", "ulong" },
-		{ "uint16_t", "ulong" },
 		{ "UIntPtr", "ulong" },
-        { "wchar_t", "string" },
-		{ "BYTE", "byte[]" },
         { "char*", "byte[]"},
 		{ "uint16_t*", "byte[]" }
     };
