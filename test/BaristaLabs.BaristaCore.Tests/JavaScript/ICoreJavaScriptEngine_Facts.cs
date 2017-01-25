@@ -89,10 +89,69 @@
             }
         }
 
+        //TODO: Need additional libChakraCore that marshals as a byte array, or UTF8 directly (which is coming in .net core https://github.com/dotnet/coreclr/issues/1012)
+        //[Fact]
+        //public void JsCopyStringHandlesUtf8Strings()
+        //{
+        //    var str = "いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせす";
+
+        //    using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+        //    {
+        //        using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+        //        {
+        //            Engine.JsSetCurrentContext(contextHandle);
+
+        //            var stringHandle = Engine.JsCreateString(str, (ulong)str.Length);
+
+        //            //Get the size
+        //            var size = Engine.JsCopyString(stringHandle, null, 0);
+        //            if ((int)size > int.MaxValue)
+        //                throw new OutOfMemoryException("Exceeded maximum string length.");
+
+        //            byte[] result = new byte[(int)size];
+        //            var written = Engine.JsCopyString(stringHandle, result, (ulong)result.Length);
+        //            string resultStr = Encoding.UTF8.GetString(result, 0, result.Length);
+
+        //            Assert.True(str == resultStr);
+
+        //            stringHandle.Dispose();
+        //        }
+        //    }
+        //}
+
         [Fact]
         public void JsCopyStringUtf16Test()
         {
             var str = "Hello, World!";
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    var stringHandle = Engine.JsCreateStringUtf16(str, (ulong)str.Length);
+
+                    //Get the size
+                    var size = Engine.JsCopyStringUtf16(stringHandle, 0, -1, null);
+                    if ((int)size * 2 > int.MaxValue)
+                        throw new OutOfMemoryException("Exceeded maximum string length.");
+
+                    byte[] result = new byte[(int)size * 2];
+                    var written = Engine.JsCopyStringUtf16(stringHandle, 0, -1, result);
+                    string resultStr = Encoding.Unicode.GetString(result, 0, result.Length);
+
+                    Assert.True(str == resultStr);
+
+                    stringHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCopyStringUtf16HandlesUtf16Strings()
+        {
+            var str = "ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦㄧㄨㄩㄪㄫㄬ";
 
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
