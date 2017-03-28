@@ -12,7 +12,7 @@ For other platforms, build [ChakraCore](https://github.com/microsoft/chakracore/
 
 Windows Build:
 
-> Note - VS2017 download and install https://developer.microsoft.com/en-us/windows/downloads/windows-8-1-sdk separately?
+> Note - with VS2017 download and install https://developer.microsoft.com/en-us/windows/downloads/windows-8-1-sdk separately - for some reason the version that VS2017 installs doesn't install cor.h..??
 
 ```
 msbuild /m /p:Platform=x64 /p:Configuration=Release /p:RuntimeLib=static_library Build\Chakra.Core.sln
