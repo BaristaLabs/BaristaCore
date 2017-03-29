@@ -497,6 +497,29 @@
       <Parameter type="JsValueRef" name="result" direction="Out" />
     </Parameters>
   </Export>
+  <Export name="JsCreatePromise" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Creates a new JavaScript Promise object.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="promise">The new Promise object.</param>
+/// <param name="resolveFunction">The function called to resolve the created Promise object.</param>
+/// <param name="rejectFunction">The function called to reject the created Promise object.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="promise" direction="Out" />
+      <Parameter type="JsValueRef" name="resolveFunction" direction="Out" />
+      <Parameter type="JsValueRef" name="rejectFunction" direction="Out" />
+    </Parameters>
+  </Export>
   <!--
   ***************************************
   **
