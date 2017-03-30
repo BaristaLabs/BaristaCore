@@ -3,20 +3,12 @@ configuration:
   - Release
 platform: x64
 environment:
-  FRAMEWORK: netcoreapp1.0
+  FRAMEWORK: netcoreapp1.1.1
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
   COVERALLS_REPO_TOKEN: 7c1iHfH8bvABxL9ePXzvukfeVYM2txph8
 init:
   - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
 install:
-  - ps: $url = "https://go.microsoft.com/fwlink/?linkid=843448" # .Net Core SDK x64 RTM 1.1.1
-    # Download .NET Core SDK and add to PATH
-  - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
-  - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
-  - ps: $tempFile = [System.IO.Path]::GetTempFileName()
-  - ps: (New-Object System.Net.WebClient).DownloadFile($url, $tempFile)
-  - ps: Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($tempFile, $env:DOTNET_INSTALL_DIR)
-  - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
     # Download OpenCover and add to PATH
   - ps: $url = "https://github.com/OpenCover/opencover/releases/download/4.6.519/opencover.4.6.519.zip"
   - ps: $env:OPENCOVER_INSTALL_DIR = "$pwd\.opencover"
