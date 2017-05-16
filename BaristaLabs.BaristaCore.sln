@@ -1,7 +1,6 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26114.2
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1E189DA3-80DF-4A10-BC21-E616DEB0E752}"
 EndProject
@@ -34,6 +33,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tt", "tt", "{A9077451-DA1B-
 		tt\ChakraTypedSafeImplementation.ttinclude = tt\ChakraTypedSafeImplementation.ttinclude
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "util", "util", "{36B7F578-1E35-489D-91A2-B3BE0F53187F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChakraWrapperGeneratorCLI", "util\ChakraWrapperGeneratorCLI\ChakraWrapperGeneratorCLI.csproj", "{343AFCA5-8768-43D7-B038-3221A4CAA057}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +63,10 @@ Global
 		{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{343AFCA5-8768-43D7-B038-3221A4CAA057}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{343AFCA5-8768-43D7-B038-3221A4CAA057}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{343AFCA5-8768-43D7-B038-3221A4CAA057}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{343AFCA5-8768-43D7-B038-3221A4CAA057}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,5 +77,6 @@ Global
 		{E3FF6242-6102-4BA5-927B-BD43903BA195} = {BF7A5A92-FCD0-4CA4-9234-B96B543F2488}
 		{624574AB-E6D3-4030-9A4F-E816723B6625} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
 		{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
+		{343AFCA5-8768-43D7-B038-3221A4CAA057} = {36B7F578-1E35-489D-91A2-B3BE0F53187F}
 	EndGlobalSection
 EndGlobal
