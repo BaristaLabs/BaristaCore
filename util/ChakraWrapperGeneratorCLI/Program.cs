@@ -55,20 +55,6 @@
             var defsDoc = XDocument.Load(args[0]);
             var externs = ParseAndGetExterns(typeMap, defsDoc);
 
-            Handlebars.RegisterHelper("trim", (writer, context, arguments) =>
-            {
-                if (arguments.Length < 1)
-                {
-                    throw new HandlebarsException("{{trim}} helper must have at least one argument");
-                }
-
-                var str = arguments[0].ToString();
-                if (String.IsNullOrWhiteSpace(str))
-                    return;
-
-                writer.WriteSafeString(str.Trim());
-            });
-
             SetupHelpers();
 
             var templateContents = File.ReadAllText("./templates/LibChakraCore.hbs");
@@ -85,6 +71,20 @@
 
         public static void SetupHelpers()
         {
+            Handlebars.RegisterHelper("trim", (writer, context, arguments) =>
+            {
+                if (arguments.Length < 1)
+                {
+                    throw new HandlebarsException("{{trim}} helper must have at least one argument");
+                }
+
+                var str = arguments[0].ToString();
+                if (String.IsNullOrWhiteSpace(str))
+                    return;
+
+                writer.WriteSafeString(str.Trim());
+            });
+
             Handlebars.RegisterHelper("breaklines", (writer, context, arguments) =>
             {
                 if (arguments.Length < 1)
