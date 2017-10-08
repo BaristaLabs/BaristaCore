@@ -1,38 +1,37 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
 {
-	using System;
-	using System.Runtime.InteropServices;
+    using System;
+    using System.Runtime.InteropServices;
 
-	/// <summary>
-	///	Represents the Unmanaged ChakraCore Library
-	/// </summary>
-	public static class LibChakraCore
-	{
-		private const string DllName = "{{DllName}}";
-        
-        {{#each Extern}}
+    /// <summary>
+    ///	Represents the Unmanaged ChakraCore Library
+    /// </summary>
+    public static class LibChakraCore
+    {
+        private const string DllName = "{{DllName}}";
 
-		/// <summary>
-		///	{{Summary}}
-		/// </summary>
+        {{#each Externs}}
+        /// <summary>
+        ///     {{Summary}}
+        /// </summary>
         {{#if Remarks}}
-		/// <remarks>
-        {{breaklines Remarks}}
-		/// </remarks>
+        /// <remarks>
+{{breaklines Remarks}}
+        /// </remarks>
         {{/if}}
         {{#each Parameters}}
-		/// <param name="{{Name}}">
-        {{breaklines Description}}
-		/// </param>
+        /// <param name="{{Name}}">
+{{breaklines Description}}
+        /// </param>
         {{/each}}
         {{#if ReturnParameter.Type}}
-		/// <returns>
-        {{breaklines ReturnParameter.Description}}
-		/// </returns>
+        /// <returns>
+{{breaklines ReturnParameter.Description}}
+        /// </returns>
         {{/if}}
-		[DllImport(DllName, EntryPoint = "{{Name}}", CallingConvention = CallingConvention.Cdecl{{#if DllImportEx}}{{DllImportEx}}{{/if}})]
-		public static extern JavaScriptErrorCode {{Name}}({{Signature}});
+        [DllImport(DllName, EntryPoint = "{{Name}}", CallingConvention = CallingConvention.Cdecl{{#if DllImportEx}}{{DllImportEx}}{{/if}})]
+        public static extern JavaScriptErrorCode {{Name}}({{Signature}});
 
         {{/each}}
-	}
+    }
 }

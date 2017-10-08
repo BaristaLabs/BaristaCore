@@ -19,6 +19,7 @@
         { "JsContextRef", "JavaScriptContextSafeHandle" },
         { "JsSourceContext", "JavaScriptSourceContext" },
         { "JsRef", "SafeHandle" },
+        { "JsWeakRef", "SafeHandle" },
         { "JsValueRef", "JavaScriptValueSafeHandle" },
         { "JsValueRef[]", "IntPtr[]" },
         { "JsPropertyIdRef", "JavaScriptPropertyIdSafeHandle" },
@@ -54,7 +55,38 @@
             var defsDoc = XDocument.Load(args[0]);
             var externs = ParseAndGetExterns(typeMap, defsDoc);
 
-            Handlebars.RegisterHelper("breaklines", (writer, context, arguments) => {
+            Handlebars.RegisterHelper("trim", (writer, context, arguments) =>
+            {
+                if (arguments.Length < 1)
+                {
+                    throw new HandlebarsException("{{trim}} helper must have at least one argument");
+                }
+
+                var str = arguments[0].ToString();
+                if (String.IsNullOrWhiteSpace(str))
+                    return;
+
+                writer.WriteSafeString(str.Trim());
+            });
+
+            SetupHelpers();
+
+            var templateContents = File.ReadAllText("./templates/LibChakraCore.hbs");
+            var generator = Handlebars.Compile(templateContents);
+            var result = generator(new
+            {
+                DllName = "ChakraCore/libChakraCore",
+                Externs = externs
+            });
+
+            File.WriteAllText("../../src/BaristaLabs.BaristaCore.Common/JavaScript/Internal/LibChakraCore.cs", result);
+            Console.WriteLine("Completed!");
+        }
+
+        public static void SetupHelpers()
+        {
+            Handlebars.RegisterHelper("breaklines", (writer, context, arguments) =>
+            {
                 if (arguments.Length < 1)
                 {
                     throw new HandlebarsException("{{breaklines}} helper must have at least one argument");
@@ -64,29 +96,27 @@
                 if (String.IsNullOrWhiteSpace(str))
                     return;
 
-                var prefix = "\t\t///\t\t";
+                var prefix = "        ///     ";
                 if (arguments.Length >= 2)
                     prefix = arguments[1].ToString();
 
                 var sb = new StringBuilder();
-                foreach (var ln in str.ToString().Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None))
+                var lines = str.ToString().Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
+                for (int i = 0; i < lines.Length; i++)
                 {
+                    var ln = lines[i];
                     if (ln.Trim() == string.Empty)
                         continue;
-                    sb.AppendLine(prefix + ln);
+
+                    if (i == lines.Length - 1)
+                        sb.Append(prefix + ln);
+                    else
+                        sb.AppendLine(prefix + ln);
                 }
 
                 writer.WriteSafeString(sb.ToString());
             });
-
-            var templateContents = File.ReadAllText("./templates/LibChakraCore.hbs");
-            var generator = Handlebars.Compile(templateContents);
-            var result = generator(new {
-                Externs = externs
-            });
-            Console.WriteLine(result);
         }
-
 
         public static List<ChakraExtern> ParseAndGetExterns(IDictionary<string, string> typeMap, XDocument defsDoc)
         {
@@ -166,11 +196,6 @@
                     def.Parameters.Add(param);
                 }
 
-                Console.WriteLine(def.Parameters.Count);
-                if (def.Parameters == null || def.Parameters.Count == 0)
-                {
-                    Console.WriteLine("asdf");
-                }
                 externs.Add(def);
             }
 
