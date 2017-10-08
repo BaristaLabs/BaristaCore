@@ -19,7 +19,6 @@
         { "JsContextRef", "JavaScriptContextSafeHandle" },
         { "JsSourceContext", "JavaScriptSourceContext" },
         { "JsRef", "SafeHandle" },
-        { "JsWeakRef", "SafeHandle" },
         { "JsValueRef", "JavaScriptValueSafeHandle" },
         { "JsValueRef[]", "IntPtr[]" },
         { "JsPropertyIdRef", "JavaScriptPropertyIdSafeHandle" },
