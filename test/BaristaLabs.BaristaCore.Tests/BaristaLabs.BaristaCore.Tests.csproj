@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <DebugType>portable</DebugType>
     <AssemblyName>BaristaLabs.BaristaCore.Tests</AssemblyName>
     <PackageId>BaristaLabs.BaristaCore.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
