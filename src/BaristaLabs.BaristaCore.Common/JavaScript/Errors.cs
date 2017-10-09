@@ -75,8 +75,7 @@
 
                     case JavaScriptErrorCode.ScriptException:
                         {
-                            JavaScriptValueSafeHandle errorObject;
-                            JavaScriptErrorCode innerError = LibChakraCore.JsGetAndClearException(out errorObject);
+                            JavaScriptErrorCode innerError = LibChakraCore.JsGetAndClearException(out JavaScriptValueSafeHandle errorObject);
 
                             if (innerError != JavaScriptErrorCode.NoError)
                             {
@@ -88,8 +87,7 @@
 
                     case JavaScriptErrorCode.ScriptCompile:
                         {
-                            JavaScriptValueSafeHandle errorObject;
-                            JavaScriptErrorCode innerError = LibChakraCore.JsGetAndClearException(out errorObject);
+                            JavaScriptErrorCode innerError = LibChakraCore.JsGetAndClearException(out JavaScriptValueSafeHandle errorObject);
 
                             if (innerError != JavaScriptErrorCode.NoError)
                             {

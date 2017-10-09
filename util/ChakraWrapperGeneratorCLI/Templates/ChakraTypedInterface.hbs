@@ -1,0 +1,36 @@
+﻿namespace BaristaLabs.BaristaCore.JavaScript
+{
+	using Internal;
+
+    using System;
+	using System.Runtime.InteropServices;
+
+    /// <summary>
+    /// {{SourceName}} interface
+    /// </summary>
+    public interface {{InterfaceName}}
+    {
+        {{#each InterfaceExterns}}
+        /// <summary>
+        ///   {{Summary}}
+        /// </summary>
+        {{#if Remarks }}
+        /// <remarks>
+{{breaklines Remarks}}
+        /// </remarks>
+        {{/if}}
+        {{#each Parameters}}
+        /// <param name="{{Name}}">
+{{breaklines Description}}
+        /// </param>
+        {{/each}}
+        {{#unless ReturnParameter.IsVoid}}
+        /// <returns>
+{{breaklines ReturnParameter.Description}}
+        /// </returns>
+        {{/unless}}
+        {{ReturnParameter.Type}} {{Name}}({{Signature}});
+
+        {{/each}}
+    }
+}

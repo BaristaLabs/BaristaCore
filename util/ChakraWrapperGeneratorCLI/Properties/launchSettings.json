@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ChakraWrapperGeneratorCLI": {
+      "commandName": "Project",
+      "commandLineArgs": "$(SolutionDir)\\\\ChakraExternDefinitions.xml"
+    }
+  }
+}
