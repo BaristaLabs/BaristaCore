@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+namespace BaristaLabs.BaristaCore.JavaScript
 {
 	using Internal;
 
@@ -9,6 +9,6 @@
     /// ChakraDebug.h interface
     /// </summary>
     public interface IDebugWindowsJavaScriptEngine
-	{
-	}
+    {
+    }
 }

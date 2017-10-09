@@ -2,9 +2,48 @@
 {
     public class ExternParameter
     {
-        public string Type;
-        public string Name;
-        public string Description;
-        public ParameterDirection Direction = ParameterDirection.In;
+        public ExternParameter()
+        {
+            this.Direction = ParameterDirection.In;
+        }
+
+        public string Type
+        {
+            get;
+            set;
+        }
+
+        public string Name
+        {
+            get;
+            set;
+        }
+
+        public string Description
+        {
+            get;
+            set;
+        }
+
+        public bool IsVoid
+        {
+            get
+            {
+                return Type == "void";
+            }
+        }
+        public bool IsJavaScriptRuntimeSafeHandle
+        {
+            get
+            {
+                return Type == "JavaScriptRuntimeSafeHandle";
+            }
+        }
+
+        public ParameterDirection Direction
+        {
+            get;
+            set;
+        }
     }
 }

@@ -8,6 +8,7 @@
     using System.Text;
     using System.Text.RegularExpressions;
     using System.Xml.Linq;
+    using System.Linq;
 
     class Program
     {
@@ -51,20 +52,41 @@
         { "uint16_t*", "byte[]" }
     };
 
+            SetupHelpers();
+            
+            //Load the extern definition file.
             var defsDoc = XDocument.Load(args[0]);
             var externs = ParseAndGetExterns(typeMap, defsDoc);
 
-            SetupHelpers();
-
+            //Output Native Wrapper
             var templateContents = File.ReadAllText("./templates/LibChakraCore.hbs");
             var generator = Handlebars.Compile(templateContents);
-            var result = generator(new
+            var libChakraCore = generator(new
             {
                 DllName = "ChakraCore/libChakraCore",
                 Externs = externs
             });
 
-            File.WriteAllText("../../src/BaristaLabs.BaristaCore.Common/JavaScript/Internal/LibChakraCore.cs", result);
+            File.WriteAllText("../../src/BaristaLabs.BaristaCore.Common/JavaScript/Internal/LibChakraCore.cs", libChakraCore);
+
+            //Output Interfaces
+            var interfaceTemplateContents = File.ReadAllText("./templates/ChakraTypedInterface.hbs");
+            var interfaceGenerator = Handlebars.Compile(interfaceTemplateContents);
+
+            GenerateInterface(interfaceGenerator, externs, "ChakraCommon.h", "ICommonJavaScriptEngine");
+            GenerateInterface(interfaceGenerator, externs, "ChakraCommonWindows.h", "ICommonWindowsJavaScriptEngine");
+            GenerateInterface(interfaceGenerator, externs, "ChakraCore.h", "ICoreJavaScriptEngine", e => e.Target == PlatformTarget.Common);
+            GenerateInterface(interfaceGenerator, externs, "ChakraDebug.h", "IDebugJavaScriptEngine", e => e.Target == PlatformTarget.Common);
+            GenerateInterface(interfaceGenerator, externs, "ChakraDebug.h", "IDebugWindowsJavaScriptEngine", e => e.Target == PlatformTarget.WindowsOnly);
+
+            //Output Engine Implementations
+            var implementationTemplateContents = File.ReadAllText("./templates/ChakraTypedSafeImplementation.hbs");
+            var implementationGenerator = Handlebars.Compile(implementationTemplateContents);
+
+            GenerateImplementation(implementationGenerator, externs, "public abstract", "ChakraEngineBase", "IJavaScriptEngine", e => e.Target == PlatformTarget.Common);
+            GenerateImplementation(implementationGenerator, externs, "public sealed", "LinuxChakraEngine", "ChakraEngineBase", e => false);
+            GenerateImplementation(implementationGenerator, externs, "public sealed", "WindowsChakraEngine", "ChakraEngineBase, ICommonWindowsJavaScriptEngine, IDebugWindowsJavaScriptEngine", e => e.Target == PlatformTarget.WindowsOnly);
+
             Console.WriteLine("Completed!");
         }
 
@@ -199,6 +221,39 @@
             }
 
             return externs;
+        }
+
+        public static void GenerateInterface(Func<object, string> interfaceGenerator, IList<ChakraExtern> externs, string sourceName, string interfaceName, Func<ChakraExtern, bool> predicate = null)
+        {
+            if (predicate == null)
+            {
+                predicate = new Func<ChakraExtern, bool>((e) => true);
+            }
+
+            var interfaceDefinition = interfaceGenerator(new
+            {
+                SourceName = sourceName,
+                InterfaceName = interfaceName,
+                InterfaceExterns = externs.Where(e => e.Source == sourceName && predicate(e)).Select(e => e.InterfaceExtern)
+            });
+            File.WriteAllText($"../../src/BaristaLabs.BaristaCore.Common/JavaScript/Interfaces/{interfaceName}.cs", interfaceDefinition);
+        }
+
+        public static void GenerateImplementation(Func<object, string> implementationGenerator, IList<ChakraExtern> externs, string accessModifier, string className, string interfaces, Func<ChakraExtern, bool> predicate = null)
+        {
+            if (predicate == null)
+            {
+                predicate = new Func<ChakraExtern, bool>((e) => true);
+            }
+
+            var implementation = implementationGenerator(new
+            {
+                AccessModifier = accessModifier,
+                ClassName = className,
+                Interfaces = interfaces,
+                Externs = externs.Where(predicate)
+            });
+            File.WriteAllText($"../../src/BaristaLabs.BaristaCore.Common/JavaScript/Engines/{className}.cs", implementation);
         }
     }
 }

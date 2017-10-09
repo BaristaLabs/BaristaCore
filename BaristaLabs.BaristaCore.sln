@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1E189DA3-80DF-4A10-BC21-E616DEB0E752}"
 EndProject
@@ -13,27 +13,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{BF7A5A92-FCD0-4CA4-9234-B96B543F2488}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaristaLabs.BaristaCore.Server", "src\BaristaLabs.BaristaCore.Server\BaristaLabs.BaristaCore.Server.csproj", "{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Server", "src\BaristaLabs.BaristaCore.Server\BaristaLabs.BaristaCore.Server.csproj", "{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaristaLabs.BaristaCore.Fiddle", "src\BaristaLabs.BaristaCore.Fiddle\BaristaLabs.BaristaCore.Fiddle.csproj", "{D39A215A-C493-4A4E-A1F5-508228BBBF89}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Fiddle", "src\BaristaLabs.BaristaCore.Fiddle\BaristaLabs.BaristaCore.Fiddle.csproj", "{D39A215A-C493-4A4E-A1F5-508228BBBF89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaristaLabs.BaristaCore.Tests", "test\BaristaLabs.BaristaCore.Tests\BaristaLabs.BaristaCore.Tests.csproj", "{E3FF6242-6102-4BA5-927B-BD43903BA195}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Tests", "test\BaristaLabs.BaristaCore.Tests\BaristaLabs.BaristaCore.Tests.csproj", "{E3FF6242-6102-4BA5-927B-BD43903BA195}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaristaServer", "src\BaristaServer\BaristaServer.csproj", "{624574AB-E6D3-4030-9A4F-E816723B6625}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaServer", "src\BaristaServer\BaristaServer.csproj", "{624574AB-E6D3-4030-9A4F-E816723B6625}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaristaLabs.BaristaCore.Common", "src\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.csproj", "{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tt", "tt", "{A9077451-DA1B-4132-AA6A-9BBC81A81A81}"
-	ProjectSection(SolutionItems) = preProject
-		tt\ChakraSimpleImplementation.ttinclude = tt\ChakraSimpleImplementation.ttinclude
-		tt\ChakraSimpleInterface.ttinclude = tt\ChakraSimpleInterface.ttinclude
-		tt\ChakraTypedInterface.ttinclude = tt\ChakraTypedInterface.ttinclude
-		tt\ChakraTypedSafeImplementation.ttinclude = tt\ChakraTypedSafeImplementation.ttinclude
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Common", "src\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.csproj", "{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "util", "util", "{36B7F578-1E35-489D-91A2-B3BE0F53187F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChakraWrapperGeneratorCLI", "util\ChakraWrapperGeneratorCLI\ChakraWrapperGeneratorCLI.csproj", "{343AFCA5-8768-43D7-B038-3221A4CAA057}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChakraWrapperGeneratorCLI", "util\ChakraWrapperGeneratorCLI\ChakraWrapperGeneratorCLI.csproj", "{343AFCA5-8768-43D7-B038-3221A4CAA057}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,5 +68,8 @@ Global
 		{624574AB-E6D3-4030-9A4F-E816723B6625} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
 		{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
 		{343AFCA5-8768-43D7-B038-3221A4CAA057} = {36B7F578-1E35-489D-91A2-B3BE0F53187F}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {43910680-2459-4C25-9FC4-821E302DAE91}
 	EndGlobalSection
 EndGlobal

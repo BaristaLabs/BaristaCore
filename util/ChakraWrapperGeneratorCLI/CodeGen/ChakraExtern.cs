@@ -41,10 +41,12 @@
                 var interfaceParameters = Parameters.Where(p => p != firstOutParameter).ToList();
                 foreach (var interfaceParameter in interfaceParameters)
                 {
-                    var paramCopy = new ExternParameter();
-                    paramCopy.Direction = interfaceParameter.Direction;
-                    paramCopy.Name = interfaceParameter.Name;
-                    paramCopy.Description = interfaceParameter.Description;
+                    var paramCopy = new ExternParameter
+                    {
+                        Direction = interfaceParameter.Direction,
+                        Name = interfaceParameter.Name,
+                        Description = interfaceParameter.Description
+                    };
 
                     if (InterfaceTypeMap.ContainsKey(interfaceParameter.Type))
                         paramCopy.Type = InterfaceTypeMap[interfaceParameter.Type];
@@ -122,9 +124,20 @@
             }
         }
 
-        public List<ExternParameter> GetOutValueSafeHandles()
+        public List<ExternParameter> OutValueSafeHandles
         {
-            return Parameters.FindAll(p => p.Direction == ParameterDirection.Out && (p.Type == "JavaScriptRuntimeSafeHandle" || p.Type == "JavaScriptContextSafeHandle" || p.Type == "JavaScriptValueSafeHandle" || p.Type == "JavaScriptPropertyIdSafeHandle"));
+            get
+            {
+                return Parameters.FindAll(p =>
+                    p.Direction == ParameterDirection.Out &&
+                        (
+                            p.Type == "JavaScriptRuntimeSafeHandle" ||
+                            p.Type == "JavaScriptContextSafeHandle" ||
+                            p.Type == "JavaScriptValueSafeHandle" ||
+                            p.Type == "JavaScriptPropertyIdSafeHandle"
+                        )
+                );
+            }
         }
     }
 }

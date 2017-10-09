@@ -1,0 +1,34 @@
+﻿namespace BaristaLabs.BaristaCore.JavaScript
+{
+	using Internal;
+
+	using System;
+	using System.Runtime.InteropServices;
+
+    {{AccessModifier}} class {{ClassName}} : {{Interfaces}}
+    {
+        {{#each Externs}}
+        public {{InterfaceExtern.ReturnParameter.Type}} {{InterfaceExtern.Name}}({{InterfaceExtern.Signature}})
+        {
+            {{#unless InterfaceExtern.ReturnParameter.IsVoid}}
+            {{InterfaceExtern.ReturnParameter.Type}} {{InterfaceExtern.ReturnParameter.Name}};
+            {{/unless}}
+            Errors.ThrowIfError(LibChakraCore.{{Name}}({{CallSignature}}));
+            {{#each OutValueSafeHandles}}
+            {{Name}}.NativeFunctionSource = nameof(LibChakraCore.{{../Name}});
+            {{#unless IsJavaScriptRuntimeSafeHandle }}
+            if ({{Name}} != {{Type}}.Invalid)
+            {
+				uint valueRefCount;
+				Errors.ThrowIfError(LibChakraCore.JsAddRef({{Name}}, out valueRefCount));
+			}
+            {{/unless}}
+            {{/each}}
+            {{#unless InterfaceExtern.ReturnParameter.IsVoid}}
+            return {{InterfaceExtern.ReturnParameter.Name}};
+            {{/unless}}
+        }
+
+        {{/#each}}
+    }
+}
