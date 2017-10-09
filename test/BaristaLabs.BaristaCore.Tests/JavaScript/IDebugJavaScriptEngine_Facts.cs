@@ -227,7 +227,7 @@ fibonacci(50);
                             var nameHandle = Engine.JsGetProperty(objectHandle, namePropertyHandle);
                             var nameLength = Engine.JsGetStringLength(nameHandle);
 
-                            byte [] nameBuffer = new byte[nameLength];
+                            byte[] nameBuffer = new byte[nameLength];
                             var nameWritten = Engine.JsCopyString(nameHandle, nameBuffer, (ulong)nameLength);
                             firstStackObjectName = Encoding.UTF8.GetString(nameBuffer);
 
@@ -343,10 +343,10 @@ fibonacci(50);
 
                         //Break on the first line
                         Engine.JsDiagRequestAsyncBreak(runtimeHandle);
-                        
+
                         var finalResult = Engine.JsCallFunction(ss.FunctionHandle, new IntPtr[] { ss.FunctionHandle.DangerousGetHandle() }, 1);
                         handleType = Engine.JsGetValueType(finalResult);
-                        
+
                         //Fib = 51, first break = 1, step = 1. 51+1+1 = 53
                         Assert.Equal(53, calledCount);
 
