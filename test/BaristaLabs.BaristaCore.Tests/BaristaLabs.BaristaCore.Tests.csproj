@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <DebugType>portable</DebugType>
     <AssemblyName>BaristaLabs.BaristaCore.Tests</AssemblyName>
     <PackageId>BaristaLabs.BaristaCore.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <PackageTargetFallback>$(PackageTargetFallback);dotnet5.4;dnxcore50;portable-net451+win8</PackageTargetFallback>
-    <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion>2.0</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,12 +14,11 @@
     </None>
   </ItemGroup>
 
-  <Target Name="CopyChakraLibraries" AfterTargets="Compile">
+  <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
     <ItemGroup>
-      <ChakraCore Include="$(SolutionDir)\lib\ChakraCore\**\*" />
+      <ChakraCore Include="..\..\lib\ChakraCore\**\*" />
     </ItemGroup>
-    <Copy SourceFiles="@(ChakraCore)" DestinationFolder="$(TargetDir)\ChakraCore\%(RecursiveDir)">
-    </Copy>
+    <Copy SourceFiles="@(ChakraCore)" DestinationFolder="$(TargetDir)\ChakraCore\%(RecursiveDir)" />
   </Target>
 
   <ItemGroup>
@@ -28,11 +26,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
-    <PackageReference Include="xunit" Version="2.2.0" />
-    <PackageReference Include="Microsoft.CodeCoverage" Version="1.0.2" />
+    <PackageReference Include="xunit" Version="2.3.0" />
+    <PackageReference Include="Microsoft.CodeCoverage" Version="1.0.3" />
     <PackageReference Include="coveralls.net" Version="0.7.0" />
   </ItemGroup>
 

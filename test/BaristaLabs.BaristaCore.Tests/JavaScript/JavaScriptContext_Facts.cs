@@ -52,7 +52,7 @@
                     using (ctx.Scope())
                     {
                         Assert.NotNull(ctx.False);
-                        Assert.Equal(false, ctx.False);
+                        Assert.False(ctx.False);
                     }
                 }
             }
@@ -83,7 +83,7 @@
                     using (ctx.Scope())
                     {
                         Assert.NotNull(ctx.True);
-                        Assert.Equal(true, ctx.True);
+                        Assert.True(ctx.True);
                     }
                 }
             }
