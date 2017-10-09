@@ -10,17 +10,13 @@
         {{#each Externs}}
         public {{InterfaceExtern.ReturnParameter.Type}} {{InterfaceExtern.Name}}({{InterfaceExtern.Signature}})
         {
-            {{#unless InterfaceExtern.ReturnParameter.IsVoid}}
-            {{InterfaceExtern.ReturnParameter.Type}} {{InterfaceExtern.ReturnParameter.Name}};
-            {{/unless}}
             Errors.ThrowIfError(LibChakraCore.{{Name}}({{CallSignature}}));
             {{#each OutValueSafeHandles}}
             {{Name}}.NativeFunctionSource = nameof(LibChakraCore.{{../Name}});
             {{#unless IsJavaScriptRuntimeSafeHandle }}
             if ({{Name}} != {{Type}}.Invalid)
             {
-				uint valueRefCount;
-				Errors.ThrowIfError(LibChakraCore.JsAddRef({{Name}}, out valueRefCount));
+				Errors.ThrowIfError(LibChakraCore.JsAddRef({{Name}}, out uint valueRefCount));
 			}
             {{/unless}}
             {{/each}}

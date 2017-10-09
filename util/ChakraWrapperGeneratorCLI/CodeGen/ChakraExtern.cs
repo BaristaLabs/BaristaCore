@@ -107,10 +107,18 @@
             get
             {
                 StringBuilder sb = new StringBuilder();
+                bool isFirstOut = true;
                 foreach (var p in Parameters)
                 {
                     if (p.Direction == ParameterDirection.Out)
-                        sb.Append("out ");
+                    {
+                        if (isFirstOut)
+                            sb.Append($"out {p.Type} ");
+                        else
+                            sb.Append($"out ");
+
+                        isFirstOut = false;
+                    }
                     else if (p.Direction == ParameterDirection.Ref)
                         sb.Append("ref ");
 
