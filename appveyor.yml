@@ -21,9 +21,9 @@ test_script:
   - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
 after_test:
   # Use vstest to gather code coverage and submit to coveralls via coveralls.net (test project dependency)
-  - ps: $vstest = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\CommonExtensions\Microsoft\TestWindow\VSTest.Console.exe"
-  - ps: '& $vstest "$env:APPVEYOR_BUILD_FOLDER\test\BaristaLabs.BaristaCore.Tests\BaristaLabs.BaristaCore.Tests.csproj" /enablecodecoverage /framework:FrameworkCore10'
-  - ps: $coveralls = "$env:HOMEPATH\.nuget\packages\coveralls.net\0.7.0\tools\csmacnz.coveralls.exe"
-  - ps: '& $coveralls --opencover -i opencoverCoverage.xml --useRelativePaths --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID'
+  # - ps: $vstest = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\CommonExtensions\Microsoft\TestWindow\VSTest.Console.exe"
+  # - ps: '& $vstest "$env:APPVEYOR_BUILD_FOLDER\test\BaristaLabs.BaristaCore.Tests\BaristaLabs.BaristaCore.Tests.csproj" /enablecodecoverage /framework:FrameworkCore10'
+  # - ps: $coveralls = "$env:HOMEPATH\.nuget\packages\coveralls.net\0.7.0\tools\csmacnz.coveralls.exe"
+  # - ps: '& $coveralls --opencover -i opencoverCoverage.xml --useRelativePaths --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID'
 cache:
   - '%USERPROFILE%\.nuget\packages'
