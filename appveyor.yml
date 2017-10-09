@@ -6,7 +6,6 @@ environment:
   FRAMEWORK: netcoreapp2.0
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
   COVERALLS_REPO_TOKEN: 7c1iHfH8bvABxL9ePXzvukfeVYM2txph8
-  Platform: x64
 init:
   - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
 install:
