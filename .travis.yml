@@ -44,9 +44,11 @@ before_install:
   - export CHAKRALIBS="$HOME/$CHAKRACORE_PATH/libs/"
   - if test "$TRAVIS_OS_NAME" == "osx"; then
       sw_vers -productVersion;
-      mkdir -p $DOTNET_SDK_OSX;
-      export DOTNET_SDK_URL="https://download.microsoft.com/download/0/F/D/0FD852A4-7EA1-4E2A-983A-0484AC19B92C/dotnet-sdk-2.0.0-osx-x64.pkg";
-      curl -L $DOTNET_SDK_URL -o "$DOTNET_SDK_OSX/dotnet-sdk-2.0.0-osx-x64.pkg";
+      if [ ! -d "$DOTNET_SDK_OSX" ]; then
+        mkdir -p "$DOTNET_SDK_OSX";
+        export DOTNET_SDK_URL="https://download.microsoft.com/download/0/F/D/0FD852A4-7EA1-4E2A-983A-0484AC19B92C/dotnet-sdk-2.0.0-osx-x64.pkg";
+        curl -L "$DOTNET_SDK_URL" -o "$DOTNET_SDK_OSX/dotnet-sdk-2.0.0-osx-x64.pkg";
+      fi
       sudo installer -pkg "$DOTNET_SDK_OSX/dotnet-sdk-2.0.0-osx-x64.pkg" -target "/";
       eval $(/usr/libexec/path_helper -s);
       if [ ! -d "$CHAKRALIBS" ]; then
@@ -65,11 +67,11 @@ before_install:
       sudo apt-get update;
       sudo apt-get install -y dotnet-sdk-2.0.0;
       if [ ! -d "$CHAKRALIBS" ]; then
-        curl -L https://aka.ms/chakracore/cc_linux_x64_1_7_3 -o chakracore;
+        curl -L "https://aka.ms/chakracore/cc_linux_x64_1_7_3" -o chakracore;
         tar -xvzf chakracore;
-        mkdir -p $CHAKRALIBS;
-        cp ./ChakraCoreFiles/lib/libChakraCore.so $CHAKRALIBS;
-     fi
+        mkdir -p "$CHAKRALIBS";
+        cp "./ChakraCoreFiles/lib/libChakraCore.so" "$CHAKRALIBS";
+      fi
     fi
 
 install:
