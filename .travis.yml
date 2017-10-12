@@ -44,7 +44,7 @@ before_install:
       sw_vers -productVersion;
       brew update;
       brew tap caskroom/cask;
-      brew cask install dotnet-sdk;
+      brew cask install dotnet-sdk --ignore-dependencies;
       eval $(/usr/libexec/path_helper -s);
       if [ ! -d "$CHAKRALIBS" ]; then
         curl -L https://aka.ms/chakracore/cc_osx_x64_1_7_3 -o chakracore;
