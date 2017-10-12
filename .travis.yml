@@ -42,15 +42,9 @@ before_install:
   - export CHAKRALIBS="$HOME/$CHAKRACORE_PATH/libs/"
   - if test "$TRAVIS_OS_NAME" == "osx"; then
       sw_vers -productVersion;
-      export DOTNET_INSTALL_DIR="$PWD/.dotnetcli";
-      mkdir $DOTNET_INSTALL_DIR;
-      brew install openssl;
-      ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/;
-      ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/;
-      export DOTNET_SDK_URL="https://dotnetcli.blob.core.windows.net/dotnet/Runtime/release/2.0.0/dotnet-runtime-latest-osx-x64.tar.gz";
-      curl -L $DOTNET_SDK_URL -o dotnet_package;
-      tar -xvzf dotnet_package -C $DOTNET_INSTALL_DIR;
-      export PATH="$DOTNET_INSTALL_DIR:$PATH";
+      brew tap caskroom/cask;
+      brew cask install dotnet-sdk;
+      eval $(/usr/libexec/path_helper -s);
       if [ ! -d "$CHAKRALIBS" ]; then
         curl -L https://aka.ms/chakracore/cc_osx_x64_1_7_3 -o chakracore;
         tar -xvzf chakracore;
