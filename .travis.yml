@@ -44,44 +44,33 @@ before_install:
       sw_vers -productVersion;
       export DOTNET_INSTALL_DIR="$PWD/.dotnetcli";
       mkdir $DOTNET_INSTALL_DIR;
-      brew install icu4c openssl;
+      brew install openssl;
       ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/;
       ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/;
-      export DOTNET_SDK_URL="https://download.microsoft.com/download/0/F/D/0FD852A4-7EA1-4E2A-983A-0484AC19B92C/dotnet-sdk-2.0.0-osx-gs-x64.pkg";
+      export DOTNET_SDK_URL="https://dotnetcli.blob.core.windows.net/dotnet/Runtime/release/2.0.0/dotnet-runtime-latest-osx-x64.tar.gz";
       curl -L $DOTNET_SDK_URL -o dotnet_package;
       tar -xvzf dotnet_package -C $DOTNET_INSTALL_DIR;
       export PATH="$DOTNET_INSTALL_DIR:$PATH";
       if [ ! -d "$CHAKRALIBS" ]; then
-        xcode-select --install;
-        brew install cmake icu4c;
-        git clone -b release/1.7 https://github.com/Microsoft/ChakraCore;
-        cd ChakraCore;
-        ./build.sh --icu=/usr/local/opt/icu4c/include;
-        cd ..;
+        curl -L https://aka.ms/chakracore/cc_osx_x64_1_7_3 -o chakracore;
+        tar -xvzf chakracore;
         mkdir -p $CHAKRALIBS;
-        cp ./ChakraCore/out/Release/bin/ChakraCore/libChakraCore.dylib $CHAKRALIBS;
+        cp ./ChakraCoreFiles/lib/libChakraCore.dylib $CHAKRALIBS;
       fi
     else
       lsb_release -a;
       which $cc;
+      sudo apt-get install curl;
       curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg;
-      sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
-      sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-trusty-prod trusty main" > /etc/apt/sources.list.d/dotnetdev.list'
+      sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg;
+      sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-trusty-prod trusty main" > /etc/apt/sources.list.d/dotnetdev.list';
       sudo apt-get update;
-      sudo apt-get install -y build-essential clang-3.8 libunwind8 libunwind8-dev libicu-dev dotnet-sdk-2.0.0;
+      sudo apt-get install -y dotnet-sdk-2.0.0;
       if [ ! -d "$CHAKRALIBS" ]; then
-        export CMAKE_INSTALL_DIR="$PWD/.cmake";
-        mkdir $CMAKE_INSTALL_DIR;
-        wget https://cmake.org/files/v3.7/cmake-3.7.0-Linux-x86_64.tar.gz;
-        tar --strip-components=1 -xvzf ./cmake-3.7.0-Linux-x86_64.tar.gz -C $CMAKE_INSTALL_DIR;
-        export PATH="$CMAKE_INSTALL_DIR/bin:$PATH";
-        cmake --version;
-        git clone -b release/1.7 https://github.com/Microsoft/ChakraCore;
-        cd ChakraCore;
-        ./build.sh --cxx=/usr/bin/clang++-3.8 --cc=/usr/bin/clang-3.8;
-        cd ..;
+        curl -L https://aka.ms/chakracore/cc_linux_x64_1_7_3 -o chakracore;
+        tar -xvzf chakracore;
         mkdir -p $CHAKRALIBS;
-        cp ./ChakraCore/out/Release/bin/ChakraCore/libChakraCore.so $CHAKRALIBS;
+        cp ./ChakraCoreFiles/lib/libChakraCore.so $CHAKRALIBS;
      fi
     fi
 
