@@ -42,6 +42,7 @@ before_install:
   - export CHAKRALIBS="$HOME/$CHAKRACORE_PATH/libs/"
   - if test "$TRAVIS_OS_NAME" == "osx"; then
       sw_vers -productVersion;
+      brew update;
       brew tap caskroom/cask;
       brew cask install dotnet-sdk;
       eval $(/usr/libexec/path_helper -s);
