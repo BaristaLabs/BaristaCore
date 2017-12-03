@@ -123,6 +123,44 @@
       <Parameter type="IntPtr" name="hostInfo" direction="Out" />
     </Parameters>
   </Export>
+  <Export name="JsGetAndClearExceptionWithMetadata" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Returns metadata relating to the exception that caused the runtime of the current context
+///     to be in the exception state and resets the exception state for that runtime. The metadata
+///     includes a reference to the exception itself.
+/// </summary>
+/// <remarks>
+///     <para>
+///     If the runtime of the current context is not in an exception state, this API will return
+///     <c>JsErrorInvalidArgument</c>. If the runtime is disabled, this will return an exception
+///     indicating that the script was terminated, but it will not clear the exception (the
+///     exception will be cleared if the runtime is re-enabled using
+///     <c>JsEnableRuntimeExecution</c>).
+///     </para>
+///     <para>
+///     The metadata value is a javascript object with the following properties: <c>exception</c>, the
+///     thrown exception object; <c>line</c>, the 0 indexed line number where the exception was thrown;
+///     <c>column</c>, the 0 indexed column number where the exception was thrown; <c>length</c>, the
+///     source-length of the cause of the exception; <c>source</c>, a string containing the line of
+///     source code where the exception was thrown; and <c>url</c>, a string containing the name of
+///     the script file containing the code that threw the exception.
+///     </para>
+///     <para>
+///     Requires an active script context.
+///     </para>
+/// </remarks>
+/// <param name="metadata">The exception metadata for the runtime of the current context.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="metadata" direction="Out" />
+    </Parameters>
+  </Export>
   <Export name="JsCreateString" target="Common" source="ChakraCore.h">
     <Description>
       <![CDATA[
@@ -130,6 +168,9 @@
 ///     Create JavascriptString variable from ASCII or Utf8 string
 /// </summary>
 /// <remarks>
+///     <para>
+///        Requires an active script context.
+///     </para>
 ///     <para>
 ///         Input string can be either ASCII or Utf8
 ///     </para>
@@ -155,6 +196,9 @@
 ///     Create JavascriptString variable from Utf16 string
 /// </summary>
 /// <remarks>
+///     <para>
+///        Requires an active script context.
+///     </para>
 ///     <para>
 ///         Expects Utf16 string
 ///     </para>
@@ -183,13 +227,13 @@
 ///     <para>
 ///         When size of the `buffer` is unknown,
 ///         `buffer` argument can be nullptr.
-///         In that case, `written` argument will return the length needed.
+///         In that case, `length` argument will return the length needed.
 ///     </para>
 /// </remarks>
 /// <param name="value">JavascriptString value</param>
 /// <param name="buffer">Pointer to buffer</param>
 /// <param name="bufferSize">Buffer size</param>
-/// <param name="written">Total number of characters written</param>
+/// <param name="length">Total number of characters needed or written</param>
 /// <returns>
 ///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 /// </returns>
@@ -199,7 +243,7 @@
       <Parameter type="JsValueRef" name="value" />
       <Parameter type="char*" name="buffer" />
       <Parameter type="size_t" name="bufferSize" />
-      <Parameter type="size_t" name="written" direction="Out" />
+      <Parameter type="size_t" name="length" direction="Out" />
     </Parameters>
   </Export>
   <Export name="JsCopyStringUtf16" target="Common" source="ChakraCore.h">
@@ -518,6 +562,199 @@
       <Parameter type="JsValueRef" name="promise" direction="Out" />
       <Parameter type="JsValueRef" name="resolveFunction" direction="Out" />
       <Parameter type="JsValueRef" name="rejectFunction" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsCreateWeakReference" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Creates a weak reference to a value.
+/// </summary>
+/// <param name="value">The value to be referenced.</param>
+/// <param name="weakRef">Weak reference to the value.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="IntPtr" name="weakRef" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsGetWeakReferenceValue" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Gets a strong reference to the value referred to by a weak reference.
+/// </summary>
+/// <param name="weakRef">A weak reference.</param>
+/// <param name="value">Reference to the value, or <c>JS_INVALID_REFERENCE</c> if the value is
+///     no longer available.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsWeakRef" name="weakRef" />
+      <Parameter type="JsValueRef" name="value" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsCreateSharedArrayBufferWithSharedContent" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Creates a Javascript SharedArrayBuffer object with shared content get from JsGetSharedArrayBufferContent.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="sharedContents">
+///     The storage object of a SharedArrayBuffer which can be shared between multiple thread.
+/// </param>
+/// <param name="result">The new SharedArrayBuffer object.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsSharedArrayBufferContentHandle" name="sharedContents" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsGetSharedArrayBufferContent" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Get the storage object from a SharedArrayBuffer.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="sharedArrayBuffer">The SharedArrayBuffer object.</param>
+/// <param name="sharedContents">
+///     The storage object of a SharedArrayBuffer which can be shared between multiple thread.
+///     User should call JsReleaseSharedArrayBufferContentHandle after finished using it.
+/// </param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="sharedArrayBuffer" />
+      <Parameter type="IntPtr" name="sharedContents" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsReleaseSharedArrayBufferContentHandle" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Decrease the reference count on a SharedArrayBuffer storage object.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="sharedContents">
+///     The storage object of a SharedArrayBuffer which can be shared between multiple thread.
+/// </param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsSharedArrayBufferContentHandle" name="sharedContents" />
+    </Parameters>
+  </Export>
+  <Export name="JsHasOwnProperty" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Determines whether an object has a non-inherited property.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="object">The object that may contain the property.</param>
+/// <param name="propertyId">The ID of the property.</param>
+/// <param name="hasOwnProperty">Whether the object has the non-inherited property.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsPropertyIdRef" name="propertyId" />
+      <Parameter type="bool" name="hasOwnProperty" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsCopyStringOneByte" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Write JS string value into char string buffer without a null terminator
+/// </summary>
+/// <remarks>
+///     <para>
+///         When size of the `buffer` is unknown,
+///         `buffer` argument can be nullptr.
+///         In that case, `written` argument will return the length needed.
+///     </para>
+///     <para>
+///         When start is out of range or &lt; 0, returns JsErrorInvalidArgument
+///         and `written` will be equal to 0.
+///         If calculated length is 0 (It can be due to string length or `start`
+///         and length combination), then `written` will be equal to 0 and call
+///         returns JsNoError
+///     </para>
+///     <para>
+///         The JS string `value` will be converted one utf16 code point at a time,
+///         and if it has code points that do not fit in one byte, those values
+///         will be truncated.
+///     </para>
+/// </remarks>
+/// <param name="value">JavascriptString value</param>
+/// <param name="start">Start offset of buffer</param>
+/// <param name="length">Number of characters to be written</param>
+/// <param name="buffer">Pointer to buffer</param>
+/// <param name="written">Total number of characters written</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="int" name="start" />
+      <Parameter type="int" name="length" />
+      <Parameter type="char*" name="buffer" />
+      <Parameter type="size_t" name="written" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsGetDataViewInfo" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Obtains frequently used properties of a data view.
+/// </summary>
+/// <param name="dataView">The data view instance.</param>
+/// <param name="arrayBuffer">The ArrayBuffer backstore of the view.</param>
+/// <param name="byteOffset">The offset in bytes from the start of arrayBuffer referenced by the array.</param>
+/// <param name="byteLength">The number of bytes in the array.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="dataView" />
+      <Parameter type="JsValueRef" name="arrayBuffer" direction="Out" />
+      <Parameter type="uint" name="byteOffset" direction="Out" />
+      <Parameter type="uint" name="byteLength" direction="Out" />
     </Parameters>
   </Export>
   <!--
@@ -3207,6 +3444,7 @@
 ///     - `JsParseScriptAttributeArrayBufferIsUtf16Encoded` when `expression` is Utf16 Encoded ArrayBuffer
 ///     - `JsParseScriptAttributeLibraryCode` has no use for this function and has similar effect with `JsParseScriptAttributeNone`
 /// </param>
+/// <param name="forceSetValueProp">Forces the result to contain the raw value of the expression result.</param>
 /// <param name="evalResult">Result of evaluation.</param>
 /// <remarks>
 ///     <para>
@@ -3245,6 +3483,7 @@
       <Parameter type="JsValueRef" name="expression" />
       <Parameter type="uint" name="stackFrameIndex" />
       <Parameter type="JsParseScriptAttributes" name="parseAttributes" />
+      <Parameter type="bool" name="forceSetValueProp" />
       <Parameter type="JsValueRef" name="evalResult" direction="Out" />
     </Parameters>
   </Export>
@@ -3395,7 +3634,7 @@
     <Parameters>
       <Parameter type="string" name="script" />
       <Parameter type="byte[]" name="buffer" />
-      <Parameter type="ulong" name="bufferSize" direction="Ref" />
+      <Parameter type="uint" name="bufferSize" direction="Ref" />
     </Parameters>
   </Export>
   <Export name="JsParseSerializedScriptWithCallback" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
