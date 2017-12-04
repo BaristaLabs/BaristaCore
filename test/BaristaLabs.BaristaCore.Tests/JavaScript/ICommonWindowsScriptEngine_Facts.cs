@@ -155,10 +155,10 @@
 
                     CommonWindowsEngine.JsSerializeScript(script, buffer, ref bufferSize);
 
-                    JavaScriptSerializedScriptLoadSourceCallback loadCallback = (JavaScriptSourceContext sourceContext, out string scriptBuffer) =>
+                    JavaScriptSerializedScriptLoadSourceCallback loadCallback = (JavaScriptSourceContext sourceContext, out StringBuilder scriptBuffer) =>
                     {
                         loaded = true;
-                        scriptBuffer = "script";
+                        scriptBuffer = new StringBuilder(script);
                         return true;
                     };
 
@@ -172,12 +172,14 @@
 
                     var handleType = Engine.JsGetValueType(fnHandle);
                     Assert.True(handleType == JavaScriptValueType.Function);
-                    var fnStringHandle = Engine.JsConvertValueToString(fnHandle);
-                    //var stringPtr = CommonWindowsEngine.JsStringToPointer(fnStringHandle, out length);
-                    //Assert.True(stringPtr != IntPtr.Zero);
-                    //Assert.True(length > 0);
 
-                    //fnStringHandle.Dispose();
+                    //Get the string representation of the function. This triggers the load callback.
+                    var fnStringHandle = Engine.JsConvertValueToString(fnHandle);
+                    var stringPtr = CommonWindowsEngine.JsStringToPointer(fnStringHandle, out ulong length);
+                    Assert.True(stringPtr != IntPtr.Zero);
+                    Assert.True(length > 0);
+
+                    fnStringHandle.Dispose();
                     fnHandle.Dispose();
                 }
                 Engine.JsCollectGarbage(runtimeHandle);
@@ -217,10 +219,10 @@
 
                     CommonWindowsEngine.JsSerializeScript(script, buffer, ref bufferSize);
 
-                    JavaScriptSerializedScriptLoadSourceCallback loadCallback = (JavaScriptSourceContext sourceContext, out string scriptBuffer) =>
+                    JavaScriptSerializedScriptLoadSourceCallback loadCallback = (JavaScriptSourceContext sourceContext, out StringBuilder scriptBuffer) =>
                     {
                         loaded = true;
-                        scriptBuffer = script;
+                        scriptBuffer = new StringBuilder(script);
                         return true;
                     };
 
@@ -229,15 +231,15 @@
                         unloaded = true;
                     };
 
-                    //var resultHandle = CommonWindowsEngine.JsRunSerializedScriptWithCallback(loadCallback, unloadCallback, buffer, JavaScriptSourceContext.GetNextSourceContext(), sourceUrl);
-                    //Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, resultHandle);
+                    var resultHandle = CommonWindowsEngine.JsRunSerializedScriptWithCallback(loadCallback, unloadCallback, buffer, JavaScriptSourceContext.GetNextSourceContext(), sourceUrl);
+                    Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, resultHandle);
 
-                    //var handleType = Engine.JsGetValueType(resultHandle);
-                    //Assert.True(handleType == JavaScriptValueType.Number);
+                    var handleType = Engine.JsGetValueType(resultHandle);
+                    Assert.True(handleType == JavaScriptValueType.Number);
 
-                    //Assert.Equal(42, Engine.JsNumberToInt(resultHandle));
+                    Assert.Equal(42, Engine.JsNumberToInt(resultHandle));
 
-                    //resultHandle.Dispose();
+                    resultHandle.Dispose();
                 }
                 Engine.JsCollectGarbage(runtimeHandle);
             }
