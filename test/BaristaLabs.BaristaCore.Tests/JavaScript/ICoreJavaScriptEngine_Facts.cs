@@ -434,11 +434,17 @@
         {
             var mainModuleName = "";
             var mainModuleSource = @"
-import x from 'foo.js'
-return x();
+import cube from 'foo';
+(function(global) {
+  'use strict';
+  global.result = cube(3)
+}((1,eval)('this')));
 ";
+
             var fooModuleSource = @"
-export default function() { return ""Hello, World.""; }
+export default function cube(x) {
+  return x * x * x;
+}
 ";
             var mainModuleReady = false;
             IntPtr childModuleHandle = IntPtr.Zero;
@@ -452,7 +458,23 @@ export default function() { return ""Hello, World.""; }
                     return false;
                 }
 
-                Assert.True(moduleName == "foo.js");
+                Assert.True(moduleName == "foo");
+                var moduleRecord = Engine.JsInitializeModuleRecord(referencingModule, new JavaScriptValueSafeHandle(specifier));
+                dependentModuleRecord = moduleRecord;
+                childModuleHandle = moduleRecord;
+                return false;
+            };
+
+            JavaScriptFetchImportedModuleFromScriptCallback fetchFromScriptCallback = (IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModuleRecord) =>
+            {
+                var moduleName = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, new JavaScriptValueSafeHandle(specifier));
+                if (string.IsNullOrWhiteSpace(moduleName))
+                {
+                    dependentModuleRecord = referencingModule;
+                    return false;
+                }
+
+                Assert.True(moduleName == "foo");
                 var moduleRecord = Engine.JsInitializeModuleRecord(referencingModule, new JavaScriptValueSafeHandle((IntPtr)specifier));
                 dependentModuleRecord = moduleRecord;
                 childModuleHandle = moduleRecord;
@@ -461,6 +483,13 @@ export default function() { return ""Hello, World.""; }
 
             JavaScriptNotifyModuleReadyCallback notifyCallback = (IntPtr referencingModule, IntPtr exceptionVar) =>
             {
+                if (exceptionVar != IntPtr.Zero)
+                {
+                    var type = Engine.JsGetValueType(new JavaScriptValueSafeHandle(exceptionVar));
+                    var ex = Extensions.IJavaScriptEngineExtensions.Stringify(Engine, new JavaScriptValueSafeHandle(exceptionVar));
+                    Assert.True(ex == "{}", ex);
+                }
+
                 mainModuleReady = true;
                 return false;
             };
@@ -471,10 +500,12 @@ export default function() { return ""Hello, World.""; }
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    //Initialize the "main" module (Empty-string specifier.
+                    //Initialize the "main" module (Empty-string specifier).
                     var moduleNameHandle = Engine.JsCreateString(mainModuleName, (ulong)mainModuleName.Length);
                     var mainModuleHandle = Engine.JsInitializeModuleRecord(IntPtr.Zero, moduleNameHandle);
+                    Assert.True(mainModuleHandle != IntPtr.Zero);
 
+                    //Set the fetch callback.
                     IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchCallback);
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, fetchCallbackPtr);
 
@@ -482,6 +513,15 @@ export default function() { return ""Hello, World.""; }
                     var moduleHostPtr = Engine.JsGetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback);
                     Assert.Equal(fetchCallbackPtr, moduleHostPtr);
 
+                    //Set the fetchScript callback
+                    IntPtr fetchFromScriptCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchFromScriptCallback);
+                    Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleFromScriptCallback, fetchFromScriptCallbackPtr);
+
+                    //Ensure the callback was set properly.
+                    moduleHostPtr = Engine.JsGetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleFromScriptCallback);
+                    Assert.Equal(fetchFromScriptCallbackPtr, moduleHostPtr);
+
+                    //Set the notify callback
                     IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate(notifyCallback);
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, notifyCallbackPtr);
 
@@ -489,6 +529,8 @@ export default function() { return ""Hello, World.""; }
                     moduleHostPtr = Engine.JsGetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback);
                     Assert.Equal(notifyCallbackPtr, moduleHostPtr);
 
+
+                    //Errrhmmm.. not sure what this is.
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.HostDefined, moduleNameHandle.DangerousGetHandle());
 
                     //Ensure the callback was set properly.
@@ -497,27 +539,28 @@ export default function() { return ""Hello, World.""; }
 
                     // ParseModuleSource is sync, while additional fetch & evaluation are async.
                     var scriptBuffer = Encoding.UTF8.GetBytes(mainModuleSource);
-                    var errorHandle = Engine.JsParseModuleSource(mainModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)mainModuleSource.Length, JavaScriptParseModuleSourceFlags.JsParseModuleSourceFlags_DataIsUTF8);
+                    var errorHandle = Engine.JsParseModuleSource(mainModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)mainModuleSource.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
                     Assert.True(errorHandle == JavaScriptValueSafeHandle.Invalid);
                     Assert.True(childModuleHandle != IntPtr.Zero);
                     Assert.False(mainModuleReady);
 
                     //Parse the foo now.
                     scriptBuffer = Encoding.UTF8.GetBytes(fooModuleSource);
-                    errorHandle = Engine.JsParseModuleSource(childModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)fooModuleSource.Length, JavaScriptParseModuleSourceFlags.JsParseModuleSourceFlags_DataIsUTF8);
+                    errorHandle = Engine.JsParseModuleSource(childModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)fooModuleSource.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
                     Assert.True(errorHandle == JavaScriptValueSafeHandle.Invalid);
 
                     Assert.True(mainModuleReady);
 
                     //Now we're ready, evaluate the main module.
-                    var resultHandle = Engine.JsModuleEvaluation(mainModuleHandle);
-                    Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
+                    var evalResultHandle = Engine.JsModuleEvaluation(mainModuleHandle);
+                    Assert.True(evalResultHandle != JavaScriptValueSafeHandle.Invalid);
 
+                    var resultHandle = Extensions.IJavaScriptEngineExtensions.GetGlobalVariable(Engine, "result");
                     var handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.String);
+                    Assert.True(handleType == JavaScriptValueType.Number);
 
-                    var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, resultHandle);
-                    Assert.Equal("Hello, World.", result);
+                    var result = Engine.JsNumberToInt(resultHandle);
+                    Assert.Equal(27, result);
                 }
             }
         }

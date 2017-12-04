@@ -51,7 +51,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return result;
         }
 
-        public void JsSerializeScript(string script, byte[] buffer, ref ulong bufferSize)
+        public void JsSerializeScript(string script, byte[] buffer, ref uint bufferSize)
         {
             Errors.ThrowIfError(LibChakraCore.JsSerializeScript(script, buffer, ref bufferSize));
         }

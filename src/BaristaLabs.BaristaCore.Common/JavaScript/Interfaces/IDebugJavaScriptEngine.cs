@@ -366,10 +366,13 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     - `JsParseScriptAttributeArrayBufferIsUtf16Encoded` when `expression` is Utf16 Encoded ArrayBuffer
         ///     - `JsParseScriptAttributeLibraryCode` has no use for this function and has similar effect with `JsParseScriptAttributeNone`
         /// </param>
+        /// <param name="forceSetValueProp">
+        ///     Forces the result to contain the raw value of the expression result.
+        /// </param>
         /// <returns>
         ///     Result of evaluation.
         /// </returns>
-        JavaScriptValueSafeHandle JsDiagEvaluate(JavaScriptValueSafeHandle expression, uint stackFrameIndex, JavaScriptParseScriptAttributes parseAttributes);
+        JavaScriptValueSafeHandle JsDiagEvaluate(JavaScriptValueSafeHandle expression, uint stackFrameIndex, JavaScriptParseScriptAttributes parseAttributes, bool forceSetValueProp);
 
     }
 }

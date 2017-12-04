@@ -259,7 +259,7 @@ fibonacci(50);
                         else
                         {
                             var evalScript = Engine.JsCreateString("num", (ulong)"num".Length);
-                            var numHandle = Engine.JsDiagEvaluate(evalScript, 0, JavaScriptParseScriptAttributes.None);
+                            var numHandle = Engine.JsDiagEvaluate(evalScript, 0, JavaScriptParseScriptAttributes.None, false);
 
                             var valuePropertyHandle = Engine.JsCreatePropertyId("value", (ulong)"value".Length);
                             var valueHandle = Engine.JsGetProperty(numHandle, valuePropertyHandle);

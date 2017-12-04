@@ -112,7 +112,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     On entry, the size of the buffer, in bytes; on exit, the size of the buffer, in bytes,
         ///     required to hold the serialized script.
         /// </param>
-        void JsSerializeScript(string script, byte[] buffer, ref ulong bufferSize);
+        void JsSerializeScript(string script, byte[] buffer, ref uint bufferSize);
 
         /// <summary>
         ///   Parses a serialized script and returns a function representing the script. Provides the ability to lazy load the script source only if/when it is needed.

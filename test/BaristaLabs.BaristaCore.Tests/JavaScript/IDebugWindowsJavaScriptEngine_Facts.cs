@@ -59,7 +59,7 @@ moose;
                     JavaScriptDiagDebugEventCallback callback = (JavaScriptDiagDebugEventType eventType, IntPtr eventData, IntPtr callbackState) =>
                     {
                         var evalScript = Engine.JsCreateString("i", (ulong)"i".Length);
-                        var evalResultHandle = Engine.JsDiagEvaluate(evalScript, 0, JavaScriptParseScriptAttributes.None);
+                        var evalResultHandle = Engine.JsDiagEvaluate(evalScript, 0, JavaScriptParseScriptAttributes.None, false);
                         
                         var handleType = Engine.JsGetValueType(evalResultHandle);
                         Assert.Equal(JavaScriptValueType.Object, handleType);

@@ -183,15 +183,12 @@
         internal static T CreateJavaScriptValueFromHandle<T>(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle valueHandle)
             where T : JavaScriptValue
         {
-            //TODO: Come C# 7.0, change this to a type-based switch statement.
-
-            switch(typeof(T).ToString())
+            switch(typeof(T))
             {
-                case "JavaScriptFunction":
+                case Type t when t == typeof(JavaScriptFunction):
                     return new JavaScriptFunction(engine, context, valueHandle) as T;
                 default:
                     throw new NotImplementedException($"Error Creating JavaScript Value: The Type '{typeof(T).ToString()}' is unknown, invalid, or has not been implemented.");
-
             }
         }
     }

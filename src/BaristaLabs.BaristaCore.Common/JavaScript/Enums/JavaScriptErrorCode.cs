@@ -127,9 +127,10 @@
         /// </summary>
         ModuleParsed,
         /// <summary>
-        ///     Module was evaluated already when JsModuleEvaluation is called.
+        ///     Argument passed to JsCreateWeakReference is a primitive that is not managed by the GC.
+        ///     No weak reference is required, the value will never be collected.
         /// </summary>
-        ModuleEvaluated,
+        NoWeakRefRequired,
         /// <summary>
         ///     Category of errors that relates to errors occurring within the engine itself.
         /// </summary>

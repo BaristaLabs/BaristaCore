@@ -99,5 +99,62 @@
                 scriptHandle.Dispose();
             }
         }
+
+        public static string Stringify(this IJavaScriptEngine jsrt, JavaScriptValueSafeHandle handle)
+        {
+            var globalObjectHandle = jsrt.JsGetGlobalObject();
+
+            try
+            {
+                var jsonObjectName = "JSON";
+                var jsonPropertyIdHandle = jsrt.JsCreatePropertyId(jsonObjectName, (ulong)jsonObjectName.Length);
+                var jsonPropertyHandle = jsrt.JsGetProperty(globalObjectHandle, jsonPropertyIdHandle);
+
+                var stringifyObjectName = "stringify";
+                var stringifyPropertyIdHandle = jsrt.JsCreatePropertyId(stringifyObjectName, (ulong)stringifyObjectName.Length);
+                var stringifyPropertyHandle = jsrt.JsGetProperty(jsonPropertyHandle, stringifyPropertyIdHandle);
+
+                JavaScriptValueSafeHandle resultHandle = default(JavaScriptValueSafeHandle);
+                try
+                {
+                    resultHandle = jsrt.JsCallFunction(stringifyPropertyHandle, new IntPtr[] { stringifyPropertyHandle.DangerousGetHandle(), handle.DangerousGetHandle() }, 2);
+                    var stringifyType = jsrt.JsGetValueType(resultHandle);
+                    return GetStringUtf8(jsrt, resultHandle, false);
+                }
+                finally
+                {
+                    if (resultHandle != default(JavaScriptValueSafeHandle))
+                        resultHandle.Dispose();
+
+                    stringifyPropertyHandle.Dispose();
+                    stringifyPropertyIdHandle.Dispose();
+
+                    jsonPropertyHandle.Dispose();
+                    jsonPropertyIdHandle.Dispose();
+                }
+            }
+            finally
+            {
+                globalObjectHandle.Dispose();
+            }
+        }
+
+        public static JavaScriptValueSafeHandle GetGlobalVariable(this IJavaScriptEngine jsrt, string name)
+        {
+            var globalObjectHandle = jsrt.JsGetGlobalObject();
+            var propertyIdHandle = default(JavaScriptPropertyIdSafeHandle);
+
+            try
+            {
+                propertyIdHandle = jsrt.JsCreatePropertyId(name, (ulong)name.Length);
+                return jsrt.JsGetProperty(globalObjectHandle, propertyIdHandle);
+            }
+            finally
+            {
+                if (propertyIdHandle != default(JavaScriptPropertyIdSafeHandle))
+                    propertyIdHandle.Dispose();
+                globalObjectHandle.Dispose();
+            }
+        }
     }
 }

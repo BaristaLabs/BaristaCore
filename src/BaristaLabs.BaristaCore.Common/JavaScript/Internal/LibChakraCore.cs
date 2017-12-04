@@ -119,9 +119,36 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         public static extern JavaScriptErrorCode JsGetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, out IntPtr hostInfo);
 
         /// <summary>
+        ///     Returns metadata relating to the exception that caused the runtime of the current context to be in the exception state and resets the exception state for that runtime. The metadata includes a reference to the exception itself.
+        /// </summary>
+        /// <remarks>
+        ///     If the runtime of the current context is not in an exception state, this API will return
+        ///     JsErrorInvalidArgument. If the runtime is disabled, this will return an exception
+        ///     indicating that the script was terminated, but it will not clear the exception (the
+        ///     exception will be cleared if the runtime is re-enabled using
+        ///     JsEnableRuntimeExecution).
+        ///     The metadata value is a javascript object with the following properties: exception, the
+        ///     thrown exception object; line, the 0 indexed line number where the exception was thrown;
+        ///     column, the 0 indexed column number where the exception was thrown; length, the
+        ///     source-length of the cause of the exception; source, a string containing the line of
+        ///     source code where the exception was thrown; and url, a string containing the name of
+        ///     the script file containing the code that threw the exception.
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="metadata">
+        ///     The exception metadata for the runtime of the current context.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsGetAndClearExceptionWithMetadata", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JavaScriptErrorCode JsGetAndClearExceptionWithMetadata(out JavaScriptValueSafeHandle metadata);
+
+        /// <summary>
         ///     Create JavascriptString variable from ASCII or Utf8 string
         /// </summary>
         /// <remarks>
+        ///     Requires an active script context.
         ///     Input string can be either ASCII or Utf8
         /// </remarks>
         /// <param name="content">
@@ -143,6 +170,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     Create JavascriptString variable from Utf16 string
         /// </summary>
         /// <remarks>
+        ///     Requires an active script context.
         ///     Expects Utf16 string
         /// </remarks>
         /// <param name="content">
@@ -166,7 +194,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         /// <remarks>
         ///     When size of the `buffer` is unknown,
         ///     `buffer` argument can be nullptr.
-        ///     In that case, `written` argument will return the length needed.
+        ///     In that case, `length` argument will return the length needed.
         /// </remarks>
         /// <param name="value">
         ///     JavascriptString value
@@ -177,14 +205,14 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         /// <param name="bufferSize">
         ///     Buffer size
         /// </param>
-        /// <param name="written">
-        ///     Total number of characters written
+        /// <param name="length">
+        ///     Total number of characters needed or written
         /// </param>
         /// <returns>
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCopyString", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public static extern JavaScriptErrorCode JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, ulong bufferSize, out ulong written);
+        public static extern JavaScriptErrorCode JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, ulong bufferSize, out ulong length);
 
         /// <summary>
         ///     Write string value into Utf16 string buffer
@@ -442,6 +470,168 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreatePromise", CallingConvention = CallingConvention.Cdecl)]
         public static extern JavaScriptErrorCode JsCreatePromise(out JavaScriptValueSafeHandle promise, out JavaScriptValueSafeHandle resolveFunction, out JavaScriptValueSafeHandle rejectFunction);
+
+        /// <summary>
+        ///     Creates a weak reference to a value.
+        /// </summary>
+        /// <param name="value">
+        ///     The value to be referenced.
+        /// </param>
+        /// <param name="weakRef">
+        ///     Weak reference to the value.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsCreateWeakReference", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JavaScriptErrorCode JsCreateWeakReference(JavaScriptValueSafeHandle value, out IntPtr weakRef);
+
+        /// <summary>
+        ///     Gets a strong reference to the value referred to by a weak reference.
+        /// </summary>
+        /// <param name="weakRef">
+        ///     A weak reference.
+        /// </param>
+        /// <param name="value">
+        ///     Reference to the value, or JS_INVALID_REFERENCE if the value is
+        ///     no longer available.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsGetWeakReferenceValue", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JavaScriptErrorCode JsGetWeakReferenceValue(IntPtr weakRef, out JavaScriptValueSafeHandle value);
+
+        /// <summary>
+        ///     Creates a Javascript SharedArrayBuffer object with shared content get from JsGetSharedArrayBufferContent.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="sharedContents">
+        ///     The storage object of a SharedArrayBuffer which can be shared between multiple thread.
+        /// </param>
+        /// <param name="result">
+        ///     The new SharedArrayBuffer object.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsCreateSharedArrayBufferWithSharedContent", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JavaScriptErrorCode JsCreateSharedArrayBufferWithSharedContent(JavaScriptValueSafeHandle sharedContents, out JavaScriptValueSafeHandle result);
+
+        /// <summary>
+        ///     Get the storage object from a SharedArrayBuffer.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="sharedArrayBuffer">
+        ///     The SharedArrayBuffer object.
+        /// </param>
+        /// <param name="sharedContents">
+        ///     The storage object of a SharedArrayBuffer which can be shared between multiple thread.
+        ///     User should call JsReleaseSharedArrayBufferContentHandle after finished using it.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsGetSharedArrayBufferContent", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JavaScriptErrorCode JsGetSharedArrayBufferContent(JavaScriptValueSafeHandle sharedArrayBuffer, out IntPtr sharedContents);
+
+        /// <summary>
+        ///     Decrease the reference count on a SharedArrayBuffer storage object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="sharedContents">
+        ///     The storage object of a SharedArrayBuffer which can be shared between multiple thread.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsReleaseSharedArrayBufferContentHandle", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JavaScriptErrorCode JsReleaseSharedArrayBufferContentHandle(JavaScriptValueSafeHandle sharedContents);
+
+        /// <summary>
+        ///     Determines whether an object has a non-inherited property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that may contain the property.
+        /// </param>
+        /// <param name="propertyId">
+        ///     The ID of the property.
+        /// </param>
+        /// <param name="hasOwnProperty">
+        ///     Whether the object has the non-inherited property.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsHasOwnProperty", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JavaScriptErrorCode JsHasOwnProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out bool hasOwnProperty);
+
+        /// <summary>
+        ///     Write JS string value into char string buffer without a null terminator
+        /// </summary>
+        /// <remarks>
+        ///     When size of the `buffer` is unknown,
+        ///     `buffer` argument can be nullptr.
+        ///     In that case, `written` argument will return the length needed.
+        ///     When start is out of range or < 0, returns JsErrorInvalidArgument
+        ///     and `written` will be equal to 0.
+        ///     If calculated length is 0 (It can be due to string length or `start`
+        ///     and length combination), then `written` will be equal to 0 and call
+        ///     returns JsNoError
+        ///     The JS string `value` will be converted one utf16 code point at a time,
+        ///     and if it has code points that do not fit in one byte, those values
+        ///     will be truncated.
+        /// </remarks>
+        /// <param name="value">
+        ///     JavascriptString value
+        /// </param>
+        /// <param name="start">
+        ///     Start offset of buffer
+        /// </param>
+        /// <param name="length">
+        ///     Number of characters to be written
+        /// </param>
+        /// <param name="buffer">
+        ///     Pointer to buffer
+        /// </param>
+        /// <param name="written">
+        ///     Total number of characters written
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsCopyStringOneByte", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JavaScriptErrorCode JsCopyStringOneByte(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer, out ulong written);
+
+        /// <summary>
+        ///     Obtains frequently used properties of a data view.
+        /// </summary>
+        /// <param name="dataView">
+        ///     The data view instance.
+        /// </param>
+        /// <param name="arrayBuffer">
+        ///     The ArrayBuffer backstore of the view.
+        /// </param>
+        /// <param name="byteOffset">
+        ///     The offset in bytes from the start of arrayBuffer referenced by the array.
+        /// </param>
+        /// <param name="byteLength">
+        ///     The number of bytes in the array.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsGetDataViewInfo", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JavaScriptErrorCode JsGetDataViewInfo(JavaScriptValueSafeHandle dataView, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength);
 
         /// <summary>
         ///     Creates a new runtime.
@@ -2641,6 +2831,9 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     - `JsParseScriptAttributeArrayBufferIsUtf16Encoded` when `expression` is Utf16 Encoded ArrayBuffer
         ///     - `JsParseScriptAttributeLibraryCode` has no use for this function and has similar effect with `JsParseScriptAttributeNone`
         /// </param>
+        /// <param name="forceSetValueProp">
+        ///     Forces the result to contain the raw value of the expression result.
+        /// </param>
         /// <param name="evalResult">
         ///     Result of evaluation.
         /// </param>
@@ -2650,7 +2843,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     Other error code for invalid parameters or API was not called at break
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagEvaluate", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagEvaluate(JavaScriptValueSafeHandle expression, uint stackFrameIndex, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle evalResult);
+        public static extern JavaScriptErrorCode JsDiagEvaluate(JavaScriptValueSafeHandle expression, uint stackFrameIndex, JavaScriptParseScriptAttributes parseAttributes, bool forceSetValueProp, out JavaScriptValueSafeHandle evalResult);
 
         /// <summary>
         ///     Parses a script and returns a function representing the script.
@@ -2774,7 +2967,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSerializeScript", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsSerializeScript(string script, byte[] buffer, ref ulong bufferSize);
+        public static extern JavaScriptErrorCode JsSerializeScript(string script, byte[] buffer, ref uint bufferSize);
 
         /// <summary>
         ///     Parses a serialized script and returns a function representing the script. Provides the ability to lazy load the script source only if/when it is needed.

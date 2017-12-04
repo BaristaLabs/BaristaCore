@@ -5,6 +5,7 @@
     using System.Runtime.InteropServices;
     using System.Text;
     using Xunit;
+    using Xunit.Abstractions;
 
     /// <summary>
     /// Direct tests against the IChakraApi layer
@@ -13,10 +14,12 @@
     {
         #region Test Support
         private IJavaScriptEngine Engine;
+        private readonly ITestOutputHelper Output;
 
-        public ICommonJavaScriptEngine_Facts()
+        public ICommonJavaScriptEngine_Facts(ITestOutputHelper output)
         {
             Engine = JavaScriptEngineFactory.CreateChakraEngine();
+            Output = output;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -1866,9 +1869,7 @@ return arr;
 
                         Engine.JsSetIndexedPropertiesToExternalData(objectHandle, dataPtr, JavaScriptTypedArrayType.Int8, (uint)data.Length);
 
-                        JavaScriptTypedArrayType arrayType;
-                        uint length;
-                        IntPtr externalDataPtr = Engine.JsGetIndexedPropertiesExternalData(objectHandle, out arrayType, out length);
+                        IntPtr externalDataPtr = Engine.JsGetIndexedPropertiesExternalData(objectHandle, out JavaScriptTypedArrayType arrayType, out uint length);
 
                         Assert.Equal(JavaScriptTypedArrayType.Int8, arrayType);
                         Assert.Equal((uint)data.Length, length);
@@ -2243,9 +2244,7 @@ return arr;
 
                     var typedArrayHandle = Engine.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50);
 
-                    JavaScriptValueSafeHandle arrayBufferHandle;
-                    uint byteOffset, byteLength;
-                    var typedArrayType = Engine.JsGetTypedArrayInfo(typedArrayHandle, out arrayBufferHandle, out byteOffset, out byteLength);
+                    var typedArrayType = Engine.JsGetTypedArrayInfo(typedArrayHandle, out JavaScriptValueSafeHandle arrayBufferHandle, out uint byteOffset, out uint byteLength);
 
                     Assert.True(typedArrayType == JavaScriptTypedArrayType.Int8);
                     Assert.True(arrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
@@ -2269,8 +2268,7 @@ return arr;
 
                     var arrayBufferHandle = Engine.JsCreateArrayBuffer(50);
 
-                    uint bufferLength;
-                    var ptrBuffer = Engine.JsGetArrayBufferStorage(arrayBufferHandle, out bufferLength);
+                    var ptrBuffer = Engine.JsGetArrayBufferStorage(arrayBufferHandle, out uint bufferLength);
 
                     byte[] buffer = new byte[bufferLength];
                     Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
@@ -2294,10 +2292,7 @@ return arr;
 
                     var typedArrayHandle = Engine.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50);
 
-                    uint bufferLength;
-                    JavaScriptTypedArrayType typedArrayType;
-                    int elementSize;
-                    var ptrBuffer = Engine.JsGetTypedArrayStorage(typedArrayHandle, out bufferLength, out typedArrayType, out elementSize);
+                    var ptrBuffer = Engine.JsGetTypedArrayStorage(typedArrayHandle, out uint bufferLength, out JavaScriptTypedArrayType typedArrayType, out int elementSize);
 
                     //Normally, we'd create an appropriately typed buffer based on elementsize.
                     Assert.True(elementSize == 1); //byte
@@ -2327,8 +2322,7 @@ return arr;
                     var arrayBufferHandle = Engine.JsCreateArrayBuffer(50);
                     var dataViewHandle = Engine.JsCreateDataView(arrayBufferHandle, 0, 50);
 
-                    uint bufferLength;
-                    var ptrBuffer = Engine.JsGetDataViewStorage(dataViewHandle, out bufferLength);
+                    var ptrBuffer = Engine.JsGetDataViewStorage(dataViewHandle, out uint bufferLength);
 
                     byte[] buffer = new byte[bufferLength];
                     Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
@@ -2369,7 +2363,7 @@ new Promise(function(resolve, reject) {
                     }
                     catch (JavaScriptScriptException ex)
                     {
-                        Assert.Equal("Object doesn't support this action", ex.ErrorMessage);
+                        Assert.Equal("Host may not have set any promise continuation callback. Promises may not be executed.", ex.ErrorMessage);
                     }
                 }
             }
@@ -2508,7 +2502,7 @@ var fn = function Tree(name) {
 };
 return fn;
 })()";
-            var nameProperty = "name";
+
             var name = "Redwood";
 
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
@@ -2519,7 +2513,6 @@ return fn;
 
                     var fnHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
                     var nameHandle = Engine.JsCreateString(name, (ulong)name.Length);
-                    var namePropertyHandle = Engine.JsCreatePropertyId(nameProperty, (ulong)name.Length);
 
                     var handleType = Engine.JsGetValueType(fnHandle);
                     Assert.True(handleType == JavaScriptValueType.Function);
@@ -2531,15 +2524,21 @@ return fn;
                     handleType = Engine.JsGetValueType(objectHandle);
                     Assert.True(handleType == JavaScriptValueType.Object);
 
-                    var propertyHandle = Engine.JsGetProperty(objectHandle, namePropertyHandle);
-                    Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
+                    var namePropertyName = "name";
+                    var namePropertyIdHandle = Engine.JsCreatePropertyId(namePropertyName, (ulong)namePropertyName.Length);
+                    var namePropertyHandle = Engine.JsGetProperty(objectHandle, namePropertyIdHandle);
+                    Assert.True(namePropertyHandle != JavaScriptValueSafeHandle.Invalid);
 
-                    var resultStr = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, propertyHandle);
+                    var propertyHandleType = Engine.JsGetValueType(namePropertyHandle);
+                    Assert.True(propertyHandleType == JavaScriptValueType.String);
+
+                    var resultStr = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, namePropertyHandle);
                     Assert.True(resultStr == name);
 
-                    propertyHandle.Dispose();
+                    namePropertyHandle.Dispose();
                     objectHandle.Dispose();
                     namePropertyHandle.Dispose();
+                    namePropertyIdHandle.Dispose();
                     nameHandle.Dispose();
                     fnHandle.Dispose();
                 }
@@ -2708,7 +2707,7 @@ return fn;
                     var fnToStringFnHandle = Engine.JsGetProperty(fnHandle, toStringFunctionPropertyIdHandle);
                     var fnToStringResultHandle = Engine.JsCallFunction(fnToStringFnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
                     var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, fnToStringResultHandle);
-                    Assert.Equal("hogwarts", result);
+                    Assert.Equal("function hogwarts() { [native code] }", result);
 
                     toStringFunctionPropertyIdHandle.Dispose();
                     fnToStringFnHandle.Dispose();
