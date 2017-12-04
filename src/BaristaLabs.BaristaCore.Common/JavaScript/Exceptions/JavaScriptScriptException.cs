@@ -12,6 +12,7 @@
         private const string MessagePropertyName = "message";
         private const string NamePropertyName = "name";
         private const string ColumnNumberPropertyName = "column";
+        public const string LineNumberPropertyName = "line";
 
         /// <summary>
         /// The error.
@@ -42,16 +43,32 @@
             //Don't use our helper errors class in order to prevent recursive errors.
             JavaScriptErrorCode innerError;
 
-            //Get the message of the Script Error.            
-            JavaScriptPropertyIdSafeHandle messagePropertyHandle;
-            innerError = LibChakraCore.JsCreatePropertyId(MessagePropertyName, (ulong)MessagePropertyName.Length, out messagePropertyHandle);
+            //Get the error object type
+            innerError = LibChakraCore.JsGetValueType(error, out JavaScriptValueType errorType);
             Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
-            JavaScriptValueSafeHandle messageValue;
-            innerError = LibChakraCore.JsGetProperty(error, messagePropertyHandle, out messageValue);
-            Debug.Assert(innerError == JavaScriptErrorCode.NoError);
+            switch(errorType)
+            {
+                case JavaScriptValueType.Error:
+                    //Get the message of the Script Error.            
+                    innerError = LibChakraCore.JsCreatePropertyId(MessagePropertyName, (ulong)MessagePropertyName.Length, out JavaScriptPropertyIdSafeHandle messagePropertyHandle);
+                    Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
-            ErrorMessage = Helpers.GetStringUtf8(messageValue, releaseHandle: true);
+                    innerError = LibChakraCore.JsHasProperty(error, messagePropertyHandle, out bool hasMessageProperty);
+                    Debug.Assert(innerError == JavaScriptErrorCode.NoError);
+
+                    if (hasMessageProperty == true)
+                    {
+                        innerError = LibChakraCore.JsGetProperty(error, messagePropertyHandle, out JavaScriptValueSafeHandle messageValue);
+                        Debug.Assert(innerError == JavaScriptErrorCode.NoError);
+
+                        ErrorMessage = Helpers.GetStringUtf8(messageValue, releaseHandle: true);
+                    }
+                    break;
+                case JavaScriptValueType.String:
+                    ErrorMessage = Helpers.GetStringUtf8(error);
+                    break;
+            }
         }
 
         /// <summary>

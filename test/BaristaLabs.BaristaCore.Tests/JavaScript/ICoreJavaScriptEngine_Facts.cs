@@ -120,6 +120,35 @@
         //}
 
         [Fact]
+        public void JsCopyStringOneByteTest()
+        {
+            var str = "Hello, World!";
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    var stringHandle = Engine.JsCreateString(str, (ulong)str.Length);
+
+                    var size = Engine.JsCopyString(stringHandle, null, 0);
+                    if ((int)size > int.MaxValue)
+                        throw new OutOfMemoryException("Exceeded maximum string length.");
+
+                    byte[] result = new byte[(int)size];
+                    Engine.JsCopyStringOneByte(stringHandle, 0, result.Length, result);
+
+                    string resultStr = Encoding.UTF8.GetString(result, 0, result.Length);
+
+                    Assert.True(str == resultStr);
+
+                    stringHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
         public void JsCopyStringUtf16Test()
         {
             var str = "Hello, World!";
@@ -435,10 +464,8 @@
             var mainModuleName = "";
             var mainModuleSource = @"
 import cube from 'foo';
-(function(global) {
-  'use strict';
-  global.result = cube(3)
-}((1,eval)('this')));
+let global = (new Function('return this;'))();
+global.$EXPORTS = cube(3);
 ";
 
             var fooModuleSource = @"
@@ -555,12 +582,85 @@ export default function cube(x) {
                     var evalResultHandle = Engine.JsModuleEvaluation(mainModuleHandle);
                     Assert.True(evalResultHandle != JavaScriptValueSafeHandle.Invalid);
 
-                    var resultHandle = Extensions.IJavaScriptEngineExtensions.GetGlobalVariable(Engine, "result");
+                    var resultHandle = Extensions.IJavaScriptEngineExtensions.GetGlobalVariable(Engine, "$EXPORTS");
                     var handleType = Engine.JsGetValueType(resultHandle);
                     Assert.True(handleType == JavaScriptValueType.Number);
 
                     var result = Engine.JsNumberToInt(resultHandle);
                     Assert.Equal(27, result);
+                }
+            }
+        }
+
+        [Fact]
+        public void JsPromiseCanBeCreated()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    //This SEEMS backwards, regarding the out parameters, but the promise serves as a breakpoint until
+                    //CallFunction is invoked on the resolve/reject handles.
+                    var promiseHandle = Engine.JsCreatePromise(out JavaScriptValueSafeHandle resolveHandle, out JavaScriptValueSafeHandle rejectHandle);
+
+                    Assert.True(promiseHandle != JavaScriptValueSafeHandle.Invalid);
+                    Assert.True(resolveHandle != JavaScriptValueSafeHandle.Invalid);
+                    Assert.True(rejectHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    promiseHandle.Dispose();
+                    resolveHandle.Dispose();
+                    rejectHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsWeakReferenceCanBeCreated()
+        {
+            var str = "Hello, World!";
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    var stringHandle = Engine.JsCreateString(str, (ulong)str.Length);
+                    Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var weakRef = Engine.JsCreateWeakReference(stringHandle);
+                    Assert.True(weakRef != IntPtr.Zero);
+
+                    stringHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsWeakReferenceValueBeRetrieved()
+        {
+            var str = "Hello, World!";
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    var stringHandle = Engine.JsCreateString(str, (ulong)str.Length);
+                    Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var weakRef = Engine.JsCreateWeakReference(stringHandle);
+                    Assert.True(weakRef != IntPtr.Zero);
+
+                    var valueHandle = Engine.JsGetWeakReferenceValue(weakRef);
+                    Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    Assert.True(valueHandle == stringHandle);
+
+                    stringHandle.Dispose();
                 }
             }
         }

@@ -1584,6 +1584,47 @@ return obj;
         }
 
         [Fact]
+        public void JsCanDetermineIfOwnPropertyExists()
+        {
+            var script = @"(() => {
+var o = new Object();
+o.prop = 'exists';
+
+return o;
+})();
+";
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+
+                    var propertyName = "prop";
+                    var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
+
+                    var propertyExists = Engine.JsHasOwnProperty(objHandle, propertyIdHandle);
+                    Assert.True(propertyExists);
+
+                    propertyName = "toString";
+                    propertyIdHandle.Dispose();
+                    propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
+
+                    propertyExists = Engine.JsHasProperty(objHandle, propertyIdHandle);
+                    Assert.True(propertyExists);
+
+                    propertyExists = Engine.JsHasOwnProperty(objHandle, propertyIdHandle);
+                    Assert.False(propertyExists);
+
+
+                    propertyIdHandle.Dispose();
+                    objHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
         public void JsCanDeleteProperty()
         {
             var script = @"(() => {
@@ -2925,6 +2966,50 @@ return fn;
 
                     errorHandle.Dispose();
                     messageHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsCanGetAndClearExceptionWithMetadata()
+        {
+            var script = @"
+let foo = 'bar';
+function throwAtHost() {
+  //Throw an exception.
+  throw new Error('throwing');
+};
+";
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    var fnHandle = Extensions.IJavaScriptEngineExtensions.GetGlobalVariable(Engine, "throwAtHost");
+                    Assert.True(fnHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    try
+                    {
+                        Engine.JsCallFunction(fnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
+                    }
+                    catch(JavaScriptException ex)
+                    {
+                        Assert.True(ex.ErrorCode == JavaScriptErrorCode.ScriptException);
+                    }
+
+                    var hasException = Engine.JsHasException();
+                    Assert.True(hasException);
+                    
+                    var exceptionMetadataHandle = Engine.JsGetAndClearExceptionWithMetadata();
+                    Assert.True(exceptionMetadataHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    hasException = Engine.JsHasException();
+                    Assert.False(hasException);
+
+                    fnHandle.Dispose();
                 }
             }
         }
