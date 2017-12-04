@@ -8,6 +8,7 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <Platforms>AnyCPU;x64</Platforms>
+    <DebugType>Full</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
