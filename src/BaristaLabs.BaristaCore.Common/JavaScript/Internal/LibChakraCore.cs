@@ -484,7 +484,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateWeakReference", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateWeakReference(JavaScriptValueSafeHandle value, out IntPtr weakRef);
+        public static extern JavaScriptErrorCode JsCreateWeakReference(JavaScriptValueSafeHandle value, out JavaScriptWeakReferenceSafeHandle weakRef);
 
         /// <summary>
         ///     Gets a strong reference to the value referred to by a weak reference.
@@ -500,7 +500,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetWeakReferenceValue", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetWeakReferenceValue(IntPtr weakRef, out JavaScriptValueSafeHandle value);
+        public static extern JavaScriptErrorCode JsGetWeakReferenceValue(JavaScriptWeakReferenceSafeHandle weakRef, out JavaScriptValueSafeHandle value);
 
         /// <summary>
         ///     Creates a Javascript SharedArrayBuffer object with shared content get from JsGetSharedArrayBufferContent.
@@ -518,7 +518,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateSharedArrayBufferWithSharedContent", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateSharedArrayBufferWithSharedContent(JavaScriptValueSafeHandle sharedContents, out JavaScriptValueSafeHandle result);
+        public static extern JavaScriptErrorCode JsCreateSharedArrayBufferWithSharedContent(JavaScriptSharedArrayBufferSafeHandle sharedContents, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Get the storage object from a SharedArrayBuffer.
@@ -552,7 +552,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsReleaseSharedArrayBufferContentHandle", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsReleaseSharedArrayBufferContentHandle(JavaScriptValueSafeHandle sharedContents);
+        public static extern JavaScriptErrorCode JsReleaseSharedArrayBufferContentHandle(JavaScriptSharedArrayBufferSafeHandle sharedContents);
 
         /// <summary>
         ///     Determines whether an object has a non-inherited property.

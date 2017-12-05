@@ -184,13 +184,13 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return promise;
         }
 
-        public IntPtr JsCreateWeakReference(JavaScriptValueSafeHandle value)
+        public JavaScriptWeakReferenceSafeHandle JsCreateWeakReference(JavaScriptValueSafeHandle value)
         {
-            Errors.ThrowIfError(LibChakraCore.JsCreateWeakReference(value, out IntPtr weakRef));
+            Errors.ThrowIfError(LibChakraCore.JsCreateWeakReference(value, out JavaScriptWeakReferenceSafeHandle weakRef));
             return weakRef;
         }
 
-        public JavaScriptValueSafeHandle JsGetWeakReferenceValue(IntPtr weakRef)
+        public JavaScriptValueSafeHandle JsGetWeakReferenceValue(JavaScriptWeakReferenceSafeHandle weakRef)
         {
             Errors.ThrowIfError(LibChakraCore.JsGetWeakReferenceValue(weakRef, out JavaScriptValueSafeHandle value));
             value.NativeFunctionSource = nameof(LibChakraCore.JsGetWeakReferenceValue);
@@ -201,7 +201,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return value;
         }
 
-        public JavaScriptValueSafeHandle JsCreateSharedArrayBufferWithSharedContent(JavaScriptValueSafeHandle sharedContents)
+        public JavaScriptValueSafeHandle JsCreateSharedArrayBufferWithSharedContent(JavaScriptSharedArrayBufferSafeHandle sharedContents)
         {
             Errors.ThrowIfError(LibChakraCore.JsCreateSharedArrayBufferWithSharedContent(sharedContents, out JavaScriptValueSafeHandle result));
             result.NativeFunctionSource = nameof(LibChakraCore.JsCreateSharedArrayBufferWithSharedContent);
@@ -218,7 +218,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return sharedContents;
         }
 
-        public void JsReleaseSharedArrayBufferContentHandle(JavaScriptValueSafeHandle sharedContents)
+        public void JsReleaseSharedArrayBufferContentHandle(JavaScriptSharedArrayBufferSafeHandle sharedContents)
         {
             Errors.ThrowIfError(LibChakraCore.JsReleaseSharedArrayBufferContentHandle(sharedContents));
         }

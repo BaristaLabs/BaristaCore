@@ -32,11 +32,18 @@
                 return Type == "void";
             }
         }
-        public bool IsJavaScriptRuntimeSafeHandle
+
+        /// <summary>
+        /// Gets a valud that indicates if the safe handle is "weak" and should not participate in reference counting.
+        /// </summary>
+        public bool IsWeakSafeHandle
         {
             get
             {
-                return Type == "JavaScriptRuntimeSafeHandle";
+                return
+                    Type == "JavaScriptRuntimeSafeHandle" ||
+                    Type == "JavaScriptWeakReferenceSafeHandle" ||
+                    Type == "JavaScriptSharedArrayBufferSafeHandle";
             }
         }
 

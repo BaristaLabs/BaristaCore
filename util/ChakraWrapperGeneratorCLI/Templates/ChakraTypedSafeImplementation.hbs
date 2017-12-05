@@ -13,7 +13,7 @@
             Errors.ThrowIfError(LibChakraCore.{{Name}}({{CallSignature}}));
             {{#each OutValueSafeHandles}}
             {{Name}}.NativeFunctionSource = nameof(LibChakraCore.{{../Name}});
-            {{#unless IsJavaScriptRuntimeSafeHandle }}
+            {{#unless IsWeakSafeHandle }}
             if ({{Name}} != {{Type}}.Invalid)
             {
 				Errors.ThrowIfError(LibChakraCore.JsAddRef({{Name}}, out uint valueRefCount));

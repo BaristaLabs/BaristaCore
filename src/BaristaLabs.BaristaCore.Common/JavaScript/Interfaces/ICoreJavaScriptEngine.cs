@@ -408,7 +408,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <returns>
         ///     Weak reference to the value.
         /// </returns>
-        IntPtr JsCreateWeakReference(JavaScriptValueSafeHandle value);
+        JavaScriptWeakReferenceSafeHandle JsCreateWeakReference(JavaScriptValueSafeHandle value);
 
         /// <summary>
         ///   Gets a strong reference to the value referred to by a weak reference.
@@ -420,7 +420,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     Reference to the value, or JS_INVALID_REFERENCE if the value is
         ///     no longer available.
         /// </returns>
-        JavaScriptValueSafeHandle JsGetWeakReferenceValue(IntPtr weakRef);
+        JavaScriptValueSafeHandle JsGetWeakReferenceValue(JavaScriptWeakReferenceSafeHandle weakRef);
 
         /// <summary>
         ///   Creates a Javascript SharedArrayBuffer object with shared content get from JsGetSharedArrayBufferContent.
@@ -434,7 +434,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <returns>
         ///     The new SharedArrayBuffer object.
         /// </returns>
-        JavaScriptValueSafeHandle JsCreateSharedArrayBufferWithSharedContent(JavaScriptValueSafeHandle sharedContents);
+        JavaScriptValueSafeHandle JsCreateSharedArrayBufferWithSharedContent(JavaScriptSharedArrayBufferSafeHandle sharedContents);
 
         /// <summary>
         ///   Get the storage object from a SharedArrayBuffer.
@@ -460,7 +460,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <param name="sharedContents">
         ///     The storage object of a SharedArrayBuffer which can be shared between multiple thread.
         /// </param>
-        void JsReleaseSharedArrayBufferContentHandle(JavaScriptValueSafeHandle sharedContents);
+        void JsReleaseSharedArrayBufferContentHandle(JavaScriptSharedArrayBufferSafeHandle sharedContents);
 
         /// <summary>
         ///   Determines whether an object has a non-inherited property.

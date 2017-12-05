@@ -631,7 +631,7 @@ export default function cube(x) {
                     Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var weakRef = Engine.JsCreateWeakReference(stringHandle);
-                    Assert.True(weakRef != IntPtr.Zero);
+                    Assert.True(weakRef != JavaScriptWeakReferenceSafeHandle.Invalid);
 
                     stringHandle.Dispose();
                 }
@@ -642,7 +642,7 @@ export default function cube(x) {
         public void JsWeakReferenceValueBeRetrieved()
         {
             var str = "Hello, World!";
-
+            var weakRef = JavaScriptWeakReferenceSafeHandle.Invalid;
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
                 using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
@@ -652,15 +652,44 @@ export default function cube(x) {
                     var stringHandle = Engine.JsCreateString(str, (ulong)str.Length);
                     Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
 
-                    var weakRef = Engine.JsCreateWeakReference(stringHandle);
-                    Assert.True(weakRef != IntPtr.Zero);
+                    weakRef = Engine.JsCreateWeakReference(stringHandle);
+                    Assert.True(weakRef != JavaScriptWeakReferenceSafeHandle.Invalid);
 
                     var valueHandle = Engine.JsGetWeakReferenceValue(weakRef);
                     Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
 
                     Assert.True(valueHandle == stringHandle);
 
+                    valueHandle.Dispose();
                     stringHandle.Dispose();
+                }
+
+                //Hm, even after a collect, JsGetWeakReferenceValue still returns a handle.
+                //Engine.JsCollectGarbage(runtimeHandle);
+                //var outOfScopeValueHandle = Engine.JsGetWeakReferenceValue(weakRef);
+                //Assert.True(outOfScopeValueHandle == JavaScriptValueSafeHandle.Invalid);
+            }
+        }
+
+        [Fact]
+        public void JsSharedArrayBufferWithSharedContentCanBeCreated()
+        {
+            var data = "Hello, World!";
+            IntPtr ptrScript = Marshal.StringToHGlobalAnsi(data);
+            var arrayBufferHandle = new JavaScriptSharedArrayBufferSafeHandle(ptrScript);
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    //var sharedArrayBufferHandle = Engine.JsCreateSharedArrayBufferWithSharedContent(arrayBufferHandle);
+                    //Assert.True(sharedArrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
+                    //var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
+                    //Assert.True(handleType == JavaScriptValueType.ArrayBuffer);
+
+                    //arrayBufferHandle.Dispose();
                 }
             }
         }
