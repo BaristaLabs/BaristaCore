@@ -1,7 +1,8 @@
-﻿using System;
-
-namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using BaristaLabs.BaristaCore.JavaScript.Internal;
+    using System;
+
     /// <summary>
     /// Represents a safe handle to a Shared Array Buffer that can be used between contexts.
     /// </summary>
@@ -10,6 +11,11 @@ namespace BaristaLabs.BaristaCore.JavaScript
     /// </remarks>
     public sealed class JavaScriptSharedArrayBufferSafeHandle : JavaScriptReference<JavaScriptRuntimeSafeHandle>
     {
+        public JavaScriptSharedArrayBufferSafeHandle()
+            : base()
+        {
+        }
+
         public JavaScriptSharedArrayBufferSafeHandle(IntPtr ptr)
             : base(ptr)
         {
@@ -17,6 +23,8 @@ namespace BaristaLabs.BaristaCore.JavaScript
 
         protected override void Dispose(bool disposing)
         {
+            //LibChakraCore.JsReleaseSharedArrayBufferContentHandle(this);
+
             //Do not call the base implementation as we have no references to free.
             //base.Dispose(disposing);
         }
@@ -24,6 +32,6 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <summary>
         /// Gets an invalid weak reference.
         /// </summary>
-        public static readonly JavaScriptWeakReferenceSafeHandle Invalid = new JavaScriptWeakReferenceSafeHandle();
+        public static readonly JavaScriptSharedArrayBufferSafeHandle Invalid = new JavaScriptSharedArrayBufferSafeHandle();
     }
 }

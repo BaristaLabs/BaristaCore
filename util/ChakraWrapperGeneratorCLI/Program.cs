@@ -23,7 +23,7 @@
                 { "JsWeakRef", "JavaScriptWeakReferenceSafeHandle" },
                 { "JsValueRef", "JavaScriptValueSafeHandle" },
                 { "JsValueRef[]", "IntPtr[]" },
-                { "JsSharedArrayBufferContentHandle", "JavaScriptSharedArrayBufferSafeHandle" },
+                { "JsSharedArrayBufferContentHandle", "IntPtr" },
 
                 { "JsPropertyIdRef", "JavaScriptPropertyIdSafeHandle" },
                 { "JsPropertyIdType", "JavaScriptPropertyIdType" },
@@ -57,7 +57,8 @@
 
             var paramNameTypeMap = new Dictionary<string, string>()
             {
-                { "weakRef", "JavaScriptWeakReferenceSafeHandle" }
+                { "weakRef", "JavaScriptWeakReferenceSafeHandle" },
+                //{ "sharedContents", "JavaScriptSharedArrayBufferSafeHandle" }
             };
 
             SetupHelpers();

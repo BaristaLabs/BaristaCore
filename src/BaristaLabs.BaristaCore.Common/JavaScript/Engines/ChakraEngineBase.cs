@@ -201,7 +201,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return value;
         }
 
-        public JavaScriptValueSafeHandle JsCreateSharedArrayBufferWithSharedContent(JavaScriptSharedArrayBufferSafeHandle sharedContents)
+        public JavaScriptValueSafeHandle JsCreateSharedArrayBufferWithSharedContent(IntPtr sharedContents)
         {
             Errors.ThrowIfError(LibChakraCore.JsCreateSharedArrayBufferWithSharedContent(sharedContents, out JavaScriptValueSafeHandle result));
             result.NativeFunctionSource = nameof(LibChakraCore.JsCreateSharedArrayBufferWithSharedContent);
@@ -218,7 +218,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return sharedContents;
         }
 
-        public void JsReleaseSharedArrayBufferContentHandle(JavaScriptSharedArrayBufferSafeHandle sharedContents)
+        public void JsReleaseSharedArrayBufferContentHandle(IntPtr sharedContents)
         {
             Errors.ThrowIfError(LibChakraCore.JsReleaseSharedArrayBufferContentHandle(sharedContents));
         }

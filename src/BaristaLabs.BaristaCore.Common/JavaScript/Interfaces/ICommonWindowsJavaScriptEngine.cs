@@ -74,26 +74,6 @@ namespace BaristaLabs.BaristaCore.JavaScript
         JavaScriptValueSafeHandle JsRunScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl);
 
         /// <summary>
-        ///   Executes a module.
-        /// </summary>
-        /// <remarks>
-        ///     Requires an active script context.
-        /// </remarks>
-        /// <param name="script">
-        ///     The module script to parse and execute.
-        /// </param>
-        /// <param name="sourceContext">
-        ///     A cookie identifying the script that can be used by debuggable script contexts.
-        /// </param>
-        /// <param name="sourceUrl">
-        ///     The location the module script came from.
-        /// </param>
-        /// <returns>
-        ///     The result of executing the module script, if any. This parameter can be null.
-        /// </returns>
-        JavaScriptValueSafeHandle JsExperimentalApiRunModule(string script, JavaScriptSourceContext sourceContext, string sourceUrl);
-
-        /// <summary>
         ///   Serializes a parsed script to a buffer than can be reused.
         /// </summary>
         /// <remarks>

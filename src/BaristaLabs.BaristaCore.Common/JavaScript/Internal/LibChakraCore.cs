@@ -518,7 +518,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateSharedArrayBufferWithSharedContent", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateSharedArrayBufferWithSharedContent(JavaScriptSharedArrayBufferSafeHandle sharedContents, out JavaScriptValueSafeHandle result);
+        public static extern JavaScriptErrorCode JsCreateSharedArrayBufferWithSharedContent(IntPtr sharedContents, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Get the storage object from a SharedArrayBuffer.
@@ -552,7 +552,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsReleaseSharedArrayBufferContentHandle", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsReleaseSharedArrayBufferContentHandle(JavaScriptSharedArrayBufferSafeHandle sharedContents);
+        public static extern JavaScriptErrorCode JsReleaseSharedArrayBufferContentHandle(IntPtr sharedContents);
 
         /// <summary>
         ///     Determines whether an object has a non-inherited property.
@@ -2919,30 +2919,6 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsRunScript", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         public static extern JavaScriptErrorCode JsRunScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
-
-        /// <summary>
-        ///     Executes a module.
-        /// </summary>
-        /// <remarks>
-        ///     Requires an active script context.
-        /// </remarks>
-        /// <param name="script">
-        ///     The module script to parse and execute.
-        /// </param>
-        /// <param name="sourceContext">
-        ///     A cookie identifying the script that can be used by debuggable script contexts.
-        /// </param>
-        /// <param name="sourceUrl">
-        ///     The location the module script came from.
-        /// </param>
-        /// <param name="result">
-        ///     The result of executing the module script, if any. This parameter can be null.
-        /// </param>
-        /// <returns>
-        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
-        /// </returns>
-        [DllImport(DllName, EntryPoint = "JsExperimentalApiRunModule", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsExperimentalApiRunModule(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Serializes a parsed script to a buffer than can be reused.

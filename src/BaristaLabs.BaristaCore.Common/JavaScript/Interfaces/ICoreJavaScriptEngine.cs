@@ -434,7 +434,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <returns>
         ///     The new SharedArrayBuffer object.
         /// </returns>
-        JavaScriptValueSafeHandle JsCreateSharedArrayBufferWithSharedContent(JavaScriptSharedArrayBufferSafeHandle sharedContents);
+        JavaScriptValueSafeHandle JsCreateSharedArrayBufferWithSharedContent(IntPtr sharedContents);
 
         /// <summary>
         ///   Get the storage object from a SharedArrayBuffer.
@@ -460,7 +460,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <param name="sharedContents">
         ///     The storage object of a SharedArrayBuffer which can be shared between multiple thread.
         /// </param>
-        void JsReleaseSharedArrayBufferContentHandle(JavaScriptSharedArrayBufferSafeHandle sharedContents);
+        void JsReleaseSharedArrayBufferContentHandle(IntPtr sharedContents);
 
         /// <summary>
         ///   Determines whether an object has a non-inherited property.
