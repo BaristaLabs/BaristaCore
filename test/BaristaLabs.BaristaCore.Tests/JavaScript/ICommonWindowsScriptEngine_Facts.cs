@@ -122,7 +122,7 @@
                     Engine.JsSetCurrentContext(contextHandle);
 
                     byte[] buffer = new byte[1024];
-                    ulong bufferSize = (ulong)buffer.Length;
+                    uint bufferSize = (uint)buffer.Length;
 
                     CommonWindowsEngine.JsSerializeScript(script, buffer, ref bufferSize);
 
@@ -151,14 +151,14 @@
                     Engine.JsSetCurrentContext(contextHandle);
 
                     byte[] buffer = new byte[1024];
-                    ulong bufferSize = (ulong)buffer.Length;
+                    uint bufferSize = (uint)buffer.Length;
 
                     CommonWindowsEngine.JsSerializeScript(script, buffer, ref bufferSize);
 
-                    JavaScriptSerializedScriptLoadSourceCallback loadCallback = (JavaScriptSourceContext sourceContext, out string scriptBuffer) =>
+                    JavaScriptSerializedScriptLoadSourceCallback loadCallback = (JavaScriptSourceContext sourceContext, out StringBuilder scriptBuffer) =>
                     {
                         loaded = true;
-                        scriptBuffer = script;
+                        scriptBuffer = new StringBuilder(script);
                         return true;
                     };
 
@@ -174,9 +174,8 @@
                     Assert.True(handleType == JavaScriptValueType.Function);
 
                     //Get the string representation of the function. This triggers the load callback.
-                    ulong length;
                     var fnStringHandle = Engine.JsConvertValueToString(fnHandle);
-                    var stringPtr = CommonWindowsEngine.JsStringToPointer(fnStringHandle, out length);
+                    var stringPtr = CommonWindowsEngine.JsStringToPointer(fnStringHandle, out ulong length);
                     Assert.True(stringPtr != IntPtr.Zero);
                     Assert.True(length > 0);
 
@@ -216,14 +215,14 @@
                     Engine.JsSetCurrentContext(contextHandle);
 
                     byte[] buffer = new byte[1024];
-                    ulong bufferSize = (ulong)buffer.Length;
+                    uint bufferSize = (uint)buffer.Length;
 
                     CommonWindowsEngine.JsSerializeScript(script, buffer, ref bufferSize);
 
-                    JavaScriptSerializedScriptLoadSourceCallback loadCallback = (JavaScriptSourceContext sourceContext, out string scriptBuffer) =>
+                    JavaScriptSerializedScriptLoadSourceCallback loadCallback = (JavaScriptSourceContext sourceContext, out StringBuilder scriptBuffer) =>
                     {
                         loaded = true;
-                        scriptBuffer = script;
+                        scriptBuffer = new StringBuilder(script);
                         return true;
                     };
 
@@ -265,7 +264,7 @@
                     Engine.JsSetCurrentContext(contextHandle);
 
                     byte[] buffer = new byte[1024];
-                    ulong bufferSize = (ulong)buffer.Length;
+                    uint bufferSize = (uint)buffer.Length;
 
                     CommonWindowsEngine.JsSerializeScript(script, buffer, ref bufferSize);
                     
@@ -304,7 +303,7 @@
                     Engine.JsSetCurrentContext(contextHandle);
 
                     byte[] buffer = new byte[1024];
-                    ulong bufferSize = (ulong)buffer.Length;
+                    uint bufferSize = (uint)buffer.Length;
 
                     CommonWindowsEngine.JsSerializeScript(script, buffer, ref bufferSize);
 
@@ -356,8 +355,7 @@ return obj;
                     var resultHandle = Engine.JsGetProperty(objHandle, propertyIdHandle);
                     Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, resultHandle);
 
-                    ulong length;
-                    var stringPtr = CommonWindowsEngine.JsStringToPointer(resultHandle, out length);
+                    var stringPtr = CommonWindowsEngine.JsStringToPointer(resultHandle, out ulong length);
                     Assert.True(stringPtr != IntPtr.Zero);
                     Assert.True(length > 0);
                     var str = Marshal.PtrToStringUni(stringPtr, (int)length);
@@ -451,8 +449,7 @@ return obj;
                     Engine.JsSetCurrentContext(contextHandle);
 
                     var resultHandle = CommonWindowsEngine.JsRunScript(script, JavaScriptSourceContext.GetNextSourceContext(), sourceUrl);
-                    ulong length;
-                    var stringPtr = CommonWindowsEngine.JsStringToPointer(resultHandle, out length);
+                    var stringPtr = CommonWindowsEngine.JsStringToPointer(resultHandle, out ulong length);
                     Assert.True(stringPtr != IntPtr.Zero);
                     Assert.True(length > 0);
                     var str = Marshal.PtrToStringUni(stringPtr, (int)length);

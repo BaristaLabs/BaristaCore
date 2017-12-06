@@ -82,6 +82,12 @@
                                 throw new JavaScriptFatalException(innerError);
                             }
 
+                            innerError = LibChakraCore.JsSetException(errorObject);
+                            if (innerError != JavaScriptErrorCode.NoError)
+                            {
+                                throw new JavaScriptFatalException(innerError);
+                            }
+
                             throw new JavaScriptScriptException(error, errorObject, "Script threw an exception.");
                         }
 
@@ -89,6 +95,12 @@
                         {
                             JavaScriptErrorCode innerError = LibChakraCore.JsGetAndClearException(out JavaScriptValueSafeHandle errorObject);
 
+                            if (innerError != JavaScriptErrorCode.NoError)
+                            {
+                                throw new JavaScriptFatalException(innerError);
+                            }
+
+                            innerError = LibChakraCore.JsSetException(errorObject);
                             if (innerError != JavaScriptErrorCode.NoError)
                             {
                                 throw new JavaScriptFatalException(innerError);

@@ -120,6 +120,35 @@
         //}
 
         [Fact]
+        public void JsCopyStringOneByteTest()
+        {
+            var str = "Hello, World!";
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    var stringHandle = Engine.JsCreateString(str, (ulong)str.Length);
+
+                    var size = Engine.JsCopyString(stringHandle, null, 0);
+                    if ((int)size > int.MaxValue)
+                        throw new OutOfMemoryException("Exceeded maximum string length.");
+
+                    byte[] result = new byte[(int)size];
+                    Engine.JsCopyStringOneByte(stringHandle, 0, result.Length, result);
+
+                    string resultStr = Encoding.UTF8.GetString(result, 0, result.Length);
+
+                    Assert.True(str == resultStr);
+
+                    stringHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
         public void JsCopyStringUtf16Test()
         {
             var str = "Hello, World!";
@@ -434,11 +463,15 @@
         {
             var mainModuleName = "";
             var mainModuleSource = @"
-import x from 'foo.js'
-return x();
+import cube from 'foo';
+let global = (new Function('return this;'))();
+global.$EXPORTS = cube(3);
 ";
+
             var fooModuleSource = @"
-export default function() { return ""Hello, World.""; }
+export default function cube(x) {
+  return x * x * x;
+}
 ";
             var mainModuleReady = false;
             IntPtr childModuleHandle = IntPtr.Zero;
@@ -452,7 +485,23 @@ export default function() { return ""Hello, World.""; }
                     return false;
                 }
 
-                Assert.True(moduleName == "foo.js");
+                Assert.True(moduleName == "foo");
+                var moduleRecord = Engine.JsInitializeModuleRecord(referencingModule, new JavaScriptValueSafeHandle(specifier));
+                dependentModuleRecord = moduleRecord;
+                childModuleHandle = moduleRecord;
+                return false;
+            };
+
+            JavaScriptFetchImportedModuleFromScriptCallback fetchFromScriptCallback = (IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModuleRecord) =>
+            {
+                var moduleName = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, new JavaScriptValueSafeHandle(specifier));
+                if (string.IsNullOrWhiteSpace(moduleName))
+                {
+                    dependentModuleRecord = referencingModule;
+                    return false;
+                }
+
+                Assert.True(moduleName == "foo");
                 var moduleRecord = Engine.JsInitializeModuleRecord(referencingModule, new JavaScriptValueSafeHandle((IntPtr)specifier));
                 dependentModuleRecord = moduleRecord;
                 childModuleHandle = moduleRecord;
@@ -461,6 +510,13 @@ export default function() { return ""Hello, World.""; }
 
             JavaScriptNotifyModuleReadyCallback notifyCallback = (IntPtr referencingModule, IntPtr exceptionVar) =>
             {
+                if (exceptionVar != IntPtr.Zero)
+                {
+                    var type = Engine.JsGetValueType(new JavaScriptValueSafeHandle(exceptionVar));
+                    var ex = Extensions.IJavaScriptEngineExtensions.Stringify(Engine, new JavaScriptValueSafeHandle(exceptionVar));
+                    Assert.True(ex == "{}", ex);
+                }
+
                 mainModuleReady = true;
                 return false;
             };
@@ -471,10 +527,12 @@ export default function() { return ""Hello, World.""; }
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    //Initialize the "main" module (Empty-string specifier.
+                    //Initialize the "main" module (Empty-string specifier).
                     var moduleNameHandle = Engine.JsCreateString(mainModuleName, (ulong)mainModuleName.Length);
                     var mainModuleHandle = Engine.JsInitializeModuleRecord(IntPtr.Zero, moduleNameHandle);
+                    Assert.True(mainModuleHandle != IntPtr.Zero);
 
+                    //Set the fetch callback.
                     IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchCallback);
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, fetchCallbackPtr);
 
@@ -482,6 +540,15 @@ export default function() { return ""Hello, World.""; }
                     var moduleHostPtr = Engine.JsGetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback);
                     Assert.Equal(fetchCallbackPtr, moduleHostPtr);
 
+                    //Set the fetchScript callback
+                    IntPtr fetchFromScriptCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchFromScriptCallback);
+                    Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleFromScriptCallback, fetchFromScriptCallbackPtr);
+
+                    //Ensure the callback was set properly.
+                    moduleHostPtr = Engine.JsGetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleFromScriptCallback);
+                    Assert.Equal(fetchFromScriptCallbackPtr, moduleHostPtr);
+
+                    //Set the notify callback
                     IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate(notifyCallback);
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, notifyCallbackPtr);
 
@@ -489,6 +556,8 @@ export default function() { return ""Hello, World.""; }
                     moduleHostPtr = Engine.JsGetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback);
                     Assert.Equal(notifyCallbackPtr, moduleHostPtr);
 
+
+                    //Errrhmmm.. not sure what this is.
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.HostDefined, moduleNameHandle.DangerousGetHandle());
 
                     //Ensure the callback was set properly.
@@ -497,27 +566,242 @@ export default function() { return ""Hello, World.""; }
 
                     // ParseModuleSource is sync, while additional fetch & evaluation are async.
                     var scriptBuffer = Encoding.UTF8.GetBytes(mainModuleSource);
-                    var errorHandle = Engine.JsParseModuleSource(mainModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)mainModuleSource.Length, JavaScriptParseModuleSourceFlags.JsParseModuleSourceFlags_DataIsUTF8);
+                    var errorHandle = Engine.JsParseModuleSource(mainModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)mainModuleSource.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
                     Assert.True(errorHandle == JavaScriptValueSafeHandle.Invalid);
                     Assert.True(childModuleHandle != IntPtr.Zero);
                     Assert.False(mainModuleReady);
 
                     //Parse the foo now.
                     scriptBuffer = Encoding.UTF8.GetBytes(fooModuleSource);
-                    errorHandle = Engine.JsParseModuleSource(childModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)fooModuleSource.Length, JavaScriptParseModuleSourceFlags.JsParseModuleSourceFlags_DataIsUTF8);
+                    errorHandle = Engine.JsParseModuleSource(childModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)fooModuleSource.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
                     Assert.True(errorHandle == JavaScriptValueSafeHandle.Invalid);
 
                     Assert.True(mainModuleReady);
 
                     //Now we're ready, evaluate the main module.
-                    var resultHandle = Engine.JsModuleEvaluation(mainModuleHandle);
-                    Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
+                    var evalResultHandle = Engine.JsModuleEvaluation(mainModuleHandle);
+                    Assert.True(evalResultHandle != JavaScriptValueSafeHandle.Invalid);
 
+                    //Result type of a module is always undefined per spec.
+                    var evalResultType = Engine.JsGetValueType(evalResultHandle);
+                    Assert.True(evalResultType == JavaScriptValueType.Undefined);
+
+                    var resultHandle = Extensions.IJavaScriptEngineExtensions.GetGlobalVariable(Engine, "$EXPORTS");
                     var handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.String);
+                    Assert.True(handleType == JavaScriptValueType.Number);
 
-                    var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, resultHandle);
-                    Assert.Equal("Hello, World.", result);
+                    var result = Engine.JsNumberToInt(resultHandle);
+                    Assert.Equal(27, result);
+                }
+            }
+        }
+
+        [Fact]
+        public void JsPromiseCanBeCreated()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    //This SEEMS backwards, regarding the out parameters, but the promise serves as a breakpoint until
+                    //CallFunction is invoked on the resolve/reject handles.
+                    var promiseHandle = Engine.JsCreatePromise(out JavaScriptValueSafeHandle resolveHandle, out JavaScriptValueSafeHandle rejectHandle);
+
+                    Assert.True(promiseHandle != JavaScriptValueSafeHandle.Invalid);
+                    Assert.True(resolveHandle != JavaScriptValueSafeHandle.Invalid);
+                    Assert.True(rejectHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    promiseHandle.Dispose();
+                    resolveHandle.Dispose();
+                    rejectHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsWeakReferenceCanBeCreated()
+        {
+            var str = "Hello, World!";
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    var stringHandle = Engine.JsCreateString(str, (ulong)str.Length);
+                    Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var weakRef = Engine.JsCreateWeakReference(stringHandle);
+                    Assert.True(weakRef != JavaScriptWeakReferenceSafeHandle.Invalid);
+
+                    stringHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsWeakReferenceValueBeRetrieved()
+        {
+            var str = "Hello, World!";
+            var weakRef = JavaScriptWeakReferenceSafeHandle.Invalid;
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    var stringHandle = Engine.JsCreateString(str, (ulong)str.Length);
+                    Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    weakRef = Engine.JsCreateWeakReference(stringHandle);
+                    Assert.True(weakRef != JavaScriptWeakReferenceSafeHandle.Invalid);
+
+                    var valueHandle = Engine.JsGetWeakReferenceValue(weakRef);
+                    Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    Assert.True(valueHandle == stringHandle);
+
+                    valueHandle.Dispose();
+                    stringHandle.Dispose();
+                }
+
+                //TODO: even after a collect, JsGetWeakReferenceValue still returns a handle.
+                //Engine.JsCollectGarbage(runtimeHandle);
+                //var outOfScopeValueHandle = Engine.JsGetWeakReferenceValue(weakRef);
+                //Assert.True(outOfScopeValueHandle == JavaScriptValueSafeHandle.Invalid);
+            }
+        }
+
+        //TODO: Keeping the SharedContents an IntPtr for now, as a safehandle seems to corrupt the runtime until a hard reboot.
+
+        [Fact]
+        public void JsSharedArrayBufferWithSharedContentCanBeRetrieved()
+        {
+            var source = @"(() => {
+        return new SharedArrayBuffer(50);
+        })();
+        ";
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    var sharedArrayBufferHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, source);
+                    var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
+
+                    //Apparently the type is object for now.
+                    Assert.True(handleType == JavaScriptValueType.Object);
+
+                    Internal.LibChakraCore.JsGetSharedArrayBufferContent(sharedArrayBufferHandle, out IntPtr sharedContents);
+                    Assert.True(sharedContents != IntPtr.Zero);
+
+                    Internal.LibChakraCore.JsReleaseSharedArrayBufferContentHandle(sharedContents);
+
+                    sharedArrayBufferHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsSharedArrayBufferWithSharedContentCanBeCreated()
+        {
+            var source = @"(() => {
+        return new SharedArrayBuffer(50);
+        })();
+        ";
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    var sharedArrayBufferHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, source);
+                    var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
+
+                    //Apparently the type is object for now.
+                    Assert.True(handleType == JavaScriptValueType.Object);
+
+                    var sharedBufferContentHandle = Engine.JsGetSharedArrayBufferContent(sharedArrayBufferHandle);
+                    Assert.True(sharedBufferContentHandle != IntPtr.Zero);
+
+                    var sharedArrayHandle = Engine.JsCreateSharedArrayBufferWithSharedContent(sharedBufferContentHandle);
+                    Assert.True(sharedArrayHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    handleType = Engine.JsGetValueType(sharedArrayHandle);
+                    Assert.True(handleType == JavaScriptValueType.Object);
+
+                    Internal.LibChakraCore.JsReleaseSharedArrayBufferContentHandle(sharedBufferContentHandle);
+
+                    sharedArrayBufferHandle.Dispose();
+                    sharedArrayHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsSharedArrayBufferWithSharedContentCanBeReleased()
+        {
+            var source = @"(() => {
+        return new SharedArrayBuffer(50);
+        })();
+        ";
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    var sharedArrayBufferHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, source);
+                    var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
+
+                    //Apparently the type is object for now.
+                    Assert.True(handleType == JavaScriptValueType.Object);
+
+                    var sharedBufferContentHandle = Engine.JsGetSharedArrayBufferContent(sharedArrayBufferHandle);
+                    Assert.True(sharedBufferContentHandle != IntPtr.Zero);
+
+                    Engine.JsReleaseSharedArrayBufferContentHandle(sharedBufferContentHandle);
+
+                    //TODO: we called it, but unsure how to verify that it has been released -- calling Get again still returns the obj.
+
+                    sharedArrayBufferHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsDataViewInfoCanBeRetrieved()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    var arrayBufferHandle = Engine.JsCreateArrayBuffer(50);
+                    var dataViewHandle = Engine.JsCreateDataView(arrayBufferHandle, 0, 50);
+
+                    Assert.True(dataViewHandle != JavaScriptValueSafeHandle.Invalid);
+
+                    var handleType = Engine.JsGetValueType(dataViewHandle);
+                    Assert.True(handleType == JavaScriptValueType.DataView);
+
+                    var dataViewInfoHandle = Engine.JsGetDataViewInfo(dataViewHandle, out uint byteOffset, out uint byteLength);
+                    Assert.True(byteOffset == 0);
+                    Assert.True(byteLength == 50);
+                    Assert.True(dataViewInfoHandle != JavaScriptValueSafeHandle.Invalid);
+                    handleType = Engine.JsGetValueType(dataViewInfoHandle);
+                    Assert.True(handleType == JavaScriptValueType.ArrayBuffer);
+
+                    dataViewInfoHandle.Dispose();
+                    arrayBufferHandle.Dispose();
+                    dataViewHandle.Dispose();
                 }
             }
         }

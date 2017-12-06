@@ -40,18 +40,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return result;
         }
 
-        public JavaScriptValueSafeHandle JsExperimentalApiRunModule(string script, JavaScriptSourceContext sourceContext, string sourceUrl)
-        {
-            Errors.ThrowIfError(LibChakraCore.JsExperimentalApiRunModule(script, sourceContext, sourceUrl, out JavaScriptValueSafeHandle result));
-            result.NativeFunctionSource = nameof(LibChakraCore.JsExperimentalApiRunModule);
-            if (result != JavaScriptValueSafeHandle.Invalid)
-            {
-				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out uint valueRefCount));
-			}
-            return result;
-        }
-
-        public void JsSerializeScript(string script, byte[] buffer, ref ulong bufferSize)
+        public void JsSerializeScript(string script, byte[] buffer, ref uint bufferSize)
         {
             Errors.ThrowIfError(LibChakraCore.JsSerializeScript(script, buffer, ref bufferSize));
         }

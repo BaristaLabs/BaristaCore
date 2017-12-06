@@ -16,47 +16,56 @@
         {
             //Common type mappings
             var typeMap = new Dictionary<string, string>() {
-        { "JsRuntimeHandle", "JavaScriptRuntimeSafeHandle" },
-        { "JsContextRef", "JavaScriptContextSafeHandle" },
-        { "JsSourceContext", "JavaScriptSourceContext" },
-        { "JsRef", "SafeHandle" },
-        { "JsValueRef", "JavaScriptValueSafeHandle" },
-        { "JsValueRef[]", "IntPtr[]" },
-        { "JsPropertyIdRef", "JavaScriptPropertyIdSafeHandle" },
-        { "JsPropertyIdType", "JavaScriptPropertyIdType" },
-        { "JsModuleRecord", "IntPtr" },
-        { "JsParseModuleSourceFlags", "JavaScriptParseModuleSourceFlags" },
-        { "JsModuleHostInfoKind", "JavaScriptModuleHostInfoKind" },
+                { "JsRuntimeHandle", "JavaScriptRuntimeSafeHandle" },
+                { "JsContextRef", "JavaScriptContextSafeHandle" },
+                { "JsSourceContext", "JavaScriptSourceContext" },
+                { "JsRef", "SafeHandle" },
+                { "JsWeakRef", "JavaScriptWeakReferenceSafeHandle" },
+                { "JsValueRef", "JavaScriptValueSafeHandle" },
+                { "JsValueRef[]", "IntPtr[]" },
+                { "JsSharedArrayBufferContentHandle", "IntPtr" },
 
-        { "JsRuntimeAttributes", "JavaScriptRuntimeAttributes"},
-        { "JsParseScriptAttributes", "JavaScriptParseScriptAttributes"},
-        { "JsValueType", "JavaScriptValueType"},
-        { "JsTypedArrayType", "JavaScriptTypedArrayType"},
-        { "JsDiagBreakOnExceptionAttributes", "JavaScriptDiagBreakOnExceptionAttributes"},
-        { "JsDiagStepType", "JavaScriptDiagStepType"},
+                { "JsPropertyIdRef", "JavaScriptPropertyIdSafeHandle" },
+                { "JsPropertyIdType", "JavaScriptPropertyIdType" },
+                { "JsModuleRecord", "IntPtr" },
+                { "JsParseModuleSourceFlags", "JavaScriptParseModuleSourceFlags" },
+                { "JsModuleHostInfoKind", "JavaScriptModuleHostInfoKind" },
 
-        { "JsNativeFunction", "JavaScriptNativeFunction"},
+                { "JsRuntimeAttributes", "JavaScriptRuntimeAttributes"},
+                { "JsParseScriptAttributes", "JavaScriptParseScriptAttributes"},
+                { "JsValueType", "JavaScriptValueType"},
+                { "JsTypedArrayType", "JavaScriptTypedArrayType"},
+                { "JsDiagBreakOnExceptionAttributes", "JavaScriptDiagBreakOnExceptionAttributes"},
+                { "JsDiagStepType", "JavaScriptDiagStepType"},
 
-        { "JsSerializedLoadScriptCallback", "JavaScriptSerializedLoadScriptCallback" },
-        { "JsSerializedScriptLoadSourceCallback", "JavaScriptSerializedScriptLoadSourceCallback" },
-        { "JsSerializedScriptUnloadCallback", "JavaScriptSerializedScriptUnloadCallback" },
-        { "JsFinalizeCallback", "JavaScriptObjectFinalizeCallback"},
-        { "JsPromiseContinuationCallback", "JavaScriptPromiseContinuationCallback"},
-        { "JsDiagDebugEventCallback", "JavaScriptDiagDebugEventCallback" },
-        { "FetchImportedModuleCallBack", "JavaScriptFetchImportedModuleCallBack" },
-        { "NotifyModuleReadyCallback", "JavaScriptNotifyModuleReadyCallback" },
+                { "JsNativeFunction", "JavaScriptNativeFunction"},
 
-        { "size_t", "ulong" },
-        { "UIntPtr", "ulong" },
-        { "char*", "byte[]"},
-        { "uint16_t*", "byte[]" }
-    };
+                { "JsSerializedLoadScriptCallback", "JavaScriptSerializedLoadScriptCallback" },
+                { "JsSerializedScriptLoadSourceCallback", "JavaScriptSerializedScriptLoadSourceCallback" },
+                { "JsSerializedScriptUnloadCallback", "JavaScriptSerializedScriptUnloadCallback" },
+                { "JsFinalizeCallback", "JavaScriptObjectFinalizeCallback"},
+                { "JsPromiseContinuationCallback", "JavaScriptPromiseContinuationCallback"},
+                { "JsDiagDebugEventCallback", "JavaScriptDiagDebugEventCallback" },
+                { "FetchImportedModuleCallBack", "JavaScriptFetchImportedModuleCallBack" },
+                { "NotifyModuleReadyCallback", "JavaScriptNotifyModuleReadyCallback" },
+
+                { "size_t", "ulong" },
+                { "UIntPtr", "ulong" },
+                { "char*", "byte[]"},
+                { "uint16_t*", "byte[]" }
+            };
+
+            var paramNameTypeMap = new Dictionary<string, string>()
+            {
+                { "weakRef", "JavaScriptWeakReferenceSafeHandle" },
+                //{ "sharedContents", "JavaScriptSharedArrayBufferSafeHandle" }
+            };
 
             SetupHelpers();
-            
+
             //Load the extern definition file.
             var defsDoc = XDocument.Load(args[0]);
-            var externs = ParseAndGetExterns(typeMap, defsDoc);
+            var externs = ParseAndGetExterns(typeMap, paramNameTypeMap, defsDoc);
 
             //Output Native Wrapper
             var templateContents = File.ReadAllText("./templates/LibChakraCore.hbs");
@@ -139,7 +148,7 @@
             });
         }
 
-        public static List<ChakraExtern> ParseAndGetExterns(IDictionary<string, string> typeMap, XDocument defsDoc)
+        public static List<ChakraExtern> ParseAndGetExterns(IDictionary<string, string> typeMap, IDictionary<string, string> namedTypeMap, XDocument defsDoc)
         {
             var externs = new List<ChakraExtern>();
 
@@ -206,6 +215,10 @@
                     if (typeMap.ContainsKey(param.Type))
                     {
                         param.Type = typeMap[param.Type];
+                    }
+                    else if (namedTypeMap.ContainsKey(param.Name))
+                    {
+                        param.Type = namedTypeMap[param.Name];
                     }
 
                     var directionAttribute = property.Attribute("direction");

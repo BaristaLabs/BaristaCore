@@ -99,9 +99,32 @@ namespace BaristaLabs.BaristaCore.JavaScript
         IntPtr JsGetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo);
 
         /// <summary>
+        ///   Returns metadata relating to the exception that caused the runtime of the current context to be in the exception state and resets the exception state for that runtime. The metadata includes a reference to the exception itself.
+        /// </summary>
+        /// <remarks>
+        ///     If the runtime of the current context is not in an exception state, this API will return
+        ///     JsErrorInvalidArgument. If the runtime is disabled, this will return an exception
+        ///     indicating that the script was terminated, but it will not clear the exception (the
+        ///     exception will be cleared if the runtime is re-enabled using
+        ///     JsEnableRuntimeExecution).
+        ///     The metadata value is a javascript object with the following properties: exception, the
+        ///     thrown exception object; line, the 0 indexed line number where the exception was thrown;
+        ///     column, the 0 indexed column number where the exception was thrown; length, the
+        ///     source-length of the cause of the exception; source, a string containing the line of
+        ///     source code where the exception was thrown; and url, a string containing the name of
+        ///     the script file containing the code that threw the exception.
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>
+        ///     The exception metadata for the runtime of the current context.
+        /// </returns>
+        JavaScriptValueSafeHandle JsGetAndClearExceptionWithMetadata();
+
+        /// <summary>
         ///   Create JavascriptString variable from ASCII or Utf8 string
         /// </summary>
         /// <remarks>
+        ///     Requires an active script context.
         ///     Input string can be either ASCII or Utf8
         /// </remarks>
         /// <param name="content">
@@ -119,6 +142,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///   Create JavascriptString variable from Utf16 string
         /// </summary>
         /// <remarks>
+        ///     Requires an active script context.
         ///     Expects Utf16 string
         /// </remarks>
         /// <param name="content">
@@ -138,7 +162,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <remarks>
         ///     When size of the `buffer` is unknown,
         ///     `buffer` argument can be nullptr.
-        ///     In that case, `written` argument will return the length needed.
+        ///     In that case, `length` argument will return the length needed.
         /// </remarks>
         /// <param name="value">
         ///     JavascriptString value
@@ -150,7 +174,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     Buffer size
         /// </param>
         /// <returns>
-        ///     Total number of characters written
+        ///     Total number of characters needed or written
         /// </returns>
         ulong JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, ulong bufferSize);
 
@@ -374,6 +398,136 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     The new Promise object.
         /// </returns>
         JavaScriptValueSafeHandle JsCreatePromise(out JavaScriptValueSafeHandle resolveFunction, out JavaScriptValueSafeHandle rejectFunction);
+
+        /// <summary>
+        ///   Creates a weak reference to a value.
+        /// </summary>
+        /// <param name="value">
+        ///     The value to be referenced.
+        /// </param>
+        /// <returns>
+        ///     Weak reference to the value.
+        /// </returns>
+        JavaScriptWeakReferenceSafeHandle JsCreateWeakReference(JavaScriptValueSafeHandle value);
+
+        /// <summary>
+        ///   Gets a strong reference to the value referred to by a weak reference.
+        /// </summary>
+        /// <param name="weakRef">
+        ///     A weak reference.
+        /// </param>
+        /// <returns>
+        ///     Reference to the value, or JS_INVALID_REFERENCE if the value is
+        ///     no longer available.
+        /// </returns>
+        JavaScriptValueSafeHandle JsGetWeakReferenceValue(JavaScriptWeakReferenceSafeHandle weakRef);
+
+        /// <summary>
+        ///   Creates a Javascript SharedArrayBuffer object with shared content get from JsGetSharedArrayBufferContent.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="sharedContents">
+        ///     The storage object of a SharedArrayBuffer which can be shared between multiple thread.
+        /// </param>
+        /// <returns>
+        ///     The new SharedArrayBuffer object.
+        /// </returns>
+        JavaScriptValueSafeHandle JsCreateSharedArrayBufferWithSharedContent(IntPtr sharedContents);
+
+        /// <summary>
+        ///   Get the storage object from a SharedArrayBuffer.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="sharedArrayBuffer">
+        ///     The SharedArrayBuffer object.
+        /// </param>
+        /// <returns>
+        ///     The storage object of a SharedArrayBuffer which can be shared between multiple thread.
+        ///     User should call JsReleaseSharedArrayBufferContentHandle after finished using it.
+        /// </returns>
+        IntPtr JsGetSharedArrayBufferContent(JavaScriptValueSafeHandle sharedArrayBuffer);
+
+        /// <summary>
+        ///   Decrease the reference count on a SharedArrayBuffer storage object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="sharedContents">
+        ///     The storage object of a SharedArrayBuffer which can be shared between multiple thread.
+        /// </param>
+        void JsReleaseSharedArrayBufferContentHandle(IntPtr sharedContents);
+
+        /// <summary>
+        ///   Determines whether an object has a non-inherited property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that may contain the property.
+        /// </param>
+        /// <param name="propertyId">
+        ///     The ID of the property.
+        /// </param>
+        /// <returns>
+        ///     Whether the object has the non-inherited property.
+        /// </returns>
+        bool JsHasOwnProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId);
+
+        /// <summary>
+        ///   Write JS string value into char string buffer without a null terminator
+        /// </summary>
+        /// <remarks>
+        ///     When size of the `buffer` is unknown,
+        ///     `buffer` argument can be nullptr.
+        ///     In that case, `written` argument will return the length needed.
+        ///     When start is out of range or < 0, returns JsErrorInvalidArgument
+        ///     and `written` will be equal to 0.
+        ///     If calculated length is 0 (It can be due to string length or `start`
+        ///     and length combination), then `written` will be equal to 0 and call
+        ///     returns JsNoError
+        ///     The JS string `value` will be converted one utf16 code point at a time,
+        ///     and if it has code points that do not fit in one byte, those values
+        ///     will be truncated.
+        /// </remarks>
+        /// <param name="value">
+        ///     JavascriptString value
+        /// </param>
+        /// <param name="start">
+        ///     Start offset of buffer
+        /// </param>
+        /// <param name="length">
+        ///     Number of characters to be written
+        /// </param>
+        /// <param name="buffer">
+        ///     Pointer to buffer
+        /// </param>
+        /// <returns>
+        ///     Total number of characters written
+        /// </returns>
+        ulong JsCopyStringOneByte(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer);
+
+        /// <summary>
+        ///   Obtains frequently used properties of a data view.
+        /// </summary>
+        /// <param name="dataView">
+        ///     The data view instance.
+        /// </param>
+        /// <param name="byteOffset">
+        ///     The offset in bytes from the start of arrayBuffer referenced by the array.
+        /// </param>
+        /// <param name="byteLength">
+        ///     The number of bytes in the array.
+        /// </param>
+        /// <returns>
+        ///     The ArrayBuffer backstore of the view.
+        /// </returns>
+        JavaScriptValueSafeHandle JsGetDataViewInfo(JavaScriptValueSafeHandle dataView, out uint byteOffset, out uint byteLength);
 
     }
 }

@@ -26,14 +26,12 @@
             if (autoConvert)
             {
                 
-                JavaScriptValueType handleValueType;
-                innerError = LibChakraCore.JsGetValueType(stringHandle, out handleValueType);
+                innerError = LibChakraCore.JsGetValueType(stringHandle, out JavaScriptValueType handleValueType);
                 Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
                 if (handleValueType != JavaScriptValueType.String)
                 {
-                    JavaScriptValueSafeHandle convertedToStringHandle;
-                    LibChakraCore.JsConvertValueToString(stringHandle, out convertedToStringHandle);
+                    LibChakraCore.JsConvertValueToString(stringHandle, out JavaScriptValueSafeHandle convertedToStringHandle);
                     if (releaseHandle)
                         stringHandle.Dispose();
 
@@ -43,16 +41,14 @@
             }
 
             //Get the size
-            ulong size;
-            innerError = LibChakraCore.JsCopyString(stringHandle, null, 0, out size);
+            innerError = LibChakraCore.JsCopyString(stringHandle, null, 0, out ulong size);
             Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
             if ((int)size > int.MaxValue)
                 throw new OutOfMemoryException("Exceeded maximum string length.");
 
             byte[] result = new byte[(int)size];
-            ulong written;
-            innerError = LibChakraCore.JsCopyString(stringHandle, result, (ulong)result.Length, out written);
+            innerError = LibChakraCore.JsCopyString(stringHandle, result, (ulong)result.Length, out ulong written);
             Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
             var strResult = Encoding.UTF8.GetString(result, 0, result.Length);

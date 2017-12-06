@@ -43,6 +43,10 @@
         ///     Calling <c>JsSetException</c> will also dispatch the exception to the script debugger
         ///     (if any) giving the debugger a chance to break on the exception.
         /// </summary>
-        DispatchSetExceptionsToDebugger = 0x00000040
+        DispatchSetExceptionsToDebugger = 0x00000040,
+        /// <summary>
+        ///     Disable Failfast fatal error on OOM
+        /// </summary>
+        JsRuntimeAttributeDisableFatalOnOOM = 0x00000080,
     }
 }

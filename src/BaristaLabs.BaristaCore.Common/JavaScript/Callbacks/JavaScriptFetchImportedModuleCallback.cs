@@ -1,7 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using System;
-    using System.Runtime.InteropServices;
 
     /// <summary>
     ///     User implemented callback to fetch additional imported modules.
@@ -17,5 +16,5 @@
     /// <returns>
     ///     true if the operation succeeded, false otherwise.
     /// </returns>
-    public delegate bool JavaScriptFetchImportedModuleCallback(IntPtr referencingModule, IntPtr specifier, out IntPtr activateInterface);
+    public delegate bool JavaScriptFetchImportedModuleCallback(IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModuleRecord);
 }

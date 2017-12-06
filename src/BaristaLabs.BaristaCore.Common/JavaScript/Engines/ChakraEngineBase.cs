@@ -46,6 +46,17 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return hostInfo;
         }
 
+        public JavaScriptValueSafeHandle JsGetAndClearExceptionWithMetadata()
+        {
+            Errors.ThrowIfError(LibChakraCore.JsGetAndClearExceptionWithMetadata(out JavaScriptValueSafeHandle metadata));
+            metadata.NativeFunctionSource = nameof(LibChakraCore.JsGetAndClearExceptionWithMetadata);
+            if (metadata != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(metadata, out uint valueRefCount));
+			}
+            return metadata;
+        }
+
         public JavaScriptValueSafeHandle JsCreateString(string content, ulong length)
         {
             Errors.ThrowIfError(LibChakraCore.JsCreateString(content, length, out JavaScriptValueSafeHandle value));
@@ -70,8 +81,8 @@ namespace BaristaLabs.BaristaCore.JavaScript
 
         public ulong JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, ulong bufferSize)
         {
-            Errors.ThrowIfError(LibChakraCore.JsCopyString(value, buffer, bufferSize, out ulong written));
-            return written;
+            Errors.ThrowIfError(LibChakraCore.JsCopyString(value, buffer, bufferSize, out ulong length));
+            return length;
         }
 
         public ulong JsCopyStringUtf16(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer)
@@ -171,6 +182,68 @@ namespace BaristaLabs.BaristaCore.JavaScript
 				Errors.ThrowIfError(LibChakraCore.JsAddRef(rejectFunction, out uint valueRefCount));
 			}
             return promise;
+        }
+
+        public JavaScriptWeakReferenceSafeHandle JsCreateWeakReference(JavaScriptValueSafeHandle value)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsCreateWeakReference(value, out JavaScriptWeakReferenceSafeHandle weakRef));
+            return weakRef;
+        }
+
+        public JavaScriptValueSafeHandle JsGetWeakReferenceValue(JavaScriptWeakReferenceSafeHandle weakRef)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsGetWeakReferenceValue(weakRef, out JavaScriptValueSafeHandle value));
+            value.NativeFunctionSource = nameof(LibChakraCore.JsGetWeakReferenceValue);
+            if (value != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(value, out uint valueRefCount));
+			}
+            return value;
+        }
+
+        public JavaScriptValueSafeHandle JsCreateSharedArrayBufferWithSharedContent(IntPtr sharedContents)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsCreateSharedArrayBufferWithSharedContent(sharedContents, out JavaScriptValueSafeHandle result));
+            result.NativeFunctionSource = nameof(LibChakraCore.JsCreateSharedArrayBufferWithSharedContent);
+            if (result != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out uint valueRefCount));
+			}
+            return result;
+        }
+
+        public IntPtr JsGetSharedArrayBufferContent(JavaScriptValueSafeHandle sharedArrayBuffer)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsGetSharedArrayBufferContent(sharedArrayBuffer, out IntPtr sharedContents));
+            return sharedContents;
+        }
+
+        public void JsReleaseSharedArrayBufferContentHandle(IntPtr sharedContents)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsReleaseSharedArrayBufferContentHandle(sharedContents));
+        }
+
+        public bool JsHasOwnProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsHasOwnProperty(@object, propertyId, out bool hasOwnProperty));
+            return hasOwnProperty;
+        }
+
+        public ulong JsCopyStringOneByte(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsCopyStringOneByte(value, start, length, buffer, out ulong written));
+            return written;
+        }
+
+        public JavaScriptValueSafeHandle JsGetDataViewInfo(JavaScriptValueSafeHandle dataView, out uint byteOffset, out uint byteLength)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsGetDataViewInfo(dataView, out JavaScriptValueSafeHandle arrayBuffer, out byteOffset, out byteLength));
+            arrayBuffer.NativeFunctionSource = nameof(LibChakraCore.JsGetDataViewInfo);
+            if (arrayBuffer != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(arrayBuffer, out uint valueRefCount));
+			}
+            return arrayBuffer;
         }
 
         public JavaScriptRuntimeSafeHandle JsCreateRuntime(JavaScriptRuntimeAttributes attributes, JavaScriptThreadServiceCallback threadService)
@@ -1070,9 +1143,9 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return handleObject;
         }
 
-        public JavaScriptValueSafeHandle JsDiagEvaluate(JavaScriptValueSafeHandle expression, uint stackFrameIndex, JavaScriptParseScriptAttributes parseAttributes)
+        public JavaScriptValueSafeHandle JsDiagEvaluate(JavaScriptValueSafeHandle expression, uint stackFrameIndex, JavaScriptParseScriptAttributes parseAttributes, bool forceSetValueProp)
         {
-            Errors.ThrowIfError(LibChakraCore.JsDiagEvaluate(expression, stackFrameIndex, parseAttributes, out JavaScriptValueSafeHandle evalResult));
+            Errors.ThrowIfError(LibChakraCore.JsDiagEvaluate(expression, stackFrameIndex, parseAttributes, forceSetValueProp, out JavaScriptValueSafeHandle evalResult));
             evalResult.NativeFunctionSource = nameof(LibChakraCore.JsDiagEvaluate);
             if (evalResult != JavaScriptValueSafeHandle.Invalid)
             {
