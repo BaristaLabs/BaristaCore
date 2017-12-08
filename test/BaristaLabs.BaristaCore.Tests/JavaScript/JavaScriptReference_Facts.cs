@@ -1,6 +1,8 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
-    using Internal;
+    using BaristaLabs.BaristaCore.Collections;
+    using BaristaLabs.BaristaCore.JavaScript;
+    using BaristaLabs.BaristaCore.JavaScript.Internal;
     using System;
     using System.Collections.Concurrent;
     using Xunit;
@@ -48,8 +50,7 @@
 
                     if (s_objectBeforeCollect.ContainsKey(handlePtr))
                     {
-                        WeakCollection<JavaScriptObjectBeforeCollectCallback> callbacks;
-                        if (s_objectBeforeCollect.TryGetValue(handlePtr, out callbacks))
+                        if (s_objectBeforeCollect.TryGetValue(handlePtr, out WeakCollection<JavaScriptObjectBeforeCollectCallback> callbacks))
                         {
                             if (!callbacks.Contains(callback))
                             {
@@ -59,8 +60,10 @@
                     }
                     else
                     {
-                        var callbacks = new WeakCollection<JavaScriptObjectBeforeCollectCallback>();
-                        callbacks.Add(callback);
+                        var callbacks = new WeakCollection<JavaScriptObjectBeforeCollectCallback>
+                        {
+                            callback
+                        };
                         s_objectBeforeCollect.TryAdd(handlePtr, callbacks);
                     }
                 }
@@ -83,8 +86,7 @@
 
             private static void OnObjectBeforeCollect(IntPtr handle, IntPtr callbackState)
             {
-                WeakCollection<JavaScriptObjectBeforeCollectCallback> callbacks;
-                if (s_objectBeforeCollect.TryGetValue(handle, out callbacks))
+                if (s_objectBeforeCollect.TryGetValue(handle, out WeakCollection<JavaScriptObjectBeforeCollectCallback> callbacks))
                 {
                     foreach (var objectBeforeCollectCallback in callbacks)
                     {

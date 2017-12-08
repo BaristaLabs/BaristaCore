@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore
+﻿namespace BaristaLabs.BaristaCore.Collections
 {
     using System;
     using System.Collections.Generic;
@@ -50,8 +50,7 @@
             {
                 return m_list.Select(x =>
                 {
-                    T target;
-                    if (x.TryGetTarget(out target))
+                    if (x.TryGetTarget(out T target))
                         return target;
                     return null;
                 });
@@ -145,8 +144,7 @@
                 for (int readIndex = 0; readIndex != m_list.Count; ++readIndex)
                 {
                     WeakReference<T> weakReference = m_list[readIndex];
-                    T weakDelegate;
-                    if (weakReference.TryGetTarget(out weakDelegate))
+                    if (weakReference.TryGetTarget(out T weakDelegate))
                     {
                         yield return weakDelegate;
 
@@ -182,8 +180,7 @@
             for (int i = 0; i != m_list.Count; ++i)
             {
                 WeakReference<T> weakReference = m_list[i];
-                T weakDelegate;
-                if (weakReference.TryGetTarget(out weakDelegate))
+                if (weakReference.TryGetTarget(out T weakDelegate))
                 {
                     if (weakDelegate == item)
                     {

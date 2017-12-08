@@ -1,15 +1,15 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
+﻿namespace BaristaLabs.BaristaCore.Tests
 {
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using Xunit;
 
-    public class JavaScriptRuntimeStability_Facts
+    public class BaristaRuntimeStability_Facts
     {
         private IServiceProvider Provider;
 
-        public JavaScriptRuntimeStability_Facts()
+        public BaristaRuntimeStability_Facts()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddBaristaCore();
@@ -20,7 +20,7 @@
         [Fact]
         public void JavaScriptRuntimeCanBeConstructed()
         {
-            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntime.CreateRuntime(Provider))
             {
             }
             Assert.True(true);

@@ -2,7 +2,7 @@
 {
     public sealed class JavaScriptArray : JavaScriptValue
     {
-        internal JavaScriptArray(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle value)
+        internal JavaScriptArray(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
         }

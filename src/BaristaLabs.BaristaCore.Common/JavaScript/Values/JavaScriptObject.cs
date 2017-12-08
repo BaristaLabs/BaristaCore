@@ -5,7 +5,7 @@
 
     public class JavaScriptObject : JavaScriptValue
     {
-        internal JavaScriptObject(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle value)
+        internal JavaScriptObject(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
         }

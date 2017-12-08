@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +21,7 @@
         [Fact]
         public void JsObjectCanBeCreated()
         {
-            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntime.CreateRuntime(Provider))
             {
                 using (var ctx = rt.CreateContext())
                 {

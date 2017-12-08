@@ -55,7 +55,7 @@
         }
         #endregion
 
-        internal JavaScriptTypedArray(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle value)
+        internal JavaScriptTypedArray(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
             m_arrayInfo = new Lazy<JavaScriptTypedArrayInfo>(GetTypedArrayInfo);

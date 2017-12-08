@@ -6,7 +6,7 @@
 
     public sealed class JavaScriptFunction : JavaScriptObject
     {
-        public JavaScriptFunction(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle value)
+        public JavaScriptFunction(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
         }

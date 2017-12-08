@@ -7,7 +7,7 @@
     /// </summary>
     public sealed class JavaScriptUndefined : JavaScriptValue
     {
-        internal JavaScriptUndefined(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle handle)
+        internal JavaScriptUndefined(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle handle)
             : base(engine, context, handle)
         {
         }

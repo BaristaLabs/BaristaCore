@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
@@ -21,21 +21,15 @@
         [Fact]
         public void JavaScriptValueConvertsToAnIntDirectly()
         {
-            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntime.CreateRuntime(Provider))
             {
                 using (var ctx = rt.CreateContext())
                 {
                     using (ctx.Scope())
                     {
-                        var script = "41+1";
-                        var fn = ctx.ParseScriptText(script);
+                        var script = "export default 41+1";
+                        dynamic result = ctx.EvaluateModule(script);
 
-                        //Assert that the function is the script we passed in.
-                        var fnText = fn.ToString();
-                        Assert.Equal(script, fnText);
-
-                        //Invoke it and get a dynamic result.
-                        dynamic result = fn.Invoke();
                         Assert.True((int)result == 42);
                     }
                 }
@@ -45,21 +39,15 @@
         [Fact]
         public void JavaScriptValueConvertsToAnIntWithCoersion()
         {
-            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntime.CreateRuntime(Provider))
             {
                 using (var ctx = rt.CreateContext())
                 {
                     using (ctx.Scope())
                     {
-                        var script = "'42'";
-                        var fn = ctx.ParseScriptText(script);
+                        var script = "export default '42'";
+                        dynamic result = ctx.EvaluateModule(script);
 
-                        //Assert that the function is the script we passed in.
-                        var fnText = fn.ToString();
-                        Assert.Equal(script, fnText);
-
-                        //Invoke it and get a dynamic result.
-                        dynamic result = fn.Invoke();
                         Assert.True((int)result == 42);
                     }
                 }
@@ -69,21 +57,15 @@
         [Fact]
         public void JavaScriptValueConvertsToADoubleDirectly()
         {
-            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntime.CreateRuntime(Provider))
             {
                 using (var ctx = rt.CreateContext())
                 {
                     using (ctx.Scope())
                     {
-                        var script = "41.0+1.1";
-                        var fn = ctx.ParseScriptText(script);
+                        var script = "export default 41.0+1.1";
+                        dynamic result = ctx.EvaluateModule(script);
 
-                        //Assert that the function is the script we passed in.
-                        var fnText = fn.ToString();
-                        Assert.Equal(script, fnText);
-
-                        //Invoke it and get a dynamic result.
-                        dynamic result = fn.Invoke();
                         Assert.True((double)result == 42.1);
                     }
                 }
@@ -93,21 +75,15 @@
         [Fact]
         public void JavaScriptValueConvertsToADoubleWithCoersion()
         {
-            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntime.CreateRuntime(Provider))
             {
                 using (var ctx = rt.CreateContext())
                 {
                     using (ctx.Scope())
                     {
-                        var script = "'42.1'";
-                        var fn = ctx.ParseScriptText(script);
+                        var script = "export default '42.1'";
+                        dynamic result = ctx.EvaluateModule(script);
 
-                        //Assert that the function is the script we passed in.
-                        var fnText = fn.ToString();
-                        Assert.Equal(script, fnText);
-
-                        //Invoke it and get a dynamic result.
-                        dynamic result = fn.Invoke();
                         Assert.True((double)result == 42.1);
                     }
                 }

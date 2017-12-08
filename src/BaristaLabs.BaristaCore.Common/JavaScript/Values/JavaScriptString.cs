@@ -2,7 +2,7 @@
 {
     public sealed class JavaScriptString : JavaScriptValue
     {
-        internal JavaScriptString(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle value)
+        internal JavaScriptString(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
         }

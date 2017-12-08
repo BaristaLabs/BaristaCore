@@ -2404,7 +2404,7 @@ new Promise(function(resolve, reject) {
                     }
                     catch (JavaScriptScriptException ex)
                     {
-                        Assert.Equal("Host may not have set any promise continuation callback. Promises may not be executed.", ex.ErrorMessage);
+                        Assert.Equal("Host may not have set any promise continuation callback. Promises may not be executed.", ex.Message);
                     }
                 }
             }

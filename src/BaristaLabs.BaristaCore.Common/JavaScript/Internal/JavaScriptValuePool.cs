@@ -7,14 +7,14 @@
     /// </summary>
     internal sealed class JavaScriptValuePool : JavaScriptReferencePool<JavaScriptValue, JavaScriptValueSafeHandle>
     {
-        private readonly JavaScriptContext m_context;
+        private readonly BaristaContext m_context;
 
-        public JavaScriptContext Context
+        public BaristaContext Context
         {
             get { return m_context; }
         }
 
-        public JavaScriptValuePool(IJavaScriptEngine engine, JavaScriptContext context)
+        public JavaScriptValuePool(IJavaScriptEngine engine, BaristaContext context)
             : base(engine)
         {
             if (context == null)

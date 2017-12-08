@@ -10,7 +10,7 @@
         private T m_javaScriptReference;
 
         /// <summary>
-        /// Gets the JavaScript Engine associated with the JavaScript Runtime.
+        /// Gets the JavaScript Engine associated with the JavaScript object.
         /// </summary>
         public IJavaScriptEngine Engine
         {
@@ -20,7 +20,7 @@
         /// <summary>
         /// Gets the underlying JavaScript Reference
         /// </summary>
-        internal T Handle
+        public T Handle
         {
             get
             {
@@ -49,13 +49,10 @@
         /// <param name="javaScriptReference"></param>
         protected JavaScriptReferenceFlyweight(IJavaScriptEngine engine, T javaScriptReference)
         {
-            if (engine == null)
-                throw new ArgumentNullException(nameof(engine));
-
             if (javaScriptReference == null || javaScriptReference.IsClosed || javaScriptReference.IsInvalid )
                 throw new ArgumentNullException(nameof(javaScriptReference));
 
-            m_javaScriptEngine = engine;
+            m_javaScriptEngine = engine ?? throw new ArgumentNullException(nameof(engine));
             m_javaScriptReference = javaScriptReference;
         }
 

@@ -26,7 +26,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     The new ModuleRecord created. The host should not try to call this API twice with the same normalizedSpecifier.
         ///     chakra will return an existing ModuleRecord if the specifier was passed in before.
         /// </returns>
-        IntPtr JsInitializeModuleRecord(IntPtr referencingModule, JavaScriptValueSafeHandle normalizedSpecifier);
+        JavaScriptModuleRecord JsInitializeModuleRecord(JavaScriptModuleRecord referencingModule, JavaScriptValueSafeHandle normalizedSpecifier);
 
         /// <summary>
         ///   Parse the module source
@@ -52,7 +52,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <returns>
         ///     The error object if there is parse error.
         /// </returns>
-        JavaScriptValueSafeHandle JsParseModuleSource(IntPtr requestModule, JavaScriptSourceContext sourceContext, byte[] script, uint scriptLength, JavaScriptParseModuleSourceFlags sourceFlag);
+        JavaScriptValueSafeHandle JsParseModuleSource(JavaScriptModuleRecord requestModule, JavaScriptSourceContext sourceContext, byte[] script, uint scriptLength, JavaScriptParseModuleSourceFlags sourceFlag);
 
         /// <summary>
         ///   Execute module code.
@@ -68,7 +68,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <returns>
         ///     The return value of the module.
         /// </returns>
-        JavaScriptValueSafeHandle JsModuleEvaluation(IntPtr requestModule);
+        JavaScriptValueSafeHandle JsModuleEvaluation(JavaScriptModuleRecord requestModule);
 
         /// <summary>
         ///   Set the host info for the specified module.
@@ -82,7 +82,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <param name="hostInfo">
         ///     The host info to be set.
         /// </param>
-        void JsSetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, IntPtr hostInfo);
+        void JsSetModuleHostInfo(JavaScriptModuleRecord requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, IntPtr hostInfo);
 
         /// <summary>
         ///   Retrieve the host info for the specified module.
@@ -96,7 +96,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <returns>
         ///     The host info to be retrieved.
         /// </returns>
-        IntPtr JsGetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo);
+        IntPtr JsGetModuleHostInfo(JavaScriptModuleRecord requestModule, JavaScriptModuleHostInfoKind moduleHostInfo);
 
         /// <summary>
         ///   Returns metadata relating to the exception that caused the runtime of the current context to be in the exception state and resets the exception state for that runtime. The metadata includes a reference to the exception itself.

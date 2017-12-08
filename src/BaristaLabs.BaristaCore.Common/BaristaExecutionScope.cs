@@ -1,17 +1,14 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
     using System;
 
-    public sealed class JavaScriptExecutionScope : IDisposable
+    public sealed class BaristaExecutionScope : IDisposable
     {
         private Action m_release;
 
-        internal JavaScriptExecutionScope(Action release)
+        internal BaristaExecutionScope(Action release)
         {
-            if (release == null)
-                throw new ArgumentNullException(nameof(release));
-
-            m_release = release;
+            m_release = release ?? throw new ArgumentNullException(nameof(release));
         }
 
         #region Disposable
@@ -27,7 +24,7 @@
             Dispose(true);
         }
 
-        ~JavaScriptExecutionScope()
+        ~BaristaExecutionScope()
         {
             Dispose(false);
         }

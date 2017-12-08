@@ -4,7 +4,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
 {
     public sealed class JavaScriptBoolean : JavaScriptValue
     {
-        internal JavaScriptBoolean(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle value)
+        internal JavaScriptBoolean(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
         }

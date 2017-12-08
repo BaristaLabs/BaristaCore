@@ -1,6 +1,7 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
     using BaristaCore.Extensions;
+    using BaristaLabs.BaristaCore.JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using Xunit;
@@ -21,7 +22,7 @@
         [Fact]
         public void JsPropertyIdCanBeCreated()
         {
-            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntime.CreateRuntime(Provider))
             {
                 using (var ctx = rt.CreateContext())
                 {

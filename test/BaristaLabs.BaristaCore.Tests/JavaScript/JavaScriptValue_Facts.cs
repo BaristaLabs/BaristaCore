@@ -1,6 +1,8 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
-    using BaristaCore.Extensions;
+    using BaristaLabs.BaristaCore;
+    using BaristaLabs.BaristaCore.Extensions;
+    using BaristaLabs.BaristaCore.JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using Xunit;
@@ -24,18 +26,16 @@
 var int16 = new Int16Array(2);
 int16[0] = 42;
 
-int16;
+export default int16;
 ";
-            using (var rt = JavaScriptRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntime.CreateRuntime(Provider))
             {
                 using (var ctx = rt.CreateContext())
                 {
                     using (ctx.Scope())
                     {
-                        var fn = ctx.ParseScriptText(script);
+                        JavaScriptValue result = ctx.EvaluateModule(script);
 
-                        //Invoke it.
-                        JavaScriptValue result = fn.Invoke();
                         Assert.IsType<JavaScriptTypedArray>(result);
 
                         var typedArray = result as JavaScriptTypedArray;

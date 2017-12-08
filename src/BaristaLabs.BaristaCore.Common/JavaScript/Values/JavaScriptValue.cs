@@ -6,21 +6,18 @@
 
     public abstract class JavaScriptValue : JavaScriptReferenceFlyweight<JavaScriptValueSafeHandle>
     {
-        private readonly JavaScriptContext m_context;
+        private readonly BaristaContext m_context;
 
-        protected JavaScriptValue(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle value)
+        protected JavaScriptValue(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, value)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
-
-            m_context = context;
+            m_context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         /// <summary>
         /// Gets the context associated with the value.
         /// </summary>
-        protected JavaScriptContext Context
+        protected BaristaContext Context
         {
             get { return m_context; }
         }
@@ -136,7 +133,7 @@
         /// Returns a new JavaScriptValue for the specified handle querying for the handle's value type.
         /// </summary>
         /// <returns>The JavaScript Value that represents the handle</returns>
-        internal static JavaScriptValue CreateJavaScriptValueFromHandle(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle valueHandle)
+        internal static JavaScriptValue CreateJavaScriptValueFromHandle(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
         {
             var valueType = engine.JsGetValueType(valueHandle);
             switch (valueType)
@@ -180,7 +177,7 @@
         /// Returns a new JavaScriptValue for the specified handle using the supplied type information.
         /// </summary>
         /// <returns>The JavaScript Value that represents the Handle</returns>
-        internal static T CreateJavaScriptValueFromHandle<T>(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle valueHandle)
+        internal static T CreateJavaScriptValueFromHandle<T>(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
             where T : JavaScriptValue
         {
             switch(typeof(T))

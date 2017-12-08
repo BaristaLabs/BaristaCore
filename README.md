@@ -10,7 +10,9 @@ BaristaCore
 | __macOS 10.12.1 (x64)__       | [![Build Status](https://travis-ci.org/BaristaLabs/BaristaCore.svg?branch=master)](https://travis-ci.org/BaristaLabs/BaristaCore) |
 
 
-> **10/5/2016** *BaristaCore is currently in active development. The functionality described below indicates the design goals of BaristaCore and may not be all currently implemented.*
+> **12/7/2017** *BaristaCore is currently in active development. The functionality described below indicates the design goals of BaristaCore and may not be all currently implemented.*
+
+> Updated with ChakraCore 1.7.4
 
 BaristaCore is an open-source cross-platform sandbox to run code with a http call.
 
@@ -53,10 +55,10 @@ Core Functionality:
   - [X] Use ChakraCore as the JavaScript Engine
     - [X] Enables ECMAScript 6+ support (classes, arrow functions, etc), and beyond.
     - [ ] ES6 Promises (Requires additional impl.)
-    - [ ] ES6 Modules (Currently windows only, experimental)
+    - [X] ES6 Modules
     - [X] More performant script execution
 	- [X] T4 Template driven generation of P/Invoke classes
-	- [ ] Full unit test suite surrounding managed/unmanaged interop layer
+	- [X] Full unit test suite surrounding managed/unmanaged interop layer
     - [ ] Debugging Support
 	- [ ] Time-Travel Debugging Support
   - [X] Cross-Platform Support

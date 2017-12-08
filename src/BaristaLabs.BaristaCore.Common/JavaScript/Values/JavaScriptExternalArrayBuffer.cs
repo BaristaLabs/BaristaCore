@@ -8,7 +8,7 @@
     /// </summary>
     public class JavaScriptExternalArrayBuffer : JavaScriptArrayBuffer
     {
-        protected JavaScriptExternalArrayBuffer(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle value)
+        protected JavaScriptExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
         }
@@ -22,7 +22,7 @@
         private IntPtr m_bufferHandle;
         private readonly Action<IntPtr> m_releaseBufferHandle;
 
-        internal JavaScriptManagedExternalArrayBuffer(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle value, IntPtr bufferHandle, Action<IntPtr> releaseBufferHandle)
+        internal JavaScriptManagedExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value, IntPtr bufferHandle, Action<IntPtr> releaseBufferHandle)
             : base(engine, context, value)
         {
             if (bufferHandle == default(IntPtr) || bufferHandle == null)

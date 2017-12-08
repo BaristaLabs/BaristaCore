@@ -7,7 +7,7 @@
     /// </summary>
     public sealed class JavaScriptNumber : JavaScriptValue
     {
-        internal JavaScriptNumber(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle value)
+        internal JavaScriptNumber(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
         }

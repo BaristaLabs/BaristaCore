@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal sealed class JavaScriptContextPool : JavaScriptReferencePool<JavaScriptContext, JavaScriptContextSafeHandle>
+    internal sealed class JavaScriptContextPool : JavaScriptReferencePool<BaristaContext, JavaScriptContextSafeHandle>
     {
         public JavaScriptContextPool(IJavaScriptEngine engine)
             : base(engine)
@@ -13,9 +13,9 @@
             };
         }
 
-        protected override JavaScriptContext FlyweightFactory(JavaScriptContextSafeHandle contextHandle)
+        protected override BaristaContext FlyweightFactory(JavaScriptContextSafeHandle contextHandle)
         {
-            var target = new JavaScriptContext(Engine, contextHandle);
+            var target = new BaristaContext(Engine, contextHandle);
             Engine.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, OnBeforeCollectCallback);
             return target;
         }

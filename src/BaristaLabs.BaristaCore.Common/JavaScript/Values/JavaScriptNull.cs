@@ -7,7 +7,7 @@
     /// </summary>
     public sealed class JavaScriptNull : JavaScriptValue
     {
-        internal JavaScriptNull(IJavaScriptEngine engine, JavaScriptContext context, JavaScriptValueSafeHandle valueHandle)
+        internal JavaScriptNull(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
             : base(engine, context, valueHandle)
         {
         }

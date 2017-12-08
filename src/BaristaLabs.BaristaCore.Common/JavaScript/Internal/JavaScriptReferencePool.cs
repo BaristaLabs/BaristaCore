@@ -39,10 +39,7 @@
 
         protected JavaScriptReferencePool(IJavaScriptEngine engine)
         {
-            if (engine == null)
-                throw new ArgumentNullException(nameof(engine));
-
-            m_engine = engine;
+            m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
             ReleaseJavaScriptReference = null;
         }
 
@@ -83,8 +80,7 @@
                 return new WeakReference<TJavaScriptReferenceFlyweight>(flyweight);
             });
 
-            TJavaScriptReferenceFlyweight target;
-            if (weakReferenceToTarget.TryGetTarget(out target))
+            if (weakReferenceToTarget.TryGetTarget(out TJavaScriptReferenceFlyweight target))
             {
                 //We have an existing target, dispose of the temporary one.
                 if (!ReferenceEquals(jsRef, target.Handle))
@@ -108,11 +104,9 @@
         /// <param name="handle"></param>
         protected void RemoveHandle(IntPtr handle)
         {
-            WeakReference<TJavaScriptReferenceFlyweight> value;
-            if (m_javaScriptReferencePool.TryRemove(handle, out value))
+            if (m_javaScriptReferencePool.TryRemove(handle, out WeakReference<TJavaScriptReferenceFlyweight> value))
             {
-                TJavaScriptReferenceFlyweight jsRef;
-                if (value.TryGetTarget(out jsRef))
+                if (value.TryGetTarget(out TJavaScriptReferenceFlyweight jsRef))
                 {
                     if (jsRef != null && !jsRef.IsDisposed)
                     {

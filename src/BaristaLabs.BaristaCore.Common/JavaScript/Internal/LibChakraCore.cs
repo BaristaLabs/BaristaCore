@@ -30,7 +30,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsInitializeModuleRecord", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsInitializeModuleRecord(IntPtr referencingModule, JavaScriptValueSafeHandle normalizedSpecifier, out IntPtr moduleRecord);
+        public static extern JavaScriptErrorCode JsInitializeModuleRecord(JavaScriptModuleRecord referencingModule, JavaScriptValueSafeHandle normalizedSpecifier, out JavaScriptModuleRecord moduleRecord);
 
         /// <summary>
         ///     Parse the module source
@@ -60,7 +60,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsParseModuleSource", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsParseModuleSource(IntPtr requestModule, JavaScriptSourceContext sourceContext, byte[] script, uint scriptLength, JavaScriptParseModuleSourceFlags sourceFlag, out JavaScriptValueSafeHandle exceptionValueRef);
+        public static extern JavaScriptErrorCode JsParseModuleSource(JavaScriptModuleRecord requestModule, JavaScriptSourceContext sourceContext, byte[] script, uint scriptLength, JavaScriptParseModuleSourceFlags sourceFlag, out JavaScriptValueSafeHandle exceptionValueRef);
 
         /// <summary>
         ///     Execute module code.
@@ -80,7 +80,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsModuleEvaluation", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsModuleEvaluation(IntPtr requestModule, out JavaScriptValueSafeHandle result);
+        public static extern JavaScriptErrorCode JsModuleEvaluation(JavaScriptModuleRecord requestModule, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Set the host info for the specified module.
@@ -98,7 +98,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetModuleHostInfo", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, IntPtr hostInfo);
+        public static extern JavaScriptErrorCode JsSetModuleHostInfo(JavaScriptModuleRecord requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, IntPtr hostInfo);
 
         /// <summary>
         ///     Retrieve the host info for the specified module.
@@ -116,7 +116,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetModuleHostInfo", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, out IntPtr hostInfo);
+        public static extern JavaScriptErrorCode JsGetModuleHostInfo(JavaScriptModuleRecord requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, out IntPtr hostInfo);
 
         /// <summary>
         ///     Returns metadata relating to the exception that caused the runtime of the current context to be in the exception state and resets the exception state for that runtime. The metadata includes a reference to the exception itself.

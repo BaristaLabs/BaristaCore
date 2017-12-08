@@ -1,15 +1,15 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
 {
-    internal class JavaScriptRuntimePool : JavaScriptReferencePool<JavaScriptRuntime, JavaScriptRuntimeSafeHandle>
+    internal class JavaScriptRuntimePool : JavaScriptReferencePool<BaristaRuntime, JavaScriptRuntimeSafeHandle>
     {
         public JavaScriptRuntimePool(IJavaScriptEngine engine)
             : base(engine)
         {
         }
 
-        protected override JavaScriptRuntime FlyweightFactory(JavaScriptRuntimeSafeHandle runtimeHandle)
+        protected override BaristaRuntime FlyweightFactory(JavaScriptRuntimeSafeHandle runtimeHandle)
         {
-            var target = new JavaScriptRuntime(Engine, runtimeHandle);
+            var target = new BaristaRuntime(Engine, runtimeHandle);
             return target;
         }
     }
