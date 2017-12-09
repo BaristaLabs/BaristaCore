@@ -13,14 +13,14 @@
     /// when the JavaScript engine is about to collect them, and the corresponding flyweight is disposed
     /// and removed from interning.
     /// </remarks>
-    public sealed class BaristsaObjectPool<TBaristaObject, TJavaScriptReference> : IDisposable
+    public sealed class BaristaObjectPool<TBaristaObject, TJavaScriptReference> : IDisposable
         where TBaristaObject : class, IBaristaObject<TJavaScriptReference>
         where TJavaScriptReference : JavaScriptReference<TJavaScriptReference>
     {
         private ConcurrentDictionary<TJavaScriptReference, WeakReference<TBaristaObject>> m_javaScriptReferencePool = new ConcurrentDictionary<TJavaScriptReference, WeakReference<TBaristaObject>>();
         private readonly Action<TBaristaObject> m_releaseJavaScriptReference;
 
-        public BaristsaObjectPool(Action<TBaristaObject> releaseJavaScriptReference = null)
+        public BaristaObjectPool(Action<TBaristaObject> releaseJavaScriptReference = null)
         {
             m_releaseJavaScriptReference = releaseJavaScriptReference;
         }
@@ -116,7 +116,7 @@
             GC.SuppressFinalize(this);
         }
 
-        ~BaristsaObjectPool()
+        ~BaristaObjectPool()
         {
             Dispose(false);
         }

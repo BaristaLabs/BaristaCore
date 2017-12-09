@@ -6,14 +6,14 @@
 
     public sealed class BaristaValueFactory : IBaristaValueFactory
     {
-        private BaristsaObjectPool<JsValue, JavaScriptValueSafeHandle> m_valuePool;
+        private BaristaObjectPool<JsValue, JavaScriptValueSafeHandle> m_valuePool;
 
         private readonly IJavaScriptEngine m_engine;
 
         public BaristaValueFactory(IJavaScriptEngine engine)
         {
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
-            m_valuePool = new BaristsaObjectPool<JsValue, JavaScriptValueSafeHandle>((target) =>
+            m_valuePool = new BaristaObjectPool<JsValue, JavaScriptValueSafeHandle>((target) =>
             {
                 // Certain types do not participate in collect callback.
                 //These throw an invalid argument exception when attempting to set a beforecollectcallback.
