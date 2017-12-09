@@ -14,6 +14,8 @@
         private const string ColumnNumberPropertyName = "column";
         public const string LineNumberPropertyName = "line";
 
+        public string m_message;
+
         /// <summary>
         /// The error.
         /// </summary>
@@ -39,6 +41,7 @@
             base(code, message)
         {
             m_error = error;
+            m_message = message;
 
             //Don't use our helper errors class in order to prevent recursive errors.
             JavaScriptErrorCode innerError;
@@ -47,7 +50,7 @@
             innerError = LibChakraCore.JsGetValueType(error, out JavaScriptValueType errorType);
             Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
-            switch(errorType)
+            switch (errorType)
             {
                 case JavaScriptValueType.Error:
                     //Get the message of the Script Error.            
@@ -61,12 +64,11 @@
                     {
                         innerError = LibChakraCore.JsGetProperty(error, messagePropertyHandle, out JavaScriptValueSafeHandle messageValue);
                         Debug.Assert(innerError == JavaScriptErrorCode.NoError);
-
-                        ErrorMessage = Helpers.GetStringUtf8(messageValue, releaseHandle: true);
+                        m_message = Helpers.GetStringUtf8(messageValue, releaseHandle: true);
                     }
                     break;
                 case JavaScriptValueType.String:
-                    ErrorMessage = Helpers.GetStringUtf8(error);
+                    m_message = Helpers.GetStringUtf8(error);
                     break;
             }
         }
@@ -84,7 +86,7 @@
         /// <summary>
         ///     Gets a JavaScript object representing the script error.
         /// </summary>
-        internal JavaScriptValueSafeHandle Error
+        public JavaScriptValueSafeHandle Error
         {
             get
             {
@@ -117,13 +119,9 @@
             private set;
         }
 
-        /// <summary>
-        /// Gets a human-readable description of the error.
-        /// </summary>
-        public string ErrorMessage
+        public override string Message
         {
-            get;
-            private set;
+            get { return m_message; }
         }
 
         /// <summary>

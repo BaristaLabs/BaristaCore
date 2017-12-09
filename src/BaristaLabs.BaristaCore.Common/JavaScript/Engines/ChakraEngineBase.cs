@@ -7,13 +7,13 @@ namespace BaristaLabs.BaristaCore.JavaScript
 
     public abstract class ChakraEngineBase : IJavaScriptEngine
     {
-        public IntPtr JsInitializeModuleRecord(IntPtr referencingModule, JavaScriptValueSafeHandle normalizedSpecifier)
+        public JavaScriptModuleRecord JsInitializeModuleRecord(JavaScriptModuleRecord referencingModule, JavaScriptValueSafeHandle normalizedSpecifier)
         {
-            Errors.ThrowIfError(LibChakraCore.JsInitializeModuleRecord(referencingModule, normalizedSpecifier, out IntPtr moduleRecord));
+            Errors.ThrowIfError(LibChakraCore.JsInitializeModuleRecord(referencingModule, normalizedSpecifier, out JavaScriptModuleRecord moduleRecord));
             return moduleRecord;
         }
 
-        public JavaScriptValueSafeHandle JsParseModuleSource(IntPtr requestModule, JavaScriptSourceContext sourceContext, byte[] script, uint scriptLength, JavaScriptParseModuleSourceFlags sourceFlag)
+        public JavaScriptValueSafeHandle JsParseModuleSource(JavaScriptModuleRecord requestModule, JavaScriptSourceContext sourceContext, byte[] script, uint scriptLength, JavaScriptParseModuleSourceFlags sourceFlag)
         {
             Errors.ThrowIfError(LibChakraCore.JsParseModuleSource(requestModule, sourceContext, script, scriptLength, sourceFlag, out JavaScriptValueSafeHandle exceptionValueRef));
             exceptionValueRef.NativeFunctionSource = nameof(LibChakraCore.JsParseModuleSource);
@@ -24,7 +24,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return exceptionValueRef;
         }
 
-        public JavaScriptValueSafeHandle JsModuleEvaluation(IntPtr requestModule)
+        public JavaScriptValueSafeHandle JsModuleEvaluation(JavaScriptModuleRecord requestModule)
         {
             Errors.ThrowIfError(LibChakraCore.JsModuleEvaluation(requestModule, out JavaScriptValueSafeHandle result));
             result.NativeFunctionSource = nameof(LibChakraCore.JsModuleEvaluation);
@@ -35,12 +35,12 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return result;
         }
 
-        public void JsSetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, IntPtr hostInfo)
+        public void JsSetModuleHostInfo(JavaScriptModuleRecord requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, IntPtr hostInfo)
         {
             Errors.ThrowIfError(LibChakraCore.JsSetModuleHostInfo(requestModule, moduleHostInfo, hostInfo));
         }
 
-        public IntPtr JsGetModuleHostInfo(IntPtr requestModule, JavaScriptModuleHostInfoKind moduleHostInfo)
+        public IntPtr JsGetModuleHostInfo(JavaScriptModuleRecord requestModule, JavaScriptModuleHostInfoKind moduleHostInfo)
         {
             Errors.ThrowIfError(LibChakraCore.JsGetModuleHostInfo(requestModule, moduleHostInfo, out IntPtr hostInfo));
             return hostInfo;

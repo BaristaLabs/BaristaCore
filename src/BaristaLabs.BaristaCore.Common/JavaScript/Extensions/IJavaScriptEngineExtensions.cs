@@ -3,7 +3,6 @@
     using System;
     using System.Runtime.InteropServices;
     using System.Text;
-    using System.Threading.Tasks;
 
     public static class IJavaScriptEngineExtensions
     {
@@ -148,6 +147,24 @@
             {
                 propertyIdHandle = jsrt.JsCreatePropertyId(name, (ulong)name.Length);
                 return jsrt.JsGetProperty(globalObjectHandle, propertyIdHandle);
+            }
+            finally
+            {
+                if (propertyIdHandle != default(JavaScriptPropertyIdSafeHandle))
+                    propertyIdHandle.Dispose();
+                globalObjectHandle.Dispose();
+            }
+        }
+
+        public static void SetGlobalVariable(this IJavaScriptEngine jsrt, string name, JavaScriptValueSafeHandle value)
+        {
+            var globalObjectHandle = jsrt.JsGetGlobalObject();
+            var propertyIdHandle = default(JavaScriptPropertyIdSafeHandle);
+
+            try
+            {
+                propertyIdHandle = jsrt.JsCreatePropertyId(name, (ulong)name.Length);
+                jsrt.JsSetProperty(globalObjectHandle, propertyIdHandle, value, true);
             }
             finally
             {

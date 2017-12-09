@@ -2404,7 +2404,7 @@ new Promise(function(resolve, reject) {
                     }
                     catch (JavaScriptScriptException ex)
                     {
-                        Assert.Equal("Host may not have set any promise continuation callback. Promises may not be executed.", ex.ErrorMessage);
+                        Assert.Equal("Host may not have set any promise continuation callback. Promises may not be executed.", ex.Message);
                     }
                 }
             }
@@ -2415,13 +2415,6 @@ new Promise(function(resolve, reject) {
         {
             int calledCount = 0;
             var taskQueue = new Stack<JavaScriptValueSafeHandle>();
-
-            JavaScriptPromiseContinuationCallback promiseContinuationCallback = (IntPtr taskHandle, IntPtr callbackState) =>
-            {
-                calledCount++;
-                var task = new JavaScriptValueSafeHandle(taskHandle);
-                taskQueue.Push(task);
-            };
 
             var script = @"
 var allDone = false;
@@ -2441,6 +2434,14 @@ new Promise(function(resolve, reject) {
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
+                    JavaScriptPromiseContinuationCallback promiseContinuationCallback = (IntPtr taskHandle, IntPtr callbackState) =>
+                    {
+                        calledCount++;
+                        var task = new JavaScriptValueSafeHandle(taskHandle);
+                        var valueType = Engine.JsGetValueType(task);
+                        Assert.Equal(JavaScriptValueType.Function, valueType);
+                        taskQueue.Push(task);
+                    };
                     Engine.JsSetPromiseContinuationCallback(promiseContinuationCallback, IntPtr.Zero);
 
                     var promiseHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);

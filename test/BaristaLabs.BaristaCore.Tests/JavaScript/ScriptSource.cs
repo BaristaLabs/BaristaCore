@@ -36,11 +36,8 @@
         {
             if (engine == null)
                 throw new ArgumentNullException(nameof(engine));
+            m_script = script ?? throw new ArgumentNullException(nameof(script));
 
-            if (script == null)
-                throw new ArgumentNullException(nameof(script));
-
-            m_script = script;
             m_ptrScript = Marshal.StringToHGlobalAnsi(script);
             m_scriptHandle = engine.JsCreateExternalArrayBuffer(m_ptrScript, (uint)script.Length, null, IntPtr.Zero);
             m_sourceUrlHandle = engine.JsCreateString(sourceUrl, (ulong)sourceUrl.Length);

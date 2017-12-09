@@ -474,7 +474,7 @@ export default function cube(x) {
 }
 ";
             var mainModuleReady = false;
-            IntPtr childModuleHandle = IntPtr.Zero;
+            JavaScriptModuleRecord childModuleHandle = JavaScriptModuleRecord.Invalid;
 
             JavaScriptFetchImportedModuleCallback fetchCallback = (IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModuleRecord) =>
             {
@@ -486,8 +486,8 @@ export default function cube(x) {
                 }
 
                 Assert.True(moduleName == "foo");
-                var moduleRecord = Engine.JsInitializeModuleRecord(referencingModule, new JavaScriptValueSafeHandle(specifier));
-                dependentModuleRecord = moduleRecord;
+                var moduleRecord = Engine.JsInitializeModuleRecord(new JavaScriptModuleRecord(referencingModule), new JavaScriptValueSafeHandle(specifier));
+                dependentModuleRecord = moduleRecord.DangerousGetHandle();
                 childModuleHandle = moduleRecord;
                 return false;
             };
@@ -502,8 +502,8 @@ export default function cube(x) {
                 }
 
                 Assert.True(moduleName == "foo");
-                var moduleRecord = Engine.JsInitializeModuleRecord(referencingModule, new JavaScriptValueSafeHandle((IntPtr)specifier));
-                dependentModuleRecord = moduleRecord;
+                var moduleRecord = Engine.JsInitializeModuleRecord(new JavaScriptModuleRecord(referencingModule), new JavaScriptValueSafeHandle((IntPtr)specifier));
+                dependentModuleRecord = moduleRecord.DangerousGetHandle();
                 childModuleHandle = moduleRecord;
                 return false;
             };
@@ -521,7 +521,7 @@ export default function cube(x) {
                 return false;
             };
 
-            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.EnableExperimentalFeatures, null))
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
                 using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
                 {
@@ -529,8 +529,8 @@ export default function cube(x) {
 
                     //Initialize the "main" module (Empty-string specifier).
                     var moduleNameHandle = Engine.JsCreateString(mainModuleName, (ulong)mainModuleName.Length);
-                    var mainModuleHandle = Engine.JsInitializeModuleRecord(IntPtr.Zero, moduleNameHandle);
-                    Assert.True(mainModuleHandle != IntPtr.Zero);
+                    var mainModuleHandle = Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, moduleNameHandle);
+                    Assert.True(mainModuleHandle != JavaScriptModuleRecord.Invalid);
 
                     //Set the fetch callback.
                     IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchCallback);
@@ -557,7 +557,7 @@ export default function cube(x) {
                     Assert.Equal(notifyCallbackPtr, moduleHostPtr);
 
 
-                    //Errrhmmm.. not sure what this is.
+                    //Indicate the host-defined, main module.
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.HostDefined, moduleNameHandle.DangerousGetHandle());
 
                     //Ensure the callback was set properly.
@@ -568,7 +568,7 @@ export default function cube(x) {
                     var scriptBuffer = Encoding.UTF8.GetBytes(mainModuleSource);
                     var errorHandle = Engine.JsParseModuleSource(mainModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)mainModuleSource.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
                     Assert.True(errorHandle == JavaScriptValueSafeHandle.Invalid);
-                    Assert.True(childModuleHandle != IntPtr.Zero);
+                    Assert.True(childModuleHandle != JavaScriptModuleRecord.Invalid);
                     Assert.False(mainModuleReady);
 
                     //Parse the foo now.

@@ -1,3 +1,3 @@
 ﻿Utility that generates class files based on an Xml-based definition of the ChakraCore interface.
 
-Currently, the Xml Chakra definition is generated from the ChakraSharp project.
+The Xml Chakra definition can be generated from the ChakraSharp project or created manually.

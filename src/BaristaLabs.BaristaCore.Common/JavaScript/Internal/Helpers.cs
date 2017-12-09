@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
 {
     using Internal;
     using System;
@@ -11,7 +11,7 @@
     /// <remarks>
     /// These methods serve as helper functions to internal classes and aren't meant for general use. IJavaScriptRuntimeExtensions are better suited for public consumption.
     /// </remarks>
-    internal static class Helpers
+    public static class Helpers
     {
         public static string GetStringUtf8(JavaScriptValueSafeHandle stringHandle, bool autoConvert = false, bool releaseHandle = false)
         {

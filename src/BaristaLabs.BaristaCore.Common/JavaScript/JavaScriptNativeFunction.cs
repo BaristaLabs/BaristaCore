@@ -14,5 +14,5 @@
     /// <param name="argumentCount">The number of arguments.</param>
     /// <param name="callbackData">Callback data, if any.</param>
     /// <returns>The result of the call, if any.</returns>
-    public delegate IntPtr JavaScriptNativeFunction(IntPtr callee, bool isConstructCall, IntPtr[] arguments, ushort argumentCount, IntPtr callbackData);
+    public delegate IntPtr JavaScriptNativeFunction(IntPtr callee, bool isConstructCall, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.SysUInt, SizeParamIndex = 3)] IntPtr[] arguments, ushort argumentCount, IntPtr callbackData);
 }
