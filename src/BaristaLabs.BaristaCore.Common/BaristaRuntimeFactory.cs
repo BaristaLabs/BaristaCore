@@ -9,7 +9,7 @@
     /// </summary>
     public sealed class BaristaRuntimeFactory : IBaristaRuntimeFactory
     {
-        private JavaScriptReferencePool<BaristaRuntime, JavaScriptRuntimeSafeHandle> m_runtimePool = new JavaScriptReferencePool<BaristaRuntime, JavaScriptRuntimeSafeHandle>();
+        private BaristsaObjectPool<BaristaRuntime, JavaScriptRuntimeSafeHandle> m_runtimePool = new BaristsaObjectPool<BaristaRuntime, JavaScriptRuntimeSafeHandle>();
         private readonly IJavaScriptEngine m_engine;
         private readonly IServiceProvider m_serviceProvider;
 

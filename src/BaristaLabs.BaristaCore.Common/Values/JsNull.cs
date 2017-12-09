@@ -5,9 +5,9 @@
     /// <summary>
     /// Represents a JavaScript 'null'
     /// </summary>
-    public sealed class JavaScriptNull : JavaScriptValue
+    public sealed class JsNull : JsValue
     {
-        public JavaScriptNull(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+        public JsNull(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
             : base(engine, context, valueHandle)
         {
         }

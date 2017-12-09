@@ -3,11 +3,11 @@
     using System;
     using BaristaLabs.BaristaCore.JavaScript;
 
-    public class JavaScriptObject : JavaScriptValue
+    public class JsObject : JsValue
     {
         private readonly IBaristaValueFactory m_baristaValueFactory;
 
-        public JavaScriptObject(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
+        public JsObject(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
             m_baristaValueFactory = valueFactory;
@@ -23,7 +23,7 @@
         /// </summary>
         /// <param name="propertyName"></param>
         /// <returns></returns>
-        public JavaScriptValue GetPropertyByName(string propertyName)
+        public JsValue GetPropertyByName(string propertyName)
         {
             if (!Context.HasCurrentScope)
                 throw new InvalidOperationException("An active execution scope is required.");

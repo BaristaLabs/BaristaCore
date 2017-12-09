@@ -9,7 +9,7 @@
     /// <remarks>
     ///     A runtime in which contexts are created and JavaScript is executed.
     /// </remarks>
-    public sealed class BaristaRuntime : JavaScriptReferenceFlyweight<JavaScriptRuntimeSafeHandle>
+    public sealed class BaristaRuntime : BaristaObject<JavaScriptRuntimeSafeHandle>
     {
         public event EventHandler<JavaScriptMemoryEventArgs> MemoryAllocationChanging;
         public event EventHandler<EventArgs> GarbageCollecting;

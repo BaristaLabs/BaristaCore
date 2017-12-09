@@ -6,7 +6,7 @@
 
     public sealed class BaristaContextFactory : IBaristaContextFactory
     {
-        private JavaScriptReferencePool<BaristaContext, JavaScriptContextSafeHandle> m_contextPool;
+        private BaristsaObjectPool<BaristaContext, JavaScriptContextSafeHandle> m_contextPool;
 
         private readonly IJavaScriptEngine m_engine;
         private readonly IBaristaModuleService m_moduleService;
@@ -17,7 +17,7 @@
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
             m_moduleService = moduleService;
             m_serviceProvider = serviceProvider;
-            m_contextPool = new JavaScriptReferencePool<BaristaContext, JavaScriptContextSafeHandle>((target) =>
+            m_contextPool = new BaristsaObjectPool<BaristaContext, JavaScriptContextSafeHandle>((target) =>
             {
                 m_engine.JsSetObjectBeforeCollectCallback(target.Handle, IntPtr.Zero, null);
             });

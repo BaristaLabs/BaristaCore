@@ -6,9 +6,9 @@
     /// <summary>
     /// Represents a JavaScript Numeric Value
     /// </summary>
-    public sealed class JavaScriptNumber : JavaScriptValue
+    public sealed class JsNumber : JsValue
     {
-        public JavaScriptNumber(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
+        public JsNumber(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
         }
@@ -20,7 +20,7 @@
         public override double ToDouble()
         {
             if (IsDisposed)
-                throw new ObjectDisposedException(nameof(JavaScriptValue));
+                throw new ObjectDisposedException(nameof(JsValue));
 
             return Engine.JsNumberToDouble(Handle);
         }
@@ -32,7 +32,7 @@
         public override int ToInt32()
         {
             if (IsDisposed)
-                throw new ObjectDisposedException(nameof(JavaScriptValue));
+                throw new ObjectDisposedException(nameof(JsValue));
 
             return Engine.JsNumberToInt(Handle);
         }

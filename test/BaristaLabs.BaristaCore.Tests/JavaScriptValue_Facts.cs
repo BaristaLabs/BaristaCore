@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
+﻿namespace BaristaLabs.BaristaCore.Tests
 {
     using BaristaLabs.BaristaCore;
     using BaristaLabs.BaristaCore.Extensions;
@@ -39,11 +39,11 @@ export default int16;
                 {
                     using (ctx.Scope())
                     {
-                        JavaScriptValue result = ctx.EvaluateModule(script);
+                        JsValue result = ctx.EvaluateModule(script);
 
-                        Assert.IsType<JavaScriptTypedArray>(result);
+                        Assert.IsType<JsTypedArray>(result);
 
-                        var typedArray = result as JavaScriptTypedArray;
+                        var typedArray = result as JsTypedArray;
                         Assert.Equal(JavaScriptTypedArrayType.Int16, typedArray.ArrayType);
                     }
                 }

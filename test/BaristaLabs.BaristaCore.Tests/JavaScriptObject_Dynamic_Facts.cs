@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
+﻿namespace BaristaLabs.BaristaCore.Tests
 {
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;

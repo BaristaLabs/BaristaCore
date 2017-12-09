@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
+﻿namespace BaristaLabs.BaristaCore.Tests
 {
     using BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.JavaScript;
@@ -34,7 +34,7 @@
                     using (ctx.Scope())
                     {
                         //TODO: This might not be the final signature -- creating a propertyid requires a current context.
-                        var propertyId = JavaScriptPropertyId.FromString(rt.Engine, "foo");
+                        var propertyId = JsPropertyId.FromString(rt.Engine, "foo");
                         Assert.NotNull(propertyId);
                         propertyId.Dispose();
                     }

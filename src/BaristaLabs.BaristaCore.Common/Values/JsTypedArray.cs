@@ -9,13 +9,13 @@
     /// <remarks>
     /// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray
     /// </remarks>
-    public sealed class JavaScriptTypedArray : JavaScriptObject
+    public sealed class JsTypedArray : JsObject
     {
         private Lazy<JavaScriptTypedArrayInfo> m_arrayInfo;
 
         #region Properties
 
-        public JavaScriptArrayBuffer Buffer
+        public JsArrayBuffer Buffer
         {
             get
             {
@@ -56,7 +56,7 @@
         }
         #endregion
 
-        public JavaScriptTypedArray(IJavaScriptEngine engine, BaristaContext context, BaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
+        public JsTypedArray(IJavaScriptEngine engine, BaristaContext context, BaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
             : base(engine, context, valueFactory, value)
         {
             m_arrayInfo = new Lazy<JavaScriptTypedArrayInfo>(GetTypedArrayInfo);
@@ -72,7 +72,7 @@
             result.Type = Engine.JsGetTypedArrayInfo(Handle, out arrayBufferHandle, out byteOffset, out byteLength);
             result.ByteOffset = byteOffset;
             result.ByteLength = byteLength;
-            result.Buffer = new JavaScriptArrayBuffer(Engine, Context, arrayBufferHandle);
+            result.Buffer = new JsArrayBuffer(Engine, Context, arrayBufferHandle);
 
             return result;
         }
@@ -91,7 +91,7 @@
                 set;
             }
 
-            public JavaScriptArrayBuffer Buffer
+            public JsArrayBuffer Buffer
             {
                 get;
                 set;

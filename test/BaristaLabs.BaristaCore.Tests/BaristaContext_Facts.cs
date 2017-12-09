@@ -126,8 +126,8 @@
 
                 try
                 {
-                    JavaScriptValue undefined1;
-                    JavaScriptValue undefined2;
+                    JsValue undefined1;
+                    JsValue undefined2;
 
                     using (ctx1.Scope())
                     {
@@ -192,7 +192,7 @@ export default fooObj;";
                 {
                     using (ctx.Scope())
                     {
-                        var fooObj = ctx.EvaluateModule(script) as JavaScriptObject;
+                        var fooObj = ctx.EvaluateModule(script) as JsObject;
                         Assert.NotNull(fooObj);
 
                         var fooValue = fooObj.GetPropertyByName<string>("foo");

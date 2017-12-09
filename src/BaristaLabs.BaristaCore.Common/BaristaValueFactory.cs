@@ -6,31 +6,31 @@
 
     public sealed class BaristaValueFactory : IBaristaValueFactory
     {
-        private JavaScriptReferencePool<JavaScriptValue, JavaScriptValueSafeHandle> m_valuePool;
+        private BaristsaObjectPool<JsValue, JavaScriptValueSafeHandle> m_valuePool;
 
         private readonly IJavaScriptEngine m_engine;
 
         public BaristaValueFactory(IJavaScriptEngine engine)
         {
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
-            m_valuePool = new JavaScriptReferencePool<JavaScriptValue, JavaScriptValueSafeHandle>((target) =>
+            m_valuePool = new BaristsaObjectPool<JsValue, JavaScriptValueSafeHandle>((target) =>
             {
                 // Certain types do not participate in collect callback.
                 //These throw an invalid argument exception when attempting to set a beforecollectcallback.
-                if (target is JavaScriptNumber)
+                if (target is JsNumber)
                     return;
 
                 m_engine.JsSetObjectBeforeCollectCallback(target.Handle, IntPtr.Zero, null);
             });
         }
 
-        public JavaScriptString CreateString(BaristaContext context, string str)
+        public JsString CreateString(BaristaContext context, string str)
         {
             if (str == null)
                 throw new ArgumentNullException(nameof(str));
 
             var stringHandle = m_engine.JsCreateString(str, (ulong)str.Length);
-            var flyweight = new JavaScriptString(m_engine, context, stringHandle);
+            var flyweight = new JsString(m_engine, context, stringHandle);
             if (m_valuePool.TryAdd(flyweight))
             {
                 m_engine.JsSetObjectBeforeCollectCallback(stringHandle, IntPtr.Zero, OnBeforeCollectCallback);
@@ -41,7 +41,7 @@
             throw new InvalidOperationException("Could not create string. The string already exists at that location in memory.");
         }
 
-        public JavaScriptExternalArrayBuffer CreateExternalArrayBufferFromString(BaristaContext context, string data)
+        public JsExternalArrayBuffer CreateExternalArrayBufferFromString(BaristaContext context, string data)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
@@ -76,7 +76,7 @@
         /// Returns a new JavaScriptValue for the specified handle querying for the handle's value type.
         /// </summary>
         /// <returns>The JavaScript Value that represents the handle</returns>
-        public JavaScriptValue CreateValue(BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+        public JsValue CreateValue(BaristaContext context, JavaScriptValueSafeHandle valueHandle)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -87,17 +87,17 @@
             return m_valuePool.GetOrAdd(valueHandle, () =>
             {
                 var valueType = m_engine.JsGetValueType(valueHandle);
-                JavaScriptValue result;
+                JsValue result;
                 switch (valueType)
                 {
                     case JavaScriptValueType.Array:
-                        result = new JavaScriptArray(m_engine, context, valueHandle);
+                        result = new JsArray(m_engine, context, valueHandle);
                         break;
                     case JavaScriptValueType.ArrayBuffer:
-                        result = new JavaScriptArrayBuffer(m_engine, context, valueHandle);
+                        result = new JsArrayBuffer(m_engine, context, valueHandle);
                         break;
                     case JavaScriptValueType.Boolean:
-                        result = new JavaScriptBoolean(m_engine, context, valueHandle);
+                        result = new JsBoolean(m_engine, context, valueHandle);
                         break;
                     case JavaScriptValueType.DataView:
                         //TODO: Add a dataview
@@ -106,28 +106,28 @@
                         //TODO: Realign exception classes to be JavaScriptValues... or something.
                         throw new NotImplementedException();
                     case JavaScriptValueType.Function:
-                        result = new JavaScriptFunction(m_engine, context, this, valueHandle);
+                        result = new JsFunction(m_engine, context, this, valueHandle);
                         break;
                     case JavaScriptValueType.Null:
-                        result = new JavaScriptNull(m_engine, context, valueHandle);
+                        result = new JsNull(m_engine, context, valueHandle);
                         break;
                     case JavaScriptValueType.Number:
-                        result = new JavaScriptNumber(m_engine, context, valueHandle);
+                        result = new JsNumber(m_engine, context, valueHandle);
                         break;
                     case JavaScriptValueType.Object:
-                        result = new JavaScriptObject(m_engine, context, this, valueHandle);
+                        result = new JsObject(m_engine, context, this, valueHandle);
                         break;
                     case JavaScriptValueType.String:
-                        result = new JavaScriptString(m_engine, context, valueHandle);
+                        result = new JsString(m_engine, context, valueHandle);
                         break;
                     case JavaScriptValueType.Symbol:
                         //TODO: add symbol class.
                         throw new NotImplementedException();
                     case JavaScriptValueType.TypedArray:
-                        result = new JavaScriptTypedArray(m_engine, context, this, valueHandle);
+                        result = new JsTypedArray(m_engine, context, this, valueHandle);
                         break;
                     case JavaScriptValueType.Undefined:
-                        result = new JavaScriptUndefined(m_engine, context, valueHandle);
+                        result = new JsUndefined(m_engine, context, valueHandle);
                         break;
                     default:
                         throw new NotImplementedException($"Error Creating JavaScript Value: The JavaScript Value Type '{valueType}' is unknown, invalid, or has not been implemented.");
@@ -135,7 +135,7 @@
 
                 //Certain types do not participate in collect callback.
                 //These throw an invalid argument exception when attempting to set a beforecollectcallback.
-                if (result is JavaScriptNumber)
+                if (result is JsNumber)
                     return result;
 
                 m_engine.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, OnBeforeCollectCallback);
@@ -148,16 +148,16 @@
         /// </summary>
         /// <returns>The JavaScript Value that represents the Handle</returns>
         public T CreateValue<T>(BaristaContext context, JavaScriptValueSafeHandle valueHandle)
-            where T : JavaScriptValue
+            where T : JsValue
         {
             return CreateValue(context, valueHandle) as T;
         }
 
 
-        public JavaScriptBoolean GetFalseValue(BaristaContext context)
+        public JsBoolean GetFalseValue(BaristaContext context)
         {
             var falseValue = m_engine.JsGetFalseValue();
-            var result = new JavaScriptBoolean(m_engine, context, falseValue);
+            var result = new JsBoolean(m_engine, context, falseValue);
             if (m_valuePool.TryAdd(result))
                 return result;
 
@@ -165,10 +165,10 @@
             throw new InvalidOperationException("Could not add JsFalse to the Value Pool associated with the context.");
         }
 
-        public JavaScriptNull GetNullValue(BaristaContext context)
+        public JsNull GetNullValue(BaristaContext context)
         {
             var nullValue = m_engine.JsGetNullValue();
-            var result = new JavaScriptNull(m_engine, context, nullValue);
+            var result = new JsNull(m_engine, context, nullValue);
             if (m_valuePool.TryAdd(result))
                 return result;
 
@@ -176,10 +176,10 @@
             throw new InvalidOperationException("Could not add JsNull to the Value Pool associated with the context.");
         }
 
-        public JavaScriptBoolean GetTrueValue(BaristaContext context)
+        public JsBoolean GetTrueValue(BaristaContext context)
         {
             var trueValue = m_engine.JsGetTrueValue();
-            var result = new JavaScriptBoolean(m_engine, context, trueValue);
+            var result = new JsBoolean(m_engine, context, trueValue);
             if (m_valuePool.TryAdd(result))
                 return result;
 
@@ -187,10 +187,10 @@
             throw new InvalidOperationException("Could not add JsTrue to the Value Pool associated with the context.");
         }
 
-        public JavaScriptUndefined GetUndefinedValue(BaristaContext context)
+        public JsUndefined GetUndefinedValue(BaristaContext context)
         {
             var undefinedValue = m_engine.JsGetUndefinedValue();
-            var result = new JavaScriptUndefined(m_engine, context, undefinedValue);
+            var result = new JsUndefined(m_engine, context, undefinedValue);
             if (m_valuePool.TryAdd(result))
                 return result;
 

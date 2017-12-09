@@ -6,9 +6,9 @@
     /// <summary>
     /// Represents a external array buffer.
     /// </summary>
-    public class JavaScriptExternalArrayBuffer : JavaScriptArrayBuffer
+    public class JsExternalArrayBuffer : JsArrayBuffer
     {
-        protected JavaScriptExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
+        protected JsExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
         }
@@ -17,7 +17,7 @@
     /// <summary>
     /// Represents an external array buffer that is backed by memory managed by the application.
     /// </summary>
-    public sealed class JavaScriptManagedExternalArrayBuffer : JavaScriptExternalArrayBuffer
+    public sealed class JavaScriptManagedExternalArrayBuffer : JsExternalArrayBuffer
     {
         private IntPtr m_bufferHandle;
         private readonly Action<IntPtr> m_releaseBufferHandle;

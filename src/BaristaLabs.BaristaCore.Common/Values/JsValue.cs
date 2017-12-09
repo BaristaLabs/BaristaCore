@@ -5,16 +5,20 @@
     using System.Dynamic;
     using System.Text;
 
-    public abstract class JavaScriptValue : JavaScriptReferenceFlyweight<JavaScriptValueSafeHandle>
+    public abstract class JsValue : DynamicObject, IBaristaObject<JavaScriptValueSafeHandle>
     {
+        private readonly IJavaScriptEngine m_javaScriptEngine;
         private readonly BaristaContext m_context;
+        private JavaScriptValueSafeHandle m_javaScriptReference;
 
-        protected JavaScriptValue(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
-            : base(engine, value)
+        protected JsValue(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
         {
+            m_javaScriptEngine = engine ?? throw new ArgumentNullException(nameof(engine));
             m_context = context ?? throw new ArgumentNullException(nameof(context));
+            m_javaScriptReference = value ?? throw new ArgumentNullException(nameof(value));
         }
 
+        #region Properties
         /// <summary>
         /// Gets the context associated with the value.
         /// </summary>
@@ -24,13 +28,47 @@
         }
 
         /// <summary>
+        /// Gets the JavaScript Engine associated with the JavaScript object.
+        /// </summary>
+        public IJavaScriptEngine Engine
+        {
+            get { return m_javaScriptEngine; }
+        }
+
+        /// <summary>
+        /// Gets the underlying JavaScript Reference
+        /// </summary>
+        public JavaScriptValueSafeHandle Handle
+        {
+            get
+            {
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(JsValue));
+
+                return m_javaScriptReference;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value that indicates if this reference has been disposed.
+        /// </summary>
+        public bool IsDisposed
+        {
+            get
+            {
+                return m_javaScriptReference == null || m_javaScriptReference.IsClosed;
+            }
+        }
+        #endregion
+
+        /// <summary>
         /// Gets the actual value type of the object.
         /// </summary>
         /// <returns></returns>
         protected JavaScriptValueType GetValueType()
         {
             if (IsDisposed)
-                throw new ObjectDisposedException(nameof(JavaScriptValue));
+                throw new ObjectDisposedException(nameof(JsValue));
 
             return Engine.JsGetValueType(Handle);
         }
@@ -70,7 +108,7 @@
         public virtual bool ToBoolean()
         {
             if (IsDisposed)
-                throw new ObjectDisposedException(nameof(JavaScriptValue));
+                throw new ObjectDisposedException(nameof(JsValue));
 
             using (var numberValueHandle = Engine.JsConvertValueToBoolean(Handle))
             {
@@ -85,7 +123,7 @@
         public virtual double ToDouble()
         {
             if (IsDisposed)
-                throw new ObjectDisposedException(nameof(JavaScriptValue));
+                throw new ObjectDisposedException(nameof(JsValue));
 
             using (var numberValueHandle = Engine.JsConvertValueToNumber(Handle))
             {
@@ -100,7 +138,7 @@
         public virtual int ToInt32()
         {
             if (IsDisposed)
-                throw new ObjectDisposedException(nameof(JavaScriptValue));
+                throw new ObjectDisposedException(nameof(JsValue));
 
             using (var numberValueHandle = Engine.JsConvertValueToNumber(Handle))
             {
@@ -115,7 +153,7 @@
         public override string ToString()
         {
             if (IsDisposed)
-                throw new ObjectDisposedException(nameof(JavaScriptValue));
+                throw new ObjectDisposedException(nameof(JsValue));
 
             using (var stringValueHandle = Engine.JsConvertValueToString(Handle))
             {
@@ -129,5 +167,29 @@
                 return Encoding.UTF8.GetString(result, 0, result.Length);
             }
         }
+
+        #region IDisposable
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing && !IsDisposed)
+            {
+                //Dispose of the handle
+                m_javaScriptReference.Dispose();
+                m_javaScriptReference = null;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~JsValue()
+        {
+            Dispose(false);
+        }
+        #endregion;
     }
 }

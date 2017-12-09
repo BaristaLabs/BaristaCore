@@ -5,14 +5,14 @@
     using System.Linq;
     using System.Text;
 
-    public sealed class JavaScriptFunction : JavaScriptObject
+    public sealed class JsFunction : JsObject
     {
-        public JavaScriptFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
+        public JsFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
             : base(engine, context, valueFactory, value)
         {
         }
 
-        public JavaScriptValue Invoke(params JavaScriptValue[] args)
+        public JsValue Invoke(params JsValue[] args)
         {
             var argPtrs = args.Select(a => a.Handle.DangerousGetHandle()).Prepend(Handle.DangerousGetHandle()).ToArray();
 

@@ -5,21 +5,21 @@
 
     public interface IBaristaValueFactory : IDisposable
     {
-        JavaScriptString CreateString(BaristaContext context, string str);
+        JsString CreateString(BaristaContext context, string str);
 
-        JavaScriptExternalArrayBuffer CreateExternalArrayBufferFromString(BaristaContext context, string data);
+        JsExternalArrayBuffer CreateExternalArrayBufferFromString(BaristaContext context, string data);
 
-        JavaScriptValue CreateValue(BaristaContext context, JavaScriptValueSafeHandle valueHandle);
+        JsValue CreateValue(BaristaContext context, JavaScriptValueSafeHandle valueHandle);
 
         T CreateValue<T>(BaristaContext context, JavaScriptValueSafeHandle valueHandle)
-            where T : JavaScriptValue;
+            where T : JsValue;
 
-        JavaScriptBoolean GetFalseValue(BaristaContext context);
+        JsBoolean GetFalseValue(BaristaContext context);
 
-        JavaScriptNull GetNullValue(BaristaContext context);
+        JsNull GetNullValue(BaristaContext context);
 
-        JavaScriptBoolean GetTrueValue(BaristaContext context);
+        JsBoolean GetTrueValue(BaristaContext context);
 
-        JavaScriptUndefined GetUndefinedValue(BaristaContext context);
+        JsUndefined GetUndefinedValue(BaristaContext context);
     }
 }

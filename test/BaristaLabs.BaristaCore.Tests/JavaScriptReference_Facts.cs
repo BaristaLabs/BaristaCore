@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
+﻿namespace BaristaLabs.BaristaCore.Tests
 {
     using BaristaLabs.BaristaCore.Collections;
     using BaristaLabs.BaristaCore.JavaScript;

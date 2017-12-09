@@ -1,5 +1,6 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.JavaScript;
     using System;
     using System.Text;
 
@@ -9,7 +10,7 @@
     /// <remarks>
     ///     Property identifiers are used to refer to properties of JavaScript objects instead of using strings.
     /// </remarks>
-    public sealed class JavaScriptPropertyId : JavaScriptReferenceFlyweight<JavaScriptPropertyIdSafeHandle>
+    public sealed class JsPropertyId : BaristaObject<JavaScriptPropertyIdSafeHandle>
     {
         #region Properties
         /// <summary>
@@ -25,7 +26,7 @@
             get
             {
                 if (IsDisposed)
-                    throw new ObjectDisposedException(nameof(JavaScriptPropertyId));
+                    throw new ObjectDisposedException(nameof(JsPropertyId));
 
                 //Get the size
                 var size = Engine.JsCopyPropertyId(Handle, null, 0);
@@ -42,7 +43,7 @@
         /// <summary>
         /// Creates a new JavaScript Property Id
         /// </summary>
-        public JavaScriptPropertyId(IJavaScriptEngine engine, JavaScriptPropertyIdSafeHandle propertyIdHandle)
+        public JsPropertyId(IJavaScriptEngine engine, JavaScriptPropertyIdSafeHandle propertyIdHandle)
             : base(engine, propertyIdHandle)
         {
         }
@@ -69,7 +70,7 @@
         ///     The name of the property.
         /// </param>
         /// <returns>The property ID in this runtime for the given name.</returns>
-        public static JavaScriptPropertyId FromString(IJavaScriptEngine engine, string name)
+        public static JsPropertyId FromString(IJavaScriptEngine engine, string name)
         {
             if (engine == null)
                 throw new ArgumentNullException(nameof(engine));
@@ -78,7 +79,7 @@
                 throw new ArgumentNullException(nameof(name));
 
             var propertyHandle = engine.JsCreatePropertyId(name, (ulong)name.Length);
-            return new JavaScriptPropertyId(engine, propertyHandle);
+            return new JsPropertyId(engine, propertyHandle);
         }
         #endregion
     }

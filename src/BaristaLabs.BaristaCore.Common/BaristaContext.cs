@@ -2,7 +2,6 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using BaristaLabs.BaristaCore.JavaScript.Extensions;
-    using BaristaLabs.BaristaCore.JavaScript.Internal;
     using System;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -13,14 +12,14 @@
     /// <remarks>
     ///     Each script context has its own global object that is isolated from all other script contexts.
     /// </remarks>
-    public sealed class BaristaContext : JavaScriptReferenceFlyweight<JavaScriptContextSafeHandle>
+    public sealed class BaristaContext : BaristaObject<JavaScriptContextSafeHandle>
     {
         private const string ParseScriptSourceUrl = "[eval code]";
 
-        private readonly Lazy<JavaScriptUndefined> m_undefinedValue;
-        private readonly Lazy<JavaScriptNull> m_nullValue;
-        private readonly Lazy<JavaScriptBoolean> m_trueValue;
-        private readonly Lazy<JavaScriptBoolean> m_falseValue;
+        private readonly Lazy<JsUndefined> m_undefinedValue;
+        private readonly Lazy<JsNull> m_nullValue;
+        private readonly Lazy<JsBoolean> m_trueValue;
+        private readonly Lazy<JsBoolean> m_falseValue;
 
         private readonly IBaristaModuleService m_moduleService;
 
@@ -37,10 +36,10 @@
         {
             m_valueFactory = valueFactory ?? throw new ArgumentNullException(nameof(valueFactory));
 
-            m_undefinedValue = new Lazy<JavaScriptUndefined>(() => m_valueFactory.GetUndefinedValue(this));
-            m_nullValue = new Lazy<JavaScriptNull>(() => m_valueFactory.GetNullValue(this));
-            m_trueValue = new Lazy<JavaScriptBoolean>(() => m_valueFactory.GetTrueValue(this));
-            m_falseValue = new Lazy<JavaScriptBoolean>(() => m_valueFactory.GetFalseValue(this));
+            m_undefinedValue = new Lazy<JsUndefined>(() => m_valueFactory.GetUndefinedValue(this));
+            m_nullValue = new Lazy<JsNull>(() => m_valueFactory.GetNullValue(this));
+            m_trueValue = new Lazy<JsBoolean>(() => m_valueFactory.GetTrueValue(this));
+            m_falseValue = new Lazy<JsBoolean>(() => m_valueFactory.GetFalseValue(this));
 
             m_moduleService = moduleService;
         }
@@ -49,7 +48,7 @@
         /// <summary>
         /// Gets the False Value associated with the context.
         /// </summary>
-        public JavaScriptBoolean False
+        public JsBoolean False
         {
             get
             {
@@ -71,7 +70,7 @@
         /// <summary>
         /// Gets the Null Value associated with the context.
         /// </summary>
-        public JavaScriptNull Null
+        public JsNull Null
         {
             get
             {
@@ -85,7 +84,7 @@
         /// <summary>
         /// Gets the True Value associated with the context.
         /// </summary>
-        public JavaScriptBoolean True
+        public JsBoolean True
         {
             get
             {
@@ -99,7 +98,7 @@
         /// <summary>
         /// Gets the Undefined Value associated with the context.
         /// </summary>
-        public JavaScriptUndefined Undefined
+        public JsUndefined Undefined
         {
             get
             {
@@ -116,7 +115,7 @@
         /// </summary>
         /// <param name="script">Script to evaluate.</param>
         /// <returns></returns>
-        public JavaScriptValue EvaluateModule(string script)
+        public JsValue EvaluateModule(string script)
         {
             if (IsDisposed)
                 throw new ObjectDisposedException(nameof(BaristaRuntime));

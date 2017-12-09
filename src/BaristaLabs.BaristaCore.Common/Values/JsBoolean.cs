@@ -3,9 +3,9 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
 
-    public sealed class JavaScriptBoolean : JavaScriptValue
+    public sealed class JsBoolean : JsValue
     {
-        public JavaScriptBoolean(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
+        public JsBoolean(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
         }
@@ -13,12 +13,12 @@
         public override bool ToBoolean()
         {
             if (IsDisposed)
-                throw new ObjectDisposedException(nameof(JavaScriptValue));
+                throw new ObjectDisposedException(nameof(JsValue));
 
             return Engine.JsBooleanToBool(Handle);
         }
 
-        public static implicit operator bool(JavaScriptBoolean jsBool)
+        public static implicit operator bool(JsBoolean jsBool)
         {
             return jsBool.ToBoolean();
         }
