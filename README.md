@@ -54,7 +54,7 @@ Core Functionality:
   - [X] .Net Core Support
   - [X] Use ChakraCore as the JavaScript Engine
     - [X] Enables ECMAScript 6+ support (classes, arrow functions, etc), and beyond.
-    - [ ] ES6 Promises (Requires additional impl.)
+    - [X] ES6 Promises
     - [X] ES6 Modules
     - [X] More performant script execution
 	- [X] T4 Template driven generation of P/Invoke classes

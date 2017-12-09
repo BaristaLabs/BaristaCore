@@ -1,6 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
     using BaristaLabs.BaristaCore.JavaScript;
+    using BaristaLabs.BaristaCore.JavaScript.Extensions;
     using System;
     using System.Runtime.InteropServices;
 
@@ -22,23 +23,6 @@
 
                 m_engine.JsSetObjectBeforeCollectCallback(target.Handle, IntPtr.Zero, null);
             });
-        }
-
-        public JsString CreateString(BaristaContext context, string str)
-        {
-            if (str == null)
-                throw new ArgumentNullException(nameof(str));
-
-            var stringHandle = m_engine.JsCreateString(str, (ulong)str.Length);
-            var flyweight = new JsString(m_engine, context, stringHandle);
-            if (m_valuePool.TryAdd(flyweight))
-            {
-                m_engine.JsSetObjectBeforeCollectCallback(stringHandle, IntPtr.Zero, OnBeforeCollectCallback);
-                return flyweight;
-            }
-
-            flyweight.Dispose();
-            throw new InvalidOperationException("Could not create string. The string already exists at that location in memory.");
         }
 
         public JsExternalArrayBuffer CreateExternalArrayBufferFromString(BaristaContext context, string data)
@@ -72,6 +56,70 @@
             throw new InvalidOperationException("Could not create external array buffer. The external array buffer already exists at that location in memory.");
         }
 
+        public JsError CreateError(BaristaContext context, JavaScriptValueSafeHandle fnHandle)
+        {
+            var error = m_valuePool.GetOrAdd(fnHandle, () =>
+            {
+                return new JsError(m_engine, context, this, fnHandle);
+            }) as JsError;
+
+            if (error == null)
+                throw new InvalidOperationException("An object with the specified handle already exists and is not of type JsError");
+
+            var things = m_engine.JsGetOwnPropertyNames(error.Handle);
+            //dynamic foo = CreateValue(context, things);
+            var resu = m_engine.Stringify(things);
+
+            return error;
+        }
+
+        public JsFunction CreateFunction(BaristaContext context, JavaScriptValueSafeHandle fnHandle)
+        {
+            var fn = m_valuePool.GetOrAdd(fnHandle, () =>
+            {
+                return new JsFunction(m_engine, context, this, fnHandle);
+            }) as JsFunction;
+
+            if (fn == null)
+                throw new InvalidOperationException("An object with the specified handle already exists and is not of type JsFunction");
+            return fn;
+        }
+
+        public JsNumber CreateNumber(BaristaContext context, int number)
+        {
+            var numberHandle = m_engine.JsIntToNumber(number);
+            return CreateNumber(context, numberHandle);
+        }
+
+        public JsNumber CreateNumber(BaristaContext context, JavaScriptValueSafeHandle numberHandle)
+        {
+            var number = m_valuePool.GetOrAdd(numberHandle, () =>
+            {
+                return new JsNumber(m_engine, context, numberHandle);
+            }) as JsNumber;
+
+            if (number == null)
+                throw new InvalidOperationException("An object with the specified handle already exists and is not of type JsNumber");
+            return number;
+        }
+
+        public JsString CreateString(BaristaContext context, string str)
+        {
+            if (str == null)
+                throw new ArgumentNullException(nameof(str));
+
+            var stringHandle = m_engine.JsCreateString(str, (ulong)str.Length);
+            var flyweight = new JsString(m_engine, context, stringHandle);
+            if (m_valuePool.TryAdd(flyweight))
+            {
+                m_engine.JsSetObjectBeforeCollectCallback(stringHandle, IntPtr.Zero, OnBeforeCollectCallback);
+                return flyweight;
+            }
+
+            flyweight.Dispose();
+            throw new InvalidOperationException("Could not create string. The string already exists at that location in memory.");
+        }
+
         /// <summary>
         /// Returns a new JavaScriptValue for the specified handle querying for the handle's value type.
         /// </summary>
@@ -91,7 +139,7 @@
                 switch (valueType)
                 {
                     case JavaScriptValueType.Array:
-                        result = new JsArray(m_engine, context, valueHandle);
+                        result = new JsArray(m_engine, context, this, valueHandle);
                         break;
                     case JavaScriptValueType.ArrayBuffer:
                         result = new JsArrayBuffer(m_engine, context, valueHandle);
@@ -103,8 +151,8 @@
                         //TODO: Add a dataview
                         throw new NotImplementedException();
                     case JavaScriptValueType.Error:
-                        //TODO: Realign exception classes to be JavaScriptValues... or something.
-                        throw new NotImplementedException();
+                        result = new JsError(m_engine, context, this, valueHandle);
+                        break;
                     case JavaScriptValueType.Function:
                         result = new JsFunction(m_engine, context, this, valueHandle);
                         break;

@@ -1,7 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
     using BaristaLabs.BaristaCore.JavaScript;
-    using System.Diagnostics;
 
     /// <summary>
     /// Represents a JavaScript 'undefined'
@@ -11,6 +10,11 @@
         public JsUndefined(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle handle)
             : base(engine, context, handle)
         {
+        }
+
+        public override JavaScriptValueType Type
+        {
+            get { return JavaScriptValueType.Undefined; }
         }
     }
 }

@@ -50,6 +50,14 @@
         }
 
         /// <summary>
+        /// Gets the value type.
+        /// </summary>
+        public abstract JavaScriptValueType Type
+        {
+            get;
+        }
+
+        /// <summary>
         /// Gets a value that indicates if this reference has been disposed.
         /// </summary>
         public bool IsDisposed

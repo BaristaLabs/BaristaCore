@@ -177,6 +177,28 @@ export default 'hello, world!';
         }
 
         [Fact]
+        public void JsModulesContainingPromisesCanBeEvaluated()
+        {
+            var script = @"
+var result = new Promise((resolve, reject) => {
+        resolve('hello, world!');
+    });
+export default result;
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime(JavaScriptRuntimeAttributes.None))
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var result = ctx.EvaluateModule(script);
+                        Assert.True(result.ToString() == "hello, world!");
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void JsPropertyCanBeRetrievedByName()
         {
             var script = @"var fooObj = {

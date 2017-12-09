@@ -10,6 +10,11 @@
         {
         }
 
+        public override JavaScriptValueType Type
+        {
+            get { return JavaScriptValueType.Boolean; }
+        }
+
         public override bool ToBoolean()
         {
             if (IsDisposed)

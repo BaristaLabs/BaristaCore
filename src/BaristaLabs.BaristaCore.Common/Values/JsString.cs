@@ -8,5 +8,10 @@
             : base(engine, context, value)
         {
         }
+
+        public override JavaScriptValueType Type
+        {
+            get { return JavaScriptValueType.String; }
+        }
     }
 }

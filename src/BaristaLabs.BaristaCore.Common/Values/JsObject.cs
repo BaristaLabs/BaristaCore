@@ -13,6 +13,11 @@
             m_baristaValueFactory = valueFactory;
         }
 
+        public override JavaScriptValueType Type
+        {
+            get { return JavaScriptValueType.Object; }
+        }
+
         public IBaristaValueFactory ValueFactory
         {
             get { return m_baristaValueFactory; }

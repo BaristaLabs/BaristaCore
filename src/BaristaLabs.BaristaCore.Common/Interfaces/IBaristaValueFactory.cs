@@ -9,6 +9,12 @@
 
         JsExternalArrayBuffer CreateExternalArrayBufferFromString(BaristaContext context, string data);
 
+        JsError CreateError(BaristaContext context, JavaScriptValueSafeHandle valueHandle);
+
+        JsFunction CreateFunction(BaristaContext context, JavaScriptValueSafeHandle valueHandle);
+
+        JsNumber CreateNumber(BaristaContext context, int number);
+
         JsValue CreateValue(BaristaContext context, JavaScriptValueSafeHandle valueHandle);
 
         T CreateValue<T>(BaristaContext context, JavaScriptValueSafeHandle valueHandle)

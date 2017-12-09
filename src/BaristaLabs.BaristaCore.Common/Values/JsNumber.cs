@@ -13,6 +13,11 @@
         {
         }
 
+        public override JavaScriptValueType Type
+        {
+            get { return JavaScriptValueType.Number; }
+        }
+
         /// <summary>
         /// Returns the double representation of the numeric value.
         /// </summary>

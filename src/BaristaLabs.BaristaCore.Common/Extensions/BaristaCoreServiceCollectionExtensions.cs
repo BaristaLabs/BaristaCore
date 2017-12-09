@@ -25,6 +25,7 @@
 
             services.AddTransient<IBaristaValueFactory, BaristaValueFactory>();
             services.AddTransient<IBaristaContextFactory, BaristaContextFactory>();
+            services.AddTransient<IPromiseTaskQueue, PromiseTaskQueue>();
             services.AddSingleton<IBaristaRuntimeFactory, BaristaRuntimeFactory>();
 
             return services;

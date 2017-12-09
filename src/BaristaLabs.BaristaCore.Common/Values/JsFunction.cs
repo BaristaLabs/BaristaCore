@@ -12,6 +12,11 @@
         {
         }
 
+        public override JavaScriptValueType Type
+        {
+            get { return JavaScriptValueType.Function; }
+        }
+
         public JsValue Invoke(params JsValue[] args)
         {
             var argPtrs = args.Select(a => a.Handle.DangerousGetHandle()).Prepend(Handle.DangerousGetHandle()).ToArray();

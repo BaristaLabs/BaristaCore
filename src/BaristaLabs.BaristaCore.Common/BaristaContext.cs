@@ -21,6 +21,7 @@
         private readonly Lazy<JsBoolean> m_trueValue;
         private readonly Lazy<JsBoolean> m_falseValue;
 
+        private readonly IPromiseTaskQueue m_promiseTaskQueue;
         private readonly IBaristaModuleService m_moduleService;
 
         private IBaristaValueFactory m_valueFactory;
@@ -31,7 +32,7 @@
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="contextHandle"></param>
-        public BaristaContext(IJavaScriptEngine engine, IBaristaValueFactory valueFactory, IBaristaModuleService moduleService, JavaScriptContextSafeHandle contextHandle)
+        public BaristaContext(IJavaScriptEngine engine, IBaristaValueFactory valueFactory, IPromiseTaskQueue taskQueue, IBaristaModuleService moduleService, JavaScriptContextSafeHandle contextHandle)
             : base(engine, contextHandle)
         {
             m_valueFactory = valueFactory ?? throw new ArgumentNullException(nameof(valueFactory));
@@ -42,6 +43,8 @@
             m_falseValue = new Lazy<JsBoolean>(() => m_valueFactory.GetFalseValue(this));
 
             m_moduleService = moduleService;
+
+            m_promiseTaskQueue = taskQueue;
         }
 
         #region Properties
@@ -123,11 +126,27 @@
             var mainModuleName = "";
             var subModuleId = Guid.NewGuid();
             var subModuleName = subModuleId.ToString();
-            var mainModuleScript = $@"
+
+            //Define a shim script that will set a global to the result of the script run as a module.
+            //If there is a promise task queue defined, have the script auto-resolve any promises.
+            string mainModuleScript;
+            if (m_promiseTaskQueue == null)
+            {
+                mainModuleScript = $@"
 import child from '{subModuleName}';
 let global = (new Function('return this;'))();
-global.$EXPORTS = child;
+global.$EXPORTS = child; }});
 ";
+            }
+            else
+            {
+                mainModuleScript = $@"
+import child from '{subModuleName}';
+let global = (new Function('return this;'))();
+(async () => await child)().then((result) => {{ global.$EXPORTS = result; }});
+";
+            }
+
             var mainModuleReady = false;
 
             var mainModuleNameHandle = Engine.JsCreateString(mainModuleName, (ulong)mainModuleName.Length);
@@ -147,7 +166,8 @@ global.$EXPORTS = child;
             {
                 if (exceptionVar != IntPtr.Zero)
                 {
-                    //TODO: Um. get the error and add to stack.
+                    JsError error = m_valueFactory.CreateError(this, new JavaScriptValueSafeHandle(exceptionVar));
+                    throw new BaristaRuntimeException(error);
                 }
 
                 mainModuleReady = true;
@@ -176,10 +196,44 @@ global.$EXPORTS = child;
             }
 
             //Now we're ready, evaluate the main module.
+
+            //Clear and set the task queue if specified
+            if (m_promiseTaskQueue != null)
+            {
+                m_promiseTaskQueue.Clear();
+                Engine.JsSetPromiseContinuationCallback(PromiseContinuationCallback, IntPtr.Zero);
+            }
+
             Engine.JsModuleEvaluation(mainModuleHandle);
+
+            //Evaluate any pending promises.
+            if (m_promiseTaskQueue != null)
+            {
+                var args = new IntPtr[] { Undefined.Handle.DangerousGetHandle() };
+                while (m_promiseTaskQueue.Count > 0)
+                {
+                    var promise = m_promiseTaskQueue.Dequeue();
+                    try
+                    {
+                        var promiseResult = Engine.JsCallFunction(promise.Handle, args, (ushort)args.Length);
+                        promiseResult.Dispose();
+                    }
+                    finally
+                    {
+                        promise.Dispose();
+                    }
+                } 
+            }
 
             //Return the result.
             var result = Engine.GetGlobalVariable("$EXPORTS");
+
+            //Unset the Promise callback.
+            if (m_promiseTaskQueue != null)
+            {
+                Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
+            }
+
             return m_valueFactory.CreateValue(this, result);
         }
 
@@ -258,7 +312,18 @@ export default value;
                 return false;
             };
         }
-        
+
+        private void PromiseContinuationCallback(IntPtr taskHandle, IntPtr callbackState)
+        {
+            if (IsDisposed || m_promiseTaskQueue == null)
+            {
+                return;
+            }
+            var task = new JavaScriptValueSafeHandle(taskHandle);
+            var promise = m_valueFactory.CreateFunction(this, task);
+            m_promiseTaskQueue.Enqueue(promise);
+        }
+
         private void ReleaseScope()
         {
             Engine.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
@@ -269,15 +334,23 @@ export default value;
         {
             if (disposing && !IsDisposed)
             {
-                if (m_valueFactory != null)
+                if (m_valueFactory != null || m_promiseTaskQueue != null)
                 {
                     BaristaExecutionScope scope = null;
                     if (!HasCurrentScope)
                         scope = Scope();
                     try
                     {
-                        m_valueFactory.Dispose();
-                        m_valueFactory = null;
+                        if (m_promiseTaskQueue != null)
+                        {
+                            Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
+                        }
+
+                        if (m_valueFactory != null)
+                        {
+                            m_valueFactory.Dispose();
+                            m_valueFactory = null;
+                        }
                     }
                     finally
                     {

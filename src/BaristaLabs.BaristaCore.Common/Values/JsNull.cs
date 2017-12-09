@@ -11,5 +11,10 @@
             : base(engine, context, valueHandle)
         {
         }
+
+        public override JavaScriptValueType Type
+        {
+            get { return JavaScriptValueType.Null; }
+        }
     }
 }
