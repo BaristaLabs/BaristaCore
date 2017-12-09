@@ -42,7 +42,7 @@
         /// <summary>
         /// Creates a new JavaScript Property Id
         /// </summary>
-        internal JavaScriptPropertyId(IJavaScriptEngine engine, JavaScriptPropertyIdSafeHandle propertyIdHandle)
+        public JavaScriptPropertyId(IJavaScriptEngine engine, JavaScriptPropertyIdSafeHandle propertyIdHandle)
             : base(engine, propertyIdHandle)
         {
         }

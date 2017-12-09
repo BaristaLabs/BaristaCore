@@ -1,13 +1,13 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
-    using System.Diagnostics;
+    using BaristaLabs.BaristaCore.JavaScript;
 
     /// <summary>
     /// Represents a JavaScript 'null'
     /// </summary>
     public sealed class JavaScriptNull : JavaScriptValue
     {
-        internal JavaScriptNull(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+        public JavaScriptNull(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
             : base(engine, context, valueHandle)
         {
         }

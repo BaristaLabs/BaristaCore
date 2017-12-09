@@ -8,20 +8,25 @@
     public class JavaScriptObject_Dynamic_Facts
     {
         private readonly ServiceCollection ServiceCollection;
-        private readonly IServiceProvider Provider;
+        private readonly IServiceProvider m_provider;
 
         public JavaScriptObject_Dynamic_Facts()
         {
             ServiceCollection = new ServiceCollection();
             ServiceCollection.AddBaristaCore();
 
-            Provider = ServiceCollection.BuildServiceProvider();
+            m_provider = ServiceCollection.BuildServiceProvider();
+        }
+
+        public IBaristaRuntimeFactory BaristaRuntimeFactory
+        {
+            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
         }
 
         [Fact]
         public void JavaScriptValueConvertsToAnIntDirectly()
         {
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -39,7 +44,7 @@
         [Fact]
         public void JavaScriptValueConvertsToAnIntWithCoersion()
         {
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -57,7 +62,7 @@
         [Fact]
         public void JavaScriptValueConvertsToADoubleDirectly()
         {
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -75,7 +80,7 @@
         [Fact]
         public void JavaScriptValueConvertsToADoubleWithCoersion()
         {
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {

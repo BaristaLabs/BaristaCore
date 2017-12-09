@@ -1,16 +1,16 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
+﻿namespace BaristaLabs.BaristaCore.Tests
 {
-    using BaristaCore.Extensions;
+    using BaristaLabs.BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using Xunit;
 
-    public class JavaScriptObject_Facts
+    public class BaristaValueFactory_Facts
     {
         private readonly ServiceCollection ServiceCollection;
         private readonly IServiceProvider m_provider;
 
-        public JavaScriptObject_Facts()
+        public BaristaValueFactory_Facts()
         {
             ServiceCollection = new ServiceCollection();
             ServiceCollection.AddBaristaCore();
@@ -23,8 +23,13 @@
             get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
         }
 
+        public IBaristaValueFactory BaristaValueFactory
+        {
+            get { return m_provider.GetRequiredService<IBaristaValueFactory>(); }
+        }
+
         [Fact]
-        public void JsObjectCanBeCreated()
+        public void JavaScriptContextCanCreateString()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -32,7 +37,9 @@
                 {
                     using (ctx.Scope())
                     {
-                        
+                        var jsString = BaristaValueFactory.CreateString(ctx, "Hello, world!");
+                        Assert.NotNull(jsString);
+                        jsString.Dispose();
                     }
                 }
             }

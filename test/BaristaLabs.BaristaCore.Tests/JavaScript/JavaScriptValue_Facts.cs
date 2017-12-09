@@ -9,14 +9,19 @@
 
     public class JavaScriptValue_Facts
     {
-        private IServiceProvider Provider;
+        private IServiceProvider m_provider;
 
         public JavaScriptValue_Facts()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddBaristaCore();
 
-            Provider = serviceCollection.BuildServiceProvider();
+            m_provider = serviceCollection.BuildServiceProvider();
+        }
+
+        public IBaristaRuntimeFactory BaristaRuntimeFactory
+        {
+            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
         }
 
         [Fact]
@@ -28,7 +33,7 @@ int16[0] = 42;
 
 export default int16;
 ";
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {

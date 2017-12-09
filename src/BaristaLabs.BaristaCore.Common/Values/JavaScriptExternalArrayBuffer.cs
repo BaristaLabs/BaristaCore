@@ -1,7 +1,7 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.JavaScript;
     using System;
-    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a external array buffer.
@@ -22,17 +22,13 @@
         private IntPtr m_bufferHandle;
         private readonly Action<IntPtr> m_releaseBufferHandle;
 
-        internal JavaScriptManagedExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value, IntPtr bufferHandle, Action<IntPtr> releaseBufferHandle)
+        public JavaScriptManagedExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value, IntPtr bufferHandle, Action<IntPtr> releaseBufferHandle)
             : base(engine, context, value)
         {
             if (bufferHandle == default(IntPtr) || bufferHandle == null)
                 throw new ArgumentNullException(nameof(bufferHandle));
-
-            if (releaseBufferHandle == null)
-                throw new ArgumentNullException(nameof(releaseBufferHandle));
-
             m_bufferHandle = bufferHandle;
-            m_releaseBufferHandle = releaseBufferHandle;
+            m_releaseBufferHandle = releaseBufferHandle ?? throw new ArgumentNullException(nameof(releaseBufferHandle));
         }
 
         /// <summary>

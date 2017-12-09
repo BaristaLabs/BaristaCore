@@ -1,10 +1,11 @@
-﻿using System;
-
-namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.JavaScript;
+    using System;
+
     public sealed class JavaScriptBoolean : JavaScriptValue
     {
-        internal JavaScriptBoolean(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
+        public JavaScriptBoolean(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
         }

@@ -1,5 +1,6 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.JavaScript;
     using System.Diagnostics;
 
     /// <summary>
@@ -7,7 +8,7 @@
     /// </summary>
     public sealed class JavaScriptUndefined : JavaScriptValue
     {
-        internal JavaScriptUndefined(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle handle)
+        public JavaScriptUndefined(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle handle)
             : base(engine, context, handle)
         {
         }

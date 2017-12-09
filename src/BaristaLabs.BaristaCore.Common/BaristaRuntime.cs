@@ -1,39 +1,31 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
     using BaristaLabs.BaristaCore.JavaScript;
-    using BaristaLabs.BaristaCore.JavaScript.Internal;
-    using Microsoft.Extensions.DependencyInjection;
     using System;
 
     /// <summary>
     /// Represents a JavaScript Runtime
     /// </summary>
     /// <remarks>
-    ///     A javascript runtime in which contexts are created and JavaScript is executed.
+    ///     A runtime in which contexts are created and JavaScript is executed.
     /// </remarks>
     public sealed class BaristaRuntime : JavaScriptReferenceFlyweight<JavaScriptRuntimeSafeHandle>
     {
         public event EventHandler<JavaScriptMemoryEventArgs> MemoryAllocationChanging;
         public event EventHandler<EventArgs> GarbageCollecting;
 
-        private JavaScriptContextPool m_contextPool;
+        private IBaristaContextFactory m_contextFactory;
 
         /// <summary>
-        /// Private constructor. Runtimes are only creatable through the static factory method.
+        /// Creates a new instance of a Barista Runtime.
         /// </summary>
-        internal BaristaRuntime(IJavaScriptEngine engine, JavaScriptRuntimeSafeHandle runtimeHandle)
+        public BaristaRuntime(IJavaScriptEngine engine, IBaristaContextFactory contextFactory, JavaScriptRuntimeSafeHandle runtimeHandle)
             : base(engine, runtimeHandle)
         {
-            m_contextPool = new JavaScriptContextPool(engine);
-
+            m_contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+            
             Engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, OnRuntimeMemoryAllocationChanging);
             Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, OnRuntimeGarbageCollecting);
-        }
-
-        public IServiceProvider Provider
-        {
-            get;
-            set;
         }
 
         /// <summary>
@@ -59,10 +51,7 @@
             if (IsDisposed)
                 throw new ObjectDisposedException(nameof(BaristaRuntime));
 
-            var contextHandle = Engine.JsCreateContext(Handle);
-            var context = m_contextPool.GetOrAdd(contextHandle);
-            context.ModuleService = Provider.GetService<IBaristaModuleService>();
-            return context;
+            return m_contextFactory.CreateContext(this);
         }
 
         /// <summary>
@@ -99,10 +88,10 @@
         {
             if (disposing && !IsDisposed)
             {
-                if (m_contextPool != null)
+                if (m_contextFactory != null)
                 {
-                    m_contextPool.Dispose();
-                    m_contextPool = null;
+                    m_contextFactory.Dispose();
+                    m_contextFactory = null;
                 }
 
                 //We don't need no more steekin' memory monitoring.
@@ -113,26 +102,6 @@
             }
 
             base.Dispose(disposing);
-        }
-
-        /// <summary>
-        /// Creates a new JavaScript Runtime.
-        /// </summary>
-        /// <param name="engine"></param>
-        /// <param name="attributes"></param>
-        /// <returns></returns>
-        public static BaristaRuntime CreateRuntime(IServiceProvider provider, JavaScriptRuntimeAttributes attributes = JavaScriptRuntimeAttributes.None)
-        {
-            if (provider == null)
-                throw new ArgumentNullException(nameof(provider));
-
-            var engine = provider.GetRequiredService<IJavaScriptEngine>();
-            var runtimePool = provider.GetRequiredService<JavaScriptRuntimePool>();
-
-            var runtimeHandle = engine.JsCreateRuntime(attributes, null);
-            var runtime = runtimePool.GetOrAdd(runtimeHandle);
-            runtime.Provider = provider;
-            return runtime;
         }
     }
 }

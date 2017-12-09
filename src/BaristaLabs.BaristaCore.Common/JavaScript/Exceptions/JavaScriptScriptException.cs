@@ -86,7 +86,7 @@
         /// <summary>
         ///     Gets a JavaScript object representing the script error.
         /// </summary>
-        internal JavaScriptValueSafeHandle Error
+        public JavaScriptValueSafeHandle Error
         {
             get
             {

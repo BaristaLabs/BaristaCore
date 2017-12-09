@@ -1,5 +1,6 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.JavaScript;
     using System;
     using System.Dynamic;
 

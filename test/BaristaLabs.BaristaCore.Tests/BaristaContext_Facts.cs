@@ -5,29 +5,34 @@
     using BaristaLabs.BaristaCore.JavaScript.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Runtime.InteropServices;
     using Xunit;
 
     public class BaristaContext_Facts
     {
-        private IServiceProvider Provider;
-        private InMemoryModuleService ModuleService;
+        private IServiceProvider m_provider;
 
         public BaristaContext_Facts()
         {
-            ModuleService = new InMemoryModuleService();
-
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddBaristaCore();
-            serviceCollection.AddSingleton<IBaristaModuleService>(ModuleService);
 
-            Provider = serviceCollection.BuildServiceProvider();
+            m_provider = serviceCollection.BuildServiceProvider();
+        }
+
+        public IBaristaRuntimeFactory BaristaRuntimeFactory
+        {
+            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
+        }
+
+        public InMemoryModuleService ModuleService
+        {
+            get { return m_provider.GetRequiredService<IBaristaModuleService>() as InMemoryModuleService; }
         }
 
         [Fact]
         public void JavaScriptContextCanBeCreated()
         {
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -40,7 +45,7 @@
         [Fact]
         public void MultipleJavaScriptContextsCanBeCreated()
         {
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 var ctx1 = rt.CreateContext();
                 var ctx2 = rt.CreateContext();
@@ -52,7 +57,7 @@
         [Fact]
         public void JavaScriptContextShouldGetFalse()
         {
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -68,7 +73,7 @@
         [Fact]
         public void JavaScriptContextShouldGetNull()
         {
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -83,7 +88,7 @@
         [Fact]
         public void JavaScriptContextShouldGetTrue()
         {
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -99,7 +104,7 @@
         [Fact]
         public void JavaScriptContextShouldGetUndefined()
         {
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -112,17 +117,41 @@
         }
 
         [Fact]
-        public void JavaScriptContextCanCreateString()
+        public void JavaScriptContextsShouldHaveUniqueUndefineds()
         {
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
+                var ctx1 = rt.CreateContext();
+                var ctx2 = rt.CreateContext();
+
+                try
+                {
+                    JavaScriptValue undefined1;
+                    JavaScriptValue undefined2;
+
+                    using (ctx1.Scope())
+                    {
+                        undefined1 = ctx1.Undefined;
+                    }
+
+                    using (ctx2.Scope())
+                    {
+                        undefined2 = ctx2.Undefined;
+                    }
+
+                    Assert.NotStrictEqual(undefined1, undefined2);
+                }
+                finally
+                {
+                    ctx1.Dispose();
+                    ctx2.Dispose();
+                }
+
                 using (var ctx = rt.CreateContext())
                 {
                     using (ctx.Scope())
                     {
-                        var jsString = ctx.CreateString("Hello, world!");
-                        Assert.NotNull(jsString);
-                        jsString.Dispose();
+                        Assert.NotNull(ctx.Undefined);
                     }
                 }
             }
@@ -134,7 +163,7 @@
             var script = @"
 export default 'hello, world!';
 ";
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -157,7 +186,7 @@ export default 'hello, world!';
 
 export default fooObj;";
 
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -190,7 +219,7 @@ export default 'banana';
 
             ModuleService.RegisterModule(bananaModule);
 
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -213,7 +242,7 @@ export default 'banana';
         ";
             ModuleService.RegisterModule(new ReverseModule());
 
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {

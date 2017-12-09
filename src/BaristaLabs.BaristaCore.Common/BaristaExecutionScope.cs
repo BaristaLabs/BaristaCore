@@ -6,7 +6,7 @@
     {
         private Action m_release;
 
-        internal BaristaExecutionScope(Action release)
+        public BaristaExecutionScope(Action release)
         {
             m_release = release ?? throw new ArgumentNullException(nameof(release));
         }

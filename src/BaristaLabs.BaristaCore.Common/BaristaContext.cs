@@ -22,8 +22,28 @@
         private readonly Lazy<JavaScriptBoolean> m_trueValue;
         private readonly Lazy<JavaScriptBoolean> m_falseValue;
 
-        private JavaScriptValuePool m_valuePool;
+        private readonly IBaristaModuleService m_moduleService;
+
+        private IBaristaValueFactory m_valueFactory;
         private BaristaExecutionScope m_currentExecutionScope;
+
+        /// <summary>
+        /// Creates a new instance of a Barista Context.
+        /// </summary>
+        /// <param name="engine"></param>
+        /// <param name="contextHandle"></param>
+        public BaristaContext(IJavaScriptEngine engine, IBaristaValueFactory valueFactory, IBaristaModuleService moduleService, JavaScriptContextSafeHandle contextHandle)
+            : base(engine, contextHandle)
+        {
+            m_valueFactory = valueFactory ?? throw new ArgumentNullException(nameof(valueFactory));
+
+            m_undefinedValue = new Lazy<JavaScriptUndefined>(() => m_valueFactory.GetUndefinedValue(this));
+            m_nullValue = new Lazy<JavaScriptNull>(() => m_valueFactory.GetNullValue(this));
+            m_trueValue = new Lazy<JavaScriptBoolean>(() => m_valueFactory.GetTrueValue(this));
+            m_falseValue = new Lazy<JavaScriptBoolean>(() => m_valueFactory.GetFalseValue(this));
+
+            m_moduleService = moduleService;
+        }
 
         #region Properties
         /// <summary>
@@ -51,7 +71,7 @@
         /// <summary>
         /// Gets the Null Value associated with the context.
         /// </summary>
-        public JavaScriptValue Null
+        public JavaScriptNull Null
         {
             get
             {
@@ -79,7 +99,7 @@
         /// <summary>
         /// Gets the Undefined Value associated with the context.
         /// </summary>
-        public JavaScriptValue Undefined
+        public JavaScriptUndefined Undefined
         {
             get
             {
@@ -91,81 +111,10 @@
         }
         #endregion
 
-        internal IBaristaModuleService ModuleService
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets the pool of jsvalue flyweight objects associated with the context.
-        /// </summary>
-        internal JavaScriptValuePool ValuePool
-        {
-            get { return m_valuePool; }
-        }
-
-        internal BaristaContext(IJavaScriptEngine engine, JavaScriptContextSafeHandle contextHandle)
-            : base(engine, contextHandle)
-        {
-            m_undefinedValue = new Lazy<JavaScriptUndefined>(GetUndefinedValue);
-            m_nullValue = new Lazy<JavaScriptNull>(GetNullValue);
-            m_trueValue = new Lazy<JavaScriptBoolean>(GetTrueValue);
-            m_falseValue = new Lazy<JavaScriptBoolean>(GetFalseValue);
-
-            m_valuePool = new JavaScriptValuePool(engine, this);
-        }
-
-        public JavaScriptString CreateString(string str)
-        {
-            if (str == null)
-                throw new ArgumentNullException(nameof(str));
-
-            var stringHandle = Engine.JsCreateString(str, (ulong)str.Length);
-            var flyweight = new JavaScriptString(Engine, this, stringHandle);
-            if (m_valuePool.TryAdd(flyweight))
-                return flyweight;
-
-            flyweight.Dispose();
-            throw new InvalidOperationException("Could not create string. The string already exists at that location in memory.");
-        }
-
-        public JavaScriptExternalArrayBuffer CreateExternalArrayBufferFromString(string data)
-        {
-            if (data == null)
-                throw new ArgumentNullException(nameof(data));
-
-            JavaScriptValueSafeHandle externalArrayHandle;
-            IntPtr ptrData = Marshal.StringToHGlobalAnsi(data);
-            try
-            {
-                externalArrayHandle = Engine.JsCreateExternalArrayBuffer(ptrData, (uint)data.Length, null, IntPtr.Zero);
-            }
-            catch(Exception)
-            {
-                //If anything goes wrong, free the unmanaged memory.
-                //This is not a finally as if success, the memory will be freed automagially.
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrData);
-                throw;
-            }
-
-            var flyweight = new JavaScriptManagedExternalArrayBuffer(Engine, this, externalArrayHandle, ptrData, (ptr) =>
-            {
-                Marshal.ZeroFreeGlobalAllocAnsi(ptr);
-            });
-            if (m_valuePool.TryAdd(flyweight))
-                return flyweight;
-
-            //This would be... unexpected.
-            flyweight.Dispose();
-            throw new InvalidOperationException("Could not create external array buffer. The external array buffer already exists at that location in memory.");
-        }
-
         /// <summary>
         /// Evaluates the specified script as a module, the default export will be the returned value.
         /// </summary>
         /// <param name="script">Script to evaluate.</param>
-        /// <param name="onModuleRequested">A callback that can be used to perform custom behavior when a module is requested.</param>
         /// <returns></returns>
         public JavaScriptValue EvaluateModule(string script)
         {
@@ -232,7 +181,7 @@ global.$EXPORTS = child;
 
             //Return the result.
             var result = Engine.GetGlobalVariable("$EXPORTS");
-            return ValuePool.GetOrAdd(result);
+            return m_valueFactory.CreateValue(this, result);
         }
 
         /// <summary>
@@ -260,9 +209,9 @@ global.$EXPORTS = child;
                 {
                     dependentModuleRecord = childModuleRecord.DangerousGetHandle();
                 }
-                else if (ModuleService != null)
+                else if (m_moduleService != null)
                 {
-                    var module = ModuleService.GetModule(moduleName);
+                    var module = m_moduleService.GetModule(moduleName);
 
                     if (module != null)
                     {
@@ -310,51 +259,7 @@ export default value;
                 return false;
             };
         }
-
-        private JavaScriptBoolean GetFalseValue()
-        {
-            var falseValue = Engine.JsGetFalseValue();
-            var result = new JavaScriptBoolean(Engine, this, falseValue);
-            if (m_valuePool.TryAdd(result))
-                return result;
-
-            result.Dispose();
-            throw new InvalidOperationException("Could not add JsFalse to the Value Pool associated with the context.");
-        }
-
-        private JavaScriptNull GetNullValue()
-        {
-            var nullValue = Engine.JsGetNullValue();
-            var result = new JavaScriptNull(Engine, this, nullValue);
-            if (m_valuePool.TryAdd(result))
-                return result;
-
-            result.Dispose();
-            throw new InvalidOperationException("Could not add JsNull to the Value Pool associated with the context.");
-        }
-
-        private JavaScriptBoolean GetTrueValue()
-        {
-            var trueValue = Engine.JsGetTrueValue();
-            var result = new JavaScriptBoolean(Engine, this, trueValue);
-            if (m_valuePool.TryAdd(result))
-                return result;
-
-            result.Dispose();
-            throw new InvalidOperationException("Could not add JsTrue to the Value Pool associated with the context.");
-        }
-
-        private JavaScriptUndefined GetUndefinedValue()
-        {
-            var undefinedValue = Engine.JsGetUndefinedValue();
-            var result = new JavaScriptUndefined(Engine, this, undefinedValue);
-            if (m_valuePool.TryAdd(result))
-                return result;
-
-            result.Dispose();
-            throw new InvalidOperationException("Could not add JsUndefined to the Value Pool associated with the context.");
-        }
-
+        
         private void ReleaseScope()
         {
             Engine.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
@@ -365,15 +270,15 @@ export default value;
         {
             if (disposing && !IsDisposed)
             {
-                if (m_valuePool != null)
+                if (m_valueFactory != null)
                 {
                     BaristaExecutionScope scope = null;
                     if (!HasCurrentScope)
                         scope = Scope();
                     try
                     {
-                        m_valuePool.Dispose();
-                        m_valuePool = null;
+                        m_valueFactory.Dispose();
+                        m_valueFactory = null;
                     }
                     finally
                     {

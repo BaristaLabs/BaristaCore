@@ -1,5 +1,6 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.JavaScript;
     using System;
     using System.Dynamic;
     using System.Text;
@@ -126,66 +127,6 @@
                 byte[] result = new byte[(int)size];
                 var written = Engine.JsCopyString(stringValueHandle, result, (ulong)result.Length);
                 return Encoding.UTF8.GetString(result, 0, result.Length);
-            }
-        }
-
-        /// <summary>
-        /// Returns a new JavaScriptValue for the specified handle querying for the handle's value type.
-        /// </summary>
-        /// <returns>The JavaScript Value that represents the handle</returns>
-        internal static JavaScriptValue CreateJavaScriptValueFromHandle(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
-        {
-            var valueType = engine.JsGetValueType(valueHandle);
-            switch (valueType)
-            {
-                case JavaScriptValueType.Array:
-                    return new JavaScriptArray(engine, context, valueHandle);
-                case JavaScriptValueType.ArrayBuffer:
-                    return new JavaScriptArrayBuffer(engine, context, valueHandle);
-                case JavaScriptValueType.Boolean:
-                    return new JavaScriptBoolean(engine, context, valueHandle);
-                case JavaScriptValueType.DataView:
-                    //TODO: Add a dataview
-                    throw new NotImplementedException();
-                case JavaScriptValueType.Error:
-                    //TODO: Realign exception classes to be JavaScriptValues... or something.
-                    throw new NotImplementedException();
-                case JavaScriptValueType.Function:
-                    return new JavaScriptFunction(engine, context, valueHandle);
-                case JavaScriptValueType.Null:
-                    return new JavaScriptNull(engine, context, valueHandle);
-                case JavaScriptValueType.Number:
-                    return new JavaScriptNumber(engine, context, valueHandle);
-                case JavaScriptValueType.Object:
-                    return new JavaScriptObject(engine, context, valueHandle);
-                case JavaScriptValueType.String:
-                    return new JavaScriptString(engine, context, valueHandle);
-                case JavaScriptValueType.Symbol:
-                    //TODO: add symbol class.
-                    throw new NotImplementedException();
-                case JavaScriptValueType.TypedArray:
-                    return new JavaScriptTypedArray(engine, context, valueHandle);
-                    throw new NotImplementedException();
-                case JavaScriptValueType.Undefined:
-                    return new JavaScriptUndefined(engine, context, valueHandle);
-                default:
-                    throw new NotImplementedException($"Error Creating JavaScript Value: The JavaScript Value Type '{valueType}' is unknown, invalid, or has not been implemented.");
-            }
-        }
-
-        // <summary>
-        /// Returns a new JavaScriptValue for the specified handle using the supplied type information.
-        /// </summary>
-        /// <returns>The JavaScript Value that represents the Handle</returns>
-        internal static T CreateJavaScriptValueFromHandle<T>(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
-            where T : JavaScriptValue
-        {
-            switch(typeof(T))
-            {
-                case Type t when t == typeof(JavaScriptFunction):
-                    return new JavaScriptFunction(engine, context, valueHandle) as T;
-                default:
-                    throw new NotImplementedException($"Error Creating JavaScript Value: The Type '{typeof(T).ToString()}' is unknown, invalid, or has not been implemented.");
             }
         }
     }

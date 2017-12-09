@@ -1,5 +1,6 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.JavaScript;
     using System;
 
     /// <summary>
@@ -7,7 +8,7 @@
     /// </summary>
     public sealed class JavaScriptNumber : JavaScriptValue
     {
-        internal JavaScriptNumber(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
+        public JavaScriptNumber(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
         }

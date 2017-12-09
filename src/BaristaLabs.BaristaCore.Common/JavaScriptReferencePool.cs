@@ -1,5 +1,6 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
+﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.JavaScript;
     using System;
     using System.Collections.Concurrent;
 
@@ -12,35 +13,16 @@
     /// when the JavaScript engine is about to collect them, and the corresponding flyweight is disposed
     /// and removed from interning.
     /// </remarks>
-    internal abstract class JavaScriptReferencePool<TJavaScriptReferenceFlyweight, TJavaScriptReference> : IDisposable
+    public sealed class JavaScriptReferencePool<TJavaScriptReferenceFlyweight, TJavaScriptReference> : IDisposable
         where TJavaScriptReferenceFlyweight : JavaScriptReferenceFlyweight<TJavaScriptReference>
         where TJavaScriptReference : JavaScriptReference<TJavaScriptReference>
     {
-        private readonly IJavaScriptEngine m_engine;
-        private ConcurrentDictionary<IntPtr, WeakReference<TJavaScriptReferenceFlyweight>> m_javaScriptReferencePool = new ConcurrentDictionary<IntPtr, WeakReference<TJavaScriptReferenceFlyweight>>();
+        private ConcurrentDictionary<TJavaScriptReference, WeakReference<TJavaScriptReferenceFlyweight>> m_javaScriptReferencePool = new ConcurrentDictionary<TJavaScriptReference, WeakReference<TJavaScriptReferenceFlyweight>>();
+        private readonly Action<TJavaScriptReferenceFlyweight> m_releaseJavaScriptReference;
 
-        /// <summary>
-        /// Gets the engine associated with the pool.
-        /// </summary>
-        public  IJavaScriptEngine Engine
+        public JavaScriptReferencePool(Action<TJavaScriptReferenceFlyweight> releaseJavaScriptReference = null)
         {
-            get { return m_engine; }
-        }
-
-        /// <summary>
-        /// Performs any cleanup prior to disposal of the flyweight.
-        /// </summary>
-        /// <param name="target"></param>
-        protected Action<TJavaScriptReferenceFlyweight> ReleaseJavaScriptReference
-        {
-            get;
-            set;
-        }
-
-        protected JavaScriptReferencePool(IJavaScriptEngine engine)
-        {
-            m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
-            ReleaseJavaScriptReference = null;
+            m_releaseJavaScriptReference = releaseJavaScriptReference;
         }
 
         /// <summary>
@@ -56,9 +38,7 @@
             if (obj == null || obj.Handle == null || obj.Handle.IsInvalid)
                 throw new ArgumentNullException(nameof(obj));
 
-            IntPtr handle = obj.Handle.DangerousGetHandle();
-
-            return m_javaScriptReferencePool.TryAdd(handle, new WeakReference<TJavaScriptReferenceFlyweight>(obj));
+            return m_javaScriptReferencePool.TryAdd(obj.Handle, new WeakReference<TJavaScriptReferenceFlyweight>(obj));
         }
 
         /// <summary>
@@ -66,17 +46,15 @@
         /// </summary>
         /// <param name="jsRef"></param>
         /// <returns></returns>
-        public TJavaScriptReferenceFlyweight GetOrAdd(TJavaScriptReference jsRef)
+        public TJavaScriptReferenceFlyweight GetOrAdd(TJavaScriptReference jsRef, Func<TJavaScriptReferenceFlyweight> flyweightFactory)
         {
             if (jsRef == default(TJavaScriptReference) || jsRef.IsInvalid)
                 throw new ArgumentNullException(nameof(jsRef));
 
-            IntPtr handle = jsRef.DangerousGetHandle();
-
             //For the specified handle, attempt to get or add a flyweight.
-            var weakReferenceToTarget = m_javaScriptReferencePool.GetOrAdd(handle, (ptr) => 
+            var weakReferenceToTarget = m_javaScriptReferencePool.GetOrAdd(jsRef, (ptr) =>
             {
-                TJavaScriptReferenceFlyweight flyweight = FlyweightFactory(jsRef);
+                TJavaScriptReferenceFlyweight flyweight = flyweightFactory();
                 return new WeakReference<TJavaScriptReferenceFlyweight>(flyweight);
             });
 
@@ -91,8 +69,8 @@
             }
 
             //The existing flyweight has been disposed, create and add a new flyweight.
-            TJavaScriptReferenceFlyweight newValue = FlyweightFactory(jsRef);
-            if (!m_javaScriptReferencePool.TryUpdate(handle, new WeakReference<TJavaScriptReferenceFlyweight>(newValue), weakReferenceToTarget))
+            TJavaScriptReferenceFlyweight newValue = flyweightFactory();
+            if (!m_javaScriptReferencePool.TryUpdate(jsRef, new WeakReference<TJavaScriptReferenceFlyweight>(newValue), weakReferenceToTarget))
                 throw new InvalidOperationException("Unable to get or add the JavaScript Reference.");
 
             return newValue;
@@ -102,7 +80,7 @@
         /// Removes the specified handle from the pool, disposing of it.
         /// </summary>
         /// <param name="handle"></param>
-        protected void RemoveHandle(IntPtr handle)
+        public void RemoveHandle(TJavaScriptReference handle)
         {
             if (m_javaScriptReferencePool.TryRemove(handle, out WeakReference<TJavaScriptReferenceFlyweight> value))
             {
@@ -110,27 +88,19 @@
                 {
                     if (jsRef != null && !jsRef.IsDisposed)
                     {
-                        ReleaseJavaScriptReference?.Invoke(jsRef);
+                        m_releaseJavaScriptReference?.Invoke(jsRef);
                         jsRef.Dispose();
                     }
                 }
             }
         }
 
-
-        /// <summary>
-        /// When implemented in a concrete class, returns an appropriate flyweight object for the specified javascript reference.
-        /// </summary>
-        /// <param name="jsRef"></param>
-        /// <returns></returns>
-        protected abstract TJavaScriptReferenceFlyweight FlyweightFactory(TJavaScriptReference jsRef);
-
         #region IDisposable
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposing)
             {
-                foreach(IntPtr handle in m_javaScriptReferencePool.Keys)
+                foreach (var handle in m_javaScriptReferencePool.Keys)
                 {
                     RemoveHandle(handle);
                 }

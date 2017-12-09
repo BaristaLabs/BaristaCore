@@ -9,20 +9,25 @@
     public class JavaScriptPropertyId_Facts
     {
         private readonly ServiceCollection ServiceCollection;
-        private readonly IServiceProvider Provider;
+        private readonly IServiceProvider m_provider;
 
         public JavaScriptPropertyId_Facts()
         {
             ServiceCollection = new ServiceCollection();
             ServiceCollection.AddBaristaCore();
 
-            Provider = ServiceCollection.BuildServiceProvider();
+            m_provider = ServiceCollection.BuildServiceProvider();
+        }
+
+        public IBaristaRuntimeFactory BaristaRuntimeFactory
+        {
+            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
         }
 
         [Fact]
         public void JsPropertyIdCanBeCreated()
         {
-            using (var rt = BaristaRuntime.CreateRuntime(Provider))
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {

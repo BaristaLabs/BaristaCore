@@ -6,7 +6,7 @@
     {
         private bool m_cancelled;
 
-        internal JavaScriptMemoryEventArgs(UIntPtr amount, JavaScriptMemoryEventType type)
+        public JavaScriptMemoryEventArgs(UIntPtr amount, JavaScriptMemoryEventType type)
         {
             Amount = amount;
             Type = type;

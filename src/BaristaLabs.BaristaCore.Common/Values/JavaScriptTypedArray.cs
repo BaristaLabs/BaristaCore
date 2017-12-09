@@ -1,5 +1,6 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.JavaScript;
     using System;
 
     /// <summary>
@@ -55,8 +56,8 @@
         }
         #endregion
 
-        internal JavaScriptTypedArray(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
-            : base(engine, context, value)
+        public JavaScriptTypedArray(IJavaScriptEngine engine, BaristaContext context, BaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
+            : base(engine, context, valueFactory, value)
         {
             m_arrayInfo = new Lazy<JavaScriptTypedArrayInfo>(GetTypedArrayInfo);
         }

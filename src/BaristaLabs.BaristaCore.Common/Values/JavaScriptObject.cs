@@ -1,13 +1,21 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
     using System;
-    using Microsoft.CSharp;
+    using BaristaLabs.BaristaCore.JavaScript;
 
     public class JavaScriptObject : JavaScriptValue
     {
-        internal JavaScriptObject(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
+        private readonly IBaristaValueFactory m_baristaValueFactory;
+
+        public JavaScriptObject(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
             : base(engine, context, value)
         {
+            m_baristaValueFactory = valueFactory;
+        }
+
+        public IBaristaValueFactory ValueFactory
+        {
+            get { return m_baristaValueFactory; }
         }
 
         /// <summary>
@@ -25,7 +33,7 @@
             try
             {
                 var propertyHandle = Engine.JsGetProperty(Handle, propertyIdHandle);
-                return Context.ValuePool.GetOrAdd(propertyHandle);
+                return m_baristaValueFactory.CreateValue(Context, propertyHandle);
             }
             finally
             {

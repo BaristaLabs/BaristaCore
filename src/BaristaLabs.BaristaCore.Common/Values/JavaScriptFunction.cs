@@ -1,13 +1,14 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.JavaScript;
     using System;
     using System.Linq;
     using System.Text;
 
     public sealed class JavaScriptFunction : JavaScriptObject
     {
-        public JavaScriptFunction(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
-            : base(engine, context, value)
+        public JavaScriptFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
+            : base(engine, context, valueFactory, value)
         {
         }
 
@@ -16,7 +17,7 @@
             var argPtrs = args.Select(a => a.Handle.DangerousGetHandle()).Prepend(Handle.DangerousGetHandle()).ToArray();
 
             var result = Engine.JsCallFunction(Handle, argPtrs, (ushort)argPtrs.Length);
-            return Context.ValuePool.GetOrAdd(result);
+            return ValueFactory.CreateValue(Context, result);
         }
 
         private const string toStringPropertyName = "toString";
