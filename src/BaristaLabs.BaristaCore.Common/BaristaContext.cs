@@ -211,7 +211,7 @@ let global = (new Function('return this;'))();
             Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, fetchCallbackPtr);
 
             //Set the notify callback.
-            JavaScriptNotifyModuleReadyCallback mainModuleNotifyCallback = (IntPtr referencingModule, IntPtr exceptionVar) =>
+            bool mainModuleNotifyCallback(IntPtr referencingModule, IntPtr exceptionVar)
             {
                 if (exceptionVar != IntPtr.Zero)
                 {
@@ -221,9 +221,9 @@ let global = (new Function('return this;'))();
 
                 mainModuleReady = true;
                 return false;
-            };
+            }
 
-            IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate(mainModuleNotifyCallback);
+            IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate((JavaScriptNotifyModuleReadyCallback)mainModuleNotifyCallback);
             Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, notifyCallbackPtr);
 
             //Indicate the host-defined, main module.
@@ -303,13 +303,13 @@ let global = (new Function('return this;'))();
 
         private JavaScriptFetchImportedModuleCallback GetFetchImportedModuleDelegate(string childModuleName, JavaScriptModuleRecord childModuleRecord)
         {
-            return (IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModuleRecord) =>
+            return (IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModule) =>
             {
                 var specifierHandle = new JavaScriptValueSafeHandle(specifier);
                 var moduleName = Engine.GetStringUtf8(specifierHandle);
                 if (moduleName == childModuleName)
                 {
-                    dependentModuleRecord = childModuleRecord.DangerousGetHandle();
+                    dependentModule = childModuleRecord.DangerousGetHandle();
                 }
                 else if (m_moduleService != null)
                 {
@@ -319,47 +319,83 @@ let global = (new Function('return this;'))();
                     {
                         var referencingModuleRecord = new JavaScriptModuleRecord(referencingModule);
 
-                        //For the built-in Script Module type, parse the script.
-                        if (module is BaristaScriptModule scriptModule)
+                        switch(module)
                         {
-                            var moduleRecord = Engine.JsInitializeModuleRecord(referencingModuleRecord, specifierHandle);
-                            var scriptBuffer = Encoding.UTF8.GetBytes((string)scriptModule.InstallModule(this, referencingModuleRecord));
-                            Engine.JsParseModuleSource(moduleRecord, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.LongLength, JavaScriptParseModuleSourceFlags.DataIsUTF8);
-                            dependentModuleRecord = moduleRecord.DangerousGetHandle();
-                            return false;
-                        }
-                        else
-                        {
-                            var obj = module.InstallModule(this, referencingModuleRecord);
-
-                            if (obj is JavaScriptValueSafeHandle valueSafeHandle)
-                            {
-                                var globalId = Guid.NewGuid();
-                                var exposeNativeValueScript = $@"
-let global = (new Function('return this;'))();
-let value = global['$IMPORT_{globalId.ToString()}'];
-export default value;
-";
+                            //For the built-in Script Module type, parse the string returned by InstallModule and install it as a module.
+                            case BaristaScriptModule scriptModule:
+                                var script = scriptModule.InstallModule(this, referencingModuleRecord) as string;
+                                if (script == null)
+                                    throw new InvalidOperationException("A Barista Script Module must provide a non-null script to use as the module.");
                                 var moduleRecord = Engine.JsInitializeModuleRecord(referencingModuleRecord, specifierHandle);
-
-                                Engine.SetGlobalVariable($"$IMPORT_{globalId.ToString()}", valueSafeHandle);
-                                var scriptBuffer = Encoding.UTF8.GetBytes(exposeNativeValueScript);
+                                var scriptBuffer = Encoding.UTF8.GetBytes(script);
                                 Engine.JsParseModuleSource(moduleRecord, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.LongLength, JavaScriptParseModuleSourceFlags.DataIsUTF8);
-                                dependentModuleRecord = moduleRecord.DangerousGetHandle();
+                                dependentModule = moduleRecord.DangerousGetHandle();
                                 return false;
-                            }
-                            else
-                            {
-                                //TODO: Coerce the .Net object into a safe handle.
-                                throw new NotImplementedException();
-                            }
+                            //Otherwise, install the module.
+                            default:
+                                var result = InstallModule(module, referencingModuleRecord, specifierHandle, out JavaScriptModuleRecord dependentModuleRecord);
+                                dependentModule = dependentModuleRecord.DangerousGetHandle();
+                                return result;
+
                         }
                     }
                 }
 
-                dependentModuleRecord = referencingModule;
+                dependentModule = referencingModule;
                 return false;
             };
+        }
+
+        private bool InstallModule(IBaristaModule module, JavaScriptModuleRecord referencingModuleRecord, JavaScriptValueSafeHandle specifierHandle, out JavaScriptModuleRecord dependentModuleRecord)
+        {
+            try
+            {
+                var obj = module.InstallModule(this, referencingModuleRecord);
+
+                if (obj == null)
+                    throw new InvalidOperationException("The value returned from InstallModule should not be null.");
+
+                //Based on the object's type, make some decisions on how to handle projecting the value to a module.
+                switch (obj)
+                {
+                    case JsValue jsValue:
+                        return CreateSingleValueModule(jsValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
+                    case JavaScriptValueSafeHandle valueSafeHandle:
+                        return CreateSingleValueModule(valueSafeHandle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
+                    default:
+                        //TODO: Coerce the .Net object into a safe handle using a IMemberProjectionStrategy.
+                        throw new NotImplementedException();
+                }
+            }
+            catch(Exception ex)
+            {
+                throw new BaristaException($"An error occurred while installing module {module.Name}.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Creates a module that returns the specified value.
+        /// </summary>
+        /// <param name="valueSafeHandle"></param>
+        /// <param name="referencingModuleRecord"></param>
+        /// <param name="specifierHandle"></param>
+        /// <param name="dependentModuleRecord"></param>
+        /// <returns></returns>
+        private bool CreateSingleValueModule(JavaScriptValueSafeHandle valueSafeHandle, JavaScriptModuleRecord referencingModuleRecord, JavaScriptValueSafeHandle specifierHandle, out JavaScriptModuleRecord dependentModuleRecord)
+        {
+            var globalId = Guid.NewGuid();
+            var exposeNativeValueScript = $@"
+let global = (new Function('return this;'))();
+let value = global['$IMPORT_{globalId.ToString()}'];
+export default value;
+";
+            var moduleRecord = Engine.JsInitializeModuleRecord(referencingModuleRecord, specifierHandle);
+
+            Engine.SetGlobalVariable($"$IMPORT_{globalId.ToString()}", valueSafeHandle);
+            var scriptBuffer = Encoding.UTF8.GetBytes(exposeNativeValueScript);
+            Engine.JsParseModuleSource(moduleRecord, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.LongLength, JavaScriptParseModuleSourceFlags.DataIsUTF8);
+            dependentModuleRecord = moduleRecord;
+            return false;
         }
 
         private void PromiseContinuationCallback(IntPtr taskHandle, IntPtr callbackState)
