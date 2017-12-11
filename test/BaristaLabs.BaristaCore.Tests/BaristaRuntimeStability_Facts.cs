@@ -74,5 +74,26 @@
 
             Assert.Equal(0, BaristaRuntimeService.Count);
         }
+
+        [Fact]
+        public void LargeNumbersOfRuntimesPropertyEvaluate()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                using (var rt = BaristaRuntimeService.CreateRuntime())
+                {
+                    using (var ctx = rt.CreateContext())
+                    {
+                        using (ctx.Scope())
+                        {
+                            var result = ctx.EvaluateModule<JsNumber>("export default 1+1");
+                            Assert.Equal(2, result.ToInt32());
+                        }
+                    }
+                }
+            }
+
+            Assert.Equal(0, BaristaRuntimeService.Count);
+        }
     }
 }
