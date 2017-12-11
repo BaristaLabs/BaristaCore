@@ -5,6 +5,7 @@
     using System;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Threading;
 
     /// <summary>
     ///     Represents a JavaScript Context
@@ -26,6 +27,9 @@
         private readonly IBaristaModuleService m_moduleService;
 
         private IBaristaValueFactory m_valueFactory;
+
+        //0 for false, 1 for true.
+        private int m_withinScope = 0;
         private BaristaExecutionScope m_currentExecutionScope;
 
         /// <summary>
@@ -292,13 +296,16 @@ let global = (new Function('return this;'))();
         /// <returns></returns>
         public BaristaExecutionScope Scope()
         {
-            //TODO: Interlock this.
-            if (m_currentExecutionScope != null)
+            if (0 == Interlocked.Exchange(ref m_withinScope, 1))
+            {
+                Engine.JsSetCurrentContext(Handle);
+                m_currentExecutionScope = new BaristaExecutionScope(ReleaseScope);
                 return m_currentExecutionScope;
-
-            Engine.JsSetCurrentContext(Handle);
-            m_currentExecutionScope = new BaristaExecutionScope(ReleaseScope);
-            return m_currentExecutionScope;
+            }
+            else
+            {
+                throw new BaristaException("This context already has an active execution scope.");
+            }
         }
 
         private JavaScriptFetchImportedModuleCallback GetFetchImportedModuleDelegate(string childModuleName, JavaScriptModuleRecord childModuleRecord)
@@ -413,6 +420,9 @@ export default value;
         {
             Engine.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
             m_currentExecutionScope = null;
+
+            //Release the lock
+            Interlocked.Exchange(ref m_withinScope, 0);
         }
 
         protected override void Dispose(bool disposing)
