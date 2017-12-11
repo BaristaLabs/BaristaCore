@@ -5,27 +5,58 @@
 
     public interface IBaristaValueFactory : IDisposable
     {
-        JsString CreateString(BaristaContext context, string str);
+        /// <summary>
+        /// Gets or sets the context associated with the Value Factory.
+        /// </summary>
+        BaristaContext Context
+        {
+            get;
+            set;
+        }
 
-        JsExternalArrayBuffer CreateExternalArrayBufferFromString(BaristaContext context, string data);
+        JsArray CreateArray(uint length);
 
-        JsError CreateError(BaristaContext context, JavaScriptValueSafeHandle valueHandle);
+        JsArrayBuffer CreateArrayBuffer(string data);
 
-        JsFunction CreateFunction(BaristaContext context, JavaScriptValueSafeHandle valueHandle);
+        JsNumber CreateNumber(int number);
 
-        JsNumber CreateNumber(BaristaContext context, int number);
+        JsObject CreateObject();
 
-        JsValue CreateValue(BaristaContext context, JavaScriptValueSafeHandle valueHandle);
+        JsString CreateString(string str);
 
-        T CreateValue<T>(BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+        JsValue CreateValue(JavaScriptValueSafeHandle valueHandle, JavaScriptValueType? valueType = null);
+
+        T CreateValue<T>(JavaScriptValueSafeHandle valueHandle)
             where T : JsValue;
 
-        JsBoolean GetFalseValue(BaristaContext context);
+        /// <summary>
+        /// Gets the value of false in the specified script context.
+        /// </summary>
+        /// <returns></returns>
+        JsBoolean GetFalseValue();
 
-        JsNull GetNullValue(BaristaContext context);
+        /// <summary>
+        /// Gets the global object in the specified script context.
+        /// </summary>
+        /// <returns></returns>
+        JsObject GetGlobalObject();
 
-        JsBoolean GetTrueValue(BaristaContext context);
+        /// <summary>
+        /// Gets the value of null in the specified script context.
+        /// </summary>
+        /// <returns></returns>
+        JsNull GetNullValue();
 
-        JsUndefined GetUndefinedValue(BaristaContext context);
+        /// <summary>
+        /// Gets the value of true in the specified script context.
+        /// </summary>
+        /// <returns></returns>
+        JsBoolean GetTrueValue();
+
+        /// <summary>
+        /// Gets the value of undefined in the specified script context.
+        /// </summary>
+        /// <returns></returns>
+        JsUndefined GetUndefinedValue();
     }
 }

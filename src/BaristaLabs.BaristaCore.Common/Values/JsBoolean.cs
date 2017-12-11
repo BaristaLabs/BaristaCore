@@ -3,10 +3,10 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
 
-    public sealed class JsBoolean : JsValue
+    public class JsBoolean : JsObject
     {
-        public JsBoolean(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
-            : base(engine, context, value)
+        public JsBoolean(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
+            : base(engine, context, valueFactory, value)
         {
         }
 

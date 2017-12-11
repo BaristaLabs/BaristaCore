@@ -5,6 +5,9 @@
     using System.Dynamic;
     using System.Text;
 
+    /// <summary>
+    /// Represents a JavaScript Value.
+    /// </summary>
     public abstract class JsValue : DynamicObject, IBaristaObject<JavaScriptValueSafeHandle>
     {
         private readonly IJavaScriptEngine m_javaScriptEngine;

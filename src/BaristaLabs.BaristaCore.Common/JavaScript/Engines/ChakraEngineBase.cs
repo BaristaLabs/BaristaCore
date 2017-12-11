@@ -3,7 +3,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
 	using Internal;
 
 	using System;
-	using System.Runtime.InteropServices;
+    using System.Runtime.InteropServices;
 
     public abstract class ChakraEngineBase : IJavaScriptEngine
     {

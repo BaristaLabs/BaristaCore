@@ -2,16 +2,16 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
 
-    public class JsString : JsObject
+    public class JsDataView : JsObject
     {
-        public JsString(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
+        public JsDataView(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
             : base(engine, context, valueFactory, value)
         {
         }
 
         public override JavaScriptValueType Type
         {
-            get { return JavaScriptValueType.String; }
+            get { return JavaScriptValueType.DataView; }
         }
     }
 }

@@ -2,7 +2,7 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
 
-    public sealed class JsError : JsObject
+    public class JsError : JsObject
     {
         public JsError(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
             : base(engine, context, valueFactory, value)
@@ -18,7 +18,8 @@
         {
             get
             {
-                return GetPropertyByName<string>("message");
+                dynamic result = GetPropertyByName<JsString>("message");
+                return (string)result;
             }
         }
 
@@ -26,7 +27,8 @@
         {
             get
             {
-                return GetPropertyByName<int>("line");
+                dynamic result = GetPropertyByName<JsNumber>("line");
+                return (int)result;
             }
         }
 
@@ -34,7 +36,8 @@
         {
             get
             {
-                return GetPropertyByName<int>("column");
+                dynamic result = GetPropertyByName<JsNumber>("column");
+                return (int)result;
             }
         }
 
@@ -42,7 +45,8 @@
         {
             get
             {
-                return GetPropertyByName<int>("length");
+                dynamic result = GetPropertyByName<JsNumber>("length");
+                return (int)result;
             }
         }
 
@@ -50,7 +54,8 @@
         {
             get
             {
-                return GetPropertyByName<string>("source");
+                dynamic result = GetPropertyByName<JsString>("source");
+                return (string)result;
             }
         }
     }

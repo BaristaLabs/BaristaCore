@@ -23,11 +23,6 @@
             get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
         }
 
-        public IBaristaValueFactory BaristaValueFactory
-        {
-            get { return m_provider.GetRequiredService<IBaristaValueFactory>(); }
-        }
-
         [Fact]
         public void JavaScriptContextCanCreateString()
         {
@@ -37,7 +32,7 @@
                 {
                     using (ctx.Scope())
                     {
-                        var jsString = BaristaValueFactory.CreateString(ctx, "Hello, world!");
+                        var jsString = ctx.ValueFactory.CreateString("Hello, world!");
                         Assert.NotNull(jsString);
                         jsString.Dispose();
                     }

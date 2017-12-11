@@ -29,7 +29,14 @@
             var contextFactory = m_serviceProvider.GetRequiredService<IBaristaContextFactory>();
 
             var runtimeHandle = m_engine.JsCreateRuntime(attributes, null);
-            return m_runtimePool.GetOrAdd(runtimeHandle, () => new BaristaRuntime(m_engine, contextFactory, runtimeHandle));
+            var result = m_runtimePool.GetOrAdd(runtimeHandle, () => new BaristaRuntime(m_engine, contextFactory, runtimeHandle));
+
+            if (result == null)
+            {
+                throw new InvalidOperationException("Unable to create or retrieve a new Barista Runtime.");
+            }
+
+            return result;
         }
 
         #region IDisposable

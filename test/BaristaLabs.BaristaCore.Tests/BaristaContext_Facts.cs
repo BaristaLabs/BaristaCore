@@ -217,8 +217,8 @@ export default fooObj;";
                         var fooObj = ctx.EvaluateModule(script) as JsObject;
                         Assert.NotNull(fooObj);
 
-                        var fooValue = fooObj.GetPropertyByName<string>("foo");
-                        Assert.Equal("bar", fooValue);
+                        dynamic fooValue = fooObj.GetPropertyByName<JsString>("foo");
+                        Assert.Equal("bar", (string)fooValue);
                     }
                 }
             }

@@ -48,10 +48,10 @@
         public void JavaScriptRuntimeShouldFireMemoryChangingCallbacks()
         {
             int changeCount = 0;
-            EventHandler<JavaScriptMemoryEventArgs> handler = (sender, e) =>
+            void handler(object sender, JavaScriptMemoryEventArgs e)
             {
                 changeCount++;
-            };
+            }
 
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {

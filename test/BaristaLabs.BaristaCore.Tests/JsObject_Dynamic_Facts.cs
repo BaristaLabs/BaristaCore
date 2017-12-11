@@ -5,12 +5,12 @@
     using System;
     using Xunit;
 
-    public class JavaScriptObject_Dynamic_Facts
+    public class JsObject_Dynamic_Facts
     {
         private readonly ServiceCollection ServiceCollection;
         private readonly IServiceProvider m_provider;
 
-        public JavaScriptObject_Dynamic_Facts()
+        public JsObject_Dynamic_Facts()
         {
             ServiceCollection = new ServiceCollection();
             ServiceCollection.AddBaristaCore();
@@ -24,7 +24,7 @@
         }
 
         [Fact]
-        public void JavaScriptValueConvertsToAnIntDirectly()
+        public void JsValueConvertsToAnIntDirectly()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -42,7 +42,7 @@
         }
 
         [Fact]
-        public void JavaScriptValueConvertsToAnIntWithCoersion()
+        public void JsValueConvertsToAnIntWithCoersion()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -60,7 +60,7 @@
         }
 
         [Fact]
-        public void JavaScriptValueConvertsToADoubleDirectly()
+        public void JsValueConvertsToADoubleDirectly()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -78,7 +78,7 @@
         }
 
         [Fact]
-        public void JavaScriptValueConvertsToADoubleWithCoersion()
+        public void JsValueConvertsToADoubleWithCoersion()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -90,6 +90,62 @@
                         dynamic result = ctx.EvaluateModule(script);
 
                         Assert.True((double)result == 42.1);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsObjectCanGetDynamicProperty()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default { foo: 'bar' }";
+                        dynamic result = ctx.EvaluateModule(script);
+
+                        Assert.Equal("bar", (string)result.foo);
+                    }
+                }
+            }
+        }
+
+        //[Fact]
+        //public void JsObjectCanSetDynamicProperty()
+        //{
+        //    using (var rt = BaristaRuntimeFactory.CreateRuntime())
+        //    {
+        //        using (var ctx = rt.CreateContext())
+        //        {
+        //            using (ctx.Scope())
+        //            {
+        //                var script = "export default { foo: 'bar' }";
+        //                dynamic result = ctx.EvaluateModule(script);
+
+        //                result.baz = "qix";
+
+        //                Assert.Equal("qix", (string)result.baz);
+        //            }
+        //        }
+        //    }
+        //}
+
+        [Fact]
+        public void JsArrayCanGetDynamicProperty()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default [ 1, 3, 5 ]";
+                        dynamic result = ctx.EvaluateModule(script);
+
+                        Assert.Equal(3, (int)result[1]);
                     }
                 }
             }

@@ -5,7 +5,13 @@
     using System.Linq;
     using System.Text;
 
-    public sealed class JsFunction : JsObject
+    /// <summary>
+    /// Represents a JavaScript Function
+    /// </summary>
+    /// <remarks>
+    /// <see cref="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions"/>
+    /// </remarks>
+    public class JsFunction : JsObject
     {
         public JsFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
             : base(engine, context, valueFactory, value)
@@ -17,12 +23,35 @@
             get { return JavaScriptValueType.Function; }
         }
 
+        /// <summary>
+        /// Invokes the function with the specified arguments.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public JsValue Invoke(params JsValue[] args)
         {
-            var argPtrs = args.Select(a => a.Handle.DangerousGetHandle()).Prepend(Handle.DangerousGetHandle()).ToArray();
+            var result = InvokeInternal(args);
+            return ValueFactory.CreateValue(result);
+        }
 
-            var result = Engine.JsCallFunction(Handle, argPtrs, (ushort)argPtrs.Length);
-            return ValueFactory.CreateValue(Context, result);
+        /// <summary>
+        /// Invokes the function with the specified arguments expecting a return value of type T.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public T Invoke<T>(params JsValue[] args)
+            where T : JsValue
+        {
+            var result = InvokeInternal(args);
+            return ValueFactory.CreateValue<T>(result);
+        }
+
+        private JavaScriptValueSafeHandle InvokeInternal(params JsValue[] args)
+        {
+            var argPtrs = args.Select(a => a.Handle.DangerousGetHandle()).ToArray();
+
+            return Engine.JsCallFunction(Handle, argPtrs, (ushort)argPtrs.Length);
         }
 
         private const string toStringPropertyName = "toString";

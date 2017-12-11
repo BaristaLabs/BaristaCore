@@ -64,12 +64,18 @@
 
         private bool OnRuntimeMemoryAllocationChanging(IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize)
         {
-            if (!IsDisposed && MemoryAllocationChanging != null)
+            if (!IsDisposed && null != MemoryAllocationChanging)
             {
-                var args = new JavaScriptMemoryEventArgs(allocationSize, allocationEvent);
-                MemoryAllocationChanging(this, args);
-                if (args.IsCancelable && args.Cancel)
-                    return false;
+                lock(MemoryAllocationChanging)
+                {
+                    if (null != MemoryAllocationChanging)
+                    {
+                        var args = new JavaScriptMemoryEventArgs(allocationSize, allocationEvent);
+                        MemoryAllocationChanging(this, args);
+                        if (args.IsCancelable && args.Cancel)
+                            return false;
+                    }
+                }
             }
 
             return true;
@@ -77,10 +83,16 @@
 
         private void OnRuntimeGarbageCollecting(IntPtr callbackState)
         {
-            if (!IsDisposed && GarbageCollecting != null)
+            if (!IsDisposed && null != GarbageCollecting)
             {
-                var args = new EventArgs();
-                GarbageCollecting(this, args);
+                lock(GarbageCollecting)
+                {
+                    if (null != GarbageCollecting)
+                    {
+                        var args = new EventArgs();
+                        GarbageCollecting(this, args);
+                    }
+                }
             }
         }
 

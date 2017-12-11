@@ -2,10 +2,10 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
 
-    public class JsArrayBuffer : JsValue
+    public class JsArrayBuffer : JsObject
     {
-        public JsArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
-            : base(engine, context, value)
+        public JsArrayBuffer(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
+            : base(engine, context, valueFactory, value)
         {
         }
 

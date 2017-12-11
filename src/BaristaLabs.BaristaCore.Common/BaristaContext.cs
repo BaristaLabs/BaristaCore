@@ -20,6 +20,7 @@
         private readonly Lazy<JsNull> m_nullValue;
         private readonly Lazy<JsBoolean> m_trueValue;
         private readonly Lazy<JsBoolean> m_falseValue;
+        private readonly Lazy<JsObject> m_globalValue;
 
         private readonly IPromiseTaskQueue m_promiseTaskQueue;
         private readonly IBaristaModuleService m_moduleService;
@@ -36,11 +37,13 @@
             : base(engine, contextHandle)
         {
             m_valueFactory = valueFactory ?? throw new ArgumentNullException(nameof(valueFactory));
+            m_valueFactory.Context = this;
 
-            m_undefinedValue = new Lazy<JsUndefined>(() => m_valueFactory.GetUndefinedValue(this));
-            m_nullValue = new Lazy<JsNull>(() => m_valueFactory.GetNullValue(this));
-            m_trueValue = new Lazy<JsBoolean>(() => m_valueFactory.GetTrueValue(this));
-            m_falseValue = new Lazy<JsBoolean>(() => m_valueFactory.GetFalseValue(this));
+            m_undefinedValue = new Lazy<JsUndefined>(() => m_valueFactory.GetUndefinedValue());
+            m_nullValue = new Lazy<JsNull>(() => m_valueFactory.GetNullValue());
+            m_trueValue = new Lazy<JsBoolean>(() => m_valueFactory.GetTrueValue());
+            m_falseValue = new Lazy<JsBoolean>(() => m_valueFactory.GetFalseValue());
+            m_globalValue = new Lazy<JsObject>(() => m_valueFactory.GetGlobalObject());
 
             m_moduleService = moduleService;
 
@@ -63,11 +66,31 @@
         }
 
         /// <summary>
+        /// Gets the Global Object associated with the context.
+        /// </summary>
+        public JsObject GlobalObject
+        {
+            get
+            {
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(BaristaContext));
+
+                return m_globalValue.Value;
+            }
+        }
+
+        /// <summary>
         /// Gets a value that indicates if a current execution scope exists.
         /// </summary>
         public bool HasCurrentScope
         {
-            get { return m_currentExecutionScope != null; }
+            get
+            {
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(BaristaContext));
+
+                return m_currentExecutionScope != null;
+            }
         }
 
         /// <summary>
@@ -99,6 +122,14 @@
         }
 
         /// <summary>
+        /// Gets the value factory associated with the context.
+        /// </summary>
+        public IBaristaValueFactory ValueFactory
+        {
+            get { return m_valueFactory; }
+        }
+
+        /// <summary>
         /// Gets the Undefined Value associated with the context.
         /// </summary>
         public JsUndefined Undefined
@@ -119,6 +150,24 @@
         /// <param name="script">Script to evaluate.</param>
         /// <returns></returns>
         public JsValue EvaluateModule(string script)
+        {
+            var result = EvaluateModuleInternal(script);
+            return m_valueFactory.CreateValue(result);
+        }
+
+        /// <summary>
+        /// Evaluates the specified script as a module, the default export will be the returned value.
+        /// </summary>
+        /// <param name="script">Script to evaluate.</param>
+        /// <returns></returns>
+        public T EvaluateModule<T>(string script)
+            where T : JsValue
+        {
+            var result = EvaluateModuleInternal(script);
+            return m_valueFactory.CreateValue<T>(result);
+        }
+
+        private JavaScriptValueSafeHandle EvaluateModuleInternal(string script)
         {
             if (IsDisposed)
                 throw new ObjectDisposedException(nameof(BaristaRuntime));
@@ -166,8 +215,8 @@ let global = (new Function('return this;'))();
             {
                 if (exceptionVar != IntPtr.Zero)
                 {
-                    JsError error = m_valueFactory.CreateError(this, new JavaScriptValueSafeHandle(exceptionVar));
-                    throw new BaristaRuntimeException(error);
+                    JsError error = m_valueFactory.CreateValue<JsError>(new JavaScriptValueSafeHandle(exceptionVar));
+                    throw new BaristaScriptException(error);
                 }
 
                 mainModuleReady = true;
@@ -222,7 +271,7 @@ let global = (new Function('return this;'))();
                     {
                         promise.Dispose();
                     }
-                } 
+                }
             }
 
             //Return the result.
@@ -234,7 +283,7 @@ let global = (new Function('return this;'))();
                 Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
             }
 
-            return m_valueFactory.CreateValue(this, result);
+            return result;
         }
 
         /// <summary>
@@ -320,7 +369,7 @@ export default value;
                 return;
             }
             var task = new JavaScriptValueSafeHandle(taskHandle);
-            var promise = m_valueFactory.CreateFunction(this, task);
+            var promise = m_valueFactory.CreateValue<JsFunction>(task);
             m_promiseTaskQueue.Enqueue(promise);
         }
 
