@@ -3,6 +3,7 @@
     using BaristaLabs.BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.Diagnostics;
     using System.Runtime.InteropServices;
 
     public sealed class BaristaValueService : IBaristaValueService
@@ -16,15 +17,7 @@
         {
             m_context = context ?? throw new ArgumentNullException(nameof(context));
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
-            m_valuePool = new BaristaObjectPool<JsValue, JavaScriptValueSafeHandle>((target) =>
-            {
-                // Certain types do not participate in collect callback.
-                //These throw an invalid argument exception when attempting to set a beforecollectcallback.
-                if (target is JsNumber)
-                    return;
-
-                m_engine.JsSetObjectBeforeCollectCallback(target.Handle, IntPtr.Zero, null);
-            });
+            m_valuePool = new BaristaObjectPool<JsValue, JavaScriptValueSafeHandle>();
         }
 
         /// <summary>
@@ -73,7 +66,6 @@
                     Marshal.ZeroFreeGlobalAllocAnsi(ptr);
                 });
 
-                m_engine.JsSetObjectBeforeCollectCallback(externalArrayHandle, IntPtr.Zero, OnBeforeCollectCallback);
                 return flyweight;
             });
 
@@ -167,12 +159,12 @@
                         throw new NotImplementedException($"Error Creating JavaScript Value: The JavaScript Value Type '{valueType}' is unknown, invalid, or has not been implemented.");
                 }
 
-                //Certain types do not participate in collect callback.
-                //These throw an invalid argument exception when attempting to set a beforecollectcallback.
-                if (result is JsNumber)
-                    return result;
+                result.BeforeCollect += (sender, args) =>
+                {
+                    Debug.Assert(m_valuePool != null);
+                    m_valuePool.RemoveHandle(new JavaScriptValueSafeHandle(args.Handle));
+                };
 
-                m_engine.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, OnBeforeCollectCallback);
                 return result;
             });
         }

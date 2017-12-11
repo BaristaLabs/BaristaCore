@@ -50,5 +50,29 @@
 
             Assert.True(true);
         }
+
+        [Fact]
+        public void JsContextsDisposedOutsideOfRuntimeDoNotCrashTheRuntimeOnObjectCallback()
+        {
+            BaristaContext ctx; 
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                ctx = rt.CreateContext();
+            }
+
+            ctx.Dispose();
+            Assert.True(true);
+        }
+
+        [Fact]
+        public void JsRuntimesAreRemovedFromRuntimeService()
+        {
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                
+            }
+
+            Assert.Equal(0, BaristaRuntimeService.Count);
+        }
     }
 }

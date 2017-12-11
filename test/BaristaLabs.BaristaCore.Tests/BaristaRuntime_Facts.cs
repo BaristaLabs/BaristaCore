@@ -68,16 +68,16 @@
         public void JavaScriptRuntimeShouldFireGarbageCollectionCallbacks()
         {
             int collectingCount = 0;
-            EventHandler<EventArgs> handler = (sender, e) =>
+            EventHandler<BaristaObjectBeforeCollectEventArgs> handler = (sender, e) =>
             {
                 collectingCount++;
             };
 
             using (var rt = BaristaRuntimeService.CreateRuntime())
             {
-                rt.GarbageCollecting += handler;
+                rt.BeforeCollect += handler;
                 rt.CollectGarbage();
-                rt.GarbageCollecting -= handler;
+                rt.BeforeCollect -= handler;
             }
 
             Assert.True(collectingCount > 0);

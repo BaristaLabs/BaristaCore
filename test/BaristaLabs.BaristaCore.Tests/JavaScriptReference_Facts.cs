@@ -1,6 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore.Tests
 {
-    using BaristaLabs.BaristaCore.Collections;
     using BaristaLabs.BaristaCore.JavaScript;
     using BaristaLabs.BaristaCore.JavaScript.Internal;
     using System;

@@ -3,7 +3,11 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Diagnostics;
 
+    /// <summary>
+    /// Represents a service that manages Barista Contexts.
+    /// </summary>
     public sealed class BaristaContextService : IBaristaContextService
     {
         private BaristaObjectPool<BaristaContext, JavaScriptContextSafeHandle> m_contextPool;
@@ -15,10 +19,7 @@
         {
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
             m_serviceProvider = serviceProvider;
-            m_contextPool = new BaristaObjectPool<BaristaContext, JavaScriptContextSafeHandle>((target) =>
-            {
-                m_engine.JsSetObjectBeforeCollectCallback(target.Handle, IntPtr.Zero, null);
-            });
+            m_contextPool = new BaristaObjectPool<BaristaContext, JavaScriptContextSafeHandle>();
         }
 
         public BaristaContext CreateContext(BaristaRuntime runtime)
@@ -38,18 +39,16 @@
                 //For flexability, a promise task queue is not required.
                 var promiseTaskQueue = m_serviceProvider.GetService<IPromiseTaskQueue>();
 
-                m_engine.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, OnBeforeCollectCallback);
-                return new BaristaContext(m_engine, valueServiceFactory, promiseTaskQueue, moduleService, contextHandle);
+                //Set the handle that will be called prior to the engine collecting the context.
+                var context = new BaristaContext(m_engine, valueServiceFactory, promiseTaskQueue, moduleService, contextHandle);
+
+                context.BeforeCollect += (sender, args) =>
+                {
+                    Debug.Assert(m_contextPool != null);
+                    m_contextPool.RemoveHandle(new JavaScriptContextSafeHandle(args.Handle));
+                };
+                return context;
             });
-        }
-
-        private void OnBeforeCollectCallback(IntPtr handle, IntPtr callbackState)
-        {
-            //If the contextpool is null, this service has already been disposed.
-            if (m_contextPool == null)
-                return;
-
-            m_contextPool.RemoveHandle(new JavaScriptContextSafeHandle(handle));
         }
 
         #region IDisposable

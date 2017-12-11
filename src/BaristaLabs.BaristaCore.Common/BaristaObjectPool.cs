@@ -18,11 +18,17 @@
         where TJavaScriptReference : JavaScriptReference<TJavaScriptReference>
     {
         private ConcurrentDictionary<TJavaScriptReference, WeakReference<TBaristaObject>> m_javaScriptReferencePool = new ConcurrentDictionary<TJavaScriptReference, WeakReference<TBaristaObject>>();
-        private readonly Action<TBaristaObject> m_releaseJavaScriptReference;
 
-        public BaristaObjectPool(Action<TBaristaObject> releaseJavaScriptReference = null)
+        public BaristaObjectPool()
         {
-            m_releaseJavaScriptReference = releaseJavaScriptReference;
+        }
+
+        /// <summary>
+        /// Gets the number of objects in the pool.
+        /// </summary>
+        public int Count
+        {
+            get { return m_javaScriptReferencePool.Count; }
         }
 
         /// <summary>
@@ -88,7 +94,6 @@
                 {
                     if (jsRef != null && !jsRef.IsDisposed)
                     {
-                        m_releaseJavaScriptReference?.Invoke(jsRef);
                         jsRef.Dispose();
                     }
                 }

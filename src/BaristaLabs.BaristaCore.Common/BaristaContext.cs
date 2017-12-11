@@ -53,6 +53,12 @@
             m_moduleService = moduleService;
 
             m_promiseTaskQueue = taskQueue;
+
+            //Set the event that will be called prior to the engine collecting the context.
+            Engine.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, (IntPtr handle, IntPtr callbackState) =>
+            {
+                OnBeforeCollect(handle, callbackState);
+            });
         }
 
         #region Properties
@@ -443,6 +449,9 @@ export default value;
                         }
 
                         m_valueService.Dispose();
+
+                        //Unset the before collect callback.
+                        Engine.JsSetObjectBeforeCollectCallback(Handle, IntPtr.Zero, null);
                     }
                     finally
                     {

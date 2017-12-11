@@ -11,8 +11,15 @@
     /// </remarks>
     public sealed class BaristaRuntime : BaristaObject<JavaScriptRuntimeSafeHandle>
     {
+        /// <summary>
+        /// Event that is raised when the JavaScript engine indicates that memory allocation is changing
+        /// </summary>
         public event EventHandler<JavaScriptMemoryEventArgs> MemoryAllocationChanging;
-        public event EventHandler<EventArgs> GarbageCollecting;
+
+        /// <summary>
+        /// Event that is raised after the runtime handle has been released.
+        /// </summary>
+        public event EventHandler<EventArgs> AfterDispose;
 
         private IBaristaContextService m_contextService;
 
@@ -25,7 +32,10 @@
             m_contextService = contextService ?? throw new ArgumentNullException(nameof(contextService));
             
             Engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, OnRuntimeMemoryAllocationChanging);
-            Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, OnRuntimeGarbageCollecting);
+            Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, (IntPtr callbackState) =>
+            {
+                OnBeforeCollect(IntPtr.Zero, callbackState);
+            });
         }
 
         /// <summary>
@@ -81,19 +91,9 @@
             return true;
         }
 
-        private void OnRuntimeGarbageCollecting(IntPtr callbackState)
+        private void OnAfterDispose()
         {
-            if (!IsDisposed && null != GarbageCollecting)
-            {
-                lock(GarbageCollecting)
-                {
-                    if (null != GarbageCollecting)
-                    {
-                        var args = new EventArgs();
-                        GarbageCollecting(this, args);
-                    }
-                }
-            }
+            AfterDispose?.Invoke(this, new EventArgs());
         }
 
         protected override void Dispose(bool disposing)
@@ -114,6 +114,8 @@
             }
 
             base.Dispose(disposing);
+
+            OnAfterDispose();
         }
     }
 }

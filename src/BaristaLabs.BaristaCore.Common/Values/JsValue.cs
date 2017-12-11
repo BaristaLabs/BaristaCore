@@ -10,6 +10,11 @@
     /// </summary>
     public abstract class JsValue : DynamicObject, IBaristaObject<JavaScriptValueSafeHandle>
     {
+        /// <summary>
+        /// Event that is raised prior to the underlying runtime collecting the object.
+        /// </summary>
+        public event EventHandler<BaristaObjectBeforeCollectEventArgs> BeforeCollect;
+
         private readonly IJavaScriptEngine m_javaScriptEngine;
         private readonly BaristaContext m_context;
         private JavaScriptValueSafeHandle m_javaScriptReference;
@@ -19,6 +24,15 @@
             m_javaScriptEngine = engine ?? throw new ArgumentNullException(nameof(engine));
             m_context = context ?? throw new ArgumentNullException(nameof(context));
             m_javaScriptReference = value ?? throw new ArgumentNullException(nameof(value));
+
+            //Set the event that will be called prior to the engine collecting the value.
+            if ((this is JsNumber) == false)
+            {
+                Engine.JsSetObjectBeforeCollectCallback(value, IntPtr.Zero, (IntPtr handle, IntPtr callbackState) =>
+                {
+                    OnBeforeCollect(handle, callbackState);
+                });
+            }
         }
 
         #region Properties
@@ -179,12 +193,38 @@
             }
         }
 
+        /// <summary>
+        /// Raises the BeforeCollect event.
+        /// </summary>
+        /// <remarks>
+        /// Objects that participate in Garbage Collection should assoicate a callback within the constructor that calls this function.
+        /// </remarks>
+        /// <param name="e"></param>
+        protected virtual void OnBeforeCollect(IntPtr handle, IntPtr callbackState)
+        {
+            if (!IsDisposed && null != BeforeCollect)
+            {
+                lock (BeforeCollect)
+                {
+                    BeforeCollect?.Invoke(this, new BaristaObjectBeforeCollectEventArgs(handle, callbackState));
+                }
+            }
+        }
+
         #region IDisposable
 
         protected virtual void Dispose(bool disposing)
         {
             if (disposing && !IsDisposed)
             {
+                // Certain types do not participate in collect callback.
+                //These throw an invalid argument exception when attempting to set a beforecollectcallback.
+                if ((this is JsNumber) == false)
+                {
+                    //Unset the before collect callback.
+                    Engine.JsSetObjectBeforeCollectCallback(Handle, IntPtr.Zero, null);
+                }
+
                 //Dispose of the handle
                 m_javaScriptReference.Dispose();
                 m_javaScriptReference = null;

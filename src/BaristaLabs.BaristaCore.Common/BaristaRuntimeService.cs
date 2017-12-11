@@ -3,6 +3,7 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Diagnostics;
 
     /// <summary>
     /// Represents a class that is used to instantiate new BaristaRuntimes.
@@ -19,6 +20,11 @@
             m_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
+        public int Count
+        {
+            get { return m_runtimePool.Count; }
+        }
+
         /// <summary>
         /// Creates a new JavaScript Runtime.
         /// </summary>
@@ -29,7 +35,20 @@
             var contextService = m_serviceProvider.GetRequiredService<IBaristaContextService>();
 
             var runtimeHandle = m_engine.JsCreateRuntime(attributes, null);
-            var result = m_runtimePool.GetOrAdd(runtimeHandle, () => new BaristaRuntime(m_engine, contextService, runtimeHandle));
+            var result = m_runtimePool.GetOrAdd(runtimeHandle, () => {
+                var rt = new BaristaRuntime(m_engine, contextService, runtimeHandle);
+                //Do not wire up a runtime's BeforeCollect handler with the the service as this will
+                //remove and dispose of the runtime on ANY garbage collect, which will eventually
+                //crash the engine.
+
+                //After a runtime handle is disposed, remove the handle from the pool.
+                rt.AfterDispose += (sender, args) =>
+                {
+                    Debug.Assert(m_runtimePool != null);
+                    m_runtimePool.RemoveHandle(runtimeHandle);
+                };
+                return rt;
+            });
 
             if (result == null)
             {

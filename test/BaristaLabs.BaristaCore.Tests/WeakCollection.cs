@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.Collections
+﻿namespace BaristaLabs.BaristaCore
 {
     using System;
     using System.Collections.Generic;

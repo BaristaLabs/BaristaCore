@@ -11,6 +11,11 @@
         where T : JavaScriptReference<T>
     {
         /// <summary>
+        /// Event that is raised prior to the underlying runtime collecting the object.
+        /// </summary>
+        event EventHandler<BaristaObjectBeforeCollectEventArgs> BeforeCollect;
+
+        /// <summary>
         /// Gets the JavaScript Engine associated with the JavaScript object.
         /// </summary>
         IJavaScriptEngine Engine
