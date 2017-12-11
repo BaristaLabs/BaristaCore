@@ -3,15 +3,14 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
 
-    public interface IBaristaValueFactory : IDisposable
+    public interface IBaristaValueService : IDisposable
     {
         /// <summary>
-        /// Gets or sets the context associated with the Value Factory.
+        /// Gets or sets the context associated with the Value Service.
         /// </summary>
         BaristaContext Context
         {
             get;
-            set;
         }
 
         JsArray CreateArray(uint length);

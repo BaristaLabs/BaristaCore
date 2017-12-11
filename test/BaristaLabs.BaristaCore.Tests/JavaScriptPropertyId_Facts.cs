@@ -19,15 +19,15 @@
             m_provider = ServiceCollection.BuildServiceProvider();
         }
 
-        public IBaristaRuntimeFactory BaristaRuntimeFactory
+        public IBaristaRuntimeService BaristaRuntimeService
         {
-            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
+            get { return m_provider.GetRequiredService<IBaristaRuntimeService>(); }
         }
 
         [Fact]
         public void JsPropertyIdCanBeCreated()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {

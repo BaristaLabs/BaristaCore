@@ -14,15 +14,15 @@
         public event EventHandler<JavaScriptMemoryEventArgs> MemoryAllocationChanging;
         public event EventHandler<EventArgs> GarbageCollecting;
 
-        private IBaristaContextFactory m_contextFactory;
+        private IBaristaContextService m_contextService;
 
         /// <summary>
         /// Creates a new instance of a Barista Runtime.
         /// </summary>
-        public BaristaRuntime(IJavaScriptEngine engine, IBaristaContextFactory contextFactory, JavaScriptRuntimeSafeHandle runtimeHandle)
+        public BaristaRuntime(IJavaScriptEngine engine, IBaristaContextService contextService, JavaScriptRuntimeSafeHandle runtimeHandle)
             : base(engine, runtimeHandle)
         {
-            m_contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+            m_contextService = contextService ?? throw new ArgumentNullException(nameof(contextService));
             
             Engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, OnRuntimeMemoryAllocationChanging);
             Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, OnRuntimeGarbageCollecting);
@@ -51,7 +51,7 @@
             if (IsDisposed)
                 throw new ObjectDisposedException(nameof(BaristaRuntime));
 
-            return m_contextFactory.CreateContext(this);
+            return m_contextService.CreateContext(this);
         }
 
         /// <summary>
@@ -100,10 +100,10 @@
         {
             if (disposing && !IsDisposed)
             {
-                if (m_contextFactory != null)
+                if (m_contextService != null)
                 {
-                    m_contextFactory.Dispose();
-                    m_contextFactory = null;
+                    m_contextService.Dispose();
+                    m_contextService = null;
                 }
 
                 //We don't need no more steekin' memory monitoring.

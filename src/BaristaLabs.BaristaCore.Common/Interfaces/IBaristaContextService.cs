@@ -2,7 +2,7 @@
 {
     using System;
 
-    public interface IBaristaContextFactory : IDisposable
+    public interface IBaristaContextService : IDisposable
     {
         BaristaContext CreateContext(BaristaRuntime runtime);
     }

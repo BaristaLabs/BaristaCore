@@ -13,8 +13,8 @@
     /// </remarks>
     public class JsFunction : JsObject
     {
-        public JsFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
-            : base(engine, context, valueFactory, value)
+        public JsFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle value)
+            : base(engine, context, valueService, value)
         {
         }
 
@@ -31,7 +31,7 @@
         public JsValue Invoke(params JsValue[] args)
         {
             var result = InvokeInternal(args);
-            return ValueFactory.CreateValue(result);
+            return ValueService.CreateValue(result);
         }
 
         /// <summary>
@@ -44,7 +44,7 @@
             where T : JsValue
         {
             var result = InvokeInternal(args);
-            return ValueFactory.CreateValue<T>(result);
+            return ValueService.CreateValue<T>(result);
         }
 
         private JavaScriptValueSafeHandle InvokeInternal(params JsValue[] args)

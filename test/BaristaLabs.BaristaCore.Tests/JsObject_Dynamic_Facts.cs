@@ -18,15 +18,15 @@
             m_provider = ServiceCollection.BuildServiceProvider();
         }
 
-        public IBaristaRuntimeFactory BaristaRuntimeFactory
+        public IBaristaRuntimeService BaristaRuntimeService
         {
-            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
+            get { return m_provider.GetRequiredService<IBaristaRuntimeService>(); }
         }
 
         [Fact]
         public void JsValueConvertsToAnIntDirectly()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -44,7 +44,7 @@
         [Fact]
         public void JsValueConvertsToAnIntWithCoersion()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -62,7 +62,7 @@
         [Fact]
         public void JsValueConvertsToADoubleDirectly()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -80,7 +80,7 @@
         [Fact]
         public void JsValueConvertsToADoubleWithCoersion()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -98,7 +98,7 @@
         [Fact]
         public void JsObjectCanGetDynamicProperty()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -136,7 +136,7 @@
         [Fact]
         public void JsArrayCanGetDynamicProperty()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {

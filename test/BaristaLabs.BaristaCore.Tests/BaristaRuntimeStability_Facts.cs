@@ -17,17 +17,37 @@
             m_provider = serviceCollection.BuildServiceProvider();
         }
 
-        public IBaristaRuntimeFactory BaristaRuntimeFactory
+        public IBaristaRuntimeService BaristaRuntimeService
         {
-            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
+            get { return m_provider.GetRequiredService<IBaristaRuntimeService>(); }
         }
 
         [Fact]
         public void JavaScriptRuntimeCanBeConstructed()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
             }
+            Assert.True(true);
+        }
+
+        [Fact]
+        public void JsValuesDisposedOutsideOfContextsDoNotCrashTheRuntimeOnObjectCallback()
+        {
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                JsValue myValue;
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        myValue = ctx.ValueService.CreateString("Hello, World");
+                    }
+                }
+
+                rt.CollectGarbage();
+            }
+
             Assert.True(true);
         }
     }

@@ -6,8 +6,8 @@
 
     public class JsArray : JsObject, IEnumerable<JsValue>
     {
-        public JsArray(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
-            : base(engine, context, valueFactory, value)
+        public JsArray(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle value)
+            : base(engine, context, valueService, value)
         {
         }
 
@@ -56,7 +56,7 @@
 
             if (startIndex.HasValue == true)
             {
-                args.Add(ValueFactory.CreateNumber(startIndex.Value));
+                args.Add(ValueService.CreateNumber(startIndex.Value));
             }
 
             var fn = GetPropertyByName<JsFunction>("indexOf");

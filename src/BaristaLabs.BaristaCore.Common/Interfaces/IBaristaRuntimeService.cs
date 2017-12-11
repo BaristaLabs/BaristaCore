@@ -3,7 +3,7 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
 
-    public interface IBaristaRuntimeFactory : IDisposable
+    public interface IBaristaRuntimeService : IDisposable
     {
         BaristaRuntime CreateRuntime(JavaScriptRuntimeAttributes attributes = JavaScriptRuntimeAttributes.None);
     }

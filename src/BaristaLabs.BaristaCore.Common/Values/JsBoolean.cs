@@ -5,8 +5,8 @@
 
     public class JsBoolean : JsObject
     {
-        public JsBoolean(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
-            : base(engine, context, valueFactory, value)
+        public JsBoolean(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle value)
+            : base(engine, context, valueService, value)
         {
         }
 

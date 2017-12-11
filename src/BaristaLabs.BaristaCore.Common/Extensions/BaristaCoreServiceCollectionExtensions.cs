@@ -22,11 +22,11 @@
 
             services.AddSingleton(chakraEngine);
             services.AddSingleton(moduleService);
+            services.AddSingleton<IBaristaValueServiceFactory, BaristaValueServiceFactory>();
 
-            services.AddTransient<IBaristaValueFactory, BaristaValueFactory>();
-            services.AddTransient<IBaristaContextFactory, BaristaContextFactory>();
+            services.AddTransient<IBaristaContextService, BaristaContextService>();
             services.AddTransient<IPromiseTaskQueue, PromiseTaskQueue>();
-            services.AddSingleton<IBaristaRuntimeFactory, BaristaRuntimeFactory>();
+            services.AddSingleton<IBaristaRuntimeService, BaristaRuntimeService>();
             
             return services;
         }
@@ -38,25 +38,25 @@
         /// <returns></returns>
         public static IServiceCollection FreeBaristaCoreServices(this IServiceCollection services)
         {
-            var runtimeFactoryDescriptors = new List<ServiceDescriptor>();
+            var runtimeServiceDescriptors = new List<ServiceDescriptor>();
             var chakraEngineDescriptors = new List<ServiceDescriptor>();
 
             foreach (var sd in services)
             {
-                if (sd.ImplementationInstance is BaristaRuntimeFactory)
-                    runtimeFactoryDescriptors.Add(sd);
+                if (sd.ImplementationInstance is BaristaRuntimeService)
+                    runtimeServiceDescriptors.Add(sd);
 
                 if (sd.ImplementationInstance is IJavaScriptEngine)
                     chakraEngineDescriptors.Add(sd);
             }
 
-            foreach(var sd in runtimeFactoryDescriptors)
+            foreach(var sd in runtimeServiceDescriptors)
             {
-                var runtimeFactory = sd.ImplementationInstance as BaristaRuntimeFactory;
+                var runtimeService = sd.ImplementationInstance as BaristaRuntimeService;
 
                 services.Remove(sd);
-                runtimeFactory.Dispose();
-                runtimeFactory = null;
+                runtimeService.Dispose();
+                runtimeService = null;
             }
 
             foreach (var sd in chakraEngineDescriptors)

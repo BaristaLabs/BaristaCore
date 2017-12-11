@@ -5,15 +5,16 @@
     using System;
     using System.Runtime.InteropServices;
 
-    public sealed class BaristaValueFactory : IBaristaValueFactory
+    public sealed class BaristaValueService : IBaristaValueService
     {
         private BaristaObjectPool<JsValue, JavaScriptValueSafeHandle> m_valuePool;
 
         private readonly IJavaScriptEngine m_engine;
-        private BaristaContext m_context;
+        private readonly BaristaContext m_context;
 
-        public BaristaValueFactory(IJavaScriptEngine engine)
+        public BaristaValueService(IJavaScriptEngine engine, BaristaContext context)
         {
+            m_context = context ?? throw new ArgumentNullException(nameof(context));
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
             m_valuePool = new BaristaObjectPool<JsValue, JavaScriptValueSafeHandle>((target) =>
             {
@@ -27,32 +28,16 @@
         }
 
         /// <summary>
-        /// Gets or sets the context associated with the value factory.
+        /// Gets or sets the context associated with the value service.
         /// </summary>
         public BaristaContext Context
         {
             get
             {
-                if (m_context == null)
-                    throw new InvalidOperationException("A context must be specified prior to using the value factory.");
-
                 if (m_context.IsDisposed)
                     throw new ObjectDisposedException(nameof(Context));
 
                 return m_context;
-            }
-            set
-            {
-                if (m_context != null)
-                    throw new InvalidOperationException("A context has already been set on the value factory.");
-
-                if (value == null)
-                    throw new ArgumentNullException(nameof(value));
-
-                if (value.IsDisposed)
-                    throw new ObjectDisposedException(nameof(value));
-
-                m_context = value;
             }
         }
 
@@ -266,13 +251,13 @@
         }
 
         /// <summary>
-        /// Method that all objects created though this factory call when the runtime disposes of them.
+        /// Method that all objects created though this service call when the runtime disposes of them.
         /// </summary>
         /// <param name="handle"></param>
         /// <param name="callbackState"></param>
         private void OnBeforeCollectCallback(IntPtr handle, IntPtr callbackState)
         {
-            //If the valuepool is null, this factory has already been disposed.
+            //If the valuepool is null, this service has already been disposed.
             if (m_valuePool == null)
                 return;
 
@@ -289,13 +274,11 @@
                     m_valuePool.Dispose();
                     m_valuePool = null;
                 }
-
-                m_context = null;
             }
         }
 
         /// <summary>
-        /// Disposes of the factory and all references contained within.
+        /// Disposes of the service and all references contained within.
         /// </summary>
         public void Dispose()
         {
@@ -303,7 +286,7 @@
             GC.SuppressFinalize(this);
         }
 
-        ~BaristaValueFactory()
+        ~BaristaValueService()
         {
             Dispose(false);
         }

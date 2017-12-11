@@ -4,8 +4,8 @@
 
     public class JsString : JsObject
     {
-        public JsString(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
-            : base(engine, context, valueFactory, value)
+        public JsString(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle value)
+            : base(engine, context, valueService, value)
         {
         }
 

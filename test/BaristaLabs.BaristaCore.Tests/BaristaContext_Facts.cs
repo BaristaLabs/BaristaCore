@@ -19,9 +19,9 @@
             m_provider = serviceCollection.BuildServiceProvider();
         }
 
-        public IBaristaRuntimeFactory BaristaRuntimeFactory
+        public IBaristaRuntimeService BaristaRuntimeService
         {
-            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
+            get { return m_provider.GetRequiredService<IBaristaRuntimeService>(); }
         }
 
         public InMemoryModuleService ModuleService
@@ -32,7 +32,7 @@
         [Fact]
         public void JavaScriptContextCanBeCreated()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -45,7 +45,7 @@
         [Fact]
         public void MultipleJavaScriptContextsCanBeCreated()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 var ctx1 = rt.CreateContext();
                 var ctx2 = rt.CreateContext();
@@ -57,7 +57,7 @@
         [Fact]
         public void JavaScriptContextShouldGetFalse()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -73,7 +73,7 @@
         [Fact]
         public void JavaScriptContextShouldGetNull()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -88,7 +88,7 @@
         [Fact]
         public void JavaScriptContextShouldGetTrue()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -104,7 +104,7 @@
         [Fact]
         public void JavaScriptContextShouldGetUndefined()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -119,7 +119,7 @@
         [Fact]
         public void JavaScriptContextsShouldHaveUniqueUndefineds()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 var ctx1 = rt.CreateContext();
                 var ctx2 = rt.CreateContext();
@@ -163,7 +163,7 @@
             var script = @"
 export default 'hello, world!';
 ";
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -185,7 +185,7 @@ var result = new Promise((resolve, reject) => {
     });
 export default result;
 ";
-            using (var rt = BaristaRuntimeFactory.CreateRuntime(JavaScriptRuntimeAttributes.None))
+            using (var rt = BaristaRuntimeService.CreateRuntime(JavaScriptRuntimeAttributes.None))
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -208,7 +208,7 @@ export default result;
 
 export default fooObj;";
 
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -241,7 +241,7 @@ export default 'banana';
 
             ModuleService.RegisterModule(bananaModule);
 
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -264,7 +264,7 @@ export default 'banana';
         ";
             ModuleService.RegisterModule(new ReverseModule());
 
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {

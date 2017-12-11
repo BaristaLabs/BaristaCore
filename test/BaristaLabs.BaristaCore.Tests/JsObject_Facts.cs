@@ -18,26 +18,21 @@
             m_provider = ServiceCollection.BuildServiceProvider();
         }
 
-        public IBaristaRuntimeFactory BaristaRuntimeFactory
+        public IBaristaRuntimeService BaristaRuntimeService
         {
-            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
-        }
-
-        public IBaristaValueFactory ValueFactory
-        {
-            get { return m_provider.GetRequiredService<IBaristaValueFactory>(); }
+            get { return m_provider.GetRequiredService<IBaristaRuntimeService>(); }
         }
 
         [Fact]
         public void JsObjectCanBeCreated()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
                     using (ctx.Scope())
                     {
-                        var obj = ctx.ValueFactory.CreateObject();
+                        var obj = ctx.ValueService.CreateObject();
                         Assert.True(obj != null);
                     }
                 }
@@ -47,7 +42,7 @@
         [Fact]
         public void JsObjectKeysCanBeRetrieved()
         {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {

@@ -4,14 +4,14 @@
     using Microsoft.Extensions.DependencyInjection;
     using System;
 
-    public sealed class BaristaContextFactory : IBaristaContextFactory
+    public sealed class BaristaContextService : IBaristaContextService
     {
         private BaristaObjectPool<BaristaContext, JavaScriptContextSafeHandle> m_contextPool;
 
         private readonly IJavaScriptEngine m_engine;
         private readonly IServiceProvider m_serviceProvider;
 
-        public BaristaContextFactory(IJavaScriptEngine engine, IServiceProvider serviceProvider)
+        public BaristaContextService(IJavaScriptEngine engine, IServiceProvider serviceProvider)
         {
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
             m_serviceProvider = serviceProvider;
@@ -33,19 +33,19 @@
             return m_contextPool.GetOrAdd(contextHandle, () =>
             {
                 var moduleService = m_serviceProvider.GetRequiredService<IBaristaModuleService>();
-                var valueFactory = m_serviceProvider.GetRequiredService<IBaristaValueFactory>();
+                var valueServiceFactory = m_serviceProvider.GetRequiredService<IBaristaValueServiceFactory>();
 
                 //For flexability, a promise task queue is not required.
                 var promiseTaskQueue = m_serviceProvider.GetService<IPromiseTaskQueue>();
 
                 m_engine.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, OnBeforeCollectCallback);
-                return new BaristaContext(m_engine, valueFactory, promiseTaskQueue, moduleService, contextHandle);
+                return new BaristaContext(m_engine, valueServiceFactory, promiseTaskQueue, moduleService, contextHandle);
             });
         }
 
         private void OnBeforeCollectCallback(IntPtr handle, IntPtr callbackState)
         {
-            //If the contextpool is null, this factory has already been disposed.
+            //If the contextpool is null, this service has already been disposed.
             if (m_contextPool == null)
                 return;
 
@@ -66,7 +66,7 @@
         }
 
         /// <summary>
-        /// Disposes of the factory and all references contained within.
+        /// Disposes of the service and all references contained within.
         /// </summary>
         public void Dispose()
         {
@@ -74,7 +74,7 @@
             GC.SuppressFinalize(this);
         }
 
-        ~BaristaContextFactory()
+        ~BaristaContextService()
         {
             Dispose(false);
         }
