@@ -81,14 +81,14 @@
                 throw;
             }
 
-            var result =  m_valuePool.GetOrAdd(externalArrayHandle, () =>
+            var result = m_valuePool.GetOrAdd(externalArrayHandle, () =>
             {
                 var flyweight = new JsManagedExternalArrayBuffer(m_engine, Context, this, externalArrayHandle, ptrData, (ptr) =>
                 {
                     Marshal.ZeroFreeGlobalAllocAnsi(ptr);
                 });
 
-                m_engine.JsSetObjectBeforeCollectCallback(externalArrayHandle, IntPtr.Zero, null);
+                m_engine.JsSetObjectBeforeCollectCallback(externalArrayHandle, IntPtr.Zero, OnBeforeCollectCallback);
                 return flyweight;
             });
 

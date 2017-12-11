@@ -153,6 +153,8 @@
                 Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, callback);
 
                 Engine.JsCollectGarbage(runtimeHandle);
+
+                Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, null);
             }
 
             Assert.True(called);
@@ -3039,6 +3041,9 @@ function throwAtHost() {
 
                     errorHandle.Dispose();
                     messageHandle.Dispose();
+
+                    var clearedException = Engine.JsGetAndClearException();
+                    Assert.Equal(errorHandle, clearedException);
                 }
             }
         }
