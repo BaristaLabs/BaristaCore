@@ -4,8 +4,8 @@
 
     public sealed class JsSymbol : JsValue
     {
-        public JsSymbol(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
-            : base(engine, context, value)
+        public JsSymbol(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueHandle)
         {
         }
 

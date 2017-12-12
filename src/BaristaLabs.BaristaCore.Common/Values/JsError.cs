@@ -4,8 +4,8 @@
 
     public class JsError : JsObject
     {
-        public JsError(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle value)
-            : base(engine, context, valueService, value)
+        public JsError(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueService, valueHandle)
         {
         }
 

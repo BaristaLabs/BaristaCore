@@ -13,8 +13,8 @@
     {
         private Lazy<JavaScriptTypedArrayInfo> m_arrayInfo;
 
-        public JsTypedArray(IJavaScriptEngine engine, BaristaContext context, BaristaValueService valueService, JavaScriptValueSafeHandle value)
-            : base(engine, context, valueService, value)
+        public JsTypedArray(IJavaScriptEngine engine, BaristaContext context, BaristaValueService valueService, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueService, valueHandle)
         {
             m_arrayInfo = new Lazy<JavaScriptTypedArrayInfo>(GetTypedArrayInfo);
         }

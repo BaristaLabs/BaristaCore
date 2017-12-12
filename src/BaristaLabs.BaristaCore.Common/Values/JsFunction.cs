@@ -13,8 +13,8 @@
     /// </remarks>
     public class JsFunction : JsObject
     {
-        public JsFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle value)
-            : base(engine, context, valueService, value)
+        public JsFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueService, valueHandle)
         {
         }
 
@@ -49,7 +49,7 @@
 
         private JavaScriptValueSafeHandle InvokeInternal(params JsValue[] args)
         {
-            var argPtrs = args.Select(a => a.Handle.DangerousGetHandle()).ToArray();
+            var argPtrs = args.Select(a => a == null ? Context.Undefined.Handle.DangerousGetHandle() : a.Handle.DangerousGetHandle()).ToArray();
 
             return Engine.JsCallFunction(Handle, argPtrs, (ushort)argPtrs.Length);
         }

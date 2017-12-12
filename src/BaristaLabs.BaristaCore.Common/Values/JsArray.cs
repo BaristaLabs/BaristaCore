@@ -6,8 +6,8 @@
 
     public class JsArray : JsObject, IEnumerable<JsValue>
     {
-        public JsArray(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle value)
-            : base(engine, context, valueService, value)
+        public JsArray(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueService, valueHandle)
         {
         }
 

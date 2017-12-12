@@ -12,8 +12,8 @@
     {
         private readonly IBaristaValueService m_baristaValueService;
 
-        public JsObject(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle value)
-            : base(engine, context, value)
+        public JsObject(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueHandle)
         {
             m_baristaValueService = valueService ?? throw new ArgumentNullException(nameof(valueService));
         }

@@ -117,6 +117,36 @@
         }
 
         [Fact]
+        public void JavaScriptContextShouldGetGlobalObject()
+        {
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.GlobalObject);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextShouldGetJSONBuiltIn()
+        {
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.JSON);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void JavaScriptContextsShouldHaveUniqueUndefineds()
         {
             using (var rt = BaristaRuntimeService.CreateRuntime())

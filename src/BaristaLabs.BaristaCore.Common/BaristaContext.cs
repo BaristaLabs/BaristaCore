@@ -22,6 +22,7 @@
         private readonly Lazy<JsBoolean> m_trueValue;
         private readonly Lazy<JsBoolean> m_falseValue;
         private readonly Lazy<JsObject> m_globalValue;
+        private readonly Lazy<JsJSON> m_jsonValue;
 
         private readonly IPromiseTaskQueue m_promiseTaskQueue;
         private readonly IBaristaModuleService m_moduleService;
@@ -51,6 +52,11 @@
             m_trueValue = new Lazy<JsBoolean>(() => m_valueService.GetTrueValue());
             m_falseValue = new Lazy<JsBoolean>(() => m_valueService.GetFalseValue());
             m_globalValue = new Lazy<JsObject>(() => m_valueService.GetGlobalObject());
+            m_jsonValue = new Lazy<JsJSON>(() =>
+            {
+                var global = m_globalValue.Value;
+                return global.GetPropertyByName<JsJSON>("JSON");
+            });
 
             m_moduleService = moduleService;
 
@@ -92,6 +98,20 @@
                     throw new ObjectDisposedException(nameof(BaristaContext));
 
                 return m_globalValue.Value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the global JSON built-in.
+        /// </summary>
+        public JsJSON JSON
+        {
+            get
+            {
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(BaristaContext));
+
+                return m_jsonValue.Value;
             }
         }
 

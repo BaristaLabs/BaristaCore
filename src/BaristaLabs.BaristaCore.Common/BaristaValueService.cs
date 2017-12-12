@@ -159,14 +159,7 @@
                         throw new NotImplementedException($"Error Creating JavaScript Value: The JavaScript Value Type '{valueType}' is unknown, invalid, or has not been implemented.");
                 }
 
-                void beforeCollect(object sender, BaristaObjectBeforeCollectEventArgs args)
-                {
-                    result.BeforeCollect -= beforeCollect;
-                    Debug.Assert(m_valuePool != null);
-                    m_valuePool.RemoveHandle(new JavaScriptValueSafeHandle(args.Handle));
-                }
-
-                result.BeforeCollect += beforeCollect;
+                result.BeforeCollect += JsValueBeforeCollectCallback;
 
                 return result;
             });
@@ -179,40 +172,39 @@
         public T CreateValue<T>(JavaScriptValueSafeHandle valueHandle)
             where T : JsValue
         {
-            var targetType = typeof(T);
-            JavaScriptValueType? valueType = null;
+            return m_valuePool.GetOrAdd(valueHandle, () =>
+            {
+                var targetType = typeof(T);
 
-            //JsObject Derived Value Types first.
-            if (typeof(JsArray).IsSameOrSubclass(targetType))
-                valueType = JavaScriptValueType.Array;
-            else if (typeof(JsArrayBuffer).IsSameOrSubclass(targetType))
-                valueType = JavaScriptValueType.ArrayBuffer;
-            else if (typeof(JsBoolean).IsSameOrSubclass(targetType))
-                valueType = JavaScriptValueType.Boolean;
-            else if (typeof(JsDataView).IsSameOrSubclass(targetType))
-                valueType = JavaScriptValueType.DataView;
-            else if (typeof(JsError).IsSameOrSubclass(targetType))
-                valueType = JavaScriptValueType.Error;
-            else if (typeof(JsFunction).IsSameOrSubclass(targetType))
-                valueType = JavaScriptValueType.Function;
-            else if (typeof(JsNumber).IsSameOrSubclass(targetType))
-                valueType = JavaScriptValueType.Number;
-            else if (typeof(JsString).IsSameOrSubclass(targetType))
-                valueType = JavaScriptValueType.String;
-            else if (typeof(JsTypedArray).IsSameOrSubclass(targetType))
-                valueType = JavaScriptValueType.TypedArray;
-            //Finally, Object.
-            else if (typeof(JsObject).IsSameOrSubclass(targetType))
-                valueType = JavaScriptValueType.Object;
-            //Primitives
-            else if (typeof(JsSymbol).IsSameOrSubclass(targetType))
-                valueType = JavaScriptValueType.Symbol;
-            else if (typeof(JsUndefined).IsSameOrSubclass(targetType))
-                valueType = JavaScriptValueType.Undefined;
-            else if (typeof(JsNull).IsSameOrSubclass(targetType))
-                valueType = JavaScriptValueType.Null;
+                T result;
+                //JsObject Derived Value Types first.
+                if (typeof(JsObject).IsSameOrSubclass(targetType))
+                {
+                    result = Activator.CreateInstance(targetType, new object[] { m_engine, Context, this, valueHandle }) as T;
+                }
+                else if (typeof(JsSymbol).IsSameOrSubclass(targetType))
+                {
+                    result = new JsSymbol(m_engine, Context, valueHandle) as T;
+                }
+                else if (typeof(JsUndefined).IsSameOrSubclass(targetType))
+                {
+                    result = new JsUndefined(m_engine, Context, valueHandle) as T;
+                }
+                else if (typeof(JsNull).IsSameOrSubclass(targetType))
+                {
+                    result = new JsNull(m_engine, Context, valueHandle) as T;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Type {targetType} must subclass JsValue");
+                }
 
-            return CreateValue(valueHandle, valueType) as T;
+                if (result == null)
+                    throw new BaristaException($"Unable to create an object of type {targetType}.");
+
+                result.BeforeCollect += JsValueBeforeCollectCallback;
+                return result;
+            }) as T;
         }
 
         public JsObject GetGlobalObject()
@@ -243,6 +235,13 @@
         {
             var undefinedValueHandle = m_engine.JsGetUndefinedValue();
             return CreateValue<JsUndefined>(undefinedValueHandle);
+        }
+
+        private void JsValueBeforeCollectCallback(object sender, BaristaObjectBeforeCollectEventArgs args)
+        {
+            ((JsValue)sender).BeforeCollect -= JsValueBeforeCollectCallback;
+            Debug.Assert(m_valuePool != null);
+            m_valuePool.RemoveHandle(new JavaScriptValueSafeHandle(args.Handle));
         }
 
         /// <summary>
