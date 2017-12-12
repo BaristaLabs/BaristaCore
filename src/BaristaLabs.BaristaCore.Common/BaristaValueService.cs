@@ -165,34 +165,33 @@
             });
         }
 
-        /// <summary>
-        /// Returns a new JavaScriptValue for the specified handle using the supplied type information.
-        /// </summary>
-        /// <returns>The JavaScript Value that represents the Handle</returns>
-        public T CreateValue<T>(JavaScriptValueSafeHandle valueHandle)
-            where T : JsValue
+        public JsValue CreateValue(Type targetType, JavaScriptValueSafeHandle valueHandle)
         {
+            if (targetType == null)
+                throw new ArgumentNullException(nameof(targetType));
+
+            if (typeof(JsValue).IsSameOrSubclass(targetType) == false)
+                throw new ArgumentOutOfRangeException(nameof(targetType));
+
             return m_valuePool.GetOrAdd(valueHandle, () =>
             {
-                var targetType = typeof(T);
+                JsValue result;
 
-                T result;
-                //JsObject Derived Value Types first.
                 if (typeof(JsObject).IsSameOrSubclass(targetType))
                 {
-                    result = Activator.CreateInstance(targetType, new object[] { m_engine, Context, this, valueHandle }) as T;
+                    result = Activator.CreateInstance(targetType, new object[] { m_engine, Context, this, valueHandle }) as JsValue;
                 }
                 else if (typeof(JsSymbol).IsSameOrSubclass(targetType))
                 {
-                    result = new JsSymbol(m_engine, Context, valueHandle) as T;
+                    result = new JsSymbol(m_engine, Context, valueHandle);
                 }
                 else if (typeof(JsUndefined).IsSameOrSubclass(targetType))
                 {
-                    result = new JsUndefined(m_engine, Context, valueHandle) as T;
+                    result = new JsUndefined(m_engine, Context, valueHandle);
                 }
                 else if (typeof(JsNull).IsSameOrSubclass(targetType))
                 {
-                    result = new JsNull(m_engine, Context, valueHandle) as T;
+                    result = new JsNull(m_engine, Context, valueHandle);
                 }
                 else
                 {
@@ -204,7 +203,14 @@
 
                 result.BeforeCollect += JsValueBeforeCollectCallback;
                 return result;
-            }) as T;
+            });
+        }
+
+        public T CreateValue<T>(JavaScriptValueSafeHandle valueHandle)
+            where T : JsValue
+        {
+            var targetType = typeof(T);
+            return CreateValue(targetType, valueHandle) as T;
         }
 
         public JsObject GetGlobalObject()

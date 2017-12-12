@@ -23,8 +23,24 @@
 
         JsString CreateString(string str);
 
+        /// <summary>
+        /// Returns a new JsValue for the specified handle using the specified type information. If no type information is provided, the object will be queried for its type.
+        /// </summary>
+        /// <param name="valueHandle"></param>
+        /// <param name="valueType"></param>
+        /// <returns></returns>
         JsValue CreateValue(JavaScriptValueSafeHandle valueHandle, JavaScriptValueType? valueType = null);
 
+        /// <summary>
+        /// Returns a new JavaScriptValue for the specified handle using the supplied type information.
+        /// </summary>
+        /// <returns>The JavaScript Value that represents the Handle</returns>
+        JsValue CreateValue(Type targetType, JavaScriptValueSafeHandle valueHandle);
+
+        /// <summary>
+        /// Returns a new JavaScriptValue for the specified handle using the supplied type information.
+        /// </summary>
+        /// <returns>The JavaScript Value that represents the Handle</returns>
         T CreateValue<T>(JavaScriptValueSafeHandle valueHandle)
             where T : JsValue;
 
