@@ -223,11 +223,12 @@ let global = (new Function('return this;'))();
 
             //Set the fetch callback.
             JavaScriptFetchImportedModuleCallback fetchImportedModule = GetFetchImportedModuleDelegate(subModuleName, subModuleHandle);
+            var fetchImportedModuleCallbackHandle = GCHandle.Alloc(fetchImportedModule);
             IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchImportedModule);
             Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, fetchCallbackPtr);
 
             //Set the notify callback.
-            bool mainModuleNotifyCallback(IntPtr referencingModule, IntPtr exceptionVar)
+            JavaScriptNotifyModuleReadyCallback mainModuleNotifyCallback = (IntPtr referencingModule, IntPtr exceptionVar) =>
             {
                 if (exceptionVar != IntPtr.Zero)
                 {
@@ -237,9 +238,10 @@ let global = (new Function('return this;'))();
 
                 mainModuleReady = true;
                 return false;
-            }
+            };
 
-            IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate((JavaScriptNotifyModuleReadyCallback)mainModuleNotifyCallback);
+            var mainModuleNotifyCallbackHandle = GCHandle.Alloc(mainModuleNotifyCallback);
+            IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate(mainModuleNotifyCallback);
             Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, notifyCallbackPtr);
 
             //Indicate the host-defined, main module.
@@ -263,9 +265,15 @@ let global = (new Function('return this;'))();
             //Now we're ready, evaluate the main module.
 
             //Clear and set the task queue if specified
+            GCHandle promiseContinuationCallbackDelegateHandle = default(GCHandle);
             if (m_promiseTaskQueue != null)
             {
                 m_promiseTaskQueue.Clear();
+                JavaScriptPromiseContinuationCallback promiseContinuationCallback = (IntPtr taskHandle, IntPtr callbackState) =>
+                {
+                    PromiseContinuationCallback(taskHandle, callbackState);
+                };
+                promiseContinuationCallbackDelegateHandle = GCHandle.Alloc(promiseContinuationCallback);
                 Engine.JsSetPromiseContinuationCallback(PromiseContinuationCallback, IntPtr.Zero);
             }
 
@@ -303,6 +311,17 @@ let global = (new Function('return this;'))();
                 {
                     Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
                 }
+                if (promiseContinuationCallbackDelegateHandle != default(GCHandle))
+                {
+                    promiseContinuationCallbackDelegateHandle.Free();
+                }
+
+                Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
+                fetchImportedModuleCallbackHandle.Free();
+
+                //Unset the Notify callback.
+                Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, IntPtr.Zero);
+                mainModuleNotifyCallbackHandle.Free();
             }
         }
 

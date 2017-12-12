@@ -533,6 +533,7 @@ export default function cube(x) {
                     Assert.True(mainModuleHandle != JavaScriptModuleRecord.Invalid);
 
                     //Set the fetch callback.
+                    var fetchCallbackDelegateHandle = GCHandle.Alloc(fetchCallback);
                     IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchCallback);
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, fetchCallbackPtr);
 
@@ -541,6 +542,7 @@ export default function cube(x) {
                     Assert.Equal(fetchCallbackPtr, moduleHostPtr);
 
                     //Set the fetchScript callback
+                    var fetchFromScriptCallbackDelegateHandle = GCHandle.Alloc(fetchCallback);
                     IntPtr fetchFromScriptCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchFromScriptCallback);
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleFromScriptCallback, fetchFromScriptCallbackPtr);
 
@@ -549,6 +551,7 @@ export default function cube(x) {
                     Assert.Equal(fetchFromScriptCallbackPtr, moduleHostPtr);
 
                     //Set the notify callback
+                    var notifyCallbackDelegateHandle = GCHandle.Alloc(fetchCallback);
                     IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate(notifyCallback);
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, notifyCallbackPtr);
 
@@ -592,6 +595,15 @@ export default function cube(x) {
 
                     var result = Engine.JsNumberToInt(resultHandle);
                     Assert.Equal(27, result);
+
+
+                    //Cleanup
+                    Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
+                    fetchCallbackDelegateHandle.Free();
+                    Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleFromScriptCallback, IntPtr.Zero);
+                    fetchFromScriptCallbackDelegateHandle.Free();
+                    Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, IntPtr.Zero);
+                    notifyCallbackDelegateHandle.Free();
                 }
             }
         }
