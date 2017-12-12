@@ -42,7 +42,7 @@
 
             m_runtimeMemoryAllocationChangingDelegateHandle = GCHandle.Alloc(runtimeMemoryAllocationChanging);
             Engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, runtimeMemoryAllocationChanging);
-
+            
             JavaScriptBeforeCollectCallback beforeCollectCallback = (IntPtr callbackState) =>
             {
                 OnBeforeCollect(IntPtr.Zero, callbackState);

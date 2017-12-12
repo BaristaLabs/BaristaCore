@@ -3,6 +3,7 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
     using System.Dynamic;
+    using System.Runtime.InteropServices;
     using System.Text;
 
     /// <summary>
@@ -17,21 +18,27 @@
 
         private readonly IJavaScriptEngine m_javaScriptEngine;
         private readonly BaristaContext m_context;
+        private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
+
         private JavaScriptValueSafeHandle m_javaScriptReference;
 
-        protected JsValue(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
+        protected JsValue(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
         {
             m_javaScriptEngine = engine ?? throw new ArgumentNullException(nameof(engine));
             m_context = context ?? throw new ArgumentNullException(nameof(context));
-            m_javaScriptReference = value ?? throw new ArgumentNullException(nameof(value));
+            m_javaScriptReference = valueHandle ?? throw new ArgumentNullException(nameof(valueHandle));
 
             //Set the event that will be called prior to the engine collecting the value.
             if ((this is JsNumber) == false)
             {
-                //Engine.JsSetObjectBeforeCollectCallback(value, IntPtr.Zero, (IntPtr handle, IntPtr callbackState) =>
-                //{
-                //    OnBeforeCollect(handle, callbackState);
-                //});
+                //Set the event that will be called prior to the engine collecting the value.
+                JavaScriptObjectBeforeCollectCallback beforeCollectCallback = (IntPtr handle, IntPtr callbackState) =>
+                {
+                    OnBeforeCollect(handle, callbackState);
+                };
+
+                m_beforeCollectCallbackDelegateHandle = GCHandle.Alloc(beforeCollectCallback);
+                Engine.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, beforeCollectCallback);
             }
         }
 
@@ -223,6 +230,7 @@
                 {
                     //Unset the before collect callback.
                     Engine.JsSetObjectBeforeCollectCallback(Handle, IntPtr.Zero, null);
+                    m_beforeCollectCallbackDelegateHandle.Free();
                 }
 
                 //Dispose of the handle

@@ -27,6 +27,8 @@
         private readonly IBaristaModuleService m_moduleService;
         private readonly IBaristaValueService m_valueService;
 
+        private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
+
         //0 for false, 1 for true.
         private int m_withinScope = 0;
         private BaristaExecutionScope m_currentExecutionScope;
@@ -55,10 +57,13 @@
             m_promiseTaskQueue = taskQueue;
 
             //Set the event that will be called prior to the engine collecting the context.
-            //Engine.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, (IntPtr handle, IntPtr callbackState) =>
-            //{
-            //    OnBeforeCollect(handle, callbackState);
-            //});
+            JavaScriptObjectBeforeCollectCallback beforeCollectCallback = (IntPtr handle, IntPtr callbackState) =>
+            {
+                OnBeforeCollect(handle, callbackState);
+            };
+
+            m_beforeCollectCallbackDelegateHandle = GCHandle.Alloc(beforeCollectCallback);
+            Engine.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, beforeCollectCallback);
         }
 
         #region Properties
@@ -452,6 +457,7 @@ export default value;
 
                         //Unset the before collect callback.
                         Engine.JsSetObjectBeforeCollectCallback(Handle, IntPtr.Zero, null);
+                        m_beforeCollectCallbackDelegateHandle.Free();
                     }
                     finally
                     {
