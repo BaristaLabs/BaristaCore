@@ -32,10 +32,10 @@
             m_contextService = contextService ?? throw new ArgumentNullException(nameof(contextService));
             
             Engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, OnRuntimeMemoryAllocationChanging);
-            Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, (IntPtr callbackState) =>
-            {
-                OnBeforeCollect(IntPtr.Zero, callbackState);
-            });
+            //Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, (IntPtr callbackState) =>
+            //{
+            //    OnBeforeCollect(IntPtr.Zero, callbackState);
+            //});
         }
 
         /// <summary>
@@ -110,7 +110,7 @@
                 Engine.JsSetRuntimeMemoryAllocationCallback(Handle, IntPtr.Zero, null);
 
                 //Don't need no before collect monitoring either!
-                Engine.JsSetRuntimeBeforeCollectCallback(Handle, IntPtr.Zero, null);
+                //Engine.JsSetRuntimeBeforeCollectCallback(Handle, IntPtr.Zero, null);
             }
 
             base.Dispose(disposing);
