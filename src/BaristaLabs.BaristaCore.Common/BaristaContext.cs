@@ -269,37 +269,41 @@ let global = (new Function('return this;'))();
                 Engine.JsSetPromiseContinuationCallback(PromiseContinuationCallback, IntPtr.Zero);
             }
 
-            Engine.JsModuleEvaluation(mainModuleHandle);
-
-            //Evaluate any pending promises.
-            if (m_promiseTaskQueue != null)
+            try
             {
-                var args = new IntPtr[] { Undefined.Handle.DangerousGetHandle() };
-                while (m_promiseTaskQueue.Count > 0)
+
+                Engine.JsModuleEvaluation(mainModuleHandle);
+
+                //Evaluate any pending promises.
+                if (m_promiseTaskQueue != null)
                 {
-                    var promise = m_promiseTaskQueue.Dequeue();
-                    try
+                    var args = new IntPtr[] { Undefined.Handle.DangerousGetHandle() };
+                    while (m_promiseTaskQueue.Count > 0)
                     {
-                        var promiseResult = Engine.JsCallFunction(promise.Handle, args, (ushort)args.Length);
-                        promiseResult.Dispose();
-                    }
-                    finally
-                    {
-                        promise.Dispose();
+                        var promise = m_promiseTaskQueue.Dequeue();
+                        try
+                        {
+                            var promiseResult = Engine.JsCallFunction(promise.Handle, args, (ushort)args.Length);
+                            promiseResult.Dispose();
+                        }
+                        finally
+                        {
+                            promise.Dispose();
+                        }
                     }
                 }
+
+                //Return the result.
+                return Engine.GetGlobalVariable("$EXPORTS");
             }
-
-            //Return the result.
-            var result = Engine.GetGlobalVariable("$EXPORTS");
-
-            //Unset the Promise callback.
-            if (m_promiseTaskQueue != null)
+            finally
             {
-                Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
+                //Unset the Promise callback.
+                if (m_promiseTaskQueue != null)
+                {
+                    Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
+                }
             }
-
-            return result;
         }
 
         /// <summary>
@@ -448,16 +452,7 @@ export default value;
                         scope = Scope();
                     try
                     {
-                        if (m_promiseTaskQueue != null)
-                        {
-                            Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
-                        }
-
                         m_valueService.Dispose();
-
-                        //Unset the before collect callback.
-                        Engine.JsSetObjectBeforeCollectCallback(Handle, IntPtr.Zero, null);
-                        m_beforeCollectCallbackDelegateHandle.Free();
                     }
                     finally
                     {
@@ -465,6 +460,13 @@ export default value;
                             scope.Dispose();
                     }
                 }
+            }
+
+            if (!IsDisposed)
+            {
+                //Unset the before collect callback.
+                Engine.JsSetObjectBeforeCollectCallback(Handle, IntPtr.Zero, null);
+                m_beforeCollectCallbackDelegateHandle.Free();
             }
 
             base.Dispose(disposing);

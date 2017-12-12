@@ -222,7 +222,7 @@
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing && !IsDisposed)
+            if (!IsDisposed)
             {
                 // Certain types do not participate in collect callback.
                 //These throw an invalid argument exception when attempting to set a beforecollectcallback.
@@ -232,7 +232,10 @@
                     Engine.JsSetObjectBeforeCollectCallback(Handle, IntPtr.Zero, null);
                     m_beforeCollectCallbackDelegateHandle.Free();
                 }
+            }
 
+            if (disposing && !IsDisposed)
+            {
                 //Dispose of the handle
                 m_javaScriptReference.Dispose();
                 m_javaScriptReference = null;

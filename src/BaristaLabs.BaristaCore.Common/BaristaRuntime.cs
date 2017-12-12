@@ -119,7 +119,10 @@
                     m_contextService.Dispose();
                     m_contextService = null;
                 }
+            }
 
+            if (!IsDisposed)
+            {
                 //We don't need no more steekin' memory monitoring.
                 Engine.JsSetRuntimeMemoryAllocationCallback(Handle, IntPtr.Zero, null);
                 m_runtimeMemoryAllocationChangingDelegateHandle.Free();
