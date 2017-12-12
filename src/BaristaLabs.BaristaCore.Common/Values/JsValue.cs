@@ -28,10 +28,10 @@
             //Set the event that will be called prior to the engine collecting the value.
             if ((this is JsNumber) == false)
             {
-                Engine.JsSetObjectBeforeCollectCallback(value, IntPtr.Zero, (IntPtr handle, IntPtr callbackState) =>
-                {
-                    OnBeforeCollect(handle, callbackState);
-                });
+                //Engine.JsSetObjectBeforeCollectCallback(value, IntPtr.Zero, (IntPtr handle, IntPtr callbackState) =>
+                //{
+                //    OnBeforeCollect(handle, callbackState);
+                //});
             }
         }
 

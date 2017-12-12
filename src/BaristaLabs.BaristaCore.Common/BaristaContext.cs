@@ -55,10 +55,10 @@
             m_promiseTaskQueue = taskQueue;
 
             //Set the event that will be called prior to the engine collecting the context.
-            Engine.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, (IntPtr handle, IntPtr callbackState) =>
-            {
-                OnBeforeCollect(handle, callbackState);
-            });
+            //Engine.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, (IntPtr handle, IntPtr callbackState) =>
+            //{
+            //    OnBeforeCollect(handle, callbackState);
+            //});
         }
 
         #region Properties
