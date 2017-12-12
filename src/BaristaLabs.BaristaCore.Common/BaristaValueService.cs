@@ -159,11 +159,14 @@
                         throw new NotImplementedException($"Error Creating JavaScript Value: The JavaScript Value Type '{valueType}' is unknown, invalid, or has not been implemented.");
                 }
 
-                result.BeforeCollect += (sender, args) =>
+                void beforeCollect(object sender, BaristaObjectBeforeCollectEventArgs args)
                 {
+                    result.BeforeCollect -= beforeCollect;
                     Debug.Assert(m_valuePool != null);
                     m_valuePool.RemoveHandle(new JavaScriptValueSafeHandle(args.Handle));
-                };
+                }
+
+                result.BeforeCollect += beforeCollect;
 
                 return result;
             });

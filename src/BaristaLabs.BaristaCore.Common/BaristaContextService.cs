@@ -42,11 +42,13 @@
                 //Set the handle that will be called prior to the engine collecting the context.
                 var context = new BaristaContext(m_engine, valueServiceFactory, promiseTaskQueue, moduleService, contextHandle);
 
-                context.BeforeCollect += (sender, args) =>
+                void beforeCollect(object sender, BaristaObjectBeforeCollectEventArgs args)
                 {
+                    context.BeforeCollect -= beforeCollect;
                     Debug.Assert(m_contextPool != null);
                     m_contextPool.RemoveHandle(new JavaScriptContextSafeHandle(args.Handle));
-                };
+                }
+                context.BeforeCollect += beforeCollect;
                 return context;
             });
         }

@@ -42,11 +42,14 @@
                 //crash the engine.
 
                 //After a runtime handle is disposed, remove the handle from the pool.
-                rt.AfterDispose += (sender, args) =>
+                void afterDispose(object sender, EventArgs args)
                 {
+                    rt.AfterDispose -= afterDispose;
                     Debug.Assert(m_runtimePool != null);
                     m_runtimePool.RemoveHandle(runtimeHandle);
-                };
+                }
+
+                rt.AfterDispose += afterDispose;
                 return rt;
             });
 
