@@ -2,6 +2,7 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a JavaScript Runtime
@@ -23,6 +24,9 @@
 
         private IBaristaContextService m_contextService;
 
+        private readonly GCHandle m_runtimeMemoryAllocationChangingDelegateHandle;
+        private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
+
         /// <summary>
         /// Creates a new instance of a Barista Runtime.
         /// </summary>
@@ -30,12 +34,22 @@
             : base(engine, runtimeHandle)
         {
             m_contextService = contextService ?? throw new ArgumentNullException(nameof(contextService));
-            
-            Engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, OnRuntimeMemoryAllocationChanging);
-            //Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, (IntPtr callbackState) =>
-            //{
-            //    OnBeforeCollect(IntPtr.Zero, callbackState);
-            //});
+
+            JavaScriptMemoryAllocationCallback runtimeMemoryAllocationChanging = (IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize) =>
+            {
+                return OnRuntimeMemoryAllocationChanging(callbackState, allocationEvent, allocationSize);
+            };
+
+            m_runtimeMemoryAllocationChangingDelegateHandle = GCHandle.Alloc(runtimeMemoryAllocationChanging);
+            Engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, runtimeMemoryAllocationChanging);
+
+            JavaScriptBeforeCollectCallback beforeCollectCallback = (IntPtr callbackState) =>
+            {
+                OnBeforeCollect(IntPtr.Zero, callbackState);
+            };
+
+            m_beforeCollectCallbackDelegateHandle = GCHandle.Alloc(beforeCollectCallback);
+            Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, beforeCollectCallback);
         }
 
         /// <summary>
@@ -108,9 +122,11 @@
 
                 //We don't need no more steekin' memory monitoring.
                 Engine.JsSetRuntimeMemoryAllocationCallback(Handle, IntPtr.Zero, null);
+                m_runtimeMemoryAllocationChangingDelegateHandle.Free();
 
                 //Don't need no before collect monitoring either!
-                //Engine.JsSetRuntimeBeforeCollectCallback(Handle, IntPtr.Zero, null);
+                Engine.JsSetRuntimeBeforeCollectCallback(Handle, IntPtr.Zero, null);
+                m_beforeCollectCallbackDelegateHandle.Free();
             }
 
             base.Dispose(disposing);

@@ -64,24 +64,24 @@
             Assert.True(changeCount > 0);
         }
 
-        //[Fact]
-        //public void JavaScriptRuntimeShouldFireGarbageCollectionCallbacks()
-        //{
-        //    int collectingCount = 0;
-        //    EventHandler<BaristaObjectBeforeCollectEventArgs> handler = (sender, e) =>
-        //    {
-        //        collectingCount++;
-        //    };
+        [Fact]
+        public void JavaScriptRuntimeShouldFireGarbageCollectionCallbacks()
+        {
+            int collectingCount = 0;
+            EventHandler<BaristaObjectBeforeCollectEventArgs> handler = (sender, e) =>
+            {
+                collectingCount++;
+            };
 
-        //    using (var rt = BaristaRuntimeService.CreateRuntime())
-        //    {
-        //        rt.BeforeCollect += handler;
-        //        rt.CollectGarbage();
-        //        rt.BeforeCollect -= handler;
-        //    }
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                rt.BeforeCollect += handler;
+                rt.CollectGarbage();
+                rt.BeforeCollect -= handler;
+            }
 
-        //    Assert.True(collectingCount > 0);
-        //}
+            Assert.True(collectingCount > 0);
+        }
 
         [Fact]
         public void JavaScriptRuntimeShouldIndicateDisposedState()
