@@ -51,7 +51,7 @@
         {
             get
             {
-                dynamic result = GetPropertyByName<JsNumber>("length");
+                dynamic result = GetProperty<JsNumber>("length");
                 return (uint)result;
             }
         }

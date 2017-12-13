@@ -15,7 +15,7 @@
         {
             get
             {
-                var result = GetPropertyByName<JsNumber>("length");
+                var result = GetProperty<JsNumber>("length");
                 return result.ToInt32();
             }
         }
@@ -36,13 +36,13 @@
 
         public JsValue Pop()
         {
-            var fn = GetPropertyByName<JsFunction>("pop");
+            var fn = GetProperty<JsFunction>("pop");
             return fn.Invoke(new JsValue[] { this });
         }
 
         public void Push(JsValue value)
         {
-            var fn = GetPropertyByName<JsFunction>("push");
+            var fn = GetProperty<JsFunction>("push");
             fn.Invoke(new JsValue[] { this, value });
         }
 
@@ -59,7 +59,7 @@
                 args.Add(ValueService.CreateNumber(startIndex.Value));
             }
 
-            var fn = GetPropertyByName<JsFunction>("indexOf");
+            var fn = GetProperty<JsFunction>("indexOf");
             var result = fn.Invoke<JsNumber>(args.ToArray());
             return result.ToInt32();
         }

@@ -23,11 +23,11 @@
         {
             get
             {
-                return GetPropertyByIndex(index);
+                return GetProperty(index);
             }
             set
             {
-                SetPropertyByIndex(index, value);
+                SetProperty(index, value);
             }
         }
 
@@ -35,11 +35,11 @@
         {
             get
             {
-                return GetPropertyByName(propertyName);
+                return GetProperty(propertyName);
             }
             set
             {
-                SetPropertyByName(propertyName, value);
+                SetProperty(propertyName, value);
             }
         }
 
@@ -47,11 +47,11 @@
         {
             get
             {
-                return GetPropertyBySymbol(symbol);
+                return GetProperty(symbol);
             }
             set
             {
-                SetPropertyBySymbol(symbol, value);
+                SetProperty(symbol, value);
             }
         }
 
@@ -59,11 +59,11 @@
         {
             get
             {
-                return GetPropertyByValue(index);
+                return GetProperty(index);
             }
             set
             {
-                SetPropertyByValue(index, value);
+                SetProperty(index, value);
             }
         }
         #endregion
@@ -108,7 +108,7 @@
         /// </summary>
         /// <param name="value"></param>
         /// <param name="useStrictRules"></param>
-        public void DeletePropertyByIndex(int index)
+        public void DeleteProperty(int index)
         {
             if (!Context.HasCurrentScope)
                 throw new InvalidOperationException("An active execution scope is required.");
@@ -122,7 +122,7 @@
         /// </summary>
         /// <param name="value"></param>
         /// <param name="useStrictRules"></param>
-        public void DeletePropertyByName(string propertyName, bool useStrictRules = false)
+        public void DeleteProperty(string propertyName, bool useStrictRules = false)
         {
             if (string.IsNullOrWhiteSpace(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));
@@ -141,7 +141,7 @@
         /// </summary>
         /// <param name="value"></param>
         /// <param name="useStrictRules"></param>
-        public void DeletePropertyBySymbol(JsSymbol symbol, bool useStrictRules = false)
+        public void DeleteProperty(JsSymbol symbol, bool useStrictRules = false)
         {
             if (symbol == null)
                 throw new ArgumentNullException(nameof(symbol));
@@ -160,7 +160,7 @@
         /// </summary>
         /// <param name="value"></param>
         /// <param name="useStrictRules"></param>
-        public void DeletePropertyByValue(JsValue value)
+        public void DeleteProperty(JsValue value)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
@@ -178,13 +178,13 @@
         /// </summary>
         /// <param name="propertyName"></param>
         /// <returns></returns>
-        public JsValue GetPropertyByName(string propertyName)
+        public JsValue GetProperty(string propertyName)
         {
             var valueHandle = GetPropertyByNameInternal(propertyName);
             return ValueService.CreateValue(valueHandle);
         }
 
-        public T GetPropertyByName<T>(string propertyName)
+        public T GetProperty<T>(string propertyName)
             where T : JsValue
         {
             var valueHandle = GetPropertyByNameInternal(propertyName);
@@ -210,13 +210,13 @@
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public JsValue GetPropertyByIndex(int index)
+        public JsValue GetProperty(int index)
         {
             var valueHandle = GetPropertyByIndexInternal(index);
             return ValueService.CreateValue(valueHandle);
         }
 
-        public T GetPropertyByIndex<T>(int index)
+        public T GetProperty<T>(int index)
             where T : JsValue
         {
             var valueHandle = GetPropertyByIndexInternal(index);
@@ -237,13 +237,13 @@
         /// </summary>
         /// <param name="propertyName"></param>
         /// <returns></returns>
-        public JsValue GetPropertyBySymbol(JsSymbol symbol)
+        public JsValue GetProperty(JsSymbol symbol)
         {
             var valueHandle = GetPropertyBySymbolInternal(symbol);
             return ValueService.CreateValue(valueHandle);
         }
 
-        public T GetPropertyBySymbol<T>(JsSymbol symbol)
+        public T GetProperty<T>(JsSymbol symbol)
             where T : JsValue
         {
             var valueHandle = GetPropertyBySymbolInternal(symbol);
@@ -269,13 +269,13 @@
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public JsValue GetPropertyByValue(JsValue value)
+        public JsValue GetProperty(JsValue value)
         {
             var valueHandle = GetPropertyByValueInternal(value);
             return ValueService.CreateValue(valueHandle);
         }
 
-        public T GetPropertyByValue<T>(JsValue value)
+        public T GetProperty<T>(JsValue value)
             where T : JsValue
         {
             var valueHandle = GetPropertyByValueInternal(value);
@@ -320,7 +320,7 @@
             var segments = path.Split('.');
             for (int i = 0; i < segments.Length - 1; i++)
             {
-                var propertyValue = currentObject.GetPropertyByName(segments[i]);
+                var propertyValue = currentObject.GetProperty(segments[i]);
 
                 if (typeof(JsObject).IsSameOrSubclass(propertyValue.GetType()) == false)
                 {
@@ -339,7 +339,7 @@
         #endregion
 
         #region Set Property Methods
-        public void SetPropertyByName<T>(string propertyName, T value, bool useStrictRules = false)
+        public void SetProperty<T>(string propertyName, T value, bool useStrictRules = false)
             where T : JsValue
         {
             using (var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length))
@@ -349,7 +349,7 @@
             }
         }
 
-        public void SetPropertyByIndex<T>(int index, T value)
+        public void SetProperty<T>(int index, T value)
             where T : JsValue
         {
             if (value == null)
@@ -362,7 +362,7 @@
             Engine.JsSetIndexedProperty(Handle, indexHandle.Handle, value.Handle);
         }
 
-        public void SetPropertyBySymbol<T>(JsSymbol symbol, T value, bool useStrictRules = false)
+        public void SetProperty<T>(JsSymbol symbol, T value, bool useStrictRules = false)
             where T : JsValue
         {
             if (symbol == null)
@@ -381,7 +381,7 @@
             }
         }
 
-        public void SetPropertyByValue<T>(JsValue index, T propertyValue)
+        public void SetProperty<T>(JsValue index, T propertyValue)
             where T : JsValue
         {
             if (index == null)
@@ -410,22 +410,22 @@
 
             if (indexes[0] is string propertyName)
             {
-                DeletePropertyByName(propertyName);
+                DeleteProperty(propertyName);
                 return true;
             }
             else if (indexes[0] is int index)
             {
-                DeletePropertyByIndex(index);
+                DeleteProperty(index);
                 return true;
             }
             else if (indexes[0] is JsSymbol symbol)
             {
-                DeletePropertyBySymbol(symbol);
+                DeleteProperty(symbol);
                 return true;
             }
-            else if (indexes[0] is JsValue jsIndex)
+            else if (Context.Converter.TryFromObject(ValueService, indexes[0], out JsValue jsIndex))
             {
-                DeletePropertyByValue(jsIndex);
+                DeleteProperty(jsIndex);
                 return true;
             }
 
@@ -434,7 +434,7 @@
 
         public override bool TryDeleteMember(DeleteMemberBinder binder)
         {
-            DeletePropertyByName(binder.Name);
+            DeleteProperty(binder.Name);
             return true;
         }
 
@@ -445,22 +445,22 @@
 
             if (indexes[0] is string propertyName)
             {
-                result = GetPropertyByName(propertyName);
+                result = GetProperty(propertyName);
                 return true;
             }
             else if (indexes[0] is int index)
             {
-                result = GetPropertyByIndex(index);
+                result = GetProperty(index);
                 return true;
             }
             else if (indexes[0] is JsSymbol symbol)
             {
-                result = GetPropertyBySymbol(symbol);
+                result = GetProperty(symbol);
                 return true;
             }
-            else if (indexes[0] is JsValue jsIndex)
+            else if (Context.Converter.TryFromObject(ValueService, indexes[0], out JsValue jsIndex))
             {
-                result = GetPropertyByValue(jsIndex);
+                result = GetProperty(jsIndex);
                 return true;
             }
 
@@ -469,13 +469,13 @@
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-            result = GetPropertyByName(binder.Name);
+            result = GetProperty(binder.Name);
             return result is JsUndefined ? false : true;
         }
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            if (GetPropertyByName(binder.Name) is JsFunction fn)
+            if (GetProperty(binder.Name) is JsFunction fn)
             {
                 if (Context.Converter.TryFromObject(ValueService, args, out JsValue jsArguments))
                 {
@@ -497,22 +497,22 @@
 
                 if (indexes[0] is string propertyName)
                 {
-                    SetPropertyByName(propertyName, jsValue);
+                    SetProperty(propertyName, jsValue);
                     return true;
                 }
                 else if (indexes[0] is int index)
                 {
-                    SetPropertyByIndex(index, jsValue);
+                    SetProperty(index, jsValue);
                     return true;
                 }
                 else if (indexes[0] is JsSymbol symbol)
                 {
-                    SetPropertyBySymbol(symbol, jsValue);
+                    SetProperty(symbol, jsValue);
                     return true;
                 }
                 else if (Context.Converter.TryFromObject(ValueService, indexes[0], out JsValue jsIndex))
                 {
-                    SetPropertyByValue(jsIndex, jsValue);
+                    SetProperty(jsIndex, jsValue);
                     return true;
                 }
             }
@@ -524,7 +524,7 @@
         {
             if (Context.Converter.TryFromObject(ValueService, value, out JsValue jsValue))
             {
-                SetPropertyByName(binder.Name, jsValue);
+                SetProperty(binder.Name, jsValue);
                 return true;
             }
             return base.TrySetMember(binder, value);

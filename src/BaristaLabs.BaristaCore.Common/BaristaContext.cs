@@ -59,7 +59,7 @@
             m_jsonValue = new Lazy<JsJSON>(() =>
             {
                 var global = m_globalValue.Value;
-                return global.GetPropertyByName<JsJSON>("JSON");
+                return global.GetProperty<JsJSON>("JSON");
             });
 
 
@@ -208,7 +208,7 @@
             try
             {
                 var globalName = EvaluateModuleInternal(script);
-                return GlobalObject.GetPropertyByName(globalName);
+                return GlobalObject.GetProperty(globalName);
             }
             finally
             {
@@ -233,7 +233,7 @@
             try
             {
                 var globalName = EvaluateModuleInternal(script);
-                return GlobalObject.GetPropertyByName<T>(globalName);
+                return GlobalObject.GetProperty<T>(globalName);
             }
             finally
             {

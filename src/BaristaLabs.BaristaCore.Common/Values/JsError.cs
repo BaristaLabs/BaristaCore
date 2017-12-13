@@ -18,7 +18,7 @@
         {
             get
             {
-                dynamic result = GetPropertyByName<JsString>("message");
+                dynamic result = GetProperty<JsString>("message");
                 return (string)result;
             }
         }
@@ -27,7 +27,7 @@
         {
             get
             {
-                dynamic result = GetPropertyByName<JsNumber>("line");
+                dynamic result = GetProperty<JsNumber>("line");
                 return (int)result;
             }
         }
@@ -36,7 +36,7 @@
         {
             get
             {
-                dynamic result = GetPropertyByName<JsNumber>("column");
+                dynamic result = GetProperty<JsNumber>("column");
                 return (int)result;
             }
         }
@@ -45,7 +45,7 @@
         {
             get
             {
-                dynamic result = GetPropertyByName<JsNumber>("length");
+                dynamic result = GetProperty<JsNumber>("length");
                 return (int)result;
             }
         }
@@ -54,7 +54,7 @@
         {
             get
             {
-                dynamic result = GetPropertyByName<JsString>("source");
+                dynamic result = GetProperty<JsString>("source");
                 return (string)result;
             }
         }

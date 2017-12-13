@@ -58,18 +58,9 @@
 
         public override string ToString()
         {
-            var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyId(toStringPropertyName, (ulong)toStringPropertyName.Length);
-            var toStringFnHandle = Engine.JsGetProperty(Handle, toStringFunctionPropertyIdHandle);
-
-            var resultHandle = Engine.JsCallFunction(toStringFnHandle, new IntPtr[] { Handle.DangerousGetHandle() }, 1);
-
-            var size = Engine.JsCopyString(resultHandle, null, 0);
-            if ((int)size > int.MaxValue)
-                throw new OutOfMemoryException("Exceeded maximum string length.");
-
-            byte[] result = new byte[(int)size];
-            var written = Engine.JsCopyString(resultHandle, result, size);
-            return Encoding.UTF8.GetString(result, 0, result.Length);
+            var fnToString = GetProperty<JsFunction>(toStringPropertyName);
+            var fnAsAString = fnToString.Invoke<JsString>(this);
+            return fnAsAString.ToString();
         }
     }
 }
