@@ -9,7 +9,19 @@
 
     public sealed class BaristaConversionStrategy : IBaristaConversionStrategy
     {
-        public JsValue FromObject(IBaristaValueService valueService, object obj, Func<object, string> jsonConverter = null)
+        private readonly IJsonConverter m_jsonConverter;
+
+        public BaristaConversionStrategy()
+        {
+        }
+
+        public BaristaConversionStrategy(IJsonConverter jsonConverter)
+        {
+            //JsonConverter is not required.
+            m_jsonConverter = jsonConverter;
+        }
+
+        public bool TryFromObject(IBaristaValueService valueService, object obj, out JsValue value)
         {
             if (valueService == null)
                 throw new ArgumentNullException(nameof(valueService));
@@ -21,74 +33,96 @@
             //Well this is easy!
             if (obj == null)
             {
-                return valueService.GetNullValue();
+                value = valueService.GetNullValue();
+                return true;
             }
 
-            if (obj is JsValue jsValue)
+            switch (obj)
             {
-                return jsValue;
-            }
-
-            if (obj is JavaScriptValueSafeHandle jsValueSafeHandle)
-            {
-                return valueService.CreateValue(jsValueSafeHandle);
-            }
-
-            switch(obj)
-            {
+                case Undefined undefinedValue:
+                    value = valueService.GetUndefinedValue();
+                    return true;
+                case JsValue jsValue:
+                    value = jsValue;
+                    return true;
+                case JavaScriptValueSafeHandle jsValueSafeHandle:
+                    value = valueService.CreateValue(jsValueSafeHandle);
+                    return true;
                 case string stringValue:
-                    return valueService.CreateString(stringValue);
+                    value = valueService.CreateString(stringValue);
+                    return true;
                 case double doubleValue:
                 case float floatValue:
-                    return valueService.CreateNumber((double)obj);
+                    value = valueService.CreateNumber((double)obj);
+                    return true;
                 case int intValue:
                 case short shortValue:
                 case ushort ushortValue:
                 case byte byteValue:
                 case sbyte sbyteValue:
-                    return valueService.CreateNumber((int)obj);
+                    value = valueService.CreateNumber((int)obj);
+                    return true;
                 case uint uintValue:
-                    return valueService.CreateNumber(uintValue);
+                    value = valueService.CreateNumber(uintValue);
+                    return true;
                 case long longValue:
-                    return valueService.CreateNumber(longValue);
+                    value = valueService.CreateNumber(longValue);
+                    return true;
                 case bool boolValue:
-                    return boolValue ? valueService.GetTrueValue() : valueService.GetFalseValue();
+                    value = boolValue ? valueService.GetTrueValue() : valueService.GetFalseValue();
+                    return true;
                 case IEnumerable enumerableValue:
                     var arrayValue = enumerableValue.OfType<object>().ToArray();
                     var arr = valueService.CreateArray((uint)arrayValue.LongLength);
                     for(int i = 0; i < arrayValue.Length; i++)
                     {
-                        arr[i] = FromObject(valueService, arrayValue.GetValue(i), jsonConverter);
+                        if (TryFromObject(valueService, arrayValue.GetValue(i), out JsValue currentValue))
+                        {
+                            arr[i] = currentValue;
+                        }
+                        else
+                        {
+                            value = null;
+                            return false;
+                        }
                     }
-                    return arr;
+                    value = arr;
+                    return true;
                 case Delegate delegateValue:
                     //TODO: create a JsFunction and provide the parameters -- probably will be in a method below.
-                    throw new NotImplementedException();
+                    value = null;
+                    return false;
                 case Exception exValue:
                     //Create an error.
                     var error = valueService.CreateError(exValue.Message);
                     //TODO: Potentially populate error properties.
-                    return error;
+                    value = error;
+                    return true;
                 case Task taskValue:
-                    return ConvertFromTask(valueService, taskValue, jsonConverter);
+                    return TryConvertFromTask(valueService, taskValue, out value);
             }
 
             var objType = obj.GetType();
 
             if (objType.IsValueType)
             {
-                if (jsonConverter == null)
-                    throw new ArgumentException("Non-primitive value types require that a json converter func be specified.");
+                if (m_jsonConverter == null)
+                {
+                    //throw new ArgumentException("Non-primitive value types require that a json converter func be specified.");
+                    value = null;
+                    return false;
+                }
 
-                var jsonString = jsonConverter(obj);
-                return context.JSON.Parse(valueService.CreateString(jsonString));
+                var jsonString = m_jsonConverter.Stringify(obj);
+                value = context.JSON.Parse(valueService.CreateString(jsonString));
+                return true;
             }
 
             //We've run out of options, convert the non-primitive object.
-            return ConvertFromNonPrimitiveObject(valueService, obj, jsonConverter);
+            return TryConvertFromNonPrimitiveObject(valueService, obj, out value);
         }
 
-        private JsObject ConvertFromTask(IBaristaValueService valueService, Task task, Func<object, string> jsonConverter = null)
+        private bool TryConvertFromTask(IBaristaValueService valueService, Task task, out JsValue value)
         {
             //Create a promise
             var promise = valueService.CreatePromise(out JsFunction resolve, out JsFunction reject);
@@ -96,8 +130,14 @@
             {
                 if (t.IsCanceled || t.IsFaulted)
                 {
-                    reject.Invoke(FromObject(valueService, t.Exception, jsonConverter));
-                    return;
+                    if (TryFromObject(valueService, t.Exception, out JsValue rejectValue))
+                    {
+                        reject.Invoke(rejectValue);
+                    }
+                    else
+                    {
+                        reject.Invoke(valueService.GetUndefinedValue());
+                    }
                 }
 
                 var resultType = t.GetType();
@@ -109,55 +149,96 @@
                 }
 
                 var result = resultProperty.GetValue(t);
-                resolve.Invoke(FromObject(valueService, result, jsonConverter));
+                if (TryFromObject(valueService, result, out JsValue resolveValue))
+                {
+                    resolve.Invoke(resolveValue);
+                }
+                else
+                {
+                    resolve.Invoke(valueService.GetUndefinedValue());
+                }
+                
             });
 
             task.Start();
-            return promise;
+            value = promise;
+            return true;
         }
 
-        private JsObject ConvertFromNonPrimitiveObject(IBaristaValueService valueService, object obj, Func<object, string> jsonConverter = null)
+        private bool TryConvertFromNonPrimitiveObject(IBaristaValueService valueService, object obj, out JsValue value)
         {
-            throw new NotImplementedException();
+            value = null;
+            return false;
         }
 
-        public object ToObject(BaristaContext context, JsValue value)
+        public bool TryToObject(BaristaContext context, JsValue value, out object obj)
         {
             if (value == null)
-                return null;
+            {
+                obj = null;
+                return true;
+            }
 
             switch (value)
             {
                 case JsNull jsNull:
-                    return null;
+                    obj = null;
+                    return true;
                 case JsUndefined jsUndefined:
-                    return Undefined.Value;
+                    obj = Undefined.Value;
+                    return true;
                 case JsBoolean jsBoolean:
-                    return jsBoolean.ToBoolean();
+                    obj = jsBoolean.ToBoolean();
+                    return true;
                 case JsNumber jsNumber:
-                    return jsNumber.ToDouble();
+                    obj = jsNumber.ToDouble();
+                    return true;
                 case JsSymbol jsSymbol:
                 case JsFunction jsFunction:
                 case JsString jsString:
-                    return value.ToString();
+                    obj = value.ToString();
+                    return true;
                 case JsArray jsArray:
-                    return jsArray.Select(v => ToObject(context, v)).ToArray();
+                    var successful = true;
+                    var arrayResult = jsArray.Select(v =>
+                    {
+                        if (TryToObject(context, v, out object currentValue))
+                        {
+                            return currentValue;
+                        }
+                        successful = false;
+                        return null;
+                    }).ToArray();
+
+                    if (successful)
+                    {
+                        obj = arrayResult;
+                        return true;
+                    }
+                    obj = null;
+                    return false;
                 case JsExternalArrayBuffer jsExternalArrayBuffer:
                     throw new NotImplementedException();
                 case JsArrayBuffer jsArrayBuffer:
-                    return jsArrayBuffer.GetArrayBufferStorage();
+                    obj = jsArrayBuffer.GetArrayBufferStorage();
+                    return true;
                 case JsDataView jsDataView:
-                    return jsDataView.GetDataViewStorage();
+                    obj = jsDataView.GetDataViewStorage();
+                    return true;
                 case JsTypedArray jsTypedArray:
-                    return jsTypedArray.GetTypedArrayStorage();
+                    obj = jsTypedArray.GetTypedArrayStorage();
+                    return true;
                 case JsError jsError:
-                    return new BaristaScriptException(jsError);
+                    obj = new BaristaScriptException(jsError);
+                    return true;
                 case JsObject jsObject:
                     //TODO: we can cheat a bit here with Json converter
                     //Also, figure out how to convert other types, like the date built-in.
-                    return jsObject;
+                    obj = jsObject;
+                    return true;
                 default:
-                    throw new NotImplementedException($"Conversion of a {value} to a .net type is not implemented.");
+                    obj = null;
+                    return false;
             }
         }
     }

@@ -17,13 +17,13 @@
         /// <param name="o"></param>
         /// <param name="jsonConverter"></param>
         /// <returns></returns>
-        JsValue FromObject(IBaristaValueService valueService, object obj, Func<object, string> jsonConverter = null);
+        bool TryFromObject(IBaristaValueService valueService, object obj, out JsValue value);
 
         /// <summary>
         /// Converts the specified value into a .Net object.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        object ToObject(BaristaContext context, JsValue value);
+        bool TryToObject(BaristaContext context, JsValue value, out object obj);
     }
 }

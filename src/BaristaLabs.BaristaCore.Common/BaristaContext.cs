@@ -28,7 +28,7 @@
         private readonly IBaristaConversionStrategy m_conversionStrategy;
         private readonly IPromiseTaskQueue m_promiseTaskQueue;
         private readonly IBaristaModuleService m_moduleService;
-        
+
 
         private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
 
@@ -50,7 +50,7 @@
             m_conversionStrategy = conversionStrategy ?? throw new ArgumentNullException(nameof(conversionStrategy));
 
             m_valueService = valueServiceFactory.CreateValueService(this);
-            
+
             m_undefinedValue = new Lazy<JsUndefined>(() => m_valueService.GetUndefinedValue());
             m_nullValue = new Lazy<JsNull>(() => m_valueService.GetNullValue());
             m_trueValue = new Lazy<JsBoolean>(() => m_valueService.GetTrueValue());
@@ -62,7 +62,7 @@
                 return global.GetPropertyByName<JsJSON>("JSON");
             });
 
-            
+
             m_promiseTaskQueue = taskQueue;
             m_moduleService = moduleService;
 
@@ -200,8 +200,21 @@
         /// <returns></returns>
         public JsValue EvaluateModule(string script)
         {
-            var result = EvaluateModuleInternal(script);
-            return m_valueService.CreateValue(result);
+            //Create a scope if we're not currently in one.
+            BaristaExecutionScope scope = null;
+            if (!HasCurrentScope)
+                scope = Scope();
+
+            try
+            {
+                var globalName = EvaluateModuleInternal(script);
+                return GlobalObject.GetPropertyByName(globalName);
+            }
+            finally
+            {
+                if (scope != null)
+                    scope.Dispose();
+            }
         }
 
         /// <summary>
@@ -212,11 +225,24 @@
         public T EvaluateModule<T>(string script)
             where T : JsValue
         {
-            var result = EvaluateModuleInternal(script);
-            return m_valueService.CreateValue<T>(result);
+            //Create a scope if we're not currently in one.
+            BaristaExecutionScope scope = null;
+            if (!HasCurrentScope)
+                scope = Scope();
+
+            try
+            {
+                var globalName = EvaluateModuleInternal(script);
+                return GlobalObject.GetPropertyByName<T>(globalName);
+            }
+            finally
+            {
+                if (scope != null)
+                    scope.Dispose();
+            }
         }
 
-        private JavaScriptValueSafeHandle EvaluateModuleInternal(string script)
+        private string EvaluateModuleInternal(string script)
         {
             if (IsDisposed)
                 throw new ObjectDisposedException(nameof(BaristaRuntime));
@@ -334,8 +360,8 @@ let global = (new Function('return this;'))();
                     }
                 }
 
-                //Return the result.
-                return Engine.GetGlobalVariable("$EXPORTS");
+                //Return the name of the global.
+                return "$EXPORTS";
             }
             finally
             {
@@ -394,7 +420,7 @@ let global = (new Function('return this;'))();
                     {
                         var referencingModuleRecord = new JavaScriptModuleRecord(referencingModule);
 
-                        switch(module)
+                        switch (module)
                         {
                             //For the built-in Script Module type, parse the string returned by InstallModule and install it as a module.
                             case BaristaScriptModule scriptModule:
@@ -411,7 +437,6 @@ let global = (new Function('return this;'))();
                                 var result = InstallModule(module, referencingModuleRecord, specifierHandle, out JavaScriptModuleRecord dependentModuleRecord);
                                 dependentModule = dependentModuleRecord.DangerousGetHandle();
                                 return result;
-
                         }
                     }
                 }
@@ -423,29 +448,39 @@ let global = (new Function('return this;'))();
 
         private bool InstallModule(IBaristaModule module, JavaScriptModuleRecord referencingModuleRecord, JavaScriptValueSafeHandle specifierHandle, out JavaScriptModuleRecord dependentModuleRecord)
         {
+            object moduleValue;
             try
             {
-                var obj = module.InstallModule(this, referencingModuleRecord);
-
-                if (obj == null)
-                    throw new InvalidOperationException("The value returned from InstallModule should not be null.");
-
-                //Based on the object's type, make some decisions on how to handle projecting the value to a module.
-                switch (obj)
-                {
-                    case JsValue jsValue:
-                        return CreateSingleValueModule(jsValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
-                    case JavaScriptValueSafeHandle valueSafeHandle:
-                        return CreateSingleValueModule(valueSafeHandle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
-                    default:
-                        var convertedValue = Converter.FromObject(ValueService, obj, null);
-                        return CreateSingleValueModule(convertedValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
-                }
+                moduleValue = module.InstallModule(this, referencingModuleRecord);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new BaristaException($"An error occurred while installing module {module.Name}.", ex);
             }
+
+            if (moduleValue == null)
+            {
+                CreateSingleValueModule(ValueService.GetNullValue().Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
+                return true;
+            }
+
+            //Based on the object's type, make some decisions on how to handle projecting the value to a module.
+            switch (moduleValue)
+            {
+                case JsValue jsValue:
+                    return CreateSingleValueModule(jsValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
+                case JavaScriptValueSafeHandle valueSafeHandle:
+                    return CreateSingleValueModule(valueSafeHandle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
+                default:
+                    if (Converter.TryFromObject(ValueService, moduleValue, out JsValue convertedValue))
+                    {
+                        return CreateSingleValueModule(convertedValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
+                    }
+                    break;
+            }
+
+            dependentModuleRecord = referencingModuleRecord;
+            return false;
         }
 
         /// <summary>

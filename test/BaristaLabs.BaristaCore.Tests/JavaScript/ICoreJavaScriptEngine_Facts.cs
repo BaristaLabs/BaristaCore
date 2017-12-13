@@ -510,13 +510,7 @@ export default function cube(x) {
 
             JavaScriptNotifyModuleReadyCallback notifyCallback = (IntPtr referencingModule, IntPtr exceptionVar) =>
             {
-                if (exceptionVar != IntPtr.Zero)
-                {
-                    var type = Engine.JsGetValueType(new JavaScriptValueSafeHandle(exceptionVar));
-                    var ex = Extensions.IJavaScriptEngineExtensions.Stringify(Engine, new JavaScriptValueSafeHandle(exceptionVar));
-                    Assert.True(ex == "{}", ex);
-                }
-
+                Assert.Equal(IntPtr.Zero, exceptionVar);
                 mainModuleReady = true;
                 return false;
             };

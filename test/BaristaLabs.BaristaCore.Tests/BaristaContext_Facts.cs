@@ -292,23 +292,23 @@ export default 'banana';
         import reverse from 'reverse';
         export default reverse('hello, world!');
         ";
-            ModuleService.RegisterModule(new ReverseModule());
+            var myReverseModule = new ReverseModule();
+            ModuleService.RegisterModule(myReverseModule);
 
             using (var rt = BaristaRuntimeService.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
-                    using (ctx.Scope())
-                    {
-                        var result = ctx.EvaluateModule(script);
+                    var result = ctx.EvaluateModule(script);
 
-                        Assert.Equal("!dlrow ,olleh", result.ToString());
-                    }
+                    Assert.Equal("!dlrow ,olleh", result.ToString());
                 }
             }
+
+            myReverseModule.Dispose();
         }
 
-        private class ReverseModule : IBaristaModule
+        private sealed class ReverseModule : IBaristaModule, IDisposable
         {
             public string Name => "reverse";
 
@@ -335,6 +335,33 @@ export default 'banana';
 
                 return context.Engine.JsCreateFunction(fnReverse, IntPtr.Zero);
             }
+
+            #region IDisposable Support
+            private bool m_isDisposed = false;
+
+            private void Dispose(bool disposing)
+            {
+                if (!m_isDisposed)
+                {
+                    if (disposing)
+                    {
+                    }
+
+                    m_isDisposed = true;
+                }
+            }
+
+             ~ReverseModule()
+            {
+                Dispose(false);
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+            #endregion
         }
     }
 }

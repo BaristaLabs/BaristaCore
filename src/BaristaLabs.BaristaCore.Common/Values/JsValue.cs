@@ -133,6 +133,7 @@
         }
         #endregion
 
+        #region Conversion
         /// <summary>
         /// Converts the value to a bool and returns the boolean representation.
         /// </summary>
@@ -142,9 +143,22 @@
             if (IsDisposed)
                 throw new ObjectDisposedException(nameof(JsValue));
 
-            using (var numberValueHandle = Engine.JsConvertValueToBoolean(Handle))
+            //Create a scope if we're not currently in one.
+            BaristaExecutionScope scope = null;
+            if (!Context.HasCurrentScope)
+                scope = Context.Scope();
+
+            try
             {
-                return Engine.JsBooleanToBool(numberValueHandle);
+                using (var numberValueHandle = Engine.JsConvertValueToBoolean(Handle))
+                {
+                    return Engine.JsBooleanToBool(numberValueHandle);
+                }
+            }
+            finally
+            {
+                if (scope != null)
+                    scope.Dispose();
             }
         }
 
@@ -157,11 +171,24 @@
             if (IsDisposed)
                 throw new ObjectDisposedException(nameof(JsValue));
 
-            using (var numberValueHandle = Engine.JsConvertValueToNumber(Handle))
+            //Create a scope if we're not currently in one.
+            BaristaExecutionScope scope = null;
+            if (!Context.HasCurrentScope)
+                scope = Context.Scope();
+
+            try
             {
-                return Engine.JsNumberToDouble(numberValueHandle);
+                using (var numberValueHandle = Engine.JsConvertValueToNumber(Handle))
+                {
+                    return Engine.JsNumberToDouble(numberValueHandle);
+                }
             }
-        }
+            finally
+            {
+                if (scope != null)
+                    scope.Dispose();
+            }
+}
 
         /// <summary>
         /// Converts the value to a number and returns the integer representation.
@@ -172,9 +199,22 @@
             if (IsDisposed)
                 throw new ObjectDisposedException(nameof(JsValue));
 
-            using (var numberValueHandle = Engine.JsConvertValueToNumber(Handle))
+            //Create a scope if we're not currently in one.
+            BaristaExecutionScope scope = null;
+            if (!Context.HasCurrentScope)
+                scope = Context.Scope();
+
+            try
             {
-                return Engine.JsNumberToInt(numberValueHandle);
+                using (var numberValueHandle = Engine.JsConvertValueToNumber(Handle))
+                {
+                    return Engine.JsNumberToInt(numberValueHandle);
+                }
+            }
+            finally
+            {
+                if (scope != null)
+                    scope.Dispose();
             }
         }
 
@@ -187,18 +227,32 @@
             if (IsDisposed)
                 throw new ObjectDisposedException(nameof(JsValue));
 
-            using (var stringValueHandle = Engine.JsConvertValueToString(Handle))
-            {
-                //Get the size
-                var size = Engine.JsCopyString(stringValueHandle, null, 0);
-                if ((int)size > int.MaxValue)
-                    throw new OutOfMemoryException("Exceeded maximum string length.");
+            //Create a scope if we're not currently in one.
+            BaristaExecutionScope scope = null;
+            if (!Context.HasCurrentScope)
+                scope = Context.Scope();
 
-                byte[] result = new byte[(int)size];
-                var written = Engine.JsCopyString(stringValueHandle, result, (ulong)result.Length);
-                return Encoding.UTF8.GetString(result, 0, result.Length);
+            try
+            {
+                using (var stringValueHandle = Engine.JsConvertValueToString(Handle))
+                {
+                    //Get the size
+                    var size = Engine.JsCopyString(stringValueHandle, null, 0);
+                    if ((int)size > int.MaxValue)
+                        throw new OutOfMemoryException("Exceeded maximum string length.");
+
+                    byte[] result = new byte[(int)size];
+                    var written = Engine.JsCopyString(stringValueHandle, result, (ulong)result.Length);
+                    return Encoding.UTF8.GetString(result, 0, result.Length);
+                }
+            }
+            finally
+            {
+                if (scope != null)
+                    scope.Dispose();
             }
         }
+        #endregion
 
         /// <summary>
         /// Raises the BeforeCollect event.
