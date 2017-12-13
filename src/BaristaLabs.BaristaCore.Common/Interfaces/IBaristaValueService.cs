@@ -17,9 +17,15 @@
 
         JsArrayBuffer CreateArrayBuffer(string data);
 
+        JsError CreateError(string message);
+
+        JsNumber CreateNumber(double number);
+
         JsNumber CreateNumber(int number);
 
         JsObject CreateObject();
+
+        JsObject CreatePromise(out JsFunction resolve, out JsFunction reject);
 
         JsString CreateString(string str);
 

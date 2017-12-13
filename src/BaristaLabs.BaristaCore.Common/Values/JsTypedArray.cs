@@ -2,6 +2,8 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.IO;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a TypedArray
@@ -62,6 +64,16 @@
             }
         }
         #endregion
+
+        public byte[] GetTypedArrayStorage()
+        {
+            var ptrBuffer = Engine.JsGetTypedArrayStorage(Handle, out uint bufferLength, out JavaScriptTypedArrayType typedArrayType, out int elementSize);
+            byte[] buffer = new byte[bufferLength * elementSize];
+            Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
+
+            //TODO: Convert the values to the appropriate typed array type.
+            return buffer;
+        }
 
         private JavaScriptTypedArrayInfo GetTypedArrayInfo()
         {

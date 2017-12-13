@@ -24,9 +24,11 @@
         private readonly Lazy<JsObject> m_globalValue;
         private readonly Lazy<JsJSON> m_jsonValue;
 
+        private readonly IBaristaValueService m_valueService;
+        private readonly IBaristaConversionStrategy m_conversionStrategy;
         private readonly IPromiseTaskQueue m_promiseTaskQueue;
         private readonly IBaristaModuleService m_moduleService;
-        private readonly IBaristaValueService m_valueService;
+        
 
         private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
 
@@ -39,14 +41,16 @@
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="contextHandle"></param>
-        public BaristaContext(IJavaScriptEngine engine, IBaristaValueServiceFactory valueServiceFactory, IPromiseTaskQueue taskQueue, IBaristaModuleService moduleService, JavaScriptContextSafeHandle contextHandle)
+        public BaristaContext(IJavaScriptEngine engine, IBaristaValueServiceFactory valueServiceFactory, IBaristaConversionStrategy conversionStrategy, IPromiseTaskQueue taskQueue, IBaristaModuleService moduleService, JavaScriptContextSafeHandle contextHandle)
             : base(engine, contextHandle)
         {
             if (valueServiceFactory == null)
                 throw new ArgumentNullException(nameof(valueServiceFactory));
 
-            m_valueService = valueServiceFactory.CreateValueService(this);
+            m_conversionStrategy = conversionStrategy ?? throw new ArgumentNullException(nameof(conversionStrategy));
 
+            m_valueService = valueServiceFactory.CreateValueService(this);
+            
             m_undefinedValue = new Lazy<JsUndefined>(() => m_valueService.GetUndefinedValue());
             m_nullValue = new Lazy<JsNull>(() => m_valueService.GetNullValue());
             m_trueValue = new Lazy<JsBoolean>(() => m_valueService.GetTrueValue());
@@ -58,9 +62,9 @@
                 return global.GetPropertyByName<JsJSON>("JSON");
             });
 
-            m_moduleService = moduleService;
-
+            
             m_promiseTaskQueue = taskQueue;
+            m_moduleService = moduleService;
 
             //Set the event that will be called prior to the engine collecting the context.
             JavaScriptObjectBeforeCollectCallback beforeCollectCallback = (IntPtr handle, IntPtr callbackState) =>
@@ -73,6 +77,15 @@
         }
 
         #region Properties
+
+        /// <summary>
+        /// Gets the conversion strategy associated with the context.
+        /// </summary>
+        public IBaristaConversionStrategy Converter
+        {
+            get { return m_conversionStrategy; }
+        }
+
         /// <summary>
         /// Gets the False Value associated with the context.
         /// </summary>
@@ -425,8 +438,8 @@ let global = (new Function('return this;'))();
                     case JavaScriptValueSafeHandle valueSafeHandle:
                         return CreateSingleValueModule(valueSafeHandle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
                     default:
-                        //TODO: Coerce the .Net object into a safe handle using a IMemberProjectionStrategy.
-                        throw new NotImplementedException();
+                        var convertedValue = Converter.FromObject(ValueService, obj, null);
+                        return CreateSingleValueModule(convertedValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
                 }
             }
             catch(Exception ex)

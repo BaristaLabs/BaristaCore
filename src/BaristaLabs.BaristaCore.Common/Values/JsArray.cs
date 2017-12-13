@@ -24,7 +24,7 @@
         {
             get { return JavaScriptValueType.Array; }
         }
-
+        
         public IEnumerator<JsValue> GetEnumerator()
         {
             var len = Length;

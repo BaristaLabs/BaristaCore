@@ -76,6 +76,19 @@
             return (JsArrayBuffer)result;
         }
 
+        public JsError CreateError(string message)
+        {
+            var messageHandle = CreateString(message);
+            var errorHandle = m_engine.JsCreateError(messageHandle.Handle);
+            return CreateValue<JsError>(errorHandle);
+        }
+
+        public JsNumber CreateNumber(double number)
+        {
+            var numberHandle = m_engine.JsDoubleToNumber(number);
+            return CreateValue<JsNumber>(numberHandle);
+        }
+
         public JsNumber CreateNumber(int number)
         {
             var numberHandle = m_engine.JsIntToNumber(number);
@@ -86,6 +99,14 @@
         {
             var objectHandle = m_engine.JsCreateObject();
             return CreateValue<JsObject>(objectHandle);
+        }
+
+        public JsObject CreatePromise(out JsFunction resolve, out JsFunction reject)
+        {
+            var promiseHandle = m_engine.JsCreatePromise(out JavaScriptValueSafeHandle resolveHandle, out JavaScriptValueSafeHandle rejectHandle);
+            resolve = CreateValue<JsFunction>(resolveHandle);
+            reject = CreateValue<JsFunction>(rejectHandle);
+            return CreateValue<JsObject>(promiseHandle);
         }
 
         public JsString CreateString(string str)

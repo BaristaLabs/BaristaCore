@@ -23,11 +23,12 @@
             services.AddSingleton(chakraEngine);
             services.AddSingleton(moduleService);
             services.AddSingleton<IBaristaValueServiceFactory, BaristaValueServiceFactory>();
+            services.AddSingleton<IBaristaRuntimeService, BaristaRuntimeService>();
 
             services.AddTransient<IBaristaContextService, BaristaContextService>();
+            services.AddTransient<IBaristaConversionStrategy, BaristaConversionStrategy>();
             services.AddTransient<IPromiseTaskQueue, PromiseTaskQueue>();
-            services.AddSingleton<IBaristaRuntimeService, BaristaRuntimeService>();
-            
+
             return services;
         }
 

@@ -35,12 +35,13 @@
             {
                 var moduleService = m_serviceProvider.GetRequiredService<IBaristaModuleService>();
                 var valueServiceFactory = m_serviceProvider.GetRequiredService<IBaristaValueServiceFactory>();
+                var conversionStrategy = m_serviceProvider.GetRequiredService<IBaristaConversionStrategy>();
 
                 //For flexability, a promise task queue is not required.
                 var promiseTaskQueue = m_serviceProvider.GetService<IPromiseTaskQueue>();
 
                 //Set the handle that will be called prior to the engine collecting the context.
-                var context = new BaristaContext(m_engine, valueServiceFactory, promiseTaskQueue, moduleService, contextHandle);
+                var context = new BaristaContext(m_engine, valueServiceFactory, conversionStrategy, promiseTaskQueue, moduleService, contextHandle);
 
                 void beforeCollect(object sender, BaristaObjectBeforeCollectEventArgs args)
                 {

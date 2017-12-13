@@ -477,8 +477,8 @@
         {
             if (GetPropertyByName(binder.Name) is JsFunction fn)
             {
-                //TODO: Allow non-JsValues be automatically be coerced into JsValues.
-                result = fn.Invoke(args.OfType<JsValue>().ToArray());
+                var jsArguments = args.Select(arg => Context.Converter.FromObject(ValueService, arg, null)).ToArray();
+                result = fn.Invoke(jsArguments);
                 return true;
             }
             return base.TryInvokeMember(binder, args, out result);
@@ -489,44 +489,45 @@
             if (indexes.Length != 1)
                 return base.TrySetIndex(binder, indexes, value);
 
-            //TODO: Allow non-JsValues be automatically be coerced into JsValues.
-            if (value is JsValue jsValue)
+            var jsValue = Context.Converter.FromObject(ValueService, indexes[0], null);
+
+            if (indexes[0] is string propertyName)
             {
-                if (indexes[0] is string propertyName)
-                {
-                    SetPropertyByName(propertyName, jsValue);
-                    return true;
-                }
-                else if (indexes[0] is int index)
-                {
-                    SetPropertyByIndex(index, jsValue);
-                    return true;
-                }
-                else if (indexes[0] is JsSymbol symbol)
-                {
-                    SetPropertyBySymbol(symbol, jsValue);
-                    return true;
-                }
-                else if (indexes[0] is JsValue jsIndex)
-                {
-                    SetPropertyByValue(jsIndex, jsValue);
-                    return true;
-                }
+                SetPropertyByName(propertyName, jsValue);
+                return true;
+            }
+            else if (indexes[0] is int index)
+            {
+                SetPropertyByIndex(index, jsValue);
+                return true;
+            }
+            else if (indexes[0] is JsSymbol symbol)
+            {
+                SetPropertyBySymbol(symbol, jsValue);
+                return true;
+            }
+            else if (indexes[0] is JsValue jsIndex)
+            {
+                SetPropertyByValue(jsIndex, jsValue);
+                return true;
+            }
+            else
+            {
+                var jsValueIndex = Context.Converter.FromObject(ValueService, indexes[0], null);
+                SetPropertyByValue(jsValueIndex, jsValue);
+                return true;
             }
 
-            return base.TrySetIndex(binder, indexes, value);
+            //return base.TrySetIndex(binder, indexes, value);
         }
 
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
-            //TODO: Allow non-JsValues be automatically be coerced into JsValues.
-            if (value is JsValue jsValue)
-            {
-                SetPropertyByName(binder.Name, jsValue);
-                return true;
-            }
+            var jsValue = Context.Converter.FromObject(ValueService, value, null);
+            SetPropertyByName(binder.Name, jsValue);
+            return true;
 
-            return base.TrySetMember(binder, value);
+            //return base.TrySetMember(binder, value);
         }
         #endregion
     }
