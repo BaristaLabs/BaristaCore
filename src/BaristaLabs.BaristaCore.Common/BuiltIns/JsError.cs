@@ -18,44 +18,8 @@
         {
             get
             {
-                dynamic result = GetProperty<JsString>("message");
-                return (string)result;
-            }
-        }
-
-        public int Line
-        {
-            get
-            {
-                dynamic result = GetProperty<JsNumber>("line");
-                return (int)result;
-            }
-        }
-
-        public int Column
-        {
-            get
-            {
-                dynamic result = GetProperty<JsNumber>("column");
-                return (int)result;
-            }
-        }
-
-        public int Length
-        {
-            get
-            {
-                dynamic result = GetProperty<JsNumber>("length");
-                return (int)result;
-            }
-        }
-
-        public string Source
-        {
-            get
-            {
-                dynamic result = GetProperty<JsString>("source");
-                return (string)result;
+                var result = GetProperty<JsString>("message");
+                return result.ToString();
             }
         }
     }

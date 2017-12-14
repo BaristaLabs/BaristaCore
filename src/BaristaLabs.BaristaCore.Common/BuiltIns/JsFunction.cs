@@ -49,9 +49,31 @@
 
         private JavaScriptValueSafeHandle InvokeInternal(params JsValue[] args)
         {
-            var argPtrs = args.Select(a => a == null ? Context.Undefined.Handle.DangerousGetHandle() : a.Handle.DangerousGetHandle()).ToArray();
+            var argPtrs = args
+                .Select(a => a == null ? Context.Undefined.Handle.DangerousGetHandle() : a.Handle.DangerousGetHandle())
+                .ToArray();
 
-            return Engine.JsCallFunction(Handle, argPtrs, (ushort)argPtrs.Length);
+            if (argPtrs.Length == 0)
+                argPtrs = new IntPtr[] { Handle.DangerousGetHandle() };
+
+            try
+            {
+                return Engine.JsCallFunction(Handle, argPtrs, (ushort)argPtrs.Length);
+            }
+            catch(JavaScriptException jsEx)
+            {
+                //TODO: This logic needs to be reused... somewhere.
+
+                switch (jsEx.ErrorCode)
+                {
+                    case JavaScriptErrorCode.ScriptException:
+                        var exceptionHandle = Engine.JsGetAndClearException();
+                        JsError jsError = ValueService.CreateValue<JsError>(exceptionHandle);
+                        throw new BaristaScriptException(jsError.Message);
+                    default:
+                        throw new NotImplementedException("Exception type has not been implemented.");
+                }
+            }
         }
 
         private const string toStringPropertyName = "toString";

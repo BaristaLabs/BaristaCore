@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Diagnostics;
     using System.Runtime.InteropServices;
+    using System.Reflection;
 
     public sealed class BaristaValueService : IBaristaValueService
     {
@@ -84,6 +85,14 @@
             return CreateValue<JsError>(errorHandle);
         }
 
+        public JsError CreateError(Exception ex)
+        {
+            //TODO: Add more exception properties.
+            var messageHandle = CreateString(ex.Message);
+            var errorHandle = m_engine.JsCreateError(messageHandle.Handle);
+            return CreateValue<JsError>(errorHandle);
+        }
+
         public JsFunction CreateFunction(Delegate func)
         {
             //This is crazy fun.
@@ -129,13 +138,22 @@
                     }
                 }
 
-                var nativeResult = func.DynamicInvoke(nativeArgs);
-                if (Context.Converter.TryFromObject(this, nativeResult, out JsValue valueResult))
+                try
                 {
-                    return valueResult.Handle.DangerousGetHandle();
+                    var nativeResult = func.DynamicInvoke(nativeArgs);
+                    if (Context.Converter.TryFromObject(this, nativeResult, out JsValue valueResult))
+                    {
+                        return valueResult.Handle.DangerousGetHandle();
+                    }
+                    else
+                    {
+                        return Context.Undefined.Handle.DangerousGetHandle();
+                    }
                 }
-                else
+                catch(TargetInvocationException exceptionResult)
                 {
+                    var jsError = CreateError(exceptionResult.InnerException);
+                    m_engine.JsSetException(jsError.Handle);
                     return Context.Undefined.Handle.DangerousGetHandle();
                 }
             };

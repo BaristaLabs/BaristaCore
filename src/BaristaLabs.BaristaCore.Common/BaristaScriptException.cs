@@ -17,8 +17,8 @@
         {
         }
 
-        public BaristaScriptException(JsError error)
-            : base(error.Message)
+        public BaristaScriptException(JsObject error)
+            : base(error.ToString())
         {
             InitFromError(error);
         }
@@ -38,7 +38,7 @@
         /// with a specified error message.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
-        public BaristaScriptException(string message, JsError error)
+        public BaristaScriptException(string message, JsObject error)
             : base(message)
         {
             InitFromError(error);
@@ -63,22 +63,19 @@
         /// <param name="context">The <see cref="StreamingContext"/> that contains contextual information about the source or destination.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="info"/> parameter is <c>null</c>.</exception>
         /// <exception cref="SerializationException">The class name is <c>null</c> or <see cref="Exception.HResult"/> is zero (0).</exception>
-        public BaristaScriptException(SerializationInfo info, StreamingContext context, JsError error)
+        public BaristaScriptException(SerializationInfo info, StreamingContext context, JsObject error)
             : base(info, context)
         {
             InitFromError(error);
         }
 
         [DebuggerStepThrough]
-        private void InitFromError(JsError error)
+        private void InitFromError(JsObject error)
         {
             if (error == null)
                 throw new ArgumentNullException(nameof(error));
 
-            Line = error.Line;
-            Column = error.Column;
-            Length = error.Length;
-            Source = error.Source;
+            //TODO: set these properties.
         }
 
         /// <summary>
