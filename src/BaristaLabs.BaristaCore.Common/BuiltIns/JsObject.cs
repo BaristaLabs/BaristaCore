@@ -294,6 +294,25 @@
         }
         #endregion
 
+        #region HasProperty
+        public bool HasProperty(string propertyName)
+        {
+            using (var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length))
+            {
+                return Engine.JsHasProperty(Handle, propertyIdHandle);
+            }
+        }
+
+        public bool HasOwnProperty(string propertyName)
+        {
+            using (var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length))
+            {
+                return Engine.JsHasOwnProperty(Handle, propertyIdHandle);
+            }
+        }
+
+        #endregion
+
         #region Select Value Methods
         public JsValue SelectValue(string path, bool errorWhenNoMatch = false)
         {

@@ -115,25 +115,45 @@
             }
         }
 
-        //[Fact]
-        //public void JsObjectCanSetDynamicProperty()
-        //{
-        //    using (var rt = BaristaRuntimeFactory.CreateRuntime())
-        //    {
-        //        using (var ctx = rt.CreateContext())
-        //        {
-        //            using (ctx.Scope())
-        //            {
-        //                var script = "export default { foo: 'bar' }";
-        //                dynamic result = ctx.EvaluateModule(script);
+        [Fact]
+        public void JsObjectCanSetDynamicProperty()
+        {
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default { foo: 'bar' }";
+                        dynamic result = ctx.EvaluateModule(script);
 
-        //                result.baz = "qix";
+                        result.baz = "qix";
 
-        //                Assert.Equal("qix", (string)result.baz);
-        //            }
-        //        }
-        //    }
-        //}
+                        Assert.Equal("qix", (string)result.baz);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsObjectCanInvokeDynamicProperty()
+        {
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default { foo: 'bar', baz: () => 'qix' }";
+                        dynamic result = ctx.EvaluateModule(script);
+
+                        var qix = (string)result.baz();
+
+                        Assert.Equal("qix", qix);
+                    }
+                }
+            }
+        }
 
         [Fact]
         public void JsArrayCanGetDynamicProperty()

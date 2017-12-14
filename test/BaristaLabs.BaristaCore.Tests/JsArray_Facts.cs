@@ -1,11 +1,13 @@
 ﻿namespace BaristaLabs.BaristaCore.Tests
 {
+    using System.Collections.Generic;
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Xunit;
+    using System.Collections;
 
     [ExcludeFromCodeCoverage]
     public class JsArray_Facts
@@ -37,6 +39,7 @@
                     {
                         var arr = ctx.ValueService.CreateArray(50);
                         Assert.True(arr != null);
+                        Assert.Equal(JavaScript.JavaScriptValueType.Array, arr.Type);
                     }
                 }
             }
@@ -174,7 +177,60 @@
         }
 
         [Fact]
+        public void JsArrayIndexOfReturnsPositionWhenStartIndexSupplied()
+        {
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default ['c', 'a', 'b', 'c'];";
+                        var arr = ctx.EvaluateModule<JsArray>(script);
+
+                        var values = arr.ToArray();
+                        var cVal = ctx.ValueService.CreateString("c");
+                        Assert.Equal(values[0].Handle, cVal.Handle);
+                        Assert.Equal(values[3].Handle, cVal.Handle);
+                        var ix = arr.IndexOf(cVal, 1);
+                        Assert.Equal(3, ix);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void JsArrayItemsCanBeEnumerated()
+        {
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default ['a', 'b', 'c'];";
+                        var arr = ctx.EvaluateModule<JsArray>(script);
+
+                        Assert.Equal(3, arr.Length);
+
+                        var values = new List<string>();
+                        var enumerator = ((IEnumerable)arr).GetEnumerator();
+                        while (enumerator.MoveNext())
+                        {
+                            values.Add(enumerator.Current.ToString());
+                        }
+
+                        Assert.Equal(3, values.Count);
+                        Assert.Equal("a", values[0]);
+                        Assert.Equal("b", values[1]);
+                        Assert.Equal("c", values[2]);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsArrayItemsCanBeEnumeratedViaLinq()
         {
             using (var rt = BaristaRuntimeService.CreateRuntime())
             {

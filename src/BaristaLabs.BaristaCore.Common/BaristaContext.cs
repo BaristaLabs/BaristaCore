@@ -15,8 +15,6 @@
     /// </remarks>
     public sealed class BaristaContext : BaristaObject<JavaScriptContextSafeHandle>
     {
-        private const string ParseScriptSourceUrl = "[eval code]";
-
         private readonly Lazy<JsUndefined> m_undefinedValue;
         private readonly Lazy<JsNull> m_nullValue;
         private readonly Lazy<JsBoolean> m_trueValue;
@@ -426,7 +424,7 @@ let global = (new Function('return this;'))();
                             case BaristaScriptModule scriptModule:
                                 var script = scriptModule.InstallModule(this, referencingModuleRecord) as string;
                                 if (script == null)
-                                    throw new InvalidOperationException("A Barista Script Module must provide a non-null script to use as the module.");
+                                    script = "";
                                 var moduleRecord = Engine.JsInitializeModuleRecord(referencingModuleRecord, specifierHandle);
                                 var scriptBuffer = Encoding.UTF8.GetBytes(script);
                                 Engine.JsParseModuleSource(moduleRecord, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.LongLength, JavaScriptParseModuleSourceFlags.DataIsUTF8);

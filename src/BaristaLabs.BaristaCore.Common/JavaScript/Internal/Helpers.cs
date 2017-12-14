@@ -1,6 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
 {
-    using Internal;
     using System;
     using System.Diagnostics;
     using System.Text;
@@ -34,10 +33,8 @@
             Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
             var strResult = Encoding.UTF8.GetString(result, 0, result.Length);
-            if (stringHandleWasCreated)
-                stringHandle.Dispose();
 
-            if (releaseHandle)
+            if (stringHandleWasCreated || releaseHandle)
                 stringHandle.Dispose();
 
             return strResult;

@@ -3,7 +3,7 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
     using System.Linq;
-    using System.Text;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a JavaScript Function
@@ -63,4 +63,28 @@
             return fnAsAString.ToString();
         }
     }
+
+    /// <summary>
+    /// Represents a .net delegate that can be invoked as a JsFunction
+    /// </summary>
+    public sealed class JsNativeFunction : JsFunction
+    {
+        private readonly GCHandle m_delegateHandle;
+
+        internal JsNativeFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle valueHandle, Delegate fnDelegate)
+            : base(engine, context, valueService, valueHandle)
+        {
+            if (fnDelegate == null)
+                throw new ArgumentNullException(nameof(fnDelegate));
+
+            m_delegateHandle = GCHandle.Alloc(fnDelegate);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            m_delegateHandle.Free();
+        }
+    }
+
 }

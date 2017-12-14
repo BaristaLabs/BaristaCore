@@ -4,11 +4,11 @@
 
     public sealed class BaristaExecutionScope : IDisposable
     {
-        private Action m_release;
+        private readonly Action m_release;
 
-        public BaristaExecutionScope(Action release)
+        internal BaristaExecutionScope(Action release)
         {
-            m_release = release ?? throw new ArgumentNullException(nameof(release));
+            m_release = release;
         }
 
         #region Disposable

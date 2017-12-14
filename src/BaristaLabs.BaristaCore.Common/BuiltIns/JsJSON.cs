@@ -20,17 +20,20 @@
                 throw new ArgumentNullException(nameof(value));
 
             var fnStringify = GetProperty<JsFunction>("stringify");
-            var resultHandle = fnStringify.Invoke<JsString>(value, replacer, space);
+            var resultHandle = fnStringify.Invoke<JsString>(fnStringify, value, replacer, space);
+            if (resultHandle == null)
+                return null;
+
             return resultHandle.ToString();
         }
 
-        public JsObject Parse(JsValue value, JsValue reviver = null)
+        public JsValue Parse(JsValue value, JsValue reviver = null)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            var fnStringify = GetProperty<JsFunction>("parse");
-            return fnStringify.Invoke<JsObject>(value, reviver);
+            var fnParse = GetProperty<JsFunction>("parse");
+            return fnParse.Invoke(fnParse, value, reviver);
         }
     }
 }

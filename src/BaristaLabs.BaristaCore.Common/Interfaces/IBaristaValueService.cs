@@ -19,6 +19,8 @@
 
         JsError CreateError(string message);
 
+        JsFunction CreateFunction(Delegate func);
+
         JsNumber CreateNumber(double number);
 
         JsNumber CreateNumber(int number);
@@ -28,6 +30,8 @@
         JsObject CreatePromise(out JsFunction resolve, out JsFunction reject);
 
         JsString CreateString(string str);
+
+        JsSymbol CreateSymbol(string description);
 
         /// <summary>
         /// Returns a new JsValue for the specified handle using the specified type information. If no type information is provided, the object will be queried for its type.

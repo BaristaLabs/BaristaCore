@@ -3,6 +3,7 @@
     using BaristaLabs.BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.Linq;
     using System.Diagnostics;
     using System.Runtime.InteropServices;
 
@@ -83,6 +84,73 @@
             return CreateValue<JsError>(errorHandle);
         }
 
+        public JsFunction CreateFunction(Delegate func)
+        {
+            //This is crazy fun.
+            var funcParams = func.Method.GetParameters();
+            JavaScriptNativeFunction fnDelegate = (IntPtr callee, bool isConstructCall, IntPtr[] arguments, ushort argumentCount, IntPtr callbackData) =>
+            {
+                //Make sure that we have argument values for each parameter.
+                var nativeArgs = new object[funcParams.Length];
+                for(int i = 0; i < funcParams.Length; i++)
+                {
+                    var targetParameterType = funcParams[i].ParameterType;
+
+                    var currentArgument = arguments.ElementAtOrDefault(i);
+                    if (currentArgument == default(IntPtr))
+                    {
+                        //If the argument wasn't specified, use the default value for the target parameter.
+                        nativeArgs[i] = targetParameterType.GetDefaultValue();
+                    }
+                    else
+                    {
+                        //As the argument has been specified, convert the JsValue back to an Object using
+                        //the conversion strategy associated with the context.
+
+                        var argValueHandle = new JavaScriptValueSafeHandle(currentArgument);
+                        var jsValue = CreateValue(argValueHandle);
+                        if (Context.Converter.TryToObject(Context, jsValue, out object obj))
+                        {
+                            try
+                            {
+                                nativeArgs[i] = Convert.ChangeType(obj, targetParameterType);
+                            }
+                            catch(Exception)
+                            {
+                                //Something went wrong, use the default value.
+                                nativeArgs[i] = targetParameterType.GetDefaultValue();
+                            }
+                        }
+                        else
+                        {
+                            //If we couldn't convert the type, use the default value.
+                            nativeArgs[i] = targetParameterType.GetDefaultValue();
+                        }
+                    }
+                }
+
+                var nativeResult = func.DynamicInvoke(nativeArgs);
+                if (Context.Converter.TryFromObject(this, nativeResult, out JsValue valueResult))
+                {
+                    return valueResult.Handle.DangerousGetHandle();
+                }
+                else
+                {
+                    return Context.Undefined.Handle.DangerousGetHandle();
+                }
+            };
+
+            var fnHandle = m_engine.JsCreateFunction(fnDelegate, IntPtr.Zero);
+
+            //this is a special case where we cannot use our CreateValue<> method.
+            return m_valuePool.GetOrAdd(fnHandle, () =>
+            {
+                var jsNativeFunction = new JsNativeFunction(m_engine, Context, this, fnHandle, fnDelegate);
+                jsNativeFunction.BeforeCollect += JsValueBeforeCollectCallback;
+                return jsNativeFunction;
+            }) as JsNativeFunction;
+        }
+
         public JsNumber CreateNumber(double number)
         {
             var numberHandle = m_engine.JsDoubleToNumber(number);
@@ -116,6 +184,19 @@
 
             var stringHandle = m_engine.JsCreateString(str, (ulong)str.Length);
             return CreateValue<JsString>(stringHandle);
+        }
+
+        public JsSymbol CreateSymbol(string description)
+        {
+            JavaScriptValueSafeHandle descriptionHandle = JavaScriptValueSafeHandle.Invalid;
+            if (description != null)
+            {
+                var descriptionValue = CreateString(description);
+                descriptionHandle = descriptionValue.Handle;
+            }
+
+            var symbolHandle = m_engine.JsCreateSymbol(descriptionHandle);
+            return CreateValue<JsSymbol>(symbolHandle);
         }
 
         /// <summary>

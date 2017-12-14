@@ -9,5 +9,13 @@
             return potentialDescendant.IsSubclassOf(potentialBase)
                    || potentialDescendant == potentialBase;
         }
+
+        public static object GetDefaultValue(this Type t)
+        {
+            if (t.IsValueType)
+                return Activator.CreateInstance(t);
+
+            return null;
+        }
     }
 }

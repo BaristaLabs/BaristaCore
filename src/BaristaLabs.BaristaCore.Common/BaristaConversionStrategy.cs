@@ -89,9 +89,8 @@
                     value = arr;
                     return true;
                 case Delegate delegateValue:
-                    //TODO: create a JsFunction and provide the parameters -- probably will be in a method below.
-                    value = null;
-                    return false;
+                    value = valueService.CreateFunction(delegateValue);
+                    return true;
                 case Exception exValue:
                     //Create an error.
                     var error = valueService.CreateError(exValue.Message);
