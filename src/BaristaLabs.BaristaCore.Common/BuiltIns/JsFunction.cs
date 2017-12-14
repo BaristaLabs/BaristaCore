@@ -96,9 +96,6 @@
         internal JsNativeFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle valueHandle, Delegate fnDelegate)
             : base(engine, context, valueService, valueHandle)
         {
-            if (fnDelegate == null)
-                throw new ArgumentNullException(nameof(fnDelegate));
-
             m_delegateHandle = GCHandle.Alloc(fnDelegate);
         }
 

@@ -123,6 +123,24 @@ export default () => { throw new Error('That is quite illogical, captain.'); };
         }
 
         [Fact]
+        public void JsNullNativeFunctionsCannotBeCreated()
+        {
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.Throws<ArgumentNullException>(() =>
+                        {
+                            ctx.ValueService.CreateFunction(null);
+                        });
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void JsNativeFunctionsThatThrowCanBeHandled()
         {
             using (var rt = BaristaRuntimeService.CreateRuntime())

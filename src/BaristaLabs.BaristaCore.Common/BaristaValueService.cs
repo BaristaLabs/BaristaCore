@@ -95,6 +95,9 @@
 
         public JsFunction CreateFunction(Delegate func)
         {
+            if (func == null)
+                throw new ArgumentNullException(nameof(func));
+
             //This is crazy fun.
             var funcParams = func.Method.GetParameters();
             JavaScriptNativeFunction fnDelegate = (IntPtr callee, bool isConstructCall, IntPtr[] arguments, ushort argumentCount, IntPtr callbackData) =>
