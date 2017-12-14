@@ -5,8 +5,10 @@
     using BaristaLabs.BaristaCore.JavaScript.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class BaristaContext_Facts
     {
         private IServiceProvider m_provider;

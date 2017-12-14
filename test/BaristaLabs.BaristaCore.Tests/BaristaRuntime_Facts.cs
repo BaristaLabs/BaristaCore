@@ -4,8 +4,10 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class BaristaRuntime_Facts
     {
         private readonly ServiceCollection ServiceCollection;

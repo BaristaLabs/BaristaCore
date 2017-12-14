@@ -3,8 +3,10 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class JsObject_Facts
     {
         private readonly ServiceCollection ServiceCollection;

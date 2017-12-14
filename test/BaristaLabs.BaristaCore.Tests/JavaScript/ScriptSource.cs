@@ -1,11 +1,13 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a 'scriptsource' implementation.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public sealed class ScriptSource : IDisposable
     {
         private IntPtr m_ptrScript;

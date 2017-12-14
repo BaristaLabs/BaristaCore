@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
     using System.Text;
     using Xunit;
@@ -10,6 +11,7 @@
     /// <summary>
     /// Direct tests against the IChakraApi layer
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class ICommonJavaScriptEngine_Facts
     {
         #region Test Support

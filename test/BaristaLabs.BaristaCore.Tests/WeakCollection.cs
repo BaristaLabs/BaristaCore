@@ -1,9 +1,10 @@
-﻿namespace BaristaLabs.BaristaCore
+﻿namespace BaristaLabs.BaristaCore.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
-    
+
     /// <summary>
     /// A collection of weak references to objects. By default, weak references are purged by iteration/count operations, not by add/remove operations.
     /// </summary>
@@ -13,6 +14,7 @@
     /// <para>Dead references do consume resources; each dead reference is a garbage collection handle.</para>
     /// <para>Dead references may be cleaned up by a <see cref="Purge"/> operation. Some properties and methods cause a purge as a side effect; the member documentation specifies whether a purge takes place.</para>
     /// </remarks>
+    [ExcludeFromCodeCoverage]
     public sealed class WeakCollection<T> : ICollection<T> where T : class
     {
         /// <summary>

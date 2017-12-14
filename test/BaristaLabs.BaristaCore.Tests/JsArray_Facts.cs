@@ -3,9 +3,11 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class JsArray_Facts
     {
         private readonly ServiceCollection ServiceCollection;

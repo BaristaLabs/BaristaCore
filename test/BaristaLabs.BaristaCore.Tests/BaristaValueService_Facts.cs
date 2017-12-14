@@ -3,8 +3,10 @@
     using BaristaLabs.BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class BaristaValueService_Facts
     {
         private readonly ServiceCollection ServiceCollection;
