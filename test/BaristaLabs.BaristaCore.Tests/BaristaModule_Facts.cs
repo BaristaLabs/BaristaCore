@@ -27,9 +27,9 @@
             get { return m_provider.GetRequiredService<IBaristaRuntimeService>(); }
         }
 
-        public InMemoryModuleService ModuleService
+        public InMemoryModuleLoader ModuleService
         {
-            get { return m_provider.GetRequiredService<IBaristaModuleService>() as InMemoryModuleService; }
+            get { return m_provider.GetRequiredService<IBaristaModuleLoader>() as InMemoryModuleLoader; }
         }
 
         [Fact]
@@ -64,7 +64,7 @@ export default 'banana';
         }
 
         [Fact]
-        public void JsDynamicModulesCanExportNativeObjectsThatReturnJsValues()
+        public void JsModulesCanReturnJsValues()
         {
             var script = @"
         import helloworld from 'hello_world';
@@ -85,7 +85,7 @@ export default 'banana';
         }
 
         [Fact]
-        public void JsDynamicModulesCanExportNativeObjectsThatReturnSafeHandles()
+        public void JsModulesCanReturnSafeHandles()
         {
             var script = @"
         import reverse from 'reverse';
@@ -105,6 +105,29 @@ export default 'banana';
             }
 
             myReverseModule.Dispose();
+        }
+
+
+        [Fact]
+        public void JsModulesCanReturnNativeObjects()
+        {
+            var script = @"
+        import fourtytwo from 'FourtyTwo';
+        export default fourtytwo;
+        ";
+            var fourtyTwoModule = new FourtyTwoModule();
+            ModuleService.RegisterModule(fourtyTwoModule);
+
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    var result = ctx.EvaluateModule<JsNumber>(script);
+
+                    Assert.NotNull(result);
+                    Assert.Equal(42, result.ToInt32());
+                }
+            }
         }
 
         private sealed class HelloWorldModule : IBaristaModule
@@ -174,6 +197,18 @@ export default 'banana';
                 GC.SuppressFinalize(this);
             }
             #endregion
+        }
+
+        private sealed class FourtyTwoModule : IBaristaModule
+        {
+            public string Name => "FourtyTwo";
+
+            public string Description => "The answer...";
+
+            public object InstallModule(BaristaContext context, JavaScriptModuleRecord referencingModule)
+            {
+                return 42;
+            }
         }
     }
 }

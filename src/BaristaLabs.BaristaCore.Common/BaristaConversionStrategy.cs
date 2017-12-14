@@ -97,7 +97,8 @@
                     value = error;
                     return true;
                 case Task taskValue:
-                    return TryConvertFromTask(valueService, taskValue, out value);
+                    value = valueService.CreatePromise(taskValue);
+                    return true;
             }
 
             var objType = obj.GetType();
@@ -118,49 +119,6 @@
 
             //We've run out of options, convert the non-primitive object.
             return TryConvertFromNonPrimitiveObject(valueService, obj, out value);
-        }
-
-        private bool TryConvertFromTask(IBaristaValueService valueService, Task task, out JsValue value)
-        {
-            //Create a promise
-            var promise = valueService.CreatePromise(out JsFunction resolve, out JsFunction reject);
-            task.ContinueWith((t) =>
-            {
-                if (t.IsCanceled || t.IsFaulted)
-                {
-                    if (TryFromObject(valueService, t.Exception, out JsValue rejectValue))
-                    {
-                        reject.Invoke(rejectValue);
-                    }
-                    else
-                    {
-                        reject.Invoke(valueService.GetUndefinedValue());
-                    }
-                }
-
-                var resultType = t.GetType();
-                var resultProperty = resultType.GetProperty("Result");
-                if (resultProperty == null)
-                {
-                    resolve.Invoke(valueService.GetNullValue());
-                    return;
-                }
-
-                var result = resultProperty.GetValue(t);
-                if (TryFromObject(valueService, result, out JsValue resolveValue))
-                {
-                    resolve.Invoke(resolveValue);
-                }
-                else
-                {
-                    resolve.Invoke(valueService.GetUndefinedValue());
-                }
-                
-            });
-
-            task.Start();
-            value = promise;
-            return true;
         }
 
         private bool TryConvertFromNonPrimitiveObject(IBaristaValueService valueService, object obj, out JsValue value)

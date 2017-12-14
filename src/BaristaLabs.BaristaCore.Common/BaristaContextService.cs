@@ -33,7 +33,7 @@
             var contextHandle = m_engine.JsCreateContext(runtime.Handle);
             return m_contextPool.GetOrAdd(contextHandle, () =>
             {
-                var moduleService = m_serviceProvider.GetRequiredService<IBaristaModuleService>();
+                var moduleService = m_serviceProvider.GetRequiredService<IBaristaModuleLoader>();
                 var valueServiceFactory = m_serviceProvider.GetRequiredService<IBaristaValueServiceFactory>();
                 var conversionStrategy = m_serviceProvider.GetRequiredService<IBaristaConversionStrategy>();
 

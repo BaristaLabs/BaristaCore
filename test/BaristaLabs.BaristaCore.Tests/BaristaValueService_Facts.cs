@@ -4,6 +4,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using System.Threading.Tasks;
     using Xunit;
 
     [ExcludeFromCodeCoverage]
@@ -26,7 +27,7 @@
         }
 
         [Fact]
-        public void JavaScriptContextCanCreateString()
+        public void ValueServiceCanCreateString()
         {
             using (var rt = BaristaRuntimeService.CreateRuntime())
             {
@@ -37,6 +38,28 @@
                         var jsString = ctx.ValueService.CreateString("Hello, world!");
                         Assert.NotNull(jsString);
                         jsString.Dispose();
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void ValueServiceCanCreateAPromiseFromATask()
+        {
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var myTask = new Task<string>(() =>
+                        {
+                            Task.Delay(500);
+                            return "foo";
+                        });
+
+                        var jsPromise = ctx.ValueService.CreatePromise(myTask);
+                        Assert.NotNull(jsPromise);
                     }
                 }
             }

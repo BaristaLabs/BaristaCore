@@ -7,6 +7,7 @@
     using System.Diagnostics;
     using System.Runtime.InteropServices;
     using System.Reflection;
+    using System.Threading.Tasks;
 
     public sealed class BaristaValueService : IBaristaValueService
     {
@@ -144,7 +145,7 @@
                 try
                 {
                     var nativeResult = func.DynamicInvoke(nativeArgs);
-                    if (Context.Converter.TryFromObject(this, nativeResult, out JsValue valueResult))
+                    if (Context.Converter.TryFromObject(Context.ValueService, nativeResult, out JsValue valueResult))
                     {
                         return valueResult.Handle.DangerousGetHandle();
                     }
@@ -196,6 +197,48 @@
             resolve = CreateValue<JsFunction>(resolveHandle);
             reject = CreateValue<JsFunction>(rejectHandle);
             return CreateValue<JsObject>(promiseHandle);
+        }
+
+        public JsObject CreatePromise(Task task)
+        {
+            //Create a promise
+            var promise = CreatePromise(out JsFunction resolve, out JsFunction reject);
+            task.ContinueWith((t) =>
+            {
+                if (t.IsCanceled || t.IsFaulted)
+                {
+                    if (Context.Converter.TryFromObject(Context.ValueService, t.Exception, out JsValue rejectValue))
+                    {
+                        reject.Invoke(rejectValue);
+                    }
+                    else
+                    {
+                        reject.Invoke(GetUndefinedValue());
+                    }
+                }
+
+                var resultType = t.GetType();
+                var resultProperty = resultType.GetProperty("Result");
+                if (resultProperty == null)
+                {
+                    resolve.Invoke(GetNullValue());
+                    return;
+                }
+
+                var result = resultProperty.GetValue(t);
+                if (Context.Converter.TryFromObject(Context.ValueService, result, out JsValue resolveValue))
+                {
+                    resolve.Invoke(resolveValue);
+                }
+                else
+                {
+                    resolve.Invoke(GetUndefinedValue());
+                }
+
+            });
+
+            task.Start();
+            return promise;
         }
 
         public JsString CreateString(string str)

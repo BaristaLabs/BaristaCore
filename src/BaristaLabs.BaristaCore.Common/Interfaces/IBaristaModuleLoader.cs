@@ -5,7 +5,7 @@
     /// <summary>
     /// Represents a service that returns Barista Modules provided a module name.
     /// </summary>
-    public interface IBaristaModuleService
+    public interface IBaristaModuleLoader
     {
         IBaristaModule GetModule(string name);
     }

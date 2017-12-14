@@ -2,6 +2,7 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.Threading.Tasks;
 
     public interface IBaristaValueService : IDisposable
     {
@@ -26,8 +27,21 @@
         JsNumber CreateNumber(int number);
 
         JsObject CreateObject();
-
+        
+        /// <summary>
+        /// Returns a new Promise that will resolve/reject via the corresponding out parameters.
+        /// </summary>
+        /// <param name="resolve"></param>
+        /// <param name="reject"></param>
+        /// <returns></returns>
         JsObject CreatePromise(out JsFunction resolve, out JsFunction reject);
+
+        /// <summary>
+        /// Returns a new Promise created from the specified task.
+        /// </summary>
+        /// <param name="task"></param>
+        /// <returns></returns>
+        JsObject CreatePromise(Task task);
 
         JsString CreateString(string str);
 

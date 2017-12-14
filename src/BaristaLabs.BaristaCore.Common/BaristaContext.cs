@@ -25,7 +25,7 @@
         private readonly IBaristaValueService m_valueService;
         private readonly IBaristaConversionStrategy m_conversionStrategy;
         private readonly IPromiseTaskQueue m_promiseTaskQueue;
-        private readonly IBaristaModuleService m_moduleService;
+        private readonly IBaristaModuleLoader m_moduleService;
 
 
         private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
@@ -39,7 +39,7 @@
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="contextHandle"></param>
-        public BaristaContext(IJavaScriptEngine engine, IBaristaValueServiceFactory valueServiceFactory, IBaristaConversionStrategy conversionStrategy, IPromiseTaskQueue taskQueue, IBaristaModuleService moduleService, JavaScriptContextSafeHandle contextHandle)
+        public BaristaContext(IJavaScriptEngine engine, IBaristaValueServiceFactory valueServiceFactory, IBaristaConversionStrategy conversionStrategy, IPromiseTaskQueue taskQueue, IBaristaModuleLoader moduleService, JavaScriptContextSafeHandle contextHandle)
             : base(engine, contextHandle)
         {
             if (valueServiceFactory == null)

@@ -14,11 +14,11 @@
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static IServiceCollection AddBaristaCore(this IServiceCollection services, IBaristaModuleService moduleService = null)
+        public static IServiceCollection AddBaristaCore(this IServiceCollection services, IBaristaModuleLoader moduleService = null)
         {
             IJavaScriptEngine chakraEngine = JavaScriptEngineFactory.CreateChakraEngine();
             if (moduleService == null)
-                moduleService = new InMemoryModuleService();
+                moduleService = new InMemoryModuleLoader();
 
             services.AddSingleton(chakraEngine);
             services.AddSingleton(moduleService);
