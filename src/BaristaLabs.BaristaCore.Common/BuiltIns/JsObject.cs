@@ -10,12 +10,12 @@
 
     public class JsObject : JsValue
     {
-        private readonly IBaristaValueService m_baristaValueService;
+        private readonly IBaristaValueFactory m_baristaValueFactory;
 
-        public JsObject(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle valueHandle)
+        public JsObject(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle)
             : base(engine, context, valueHandle)
         {
-            m_baristaValueService = valueService ?? throw new ArgumentNullException(nameof(valueService));
+            m_baristaValueFactory = valueFactory ?? throw new ArgumentNullException(nameof(valueFactory));
         }
 
         #region Indexers
@@ -96,9 +96,9 @@
         /// <summary>
         /// Gets the value service associated with the value.
         /// </summary>
-        public IBaristaValueService ValueService
+        public IBaristaValueFactory ValueFactory
         {
-            get { return m_baristaValueService; }
+            get { return m_baristaValueFactory; }
         }
         #endregion
 
@@ -113,7 +113,7 @@
             if (!Context.HasCurrentScope)
                 throw new InvalidOperationException("An active execution scope is required.");
 
-            var indexHandle = ValueService.CreateNumber(index);
+            var indexHandle = ValueFactory.CreateNumber(index);
             Engine.JsDeleteIndexedProperty(Handle, indexHandle.Handle);
         }
 
@@ -181,14 +181,14 @@
         public JsValue GetProperty(string propertyName)
         {
             var valueHandle = GetPropertyByNameInternal(propertyName);
-            return ValueService.CreateValue(valueHandle);
+            return ValueFactory.CreateValue(valueHandle);
         }
 
         public T GetProperty<T>(string propertyName)
             where T : JsValue
         {
             var valueHandle = GetPropertyByNameInternal(propertyName);
-            return ValueService.CreateValue<T>(valueHandle);
+            return ValueFactory.CreateValue<T>(valueHandle);
         }
 
         private JavaScriptValueSafeHandle GetPropertyByNameInternal(string propertyName)
@@ -213,14 +213,14 @@
         public JsValue GetProperty(int index)
         {
             var valueHandle = GetPropertyByIndexInternal(index);
-            return ValueService.CreateValue(valueHandle);
+            return ValueFactory.CreateValue(valueHandle);
         }
 
         public T GetProperty<T>(int index)
             where T : JsValue
         {
             var valueHandle = GetPropertyByIndexInternal(index);
-            return ValueService.CreateValue<T>(valueHandle);
+            return ValueFactory.CreateValue<T>(valueHandle);
         }
 
         private JavaScriptValueSafeHandle GetPropertyByIndexInternal(int index)
@@ -228,7 +228,7 @@
             if (!Context.HasCurrentScope)
                 throw new InvalidOperationException("An active execution scope is required.");
 
-            var indexHandle = ValueService.CreateNumber(index);
+            var indexHandle = ValueFactory.CreateNumber(index);
             return Engine.JsGetIndexedProperty(Handle, indexHandle.Handle);
         }
 
@@ -240,14 +240,14 @@
         public JsValue GetProperty(JsSymbol symbol)
         {
             var valueHandle = GetPropertyBySymbolInternal(symbol);
-            return ValueService.CreateValue(valueHandle);
+            return ValueFactory.CreateValue(valueHandle);
         }
 
         public T GetProperty<T>(JsSymbol symbol)
             where T : JsValue
         {
             var valueHandle = GetPropertyBySymbolInternal(symbol);
-            return ValueService.CreateValue<T>(valueHandle);
+            return ValueFactory.CreateValue<T>(valueHandle);
         }
 
         private JavaScriptValueSafeHandle GetPropertyBySymbolInternal(JsSymbol symbol)
@@ -272,14 +272,14 @@
         public JsValue GetProperty(JsValue value)
         {
             var valueHandle = GetPropertyByValueInternal(value);
-            return ValueService.CreateValue(valueHandle);
+            return ValueFactory.CreateValue(valueHandle);
         }
 
         public T GetProperty<T>(JsValue value)
             where T : JsValue
         {
             var valueHandle = GetPropertyByValueInternal(value);
-            return ValueService.CreateValue<T>(valueHandle);
+            return ValueFactory.CreateValue<T>(valueHandle);
         }
 
         private JavaScriptValueSafeHandle GetPropertyByValueInternal(JsValue value)
@@ -317,14 +317,14 @@
         public JsValue SelectValue(string path, bool errorWhenNoMatch = false)
         {
             var valueHandle = SelectValueInternal(path, errorWhenNoMatch);
-            return ValueService.CreateValue(valueHandle);
+            return ValueFactory.CreateValue(valueHandle);
         }
 
         public T SelectValue<T>(string path, bool errorWhenNoMatch = false)
             where T : JsValue
         {
             var valueHandle = SelectValueInternal(path, errorWhenNoMatch);
-            return ValueService.CreateValue<T>(valueHandle);
+            return ValueFactory.CreateValue<T>(valueHandle);
         }
 
         private JavaScriptValueSafeHandle SelectValueInternal(string path, bool errorWhenNoMatch)
@@ -377,7 +377,7 @@
             if (!Context.HasCurrentScope)
                 throw new InvalidOperationException("An active execution scope is required.");
 
-            var indexHandle = ValueService.CreateNumber(index);
+            var indexHandle = ValueFactory.CreateNumber(index);
             Engine.JsSetIndexedProperty(Handle, indexHandle.Handle, value.Handle);
         }
 
@@ -442,7 +442,7 @@
                 DeleteProperty(symbol);
                 return true;
             }
-            else if (Context.Converter.TryFromObject(ValueService, indexes[0], out JsValue jsIndex))
+            else if (Context.Converter.TryFromObject(ValueFactory, indexes[0], out JsValue jsIndex))
             {
                 DeleteProperty(jsIndex);
                 return true;
@@ -477,7 +477,7 @@
                 result = GetProperty(symbol);
                 return true;
             }
-            else if (Context.Converter.TryFromObject(ValueService, indexes[0], out JsValue jsIndex))
+            else if (Context.Converter.TryFromObject(ValueFactory, indexes[0], out JsValue jsIndex))
             {
                 result = GetProperty(jsIndex);
                 return true;
@@ -496,7 +496,7 @@
         {
             if (GetProperty(binder.Name) is JsFunction fn)
             {
-                if (Context.Converter.TryFromObject(ValueService, args, out JsValue jsArguments))
+                if (Context.Converter.TryFromObject(ValueFactory, args, out JsValue jsArguments))
                 {
                     result = fn.Call(jsArguments);
                     return true;
@@ -511,7 +511,7 @@
             if (indexes.Length != 1)
                 return base.TrySetIndex(binder, indexes, value);
 
-            if (Context.Converter.TryFromObject(ValueService, value, out JsValue jsValue))
+            if (Context.Converter.TryFromObject(ValueFactory, value, out JsValue jsValue))
             {
 
                 if (indexes[0] is string propertyName)
@@ -529,7 +529,7 @@
                     SetProperty(symbol, jsValue);
                     return true;
                 }
-                else if (Context.Converter.TryFromObject(ValueService, indexes[0], out JsValue jsIndex))
+                else if (Context.Converter.TryFromObject(ValueFactory, indexes[0], out JsValue jsIndex))
                 {
                     SetProperty(jsIndex, jsValue);
                     return true;
@@ -541,7 +541,7 @@
 
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
-            if (Context.Converter.TryFromObject(ValueService, value, out JsValue jsValue))
+            if (Context.Converter.TryFromObject(ValueFactory, value, out JsValue jsValue))
             {
                 SetProperty(binder.Name, jsValue);
                 return true;

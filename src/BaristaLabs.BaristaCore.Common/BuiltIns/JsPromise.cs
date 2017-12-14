@@ -11,8 +11,8 @@
     /// </summary>
     public class JsPromise : JsObject
     {
-        public JsPromise(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle valueHandle)
-            : base(engine, context, valueService, valueHandle)
+        public JsPromise(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueFactory, valueHandle)
         {
 
         }
@@ -31,7 +31,7 @@
             if (values == null)
                 throw new ArgumentNullException(nameof(values));
 
-            var arr = ValueService.CreateArray(0);
+            var arr = ValueFactory.CreateArray(0);
             foreach(var val in values)
             {
                 arr.Push(val);
@@ -90,7 +90,7 @@
             JavaScriptPromiseContinuationCallback promiseContinuationCallback = (IntPtr taskHandle, IntPtr callbackState) =>
             {
                 var task = new JavaScriptValueSafeHandle(taskHandle);
-                var promiseTask = ValueService.CreateValue<JsFunction>(task);
+                var promiseTask = ValueFactory.CreateValue<JsFunction>(task);
                 promiseTaskQueue.Enqueue(promiseTask);
             };
             var promiseContinuationCallbackDelegateHandle = GCHandle.Alloc(promiseContinuationCallback);

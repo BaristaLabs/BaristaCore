@@ -5,8 +5,8 @@
 
     public class JsDataView : JsObject
     {
-        public JsDataView(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle valueHandle)
-            : base(engine, context, valueService, valueHandle)
+        public JsDataView(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueFactory, valueHandle)
         {
         }
 

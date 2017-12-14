@@ -8,8 +8,8 @@
     /// </summary>
     public class JsJSON : JsObject
     {
-        public JsJSON(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle valueHandle)
-            : base(engine, context, valueService, valueHandle)
+        public JsJSON(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueFactory, valueHandle)
         {
 
         }

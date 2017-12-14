@@ -8,8 +8,8 @@
     /// </summary>
     public class JsNumber : JsObject
     {
-        public JsNumber(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle valueHandle)
-            : base(engine, context, valueService, valueHandle)
+        public JsNumber(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueFactory, valueHandle)
         {
         }
 

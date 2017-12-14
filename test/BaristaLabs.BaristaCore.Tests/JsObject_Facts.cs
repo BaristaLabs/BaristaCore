@@ -20,21 +20,21 @@
             m_provider = ServiceCollection.BuildServiceProvider();
         }
 
-        public IBaristaRuntimeService BaristaRuntimeService
+        public IBaristaRuntimeFactory BaristaRuntimeFactory
         {
-            get { return m_provider.GetRequiredService<IBaristaRuntimeService>(); }
+            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
         }
 
         [Fact]
         public void JsObjectCanBeCreated()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
                     using (ctx.Scope())
                     {
-                        var obj = ctx.ValueService.CreateObject();
+                        var obj = ctx.ValueFactory.CreateObject();
                         Assert.True(obj != null);
                         Assert.Equal(JavaScript.JavaScriptValueType.Object, obj.Type);
                     }
@@ -45,7 +45,7 @@
         [Fact]
         public void JsObjectReportsHasProperty()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -63,7 +63,7 @@
         [Fact]
         public void JsObjectReportsHasOwnProperty()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -81,7 +81,7 @@
         [Fact]
         public void JsObjectKeysCanBeRetrieved()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -102,7 +102,7 @@
         [Fact]
         public void JsObjectPropertyCanBeRetrievedByStringIndexer()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -122,7 +122,7 @@
         [Fact]
         public void JsObjectPropertyCanBeRetrievedByNumericIndexer()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -142,7 +142,7 @@
         [Fact]
         public void JsObjectPropertyCanBeRetrievedBySymbolIndexer()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -151,8 +151,8 @@
                         var script = "export default { 'foo': 'bar'};";
                         var result = ctx.EvaluateModule<JsObject>(script);
 
-                        var symbol = ctx.ValueService.CreateSymbol("baz");
-                        result.SetProperty(symbol, ctx.ValueService.CreateString("qix"));
+                        var symbol = ctx.ValueFactory.CreateSymbol("baz");
+                        result.SetProperty(symbol, ctx.ValueFactory.CreateString("qix"));
 
                         var qix = result[symbol];
                         Assert.True(qix != null);
@@ -165,7 +165,7 @@
         [Fact]
         public void JsObjectPropertyCanBeSetByStringIndexer()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -174,8 +174,8 @@
                         var script = "export default { 'foo': 'bar'};";
                         var result = ctx.EvaluateModule<JsObject>(script);
 
-                        var strValue = ctx.ValueService.CreateString("baz");
-                        var qixValue = ctx.ValueService.CreateString("qix");
+                        var strValue = ctx.ValueFactory.CreateString("baz");
+                        var qixValue = ctx.ValueFactory.CreateString("qix");
 
                         result[strValue] = qixValue;
 
@@ -188,7 +188,7 @@
         [Fact]
         public void JsObjectPropertyCanBeSetByIntIndexer()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -197,8 +197,8 @@
                         var script = "export default { 'foo': 'bar'};";
                         var result = ctx.EvaluateModule<JsObject>(script);
 
-                        var indexValue = ctx.ValueService.CreateNumber(0);
-                        var qixValue = ctx.ValueService.CreateString("qix");
+                        var indexValue = ctx.ValueFactory.CreateNumber(0);
+                        var qixValue = ctx.ValueFactory.CreateString("qix");
 
                         result[indexValue] = qixValue;
 

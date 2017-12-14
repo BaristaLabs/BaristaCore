@@ -23,21 +23,21 @@
             m_provider = ServiceCollection.BuildServiceProvider();
         }
 
-        public IBaristaRuntimeService BaristaRuntimeService
+        public IBaristaRuntimeFactory BaristaRuntimeFactory
         {
-            get { return m_provider.GetRequiredService<IBaristaRuntimeService>(); }
+            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
         }
 
         [Fact]
         public void JsArrayCanBeCreated()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
                     using (ctx.Scope())
                     {
-                        var arr = ctx.ValueService.CreateArray(50);
+                        var arr = ctx.ValueFactory.CreateArray(50);
                         Assert.True(arr != null);
                         Assert.Equal(JavaScript.JavaScriptValueType.Array, arr.Type);
                     }
@@ -48,13 +48,13 @@
         [Fact]
         public void JsArrayLengthCanBeRetrieved()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
                     using (ctx.Scope())
                     {
-                        var arr = ctx.ValueService.CreateArray(50);
+                        var arr = ctx.ValueFactory.CreateArray(50);
                         Assert.Equal(50, arr.Length);
                     }
                 }
@@ -64,7 +64,7 @@
         [Fact]
         public void JsArrayItemsCanBePopped()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -85,7 +85,7 @@
         [Fact]
         public void JsArrayItemsCanBePushed()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -95,7 +95,7 @@
                         var arr = ctx.EvaluateModule<JsArray>(script);
                         Assert.Equal(3, arr.Length);
 
-                        arr.Push(ctx.ValueService.CreateString("d"));
+                        arr.Push(ctx.ValueFactory.CreateString("d"));
 
                         var values = arr.ToArray();
                         Assert.Equal(4, values.Length);
@@ -111,7 +111,7 @@
         [Fact]
         public void JsArrayItemsCanGetByIndex()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -132,7 +132,7 @@
         [Fact]
         public void JsArrayItemsCanSetByIndex()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -142,7 +142,7 @@
                         var arr = ctx.EvaluateModule<JsArray>(script);
                         Assert.Equal(3, arr.Length);
 
-                        arr[0] = ctx.ValueService.CreateString("c");
+                        arr[0] = ctx.ValueFactory.CreateString("c");
 
                         var values = arr.ToArray();
                         Assert.Equal(3, values.Length);
@@ -157,7 +157,7 @@
         [Fact]
         public void JsArrayIndexOfReturnsPosition()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -167,7 +167,7 @@
                         var arr = ctx.EvaluateModule<JsArray>(script);
 
                         var values = arr.ToArray();
-                        var cVal = ctx.ValueService.CreateString("c");
+                        var cVal = ctx.ValueFactory.CreateString("c");
                         Assert.Equal(values[2].Handle, cVal.Handle);
                         var ix = arr.IndexOf(cVal);
                         Assert.Equal(2, ix);
@@ -179,7 +179,7 @@
         [Fact]
         public void JsArrayIndexOfReturnsPositionWhenStartIndexSupplied()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -189,7 +189,7 @@
                         var arr = ctx.EvaluateModule<JsArray>(script);
 
                         var values = arr.ToArray();
-                        var cVal = ctx.ValueService.CreateString("c");
+                        var cVal = ctx.ValueFactory.CreateString("c");
                         Assert.Equal(values[0].Handle, cVal.Handle);
                         Assert.Equal(values[3].Handle, cVal.Handle);
                         var ix = arr.IndexOf(cVal, 1);
@@ -202,7 +202,7 @@
         [Fact]
         public void JsArrayItemsCanBeEnumerated()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -232,7 +232,7 @@
         [Fact]
         public void JsArrayItemsCanBeEnumeratedViaLinq()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {

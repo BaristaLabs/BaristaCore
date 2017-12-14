@@ -13,11 +13,11 @@
         /// <summary>
         /// Converts the specified .Net object into a JavaScript value.
         /// </summary>
-        /// <param name="valueService"></param>
+        /// <param name="valueFactory"></param>
         /// <param name="o"></param>
         /// <param name="jsonConverter"></param>
         /// <returns></returns>
-        bool TryFromObject(IBaristaValueService valueService, object obj, out JsValue value);
+        bool TryFromObject(IBaristaValueFactory valueFactory, object obj, out JsValue value);
 
         /// <summary>
         /// Converts the specified value into a .Net object.

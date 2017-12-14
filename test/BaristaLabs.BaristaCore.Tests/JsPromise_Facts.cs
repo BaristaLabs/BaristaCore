@@ -21,15 +21,15 @@
             m_provider = ServiceCollection.BuildServiceProvider();
         }
 
-        public IBaristaRuntimeService BaristaRuntimeService
+        public IBaristaRuntimeFactory BaristaRuntimeFactory
         {
-            get { return m_provider.GetRequiredService<IBaristaRuntimeService>(); }
+            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
         }
 
         [Fact]
         public void JsPromiseCanBeCreated()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -45,7 +45,7 @@
         [Fact]
         public void JsPromiseCanUnwrapAPromise()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -60,7 +60,7 @@
                         });
 
 
-                        var jsPromise = ctx.ValueService.CreatePromise(myTask);
+                        var jsPromise = ctx.ValueFactory.CreatePromise(myTask);
                         var result = ctx.Promise.Wait(jsPromise);
                         Assert.True(iRan);
                         Assert.Equal("foo", result.ToString());
@@ -72,7 +72,7 @@
         [Fact]
         public void JsPromiseCanRace()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -96,8 +96,8 @@
                         });
 
 
-                        var p1 = ctx.ValueService.CreatePromise(t1);
-                        var p2 = ctx.ValueService.CreatePromise(t2);
+                        var p1 = ctx.ValueFactory.CreatePromise(t1);
+                        var p2 = ctx.ValueFactory.CreatePromise(t2);
                         var raceResult = ctx.Promise.Race(p1, p2);
                         Assert.NotNull(raceResult);
                         Assert.True(iRan1);

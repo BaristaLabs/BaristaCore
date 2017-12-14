@@ -21,15 +21,15 @@
             m_provider = ServiceCollection.BuildServiceProvider();
         }
 
-        public IBaristaRuntimeService BaristaRuntimeService
+        public IBaristaRuntimeFactory BaristaRuntimeFactory
         {
-            get { return m_provider.GetRequiredService<IBaristaRuntimeService>(); }
+            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
         }
 
         [Fact]
         public void JavaScriptRuntimeCanBeConstructed()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
             }
             Assert.True(true);
@@ -39,7 +39,7 @@
         public void JavaScriptRuntimeShouldReturnRuntimeMemoryUsage()
         {
             ulong memoryUsage;
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 memoryUsage = rt.RuntimeMemoryUsage;
             }
@@ -55,7 +55,7 @@
                 changeCount++;
             }
 
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 rt.MemoryAllocationChanging += handler;
                 using (var ctx = rt.CreateContext())
@@ -75,7 +75,7 @@
                 collectingCount++;
             };
 
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 rt.BeforeCollect += handler;
                 rt.CollectGarbage();
@@ -88,7 +88,7 @@
         [Fact]
         public void JavaScriptRuntimeShouldIndicateDisposedState()
         {
-            var rt = BaristaRuntimeService.CreateRuntime();
+            var rt = BaristaRuntimeFactory.CreateRuntime();
             rt.Dispose();
 
             Assert.True(rt.IsDisposed);

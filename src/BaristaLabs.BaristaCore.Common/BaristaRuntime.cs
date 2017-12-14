@@ -22,7 +22,7 @@
         /// </summary>
         public event EventHandler<EventArgs> AfterDispose;
 
-        private IBaristaContextService m_contextService;
+        private IBaristaContextFactory m_contextFactory;
 
         private readonly GCHandle m_runtimeMemoryAllocationChangingDelegateHandle;
         private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
@@ -30,10 +30,10 @@
         /// <summary>
         /// Creates a new instance of a Barista Runtime.
         /// </summary>
-        public BaristaRuntime(IJavaScriptEngine engine, IBaristaContextService contextService, JavaScriptRuntimeSafeHandle runtimeHandle)
+        public BaristaRuntime(IJavaScriptEngine engine, IBaristaContextFactory contextFactory, JavaScriptRuntimeSafeHandle runtimeHandle)
             : base(engine, runtimeHandle)
         {
-            m_contextService = contextService ?? throw new ArgumentNullException(nameof(contextService));
+            m_contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
 
             JavaScriptMemoryAllocationCallback runtimeMemoryAllocationChanging = (IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize) =>
             {
@@ -75,7 +75,7 @@
             if (IsDisposed)
                 throw new ObjectDisposedException(nameof(BaristaRuntime));
 
-            return m_contextService.CreateContext(this);
+            return m_contextFactory.CreateContext(this);
         }
 
         /// <summary>
@@ -114,10 +114,10 @@
         {
             if (disposing && !IsDisposed)
             {
-                if (m_contextService != null)
+                if (m_contextFactory != null)
                 {
-                    m_contextService.Dispose();
-                    m_contextService = null;
+                    m_contextFactory.Dispose();
+                    m_contextFactory = null;
                 }
             }
 

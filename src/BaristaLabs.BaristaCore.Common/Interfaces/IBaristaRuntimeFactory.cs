@@ -3,10 +3,10 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
 
-    public interface IBaristaRuntimeService : IDisposable
+    public interface IBaristaRuntimeFactory : IDisposable
     {
         /// <summary>
-        /// Gets the runtimes currently being managed by the service.
+        /// Gets the number runtimes currently being managed by the factory.
         /// </summary>
         int Count
         {

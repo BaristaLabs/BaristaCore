@@ -13,8 +13,8 @@
     /// </remarks>
     public class JsFunction : JsObject
     {
-        public JsFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle valueHandle)
-            : base(engine, context, valueService, valueHandle)
+        public JsFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueFactory, valueHandle)
         {
         }
 
@@ -31,7 +31,7 @@
         public JsValue Call(params JsValue[] args)
         {
             var result = CallInternal(args);
-            return ValueService.CreateValue(result);
+            return ValueFactory.CreateValue(result);
         }
 
         /// <summary>
@@ -44,7 +44,7 @@
             where T : JsValue
         {
             var result = CallInternal(args);
-            return ValueService.CreateValue<T>(result);
+            return ValueFactory.CreateValue<T>(result);
         }
 
         private JavaScriptValueSafeHandle CallInternal(params JsValue[] args)
@@ -65,7 +65,7 @@
                 //TODO: This logic needs to be reused... somewhere.
 
                 var exceptionHandle = Engine.JsGetAndClearException();
-                JsError jsError = ValueService.CreateValue<JsError>(exceptionHandle);
+                JsError jsError = ValueFactory.CreateValue<JsError>(exceptionHandle);
                 switch (jsEx.ErrorCode)
                 {
                     case JavaScriptErrorCode.ScriptException:
@@ -93,8 +93,8 @@
     {
         private readonly GCHandle m_delegateHandle;
 
-        internal JsNativeFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueService valueService, JavaScriptValueSafeHandle valueHandle, Delegate fnDelegate)
-            : base(engine, context, valueService, valueHandle)
+        internal JsNativeFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle, Delegate fnDelegate)
+            : base(engine, context, valueFactory, valueHandle)
         {
             m_delegateHandle = GCHandle.Alloc(fnDelegate);
         }

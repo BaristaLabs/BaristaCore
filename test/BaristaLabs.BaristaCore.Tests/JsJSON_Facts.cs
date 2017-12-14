@@ -20,15 +20,15 @@
             m_provider = ServiceCollection.BuildServiceProvider();
         }
 
-        public IBaristaRuntimeService BaristaRuntimeService
+        public IBaristaRuntimeFactory BaristaRuntimeFactory
         {
-            get { return m_provider.GetRequiredService<IBaristaRuntimeService>(); }
+            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
         }
 
         [Fact]
         public void JsJSONCanBeCreated()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -44,13 +44,13 @@
         [Fact]
         public void JsJSONCanParse()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
                     using (ctx.Scope())
                     {
-                        var str = ctx.ValueService.CreateString("{ \"foo\": \"bar\" }");
+                        var str = ctx.ValueFactory.CreateString("{ \"foo\": \"bar\" }");
 
                         var jsObject = ctx.JSON.Parse(str) as JsObject;
                         Assert.NotNull(jsObject);
@@ -64,7 +64,7 @@
         [Fact]
         public void JsJSONCanStringify()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {

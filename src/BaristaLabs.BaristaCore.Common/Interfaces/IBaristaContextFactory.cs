@@ -3,9 +3,9 @@
     using System;
 
     /// <summary>
-    /// Represents a service that manages Barista Context instances.
+    /// Represents a factory that creates Barista Context instances.
     /// </summary>
-    public interface IBaristaContextService : IDisposable
+    public interface IBaristaContextFactory : IDisposable
     {
         /// <summary>
         /// Returns a new context associated with the specified runtime.

@@ -22,10 +22,10 @@
 
             services.AddSingleton(chakraEngine);
             services.AddSingleton(moduleService);
-            services.AddSingleton<IBaristaValueServiceFactory, BaristaValueServiceFactory>();
-            services.AddSingleton<IBaristaRuntimeService, BaristaRuntimeService>();
+            services.AddSingleton<IBaristaValueFactoryBuilder, BaristaValueFactoryBuilder>();
+            services.AddSingleton<IBaristaRuntimeFactory, BaristaRuntimeFactory>();
 
-            services.AddTransient<IBaristaContextService, BaristaContextService>();
+            services.AddTransient<IBaristaContextFactory, BaristaContextFactory>();
             services.AddTransient<IBaristaConversionStrategy, BaristaConversionStrategy>();
             services.AddTransient<IPromiseTaskQueue, PromiseTaskQueue>();
 
@@ -44,7 +44,7 @@
 
             foreach (var sd in services)
             {
-                if (sd.ImplementationInstance is BaristaRuntimeService)
+                if (sd.ImplementationInstance is BaristaRuntimeFactory)
                     runtimeServiceDescriptors.Add(sd);
 
                 if (sd.ImplementationInstance is IJavaScriptEngine)
@@ -53,7 +53,7 @@
 
             foreach(var sd in runtimeServiceDescriptors)
             {
-                var runtimeService = sd.ImplementationInstance as BaristaRuntimeService;
+                var runtimeService = sd.ImplementationInstance as BaristaRuntimeFactory;
 
                 services.Remove(sd);
                 runtimeService.Dispose();

@@ -9,14 +9,14 @@
     using System.Reflection;
     using System.Threading.Tasks;
 
-    public sealed class BaristaValueService : IBaristaValueService
+    public sealed class BaristaValueFactory : IBaristaValueFactory
     {
         private BaristaObjectPool<JsValue, JavaScriptValueSafeHandle> m_valuePool;
 
         private readonly IJavaScriptEngine m_engine;
         private readonly BaristaContext m_context;
 
-        public BaristaValueService(IJavaScriptEngine engine, BaristaContext context)
+        public BaristaValueFactory(IJavaScriptEngine engine, BaristaContext context)
         {
             m_context = context ?? throw new ArgumentNullException(nameof(context));
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
@@ -24,7 +24,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the context associated with the value service.
+        /// Gets or sets the context associated with the value factory.
         /// </summary>
         public BaristaContext Context
         {
@@ -145,7 +145,7 @@
                 try
                 {
                     var nativeResult = func.DynamicInvoke(nativeArgs);
-                    if (Context.Converter.TryFromObject(Context.ValueService, nativeResult, out JsValue valueResult))
+                    if (Context.Converter.TryFromObject(Context.ValueFactory, nativeResult, out JsValue valueResult))
                     {
                         return valueResult.Handle.DangerousGetHandle();
                     }
@@ -207,7 +207,7 @@
             {
                 if (t.IsCanceled || t.IsFaulted)
                 {
-                    if (Context.Converter.TryFromObject(Context.ValueService, t.Exception, out JsValue rejectValue))
+                    if (Context.Converter.TryFromObject(Context.ValueFactory, t.Exception, out JsValue rejectValue))
                     {
                         reject.Call(reject, rejectValue);
                     }
@@ -226,7 +226,7 @@
                 }
 
                 var result = resultProperty.GetValue(t);
-                if (Context.Converter.TryFromObject(Context.ValueService, result, out JsValue resolveValue))
+                if (Context.Converter.TryFromObject(Context.ValueFactory, result, out JsValue resolveValue))
                 {
                     resolve.Call(resolve, resolveValue);
                 }
@@ -418,13 +418,13 @@
         }
 
         /// <summary>
-        /// Method that all objects created though this service call when the runtime disposes of them.
+        /// Method that all objects created though this factory call when the runtime disposes of them.
         /// </summary>
         /// <param name="handle"></param>
         /// <param name="callbackState"></param>
         private void OnBeforeCollectCallback(IntPtr handle, IntPtr callbackState)
         {
-            //If the valuepool is null, this service has already been disposed.
+            //If the valuepool is null, this factory has already been disposed.
             if (m_valuePool == null)
                 return;
 
@@ -453,7 +453,7 @@
             GC.SuppressFinalize(this);
         }
 
-        ~BaristaValueService()
+        ~BaristaValueFactory()
         {
             Dispose(false);
         }

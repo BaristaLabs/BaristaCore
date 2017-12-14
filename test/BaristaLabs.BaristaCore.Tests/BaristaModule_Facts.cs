@@ -22,12 +22,12 @@
             m_provider = ServiceCollection.BuildServiceProvider();
         }
 
-        public IBaristaRuntimeService BaristaRuntimeService
+        public IBaristaRuntimeFactory BaristaRuntimeFactory
         {
-            get { return m_provider.GetRequiredService<IBaristaRuntimeService>(); }
+            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
         }
 
-        public InMemoryModuleLoader ModuleService
+        public InMemoryModuleLoader ModuleLoader
         {
             get { return m_provider.GetRequiredService<IBaristaModuleLoader>() as InMemoryModuleLoader; }
         }
@@ -47,9 +47,9 @@ export default 'banana';
 "
             };
 
-            ModuleService.RegisterModule(bananaModule);
+            ModuleLoader.RegisterModule(bananaModule);
 
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -71,9 +71,9 @@ export default 'banana';
         export default helloworld;
         ";
             var myHelloWorldModule = new HelloWorldModule();
-            ModuleService.RegisterModule(myHelloWorldModule);
+            ModuleLoader.RegisterModule(myHelloWorldModule);
 
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -92,9 +92,9 @@ export default 'banana';
         export default reverse('hello, world!');
         ";
             var myReverseModule = new ReverseModule();
-            ModuleService.RegisterModule(myReverseModule);
+            ModuleLoader.RegisterModule(myReverseModule);
 
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -116,9 +116,9 @@ export default 'banana';
         export default fourtytwo;
         ";
             var fourtyTwoModule = new FourtyTwoModule();
-            ModuleService.RegisterModule(fourtyTwoModule);
+            ModuleLoader.RegisterModule(fourtyTwoModule);
 
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 using (var ctx = rt.CreateContext())
                 {
@@ -138,7 +138,7 @@ export default 'banana';
 
             public object InstallModule(BaristaContext context, JavaScriptModuleRecord referencingModule)
             {
-                return context.ValueService.CreateString("Hello, World!");
+                return context.ValueFactory.CreateString("Hello, World!");
             }
         }
 

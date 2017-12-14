@@ -15,8 +15,8 @@
     {
         private Lazy<JavaScriptTypedArrayInfo> m_arrayInfo;
 
-        public JsTypedArray(IJavaScriptEngine engine, BaristaContext context, BaristaValueService valueService, JavaScriptValueSafeHandle valueHandle)
-            : base(engine, context, valueService, valueHandle)
+        public JsTypedArray(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueFactory, valueHandle)
         {
             m_arrayInfo = new Lazy<JavaScriptTypedArrayInfo>(GetTypedArrayInfo);
         }
@@ -82,7 +82,7 @@
                 Type = Engine.JsGetTypedArrayInfo(Handle, out JavaScriptValueSafeHandle arrayBufferHandle, out uint byteOffset, out uint byteLength),
                 ByteOffset = byteOffset,
                 ByteLength = byteLength,
-                Buffer = ValueService.CreateValue<JsArrayBuffer>(arrayBufferHandle)
+                Buffer = ValueFactory.CreateValue<JsArrayBuffer>(arrayBufferHandle)
             };
 
             return result;

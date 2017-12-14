@@ -4,10 +4,10 @@
     using System;
     using System.Threading.Tasks;
 
-    public interface IBaristaValueService : IDisposable
+    public interface IBaristaValueFactory : IDisposable
     {
         /// <summary>
-        /// Gets or sets the context associated with the Value Service.
+        /// Gets or sets the context associated with the Value Factory.
         /// </summary>
         BaristaContext Context
         {

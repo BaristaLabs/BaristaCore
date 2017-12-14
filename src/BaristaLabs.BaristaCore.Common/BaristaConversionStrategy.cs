@@ -20,62 +20,62 @@
             m_jsonConverter = jsonConverter;
         }
 
-        public bool TryFromObject(IBaristaValueService valueService, object obj, out JsValue value)
+        public bool TryFromObject(IBaristaValueFactory valueFactory, object obj, out JsValue value)
         {
-            if (valueService == null)
-                throw new ArgumentNullException(nameof(valueService));
+            if (valueFactory == null)
+                throw new ArgumentNullException(nameof(valueFactory));
 
-            var context = valueService.Context;
+            var context = valueFactory.Context;
             if (context.IsDisposed)
                 throw new ObjectDisposedException(nameof(context));
 
             //Well this is easy!
             if (obj == null)
             {
-                value = valueService.GetNullValue();
+                value = valueFactory.GetNullValue();
                 return true;
             }
 
             switch (obj)
             {
                 case Undefined undefinedValue:
-                    value = valueService.GetUndefinedValue();
+                    value = valueFactory.GetUndefinedValue();
                     return true;
                 case JsValue jsValue:
                     value = jsValue;
                     return true;
                 case JavaScriptValueSafeHandle jsValueSafeHandle:
-                    value = valueService.CreateValue(jsValueSafeHandle);
+                    value = valueFactory.CreateValue(jsValueSafeHandle);
                     return true;
                 case string stringValue:
-                    value = valueService.CreateString(stringValue);
+                    value = valueFactory.CreateString(stringValue);
                     return true;
                 case double doubleValue:
                 case float floatValue:
-                    value = valueService.CreateNumber((double)obj);
+                    value = valueFactory.CreateNumber((double)obj);
                     return true;
                 case int intValue:
                 case short shortValue:
                 case ushort ushortValue:
                 case byte byteValue:
                 case sbyte sbyteValue:
-                    value = valueService.CreateNumber((int)obj);
+                    value = valueFactory.CreateNumber((int)obj);
                     return true;
                 case uint uintValue:
-                    value = valueService.CreateNumber(uintValue);
+                    value = valueFactory.CreateNumber(uintValue);
                     return true;
                 case long longValue:
-                    value = valueService.CreateNumber(longValue);
+                    value = valueFactory.CreateNumber(longValue);
                     return true;
                 case bool boolValue:
-                    value = boolValue ? valueService.GetTrueValue() : valueService.GetFalseValue();
+                    value = boolValue ? valueFactory.GetTrueValue() : valueFactory.GetFalseValue();
                     return true;
                 case IEnumerable enumerableValue:
                     var arrayValue = enumerableValue.OfType<object>().ToArray();
-                    var arr = valueService.CreateArray((uint)arrayValue.LongLength);
+                    var arr = valueFactory.CreateArray((uint)arrayValue.LongLength);
                     for(int i = 0; i < arrayValue.Length; i++)
                     {
-                        if (TryFromObject(valueService, arrayValue.GetValue(i), out JsValue currentValue))
+                        if (TryFromObject(valueFactory, arrayValue.GetValue(i), out JsValue currentValue))
                         {
                             arr[i] = currentValue;
                         }
@@ -88,16 +88,16 @@
                     value = arr;
                     return true;
                 case Delegate delegateValue:
-                    value = valueService.CreateFunction(delegateValue);
+                    value = valueFactory.CreateFunction(delegateValue);
                     return true;
                 case Exception exValue:
                     //Create an error.
-                    var error = valueService.CreateError(exValue.Message);
+                    var error = valueFactory.CreateError(exValue.Message);
                     //TODO: Potentially populate error properties.
                     value = error;
                     return true;
                 case Task taskValue:
-                    value = valueService.CreatePromise(taskValue);
+                    value = valueFactory.CreatePromise(taskValue);
                     return true;
             }
 
@@ -113,15 +113,15 @@
                 }
 
                 var jsonString = m_jsonConverter.Stringify(obj);
-                value = context.JSON.Parse(valueService.CreateString(jsonString));
+                value = context.JSON.Parse(valueFactory.CreateString(jsonString));
                 return true;
             }
 
             //We've run out of options, convert the non-primitive object.
-            return TryConvertFromNonPrimitiveObject(valueService, obj, out value);
+            return TryConvertFromNonPrimitiveObject(valueFactory, obj, out value);
         }
 
-        private bool TryConvertFromNonPrimitiveObject(IBaristaValueService valueService, object obj, out JsValue value)
+        private bool TryConvertFromNonPrimitiveObject(IBaristaValueFactory valueFactory, object obj, out JsValue value)
         {
             value = null;
             return false;

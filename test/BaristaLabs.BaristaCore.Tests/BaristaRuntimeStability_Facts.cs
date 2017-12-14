@@ -19,15 +19,15 @@
             m_provider = serviceCollection.BuildServiceProvider();
         }
 
-        public IBaristaRuntimeService BaristaRuntimeService
+        public IBaristaRuntimeFactory BaristaRuntimeFactory
         {
-            get { return m_provider.GetRequiredService<IBaristaRuntimeService>(); }
+            get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
         }
 
         [Fact]
         public void JavaScriptRuntimeCanBeConstructed()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
             }
             Assert.True(true);
@@ -36,14 +36,14 @@
         [Fact]
         public void JsValuesDisposedOutsideOfContextsDoNotCrashTheRuntimeOnObjectCallback()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 JsValue myValue;
                 using (var ctx = rt.CreateContext())
                 {
                     using (ctx.Scope())
                     {
-                        myValue = ctx.ValueService.CreateString("Hello, World");
+                        myValue = ctx.ValueFactory.CreateString("Hello, World");
                     }
                 }
 
@@ -57,7 +57,7 @@
         public void JsContextsDisposedOutsideOfRuntimeDoNotCrashTheRuntimeOnObjectCallback()
         {
             BaristaContext ctx; 
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 ctx = rt.CreateContext();
             }
@@ -67,14 +67,14 @@
         }
 
         [Fact]
-        public void JsRuntimesAreRemovedFromRuntimeService()
+        public void JsRuntimesAreRemovedFromRuntimeFactory()
         {
-            using (var rt = BaristaRuntimeService.CreateRuntime())
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 
             }
 
-            Assert.Equal(0, BaristaRuntimeService.Count);
+            Assert.Equal(0, BaristaRuntimeFactory.Count);
         }
 
         [Fact]
@@ -82,7 +82,7 @@
         {
             for (int i = 0; i < 100; i++)
             {
-                using (var rt = BaristaRuntimeService.CreateRuntime())
+                using (var rt = BaristaRuntimeFactory.CreateRuntime())
                 {
                     using (var ctx = rt.CreateContext())
                     {
@@ -95,7 +95,7 @@
                 }
             }
 
-            Assert.Equal(0, BaristaRuntimeService.Count);
+            Assert.Equal(0, BaristaRuntimeFactory.Count);
         }
     }
 }

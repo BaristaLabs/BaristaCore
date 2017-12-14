@@ -8,13 +8,13 @@
     /// <summary>
     /// Represents a class that is used to instantiate new BaristaRuntimes.
     /// </summary>
-    public sealed class BaristaRuntimeService : IBaristaRuntimeService
+    public sealed class BaristaRuntimeFactory : IBaristaRuntimeFactory
     {
         private BaristaObjectPool<BaristaRuntime, JavaScriptRuntimeSafeHandle> m_runtimePool = new BaristaObjectPool<BaristaRuntime, JavaScriptRuntimeSafeHandle>();
         private readonly IJavaScriptEngine m_engine;
         private readonly IServiceProvider m_serviceProvider;
 
-        public BaristaRuntimeService(IJavaScriptEngine engine, IServiceProvider serviceProvider)
+        public BaristaRuntimeFactory(IJavaScriptEngine engine, IServiceProvider serviceProvider)
         {
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
             m_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -32,12 +32,12 @@
         /// <returns></returns>
         public BaristaRuntime CreateRuntime(JavaScriptRuntimeAttributes attributes = JavaScriptRuntimeAttributes.None)
         {
-            var contextService = m_serviceProvider.GetRequiredService<IBaristaContextService>();
+            var contextService = m_serviceProvider.GetRequiredService<IBaristaContextFactory>();
 
             var runtimeHandle = m_engine.JsCreateRuntime(attributes, null);
             var result = m_runtimePool.GetOrAdd(runtimeHandle, () => {
                 var rt = new BaristaRuntime(m_engine, contextService, runtimeHandle);
-                //Do not wire up a runtime's BeforeCollect handler with the the service as this will
+                //Do not wire up a runtime's BeforeCollect handler with the factory as this will
                 //remove and dispose of the runtime on ANY garbage collect, which will eventually
                 //crash the engine.
 
@@ -75,7 +75,7 @@
         }
 
         /// <summary>
-        /// Disposes of the service and all references contained within.
+        /// Disposes of the factory and all references contained within.
         /// </summary>
         public void Dispose()
         {
@@ -83,7 +83,7 @@
             GC.SuppressFinalize(this);
         }
 
-        ~BaristaRuntimeService()
+        ~BaristaRuntimeFactory()
         {
             Dispose(false);
         }

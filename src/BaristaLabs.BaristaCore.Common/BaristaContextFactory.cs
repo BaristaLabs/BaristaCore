@@ -6,16 +6,16 @@
     using System.Diagnostics;
 
     /// <summary>
-    /// Represents a service that manages Barista Contexts.
+    /// Represents a factory that creates Barista Contexts.
     /// </summary>
-    public sealed class BaristaContextService : IBaristaContextService
+    public sealed class BaristaContextFactory : IBaristaContextFactory
     {
         private BaristaObjectPool<BaristaContext, JavaScriptContextSafeHandle> m_contextPool;
 
         private readonly IJavaScriptEngine m_engine;
         private readonly IServiceProvider m_serviceProvider;
 
-        public BaristaContextService(IJavaScriptEngine engine, IServiceProvider serviceProvider)
+        public BaristaContextFactory(IJavaScriptEngine engine, IServiceProvider serviceProvider)
         {
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
             m_serviceProvider = serviceProvider;
@@ -34,14 +34,14 @@
             return m_contextPool.GetOrAdd(contextHandle, () =>
             {
                 var moduleService = m_serviceProvider.GetRequiredService<IBaristaModuleLoader>();
-                var valueServiceFactory = m_serviceProvider.GetRequiredService<IBaristaValueServiceFactory>();
+                var valueFactoryBuilder = m_serviceProvider.GetRequiredService<IBaristaValueFactoryBuilder>();
                 var conversionStrategy = m_serviceProvider.GetRequiredService<IBaristaConversionStrategy>();
 
                 //For flexability, a promise task queue is not required.
                 var promiseTaskQueue = m_serviceProvider.GetService<IPromiseTaskQueue>();
 
                 //Set the handle that will be called prior to the engine collecting the context.
-                var context = new BaristaContext(m_engine, valueServiceFactory, conversionStrategy, promiseTaskQueue, moduleService, contextHandle);
+                var context = new BaristaContext(m_engine, valueFactoryBuilder, conversionStrategy, promiseTaskQueue, moduleService, contextHandle);
 
                 void beforeCollect(object sender, BaristaObjectBeforeCollectEventArgs args)
                 {
@@ -68,7 +68,7 @@
         }
 
         /// <summary>
-        /// Disposes of the service and all references contained within.
+        /// Disposes of the factory and all references contained within.
         /// </summary>
         public void Dispose()
         {
@@ -76,7 +76,7 @@
             GC.SuppressFinalize(this);
         }
 
-        ~BaristaContextService()
+        ~BaristaContextFactory()
         {
             Dispose(false);
         }

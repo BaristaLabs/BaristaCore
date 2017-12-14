@@ -26,10 +26,10 @@
         private readonly Lazy<JsPromise> m_promiseValue;
         
 
-        private readonly IBaristaValueService m_valueService;
+        private readonly IBaristaValueFactory m_valueFactory;
         private readonly IBaristaConversionStrategy m_conversionStrategy;
         private readonly IPromiseTaskQueue m_promiseTaskQueue;
-        private readonly IBaristaModuleLoader m_moduleService;
+        private readonly IBaristaModuleLoader m_moduleLoader;
 
 
         private readonly TaskScheduler m_taskScheduler;
@@ -44,23 +44,23 @@
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="contextHandle"></param>
-        public BaristaContext(IJavaScriptEngine engine, IBaristaValueServiceFactory valueServiceFactory, IBaristaConversionStrategy conversionStrategy, IPromiseTaskQueue taskQueue, IBaristaModuleLoader moduleService, JavaScriptContextSafeHandle contextHandle)
+        public BaristaContext(IJavaScriptEngine engine, IBaristaValueFactoryBuilder valueFactoryBuilder, IBaristaConversionStrategy conversionStrategy, IPromiseTaskQueue taskQueue, IBaristaModuleLoader moduleLoader, JavaScriptContextSafeHandle contextHandle)
             : base(engine, contextHandle)
         {
-            if (valueServiceFactory == null)
-                throw new ArgumentNullException(nameof(valueServiceFactory));
+            if (valueFactoryBuilder == null)
+                throw new ArgumentNullException(nameof(valueFactoryBuilder));
 
             m_taskScheduler = new CurrentThreadTaskScheduler();
 
             m_conversionStrategy = conversionStrategy ?? throw new ArgumentNullException(nameof(conversionStrategy));
 
-            m_valueService = valueServiceFactory.CreateValueService(this);
+            m_valueFactory = valueFactoryBuilder.CreateValueFactory(this);
 
-            m_undefinedValue = new Lazy<JsUndefined>(() => m_valueService.GetUndefinedValue());
-            m_nullValue = new Lazy<JsNull>(() => m_valueService.GetNullValue());
-            m_trueValue = new Lazy<JsBoolean>(() => m_valueService.GetTrueValue());
-            m_falseValue = new Lazy<JsBoolean>(() => m_valueService.GetFalseValue());
-            m_globalValue = new Lazy<JsObject>(() => m_valueService.GetGlobalObject());
+            m_undefinedValue = new Lazy<JsUndefined>(() => m_valueFactory.GetUndefinedValue());
+            m_nullValue = new Lazy<JsNull>(() => m_valueFactory.GetNullValue());
+            m_trueValue = new Lazy<JsBoolean>(() => m_valueFactory.GetTrueValue());
+            m_falseValue = new Lazy<JsBoolean>(() => m_valueFactory.GetFalseValue());
+            m_globalValue = new Lazy<JsObject>(() => m_valueFactory.GetGlobalObject());
             m_jsonValue = new Lazy<JsJSON>(() =>
             {
                 var global = m_globalValue.Value;
@@ -74,7 +74,7 @@
 
 
             m_promiseTaskQueue = taskQueue;
-            m_moduleService = moduleService;
+            m_moduleLoader = moduleLoader;
 
             //Set the event that will be called prior to the engine collecting the context.
             JavaScriptObjectBeforeCollectCallback beforeCollectCallback = (IntPtr handle, IntPtr callbackState) =>
@@ -200,11 +200,11 @@
         }
 
         /// <summary>
-        /// Gets the value service associated with the context.
+        /// Gets the value factory associated with the context.
         /// </summary>
-        public IBaristaValueService ValueService
+        public IBaristaValueFactory ValueFactory
         {
-            get { return m_valueService; }
+            get { return m_valueFactory; }
         }
 
         /// <summary>
@@ -320,7 +320,7 @@ let global = (new Function('return this;'))();
             {
                 if (exceptionVar != IntPtr.Zero)
                 {
-                    JsError error = m_valueService.CreateValue<JsError>(new JavaScriptValueSafeHandle(exceptionVar));
+                    JsError error = m_valueFactory.CreateValue<JsError>(new JavaScriptValueSafeHandle(exceptionVar));
                     throw new BaristaScriptException(error);
                 }
 
@@ -441,9 +441,9 @@ let global = (new Function('return this;'))();
                 {
                     dependentModule = childModuleRecord.DangerousGetHandle();
                 }
-                else if (m_moduleService != null)
+                else if (m_moduleLoader != null)
                 {
-                    var module = m_moduleService.GetModule(moduleName);
+                    var module = m_moduleLoader.GetModule(moduleName);
 
                     if (module != null)
                     {
@@ -489,7 +489,7 @@ let global = (new Function('return this;'))();
 
             if (moduleValue == null)
             {
-                CreateSingleValueModule(ValueService.GetNullValue().Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
+                CreateSingleValueModule(ValueFactory.GetNullValue().Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
                 return true;
             }
 
@@ -501,7 +501,7 @@ let global = (new Function('return this;'))();
                 case JavaScriptValueSafeHandle valueSafeHandle:
                     return CreateSingleValueModule(valueSafeHandle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
                 default:
-                    if (Converter.TryFromObject(ValueService, moduleValue, out JsValue convertedValue))
+                    if (Converter.TryFromObject(ValueFactory, moduleValue, out JsValue convertedValue))
                     {
                         return CreateSingleValueModule(convertedValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
                     }
@@ -544,7 +544,7 @@ export default value;
                 return;
             }
             var task = new JavaScriptValueSafeHandle(taskHandle);
-            var promise = m_valueService.CreateValue<JsFunction>(task);
+            var promise = m_valueFactory.CreateValue<JsFunction>(task);
             m_promiseTaskQueue.Enqueue(promise);
         }
 
@@ -561,14 +561,14 @@ export default value;
         {
             if (disposing && !IsDisposed)
             {
-                if (m_valueService != null || m_promiseTaskQueue != null)
+                if (m_valueFactory != null || m_promiseTaskQueue != null)
                 {
                     BaristaExecutionScope scope = null;
                     if (!HasCurrentScope)
                         scope = Scope();
                     try
                     {
-                        m_valueService.Dispose();
+                        m_valueFactory.Dispose();
                     }
                     finally
                     {
