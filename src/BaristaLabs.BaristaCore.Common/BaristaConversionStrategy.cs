@@ -1,11 +1,10 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.JavaScript;
     using System;
     using System.Collections;
     using System.Linq;
     using System.Threading.Tasks;
-    using BaristaLabs.BaristaCore.JavaScript;
-    using Extensions;
 
     public sealed class BaristaConversionStrategy : IBaristaConversionStrategy
     {

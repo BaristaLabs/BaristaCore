@@ -64,7 +64,28 @@ export default 'banana';
         }
 
         [Fact]
-        public void JsDynamicModulesCanExportNativeObjects()
+        public void JsDynamicModulesCanExportNativeObjectsThatReturnJsValues()
+        {
+            var script = @"
+        import helloworld from 'hello_world';
+        export default helloworld;
+        ";
+            var myHelloWorldModule = new HelloWorldModule();
+            ModuleService.RegisterModule(myHelloWorldModule);
+
+            using (var rt = BaristaRuntimeService.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    var result = ctx.EvaluateModule(script);
+
+                    Assert.Equal("Hello, World!", result.ToString());
+                }
+            }
+        }
+
+        [Fact]
+        public void JsDynamicModulesCanExportNativeObjectsThatReturnSafeHandles()
         {
             var script = @"
         import reverse from 'reverse';
@@ -86,6 +107,18 @@ export default 'banana';
             myReverseModule.Dispose();
         }
 
+        private sealed class HelloWorldModule : IBaristaModule
+        {
+            public string Name => "hello_world";
+
+            public string Description => "Only the best module ever.";
+
+            public object InstallModule(BaristaContext context, JavaScriptModuleRecord referencingModule)
+            {
+                return context.ValueService.CreateString("Hello, World!");
+            }
+        }
+
         private sealed class ReverseModule : IBaristaModule, IDisposable
         {
             public string Name => "reverse";
@@ -94,6 +127,7 @@ export default 'banana';
 
             public object InstallModule(BaristaContext context, JavaScriptModuleRecord referencingModule)
             {
+                //This module goes through the trouble of creating a JavaScriptValueSafeHandle to ensure that it can be done.
                 IntPtr fnReverse(IntPtr callee, bool isConstructCall, IntPtr[] arguments, ushort argumentCount, IntPtr callbackData)
                 {
                     if (argumentCount < 2)
