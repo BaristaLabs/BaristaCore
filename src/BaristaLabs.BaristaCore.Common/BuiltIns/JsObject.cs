@@ -75,7 +75,7 @@
             get
             {
                 var fn = Context.GlobalObject.SelectValue<JsFunction>("Object.keys");
-                return fn.Invoke(new JsValue[] { Context.Undefined, this }) as JsArray;
+                return fn.Call(new JsValue[] { Context.Undefined, this }) as JsArray;
             }
         }
 
@@ -498,7 +498,7 @@
             {
                 if (Context.Converter.TryFromObject(ValueService, args, out JsValue jsArguments))
                 {
-                    result = fn.Invoke(jsArguments);
+                    result = fn.Call(jsArguments);
                     return true;
                 }
             }

@@ -52,14 +52,18 @@
                 {
                     using (ctx.Scope())
                     {
+                        var iRan = false;
                         var myTask = new Task<string>(() =>
                         {
-                            Task.Delay(500);
+                            Task.Delay(1000);
+                            iRan = true;
                             return "foo";
                         });
+                       
 
                         var jsPromise = ctx.ValueService.CreatePromise(myTask);
                         Assert.NotNull(jsPromise);
+                        Assert.True(iRan);
                     }
                 }
             }

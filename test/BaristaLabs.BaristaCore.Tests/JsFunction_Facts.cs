@@ -59,7 +59,7 @@ export default () => 'hello, world';
                     using (ctx.Scope())
                     {
                         var fn = ctx.EvaluateModule<JsFunction>(script);
-                        var result = fn.Invoke();
+                        var result = fn.Call();
                         Assert.Equal("hello, world", result.ToString());
                     }
                 }
@@ -83,7 +83,7 @@ export default () => { throw new Error('That is quite illogical, captain.'); };
                         BaristaScriptException ex = null;
                         try
                         {
-                            var result = fn.Invoke();
+                            var result = fn.Call();
                         }
                         catch(BaristaScriptException invokeException)
                         {
@@ -114,7 +114,7 @@ export default () => { throw new Error('That is quite illogical, captain.'); };
                         Assert.NotNull(fnAdd);
                         var jsNumA = ctx.ValueService.CreateNumber(37);
                         var jsNumB = ctx.ValueService.CreateNumber(5);
-                        var result = fnAdd.Invoke<JsNumber>(jsNumA, jsNumB);
+                        var result = fnAdd.Call<JsNumber>(jsNumA, jsNumB);
 
                         Assert.Equal(42, result.ToInt32());
                     }
@@ -158,7 +158,7 @@ export default () => { throw new Error('That is quite illogical, captain.'); };
                         BaristaScriptException ex = null;
                         try
                         {
-                            var result = fnBoom.Invoke();
+                            var result = fnBoom.Call();
                         }
                         catch(BaristaScriptException invokeException)
                         {

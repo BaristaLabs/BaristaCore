@@ -2,10 +2,12 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using BaristaLabs.BaristaCore.JavaScript.Extensions;
+    using BaristaLabs.BaristaCore.Tasks;
     using System;
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     ///     Represents a JavaScript Context
@@ -19,8 +21,10 @@
         private readonly Lazy<JsNull> m_nullValue;
         private readonly Lazy<JsBoolean> m_trueValue;
         private readonly Lazy<JsBoolean> m_falseValue;
-        private readonly Lazy<JsObject> m_globalValue;
         private readonly Lazy<JsJSON> m_jsonValue;
+        private readonly Lazy<JsObject> m_globalValue;
+        private readonly Lazy<JsPromise> m_promiseValue;
+        
 
         private readonly IBaristaValueService m_valueService;
         private readonly IBaristaConversionStrategy m_conversionStrategy;
@@ -28,6 +32,7 @@
         private readonly IBaristaModuleLoader m_moduleService;
 
 
+        private readonly TaskScheduler m_taskScheduler;
         private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
 
         //0 for false, 1 for true.
@@ -45,6 +50,8 @@
             if (valueServiceFactory == null)
                 throw new ArgumentNullException(nameof(valueServiceFactory));
 
+            m_taskScheduler = new CurrentThreadTaskScheduler();
+
             m_conversionStrategy = conversionStrategy ?? throw new ArgumentNullException(nameof(conversionStrategy));
 
             m_valueService = valueServiceFactory.CreateValueService(this);
@@ -58,6 +65,11 @@
             {
                 var global = m_globalValue.Value;
                 return global.GetProperty<JsJSON>("JSON");
+            });
+            m_promiseValue = new Lazy<JsPromise>(() =>
+            {
+                var global = m_globalValue.Value;
+                return global.GetProperty<JsPromise>("Promise");
             });
 
 
@@ -155,6 +167,20 @@
         }
 
         /// <summary>
+        /// Gets the global Promise built-in.
+        /// </summary>
+        public JsPromise Promise
+        {
+            get
+            {
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(BaristaContext));
+
+                return m_promiseValue.Value;
+            }
+        }
+
+        /// <summary>
         /// Gets the True Value associated with the context.
         /// </summary>
         public JsBoolean True
@@ -166,6 +192,11 @@
 
                 return m_trueValue.Value;
             }
+        }
+
+        public TaskScheduler TaskScheduler
+        {
+            get { return m_taskScheduler; }
         }
 
         /// <summary>
@@ -331,7 +362,7 @@ let global = (new Function('return this;'))();
                     PromiseContinuationCallback(taskHandle, callbackState);
                 };
                 promiseContinuationCallbackDelegateHandle = GCHandle.Alloc(promiseContinuationCallback);
-                Engine.JsSetPromiseContinuationCallback(PromiseContinuationCallback, IntPtr.Zero);
+                Engine.JsSetPromiseContinuationCallback(promiseContinuationCallback, IntPtr.Zero);
             }
 
             try

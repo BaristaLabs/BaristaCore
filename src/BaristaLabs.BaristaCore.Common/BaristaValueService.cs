@@ -209,11 +209,11 @@
                 {
                     if (Context.Converter.TryFromObject(Context.ValueService, t.Exception, out JsValue rejectValue))
                     {
-                        reject.Invoke(rejectValue);
+                        reject.Call(reject, rejectValue);
                     }
                     else
                     {
-                        reject.Invoke(GetUndefinedValue());
+                        reject.Call(GetUndefinedValue());
                     }
                 }
 
@@ -221,23 +221,24 @@
                 var resultProperty = resultType.GetProperty("Result");
                 if (resultProperty == null)
                 {
-                    resolve.Invoke(GetNullValue());
+                    resolve.Call(GetNullValue());
                     return;
                 }
 
                 var result = resultProperty.GetValue(t);
                 if (Context.Converter.TryFromObject(Context.ValueService, result, out JsValue resolveValue))
                 {
-                    resolve.Invoke(resolveValue);
+                    resolve.Call(resolve, resolveValue);
                 }
                 else
                 {
-                    resolve.Invoke(GetUndefinedValue());
+                    resolve.Call(GetUndefinedValue());
                 }
 
-            });
+            }, Context.TaskScheduler);
 
-            task.Start();
+            //Start the task.
+            task.Start(Context.TaskScheduler);
             return promise;
         }
 

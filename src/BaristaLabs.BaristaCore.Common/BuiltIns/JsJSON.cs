@@ -20,7 +20,7 @@
                 throw new ArgumentNullException(nameof(value));
 
             var fnStringify = GetProperty<JsFunction>("stringify");
-            var resultHandle = fnStringify.Invoke<JsString>(fnStringify, value, replacer, space);
+            var resultHandle = fnStringify.Call<JsString>(fnStringify, value, replacer, space);
             if (resultHandle == null)
                 return null;
 
@@ -33,7 +33,7 @@
                 throw new ArgumentNullException(nameof(value));
 
             var fnParse = GetProperty<JsFunction>("parse");
-            return fnParse.Invoke(fnParse, value, reviver);
+            return fnParse.Call(fnParse, value, reviver);
         }
     }
 }

@@ -37,7 +37,7 @@
         JsObject CreatePromise(out JsFunction resolve, out JsFunction reject);
 
         /// <summary>
-        /// Returns a new Promise created from the specified task.
+        /// Returns a new Promise created from the specified task. This method also starts the task.
         /// </summary>
         /// <param name="task"></param>
         /// <returns></returns>

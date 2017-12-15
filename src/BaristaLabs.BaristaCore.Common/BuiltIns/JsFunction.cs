@@ -24,37 +24,37 @@
         }
 
         /// <summary>
-        /// Invokes the function with the specified arguments.
+        /// Calls the function with the specified arguments.
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        public JsValue Invoke(params JsValue[] args)
+        public JsValue Call(params JsValue[] args)
         {
-            var result = InvokeInternal(args);
+            var result = CallInternal(args);
             return ValueService.CreateValue(result);
         }
 
         /// <summary>
-        /// Invokes the function with the specified arguments expecting a return value of type T.
+        /// Calls the function with the specified arguments expecting a return value of type T.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="args"></param>
         /// <returns></returns>
-        public T Invoke<T>(params JsValue[] args)
+        public T Call<T>(params JsValue[] args)
             where T : JsValue
         {
-            var result = InvokeInternal(args);
+            var result = CallInternal(args);
             return ValueService.CreateValue<T>(result);
         }
 
-        private JavaScriptValueSafeHandle InvokeInternal(params JsValue[] args)
+        private JavaScriptValueSafeHandle CallInternal(params JsValue[] args)
         {
             var argPtrs = args
                 .Select(a => a == null ? Context.Undefined.Handle.DangerousGetHandle() : a.Handle.DangerousGetHandle())
                 .ToArray();
 
             if (argPtrs.Length == 0)
-                argPtrs = new IntPtr[] { Handle.DangerousGetHandle() };
+                argPtrs = new IntPtr[] { Context.Undefined.Handle.DangerousGetHandle() };
 
             try
             {
@@ -64,14 +64,14 @@
             {
                 //TODO: This logic needs to be reused... somewhere.
 
+                var exceptionHandle = Engine.JsGetAndClearException();
+                JsError jsError = ValueService.CreateValue<JsError>(exceptionHandle);
                 switch (jsEx.ErrorCode)
                 {
                     case JavaScriptErrorCode.ScriptException:
-                        var exceptionHandle = Engine.JsGetAndClearException();
-                        JsError jsError = ValueService.CreateValue<JsError>(exceptionHandle);
                         throw new BaristaScriptException(jsError.Message);
                     default:
-                        throw new NotImplementedException("Exception type has not been implemented.");
+                        throw new BaristaException(jsError.Message);
                 }
             }
         }
@@ -81,7 +81,7 @@
         public override string ToString()
         {
             var fnToString = GetProperty<JsFunction>(toStringPropertyName);
-            var fnAsAString = fnToString.Invoke<JsString>(this);
+            var fnAsAString = fnToString.Call<JsString>(this);
             return fnAsAString.ToString();
         }
     }
