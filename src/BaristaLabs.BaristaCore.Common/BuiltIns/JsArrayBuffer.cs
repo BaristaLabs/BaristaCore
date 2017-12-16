@@ -5,8 +5,8 @@
 
     public class JsArrayBuffer : JsObject
     {
-        public JsArrayBuffer(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle)
-            : base(engine, context, valueFactory, valueHandle)
+        public JsArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueHandle)
         {
         }
 

@@ -23,6 +23,7 @@
         private readonly Lazy<JsBoolean> m_falseValue;
         private readonly Lazy<JsJSON> m_jsonValue;
         private readonly Lazy<JsObject> m_globalValue;
+        private readonly Lazy<JsObjectConstructor> m_objectValue;
         private readonly Lazy<JsPromise> m_promiseValue;
         
         private readonly IBaristaValueFactory m_valueFactory;
@@ -67,6 +68,11 @@
             {
                 var global = m_globalValue.Value;
                 return global.GetProperty<JsJSON>("JSON");
+            });
+            m_objectValue = new Lazy<JsObjectConstructor>(() =>
+            {
+                var global = m_globalValue.Value;
+                return global.GetProperty<JsObjectConstructor>("Object");
             });
             m_promiseValue = new Lazy<JsPromise>(() =>
             {
@@ -183,6 +189,20 @@
         }
 
         /// <summary>
+        /// Gets the global Object built-in.
+        /// </summary>
+        public JsObjectConstructor Object
+        {
+            get
+            {
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(BaristaContext));
+
+                return m_objectValue.Value;
+            }
+        }
+
+        /// <summary>
         /// Gets the global Promise built-in.
         /// </summary>
         public JsPromise Promise
@@ -217,7 +237,7 @@
         {
             get { return m_taskFactory; }
         }
-        
+
         /// <summary>
         /// Gets the value factory associated with the context.
         /// </summary>
@@ -474,11 +494,11 @@ let global = (new Function('return this;'))();
 
             if (moduleValue == null)
             {
-                CreateSingleValueModule(ValueFactory.GetNullValue().Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
+                CreateSingleValueModule(m_valueFactory.GetNullValue().Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
                 return true;
             }
 
-            if (Converter.TryFromObject(ValueFactory, moduleValue, out JsValue convertedValue))
+            if (Converter.TryFromObject(m_valueFactory, moduleValue, out JsValue convertedValue))
             {
                 return CreateSingleValueModule(convertedValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
             }
@@ -546,7 +566,6 @@ export default defaultExport;
             {
                 //Unset the before collect callback.
                 Engine.JsSetObjectBeforeCollectCallback(Handle, IntPtr.Zero, null);
-                m_beforeCollectCallbackDelegateHandle.Free();
             }
 
             base.Dispose(disposing);

@@ -65,7 +65,7 @@
 
             var result = m_valuePool.GetOrAdd(externalArrayHandle, () =>
             {
-                var flyweight = new JsManagedExternalArrayBuffer(m_engine, Context, this, externalArrayHandle, ptrData, (ptr) =>
+                var flyweight = new JsManagedExternalArrayBuffer(m_engine, Context, externalArrayHandle, ptrData, (ptr) =>
                 {
                     Marshal.ZeroFreeGlobalAllocAnsi(ptr);
                 });
@@ -146,7 +146,7 @@
                 try
                 {
                     var nativeResult = func.DynamicInvoke(nativeArgs);
-                    if (Context.Converter.TryFromObject(Context.ValueFactory, nativeResult, out JsValue valueResult))
+                    if (Context.Converter.TryFromObject(this, nativeResult, out JsValue valueResult))
                     {
                         return valueResult.Handle.DangerousGetHandle();
                     }
@@ -168,7 +168,7 @@
             //this is a special case where we cannot use our CreateValue<> method.
             return m_valuePool.GetOrAdd(fnHandle, () =>
             {
-                var jsNativeFunction = new JsNativeFunction(m_engine, Context, this, fnHandle, fnDelegate);
+                var jsNativeFunction = new JsNativeFunction(m_engine, Context, fnHandle, fnDelegate);
                 jsNativeFunction.BeforeCollect += JsValueBeforeCollectCallback;
                 return jsNativeFunction;
             }) as JsNativeFunction;
@@ -208,7 +208,7 @@
             {
                 if (t.IsCanceled || t.IsFaulted)
                 {
-                    if (Context.Converter.TryFromObject(Context.ValueFactory, t.Exception, out JsValue rejectValue))
+                    if (Context.Converter.TryFromObject(this, t.Exception, out JsValue rejectValue))
                     {
                         reject.Call(GetGlobalObject(), rejectValue);
                     }
@@ -229,7 +229,7 @@
                 var result = resultProperty.GetValue(t);
 
                 //If we got an object back attempt to convert it into a JsValue and call the resolve method with the value.
-                if (Context.Converter.TryFromObject(Context.ValueFactory, result, out JsValue resolveValue))
+                if (Context.Converter.TryFromObject(this, result, out JsValue resolveValue))
                 {
                     resolve.Call(GetGlobalObject(), resolveValue);
                 }
@@ -293,40 +293,40 @@
                 switch (valueType.Value)
                 {
                     case JavaScriptValueType.Array:
-                        result = new JsArray(m_engine, Context, this, valueHandle);
+                        result = new JsArray(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.ArrayBuffer:
-                        result = new JsArrayBuffer(m_engine, Context, this, valueHandle);
+                        result = new JsArrayBuffer(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Boolean:
-                        result = new JsBoolean(m_engine, Context, this, valueHandle);
+                        result = new JsBoolean(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.DataView:
-                        result = new JsDataView(m_engine, Context, this, valueHandle);
+                        result = new JsDataView(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Error:
-                        result = new JsError(m_engine, Context, this, valueHandle);
+                        result = new JsError(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Function:
-                        result = new JsFunction(m_engine, Context, this, valueHandle);
+                        result = new JsFunction(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Null:
                         result = new JsNull(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Number:
-                        result = new JsNumber(m_engine, Context, this, valueHandle);
+                        result = new JsNumber(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Object:
-                        result = new JsObject(m_engine, Context, this, valueHandle);
+                        result = new JsObject(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.String:
-                        result = new JsString(m_engine, Context, this, valueHandle);
+                        result = new JsString(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Symbol:
                         result = new JsSymbol(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.TypedArray:
-                        result = new JsTypedArray(m_engine, Context, this, valueHandle);
+                        result = new JsTypedArray(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Undefined:
                         result = new JsUndefined(m_engine, Context, valueHandle);
@@ -355,7 +355,7 @@
 
                 if (typeof(JsObject).IsSameOrSubclass(targetType))
                 {
-                    result = Activator.CreateInstance(targetType, new object[] { m_engine, Context, this, valueHandle }) as JsValue;
+                    result = Activator.CreateInstance(targetType, new object[] { m_engine, Context, valueHandle }) as JsValue;
                 }
                 else if (typeof(JsSymbol).IsSameOrSubclass(targetType))
                 {

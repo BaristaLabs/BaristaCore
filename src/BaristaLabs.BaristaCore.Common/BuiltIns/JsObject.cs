@@ -8,14 +8,39 @@
     using BaristaLabs.BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.JavaScript;
 
-    public class JsObject : JsValue
+    public class JsObjectConstructor : JsObject
     {
-        private readonly IBaristaValueFactory m_baristaValueFactory;
-
-        public JsObject(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle)
+        public JsObjectConstructor(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
             : base(engine, context, valueHandle)
         {
-            m_baristaValueFactory = valueFactory ?? throw new ArgumentNullException(nameof(valueFactory));
+        }
+
+        public int Length
+        {
+            get
+            {
+                var result = GetProperty<JsNumber>("length");
+                return result.ToInt32();
+            }
+        }
+
+        /// <summary>
+        /// Returns the specified object in a frozen state.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public JsObject Freeze(JsObject obj)
+        {
+            var result = GetProperty<JsFunction>("freeze");
+            return result.Call<JsObject>(this, obj);
+        }
+    }
+
+    public class JsObject : JsValue
+    {
+        public JsObject(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueHandle)
+        {
         }
 
         #region Indexers
@@ -93,12 +118,12 @@
             get { return JavaScriptValueType.Object; }
         }
 
-        /// <summary>
-        /// Gets the value service associated with the value.
-        /// </summary>
-        public IBaristaValueFactory ValueFactory
+        // <summary>
+        // Gets the value service associated with the value.
+        // </summary>
+        protected IBaristaValueFactory ValueFactory
         {
-            get { return m_baristaValueFactory; }
+            get { return Context.ValueFactory; }
         }
         #endregion
 

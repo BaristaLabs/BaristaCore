@@ -84,7 +84,8 @@
                 m_context.Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
             }
 
-            if (m_promiseContinuationCallbackDelegateHandle != default(GCHandle))
+            //Free the delegate.
+            if (m_promiseContinuationCallbackDelegateHandle != default(GCHandle) && m_promiseContinuationCallbackDelegateHandle.IsAllocated)
             {
                 m_promiseContinuationCallbackDelegateHandle.Free();
             }

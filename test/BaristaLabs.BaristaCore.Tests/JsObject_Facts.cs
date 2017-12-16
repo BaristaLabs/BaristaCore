@@ -1,6 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore.Tests
 {
     using BaristaCore.Extensions;
+    using BaristaLabs.BaristaCore.JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -37,6 +38,42 @@
                         var obj = ctx.ValueFactory.CreateObject();
                         Assert.True(obj != null);
                         Assert.Equal(JavaScript.JavaScriptValueType.Object, obj.Type);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsObjectConstructorThrowsWhenHandleIsNull()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.Throws<ArgumentNullException>(() =>
+                        {
+                            new JsObject(rt.Engine, ctx, null);
+                        });
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsObjectConstructorThrowsWhenValueFactoryIsNull()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.Throws<ArgumentNullException>(() =>
+                        {
+                            new JsObject(rt.Engine, ctx, null);
+                        });
                     }
                 }
             }
@@ -163,6 +200,26 @@
         }
 
         [Fact]
+        public void JsObjectPropertyCanBeRetrievedByValueIndexer()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default { foo: 'bar'};";
+                        var result = ctx.EvaluateModule<JsObject>(script);
+
+                        var bar = result[ctx.ValueFactory.CreateString("foo")];
+                        Assert.True(bar != null);
+                        Assert.Equal("bar", bar.ToString());
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void JsObjectPropertyCanBeSetByStringIndexer()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
@@ -203,6 +260,97 @@
                         result[indexValue] = qixValue;
 
                         Assert.Equal("qix", result[0].ToString());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsObjectPropertyCanBeDeletedByIntIndexer()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default { 0: 'bar'};";
+                        var result = ctx.EvaluateModule<JsObject>(script);
+
+                        Assert.True(result.HasProperty("0"));
+
+                        result.DeleteProperty(0);
+                        
+                        Assert.False(result.HasProperty("0"));
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsObjectPropertyCanBeDeletedByStringIndexer()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default { 'foo': 'bar'};";
+                        var result = ctx.EvaluateModule<JsObject>(script);
+
+                        Assert.True(result.HasProperty("foo"));
+
+                        result.DeleteProperty("foo");
+
+                        Assert.False(result.HasProperty("foo"));
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsObjectPropertyCanBeDeletedBySymbolIndexer()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default { 'foo': 'bar'};";
+                        var result = ctx.EvaluateModule<JsObject>(script);
+
+                        var symbol = ctx.ValueFactory.CreateSymbol("baz");
+                        result.SetProperty(symbol, ctx.ValueFactory.CreateString("qix"));
+
+                        Assert.Equal("qix", result.GetProperty(symbol).ToString());
+
+                        result.DeleteProperty(symbol);
+
+                        Assert.Equal(ctx.Undefined, result.GetProperty(symbol));
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsObjectPropertyCanBeDeletedByJsValueIndexer()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default { 'foo': 'bar'};";
+                        var result = ctx.EvaluateModule<JsObject>(script);
+
+                        Assert.True(result.HasProperty("foo"));
+
+                        result.DeleteProperty(ctx.ValueFactory.CreateString("foo"));
+
+                        Assert.False(result.HasProperty("foo"));
                     }
                 }
             }

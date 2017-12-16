@@ -2,7 +2,6 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
-    using System.IO;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -15,8 +14,8 @@
     {
         private Lazy<JavaScriptTypedArrayInfo> m_arrayInfo;
 
-        public JsTypedArray(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle)
-            : base(engine, context, valueFactory, valueHandle)
+        public JsTypedArray(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueHandle)
         {
             m_arrayInfo = new Lazy<JavaScriptTypedArrayInfo>(GetTypedArrayInfo);
         }

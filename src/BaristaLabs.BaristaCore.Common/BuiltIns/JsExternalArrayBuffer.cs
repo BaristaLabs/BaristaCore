@@ -8,8 +8,8 @@
     /// </summary>
     public class JsExternalArrayBuffer : JsArrayBuffer
     {
-        protected JsExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle)
-            : base(engine, context, valueFactory, valueHandle)
+        protected JsExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueHandle)
         {
         }
     }
@@ -22,8 +22,8 @@
         private IntPtr m_bufferHandle;
         private readonly Action<IntPtr> m_releaseBufferHandle;
 
-        public JsManagedExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle, IntPtr bufferHandle, Action<IntPtr> releaseBufferHandle)
-            : base(engine, context, valueFactory, valueHandle)
+        public JsManagedExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle, IntPtr bufferHandle, Action<IntPtr> releaseBufferHandle)
+            : base(engine, context, valueHandle)
         {
             if (bufferHandle == default(IntPtr) || bufferHandle == null)
                 throw new ArgumentNullException(nameof(bufferHandle));

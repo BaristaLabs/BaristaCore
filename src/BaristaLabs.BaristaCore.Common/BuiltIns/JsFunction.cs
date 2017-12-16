@@ -13,8 +13,8 @@
     /// </remarks>
     public class JsFunction : JsObject
     {
-        public JsFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle)
-            : base(engine, context, valueFactory, valueHandle)
+        public JsFunction(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueHandle)
         {
         }
 
@@ -95,8 +95,8 @@
     {
         private readonly GCHandle m_delegateHandle;
 
-        internal JsNativeFunction(IJavaScriptEngine engine, BaristaContext context, IBaristaValueFactory valueFactory, JavaScriptValueSafeHandle valueHandle, Delegate fnDelegate)
-            : base(engine, context, valueFactory, valueHandle)
+        internal JsNativeFunction(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle, Delegate fnDelegate)
+            : base(engine, context, valueHandle)
         {
             m_delegateHandle = GCHandle.Alloc(fnDelegate);
         }
