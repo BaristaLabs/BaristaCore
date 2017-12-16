@@ -106,7 +106,7 @@ export default () => { throw new Error('That is quite illogical, captain.'); };
                 {
                     using (ctx.Scope())
                     {
-                        var fnAdd = ctx.ValueFactory.CreateFunction(new Func<int, int, int>((a, b) =>
+                        var fnAdd = ctx.ValueFactory.CreateFunction(new Func<JsObject, int, int, int>((jsThis, a, b) =>
                         {
                             return a + b;
                         }));
@@ -114,7 +114,7 @@ export default () => { throw new Error('That is quite illogical, captain.'); };
                         Assert.NotNull(fnAdd);
                         var jsNumA = ctx.ValueFactory.CreateNumber(37);
                         var jsNumB = ctx.ValueFactory.CreateNumber(5);
-                        var result = fnAdd.Call<JsNumber>(jsNumA, jsNumB);
+                        var result = fnAdd.Call<JsNumber>(ctx.GlobalObject, jsNumA, jsNumB);
 
                         Assert.Equal(42, result.ToInt32());
                     }

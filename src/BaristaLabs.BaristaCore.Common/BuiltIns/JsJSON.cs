@@ -20,7 +20,7 @@
                 throw new ArgumentNullException(nameof(value));
 
             var fnStringify = GetProperty<JsFunction>("stringify");
-            var resultHandle = fnStringify.Call<JsString>(fnStringify, value, replacer, space);
+            var resultHandle = fnStringify.Call<JsString>(this, value, replacer, space);
             if (resultHandle == null)
                 return null;
 

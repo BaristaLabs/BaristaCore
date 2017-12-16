@@ -48,7 +48,7 @@
                 throw new ArgumentNullException(nameof(reason));
 
             var fnReject = GetProperty<JsFunction>("reject");
-            return fnReject.Call<JsPromise>(fnReject, reason);
+            return fnReject.Call<JsPromise>(this, reason);
         }
 
         public JsPromise Resolve(JsValue value)
@@ -57,7 +57,7 @@
                 throw new ArgumentNullException(nameof(value));
 
             var fnResolve = GetProperty<JsFunction>("resolve");
-            return fnResolve.Call<JsPromise>(fnResolve, value);
+            return fnResolve.Call<JsPromise>(this, value);
         }
 
         /// <summary>
