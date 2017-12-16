@@ -1,6 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
     using JavaScript;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a BaristaModule that is used by Barista scripts to provide functionality.
@@ -24,10 +25,10 @@
         }
 
         /// <summary>
-        /// Installs the module within the specified scope.
+        /// Gets the default export of the module given the specified scope and referencing module.
         /// </summary>
         /// <param name="engine"></param>
         /// <returns></returns>
-        object InstallModule(BaristaContext context, JavaScriptModuleRecord referencingModule);
+        Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule);
     }
 }

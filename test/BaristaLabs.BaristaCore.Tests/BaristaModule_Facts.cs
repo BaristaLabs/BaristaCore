@@ -6,6 +6,8 @@
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using System.Runtime.InteropServices;
+    using System.Threading.Tasks;
     using Xunit;
 
     [ExcludeFromCodeCoverage]
@@ -136,22 +138,24 @@ export default 'banana';
 
             public string Description => "Only the best module ever.";
 
-            public object InstallModule(BaristaContext context, JavaScriptModuleRecord referencingModule)
+            public Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule)
             {
-                return context.ValueFactory.CreateString("Hello, World!");
+                return Task.FromResult<object>(context.ValueFactory.CreateString("Hello, World!"));
             }
         }
 
         private sealed class ReverseModule : IBaristaModule, IDisposable
         {
+            private GCHandle m_reverseDelegateHandle;
+
             public string Name => "reverse";
 
             public string Description => "reverses the string passed in.";
 
-            public object InstallModule(BaristaContext context, JavaScriptModuleRecord referencingModule)
+            public Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule)
             {
                 //This module goes through the trouble of creating a JavaScriptValueSafeHandle to ensure that it can be done.
-                IntPtr fnReverse(IntPtr callee, bool isConstructCall, IntPtr[] arguments, ushort argumentCount, IntPtr callbackData)
+                JavaScriptNativeFunction fnReverse = (callee, isConstructCall, arguments, argumentCount, callbackData) =>
                 {
                     if (argumentCount < 2)
                     {
@@ -166,9 +170,9 @@ export default 'banana';
 
                     var reversedHandle = context.Engine.JsCreateString(reversed, (ulong)reversed.Length);
                     return reversedHandle.DangerousGetHandle();
-                }
-
-                return context.Engine.JsCreateFunction(fnReverse, IntPtr.Zero);
+                };
+                m_reverseDelegateHandle = GCHandle.Alloc(fnReverse);
+                return Task.FromResult<object>(context.Engine.JsCreateFunction(fnReverse, IntPtr.Zero));
             }
 
             #region IDisposable Support
@@ -182,6 +186,7 @@ export default 'banana';
                     {
                     }
 
+                    m_reverseDelegateHandle.Free();
                     m_isDisposed = true;
                 }
             }
@@ -205,9 +210,9 @@ export default 'banana';
 
             public string Description => "The answer...";
 
-            public object InstallModule(BaristaContext context, JavaScriptModuleRecord referencingModule)
+            public Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule)
             {
-                return 42;
+                return Task.FromResult<object>(42);
             }
         }
     }

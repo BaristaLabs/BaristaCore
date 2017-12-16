@@ -32,7 +32,7 @@
         private readonly IBaristaModuleLoader m_moduleLoader;
 
 
-        private readonly TaskScheduler m_taskScheduler;
+        private readonly TaskFactory m_taskFactory;
         private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
 
         //0 for false, 1 for true.
@@ -50,7 +50,11 @@
             if (valueFactoryBuilder == null)
                 throw new ArgumentNullException(nameof(valueFactoryBuilder));
 
-            m_taskScheduler = new CurrentThreadTaskScheduler();
+            m_taskFactory = new TaskFactory(
+                CancellationToken.None,
+                TaskCreationOptions.DenyChildAttach,
+                TaskContinuationOptions.None,
+                new CurrentThreadTaskScheduler());
 
             m_conversionStrategy = conversionStrategy ?? throw new ArgumentNullException(nameof(conversionStrategy));
 
@@ -194,11 +198,14 @@
             }
         }
 
-        public TaskScheduler TaskScheduler
+        /// <summary>
+        /// Gets a task factory that supports creating and scheduling Task objects associated with the context. 
+        /// </summary>
+        public TaskFactory TaskFactory
         {
-            get { return m_taskScheduler; }
+            get { return m_taskFactory; }
         }
-
+        
         /// <summary>
         /// Gets the value factory associated with the context.
         /// </summary>
@@ -344,7 +351,7 @@ let global = (new Function('return this;'))();
             //Now Parse the user-provided script.
             var scriptBuffer = Encoding.UTF8.GetBytes(script);
             Engine.JsParseModuleSource(subModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
-
+            
             if (!mainModuleReady)
             {
                 throw new InvalidOperationException("Main module is not ready. Ensure all script modules are loaded.");
@@ -379,8 +386,7 @@ let global = (new Function('return this;'))();
                         var promise = m_promiseTaskQueue.Dequeue();
                         try
                         {
-                            var promiseResult = Engine.JsCallFunction(promise.Handle, args, (ushort)args.Length);
-                            promiseResult.Dispose();
+                            Engine.JsCallFunction(promise.Handle, args, (ushort)args.Length);
                         }
                         finally
                         {
@@ -453,7 +459,7 @@ let global = (new Function('return this;'))();
                         {
                             //For the built-in Script Module type, parse the string returned by InstallModule and install it as a module.
                             case BaristaScriptModule scriptModule:
-                                var script = scriptModule.InstallModule(this, referencingModuleRecord) as string;
+                                var script = (scriptModule.ExportDefault(this, referencingModuleRecord)).GetAwaiter().GetResult() as string;
                                 if (script == null)
                                     script = "";
                                 var moduleRecord = Engine.JsInitializeModuleRecord(referencingModuleRecord, specifierHandle);
@@ -480,11 +486,11 @@ let global = (new Function('return this;'))();
             object moduleValue;
             try
             {
-                moduleValue = module.InstallModule(this, referencingModuleRecord);
+                moduleValue = module.ExportDefault(this, referencingModuleRecord).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
-                throw new BaristaException($"An error occurred while installing module {module.Name}.", ex);
+                throw new BaristaException($"An error occurred while obtaining a module's default export: {module.Name}.", ex);
             }
 
             if (moduleValue == null)
@@ -493,19 +499,9 @@ let global = (new Function('return this;'))();
                 return true;
             }
 
-            //Based on the object's type, make some decisions on how to handle projecting the value to a module.
-            switch (moduleValue)
+            if (Converter.TryFromObject(ValueFactory, moduleValue, out JsValue convertedValue))
             {
-                case JsValue jsValue:
-                    return CreateSingleValueModule(jsValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
-                case JavaScriptValueSafeHandle valueSafeHandle:
-                    return CreateSingleValueModule(valueSafeHandle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
-                default:
-                    if (Converter.TryFromObject(ValueFactory, moduleValue, out JsValue convertedValue))
-                    {
-                        return CreateSingleValueModule(convertedValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
-                    }
-                    break;
+                return CreateSingleValueModule(convertedValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
             }
 
             dependentModuleRecord = referencingModuleRecord;
@@ -525,12 +521,12 @@ let global = (new Function('return this;'))();
             var globalId = Guid.NewGuid();
             var exposeNativeValueScript = $@"
 let global = (new Function('return this;'))();
-let value = global['$IMPORT_{globalId.ToString()}'];
-export default value;
+let defaultExport = global['$DEFAULTEXPORT_{globalId.ToString()}'];
+export default defaultExport;
 ";
             var moduleRecord = Engine.JsInitializeModuleRecord(referencingModuleRecord, specifierHandle);
 
-            Engine.SetGlobalVariable($"$IMPORT_{globalId.ToString()}", valueSafeHandle);
+            Engine.SetGlobalVariable($"$DEFAULTEXPORT_{globalId.ToString()}", valueSafeHandle);
             var scriptBuffer = Encoding.UTF8.GetBytes(exposeNativeValueScript);
             Engine.JsParseModuleSource(moduleRecord, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.LongLength, JavaScriptParseModuleSourceFlags.DataIsUTF8);
             dependentModuleRecord = moduleRecord;

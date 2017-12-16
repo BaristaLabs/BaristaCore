@@ -8,6 +8,7 @@
     using System.Runtime.InteropServices;
     using System.Reflection;
     using System.Threading.Tasks;
+    using System.Threading;
 
     public sealed class BaristaValueFactory : IBaristaValueFactory
     {
@@ -209,11 +210,11 @@
                 {
                     if (Context.Converter.TryFromObject(Context.ValueFactory, t.Exception, out JsValue rejectValue))
                     {
-                        reject.Call(reject, rejectValue);
+                        reject.Call(GetGlobalObject(), rejectValue);
                     }
                     else
                     {
-                        reject.Call(GetUndefinedValue());
+                        reject.Call(GetGlobalObject(), GetUndefinedValue());
                     }
                 }
 
@@ -221,24 +222,32 @@
                 var resultProperty = resultType.GetProperty("Result");
                 if (resultProperty == null)
                 {
-                    resolve.Call(GetNullValue());
+                    resolve.Call(GetGlobalObject(), GetNullValue());
                     return;
                 }
 
                 var result = resultProperty.GetValue(t);
+
+                //If we got an object back attempt to convert it into a JsValue and call the resolve method with the value.
                 if (Context.Converter.TryFromObject(Context.ValueFactory, result, out JsValue resolveValue))
                 {
-                    resolve.Call(resolve, resolveValue);
+                    resolve.Call(GetGlobalObject(), resolveValue);
                 }
                 else
                 {
-                    resolve.Call(GetUndefinedValue());
+                    resolve.Call(GetGlobalObject(), GetUndefinedValue());
                 }
 
-            }, Context.TaskScheduler);
+            }, Context.TaskFactory.Scheduler);
 
             //Start the task.
-            task.Start(Context.TaskScheduler);
+            
+            Context.TaskFactory.StartNew(
+                () => { return task; },
+                CancellationToken.None,
+                TaskCreationOptions.DenyChildAttach,
+                Context.TaskFactory.Scheduler);
+
             return promise;
         }
 

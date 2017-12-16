@@ -52,13 +52,12 @@
                     using (ctx.Scope())
                     {
                         var iRan = false;
-                        var myTask = new Task<string>(() =>
+                        var myTask = ctx.TaskFactory.StartNew(() =>
                         {
                             Task.Delay(250).GetAwaiter().GetResult();
                             iRan = true;
                             return "foo";
                         });
-
 
                         var jsPromise = ctx.ValueFactory.CreatePromise(myTask);
                         var result = ctx.Promise.Wait(jsPromise);
@@ -81,14 +80,14 @@
                         var iRan1 = false;
                         var iRan2 = false;
 
-                        var t1 = new Task<string>(() =>
+                        var t1 = ctx.TaskFactory.StartNew(() =>
                         {
                             Task.Delay(250).GetAwaiter().GetResult();
                             iRan1 = true;
                             return "foo";
                         });
 
-                        var t2 = new Task<string>(() =>
+                        var t2 = ctx.TaskFactory.StartNew(() =>
                         {
                             Task.Delay(500).GetAwaiter().GetResult();
                             iRan2 = true;
