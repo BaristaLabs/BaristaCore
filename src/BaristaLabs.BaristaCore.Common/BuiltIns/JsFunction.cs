@@ -28,9 +28,9 @@
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        public JsValue Call(params JsValue[] args)
+        public JsValue Call(JsObject thisObj = null, params JsValue[] args)
         {
-            var result = CallInternal(args);
+            var result = CallInternal(thisObj, args);
             return ValueFactory.CreateValue(result);
         }
 
@@ -40,21 +40,23 @@
         /// <typeparam name="T"></typeparam>
         /// <param name="args"></param>
         /// <returns></returns>
-        public T Call<T>(params JsValue[] args)
+        public T Call<T>(JsObject thisObj = null, params JsValue[] args)
             where T : JsValue
         {
-            var result = CallInternal(args);
+            var result = CallInternal(thisObj, args);
             return ValueFactory.CreateValue<T>(result);
         }
 
-        private JavaScriptValueSafeHandle CallInternal(params JsValue[] args)
+        private JavaScriptValueSafeHandle CallInternal(JsObject thisObj = null, params JsValue[] args)
         {
+            //Must at least have a 'thisObject'
+            if (thisObj == null)
+                thisObj = Context.GlobalObject;
+
             var argPtrs = args
                 .Select(a => a == null ? Context.Undefined.Handle.DangerousGetHandle() : a.Handle.DangerousGetHandle())
+                .Prepend(thisObj.Handle.DangerousGetHandle())
                 .ToArray();
-
-            if (argPtrs.Length == 0)
-                argPtrs = new IntPtr[] { Context.Undefined.Handle.DangerousGetHandle() };
 
             try
             {

@@ -37,20 +37,19 @@
         public JsValue Pop()
         {
             var fn = GetProperty<JsFunction>("pop");
-            return fn.Call(new JsValue[] { this });
+            return fn.Call(this);
         }
 
         public void Push(JsValue value)
         {
             var fn = GetProperty<JsFunction>("push");
-            fn.Call(new JsValue[] { this, value });
+            fn.Call(this, value);
         }
 
         public int IndexOf(JsValue valueToFind, int? startIndex = null)
         {
             var args = new List<JsValue>
             {
-                this,
                 valueToFind
             };
 
@@ -60,7 +59,7 @@
             }
 
             var fn = GetProperty<JsFunction>("indexOf");
-            var result = fn.Call<JsNumber>(args.ToArray());
+            var result = fn.Call<JsNumber>(this, args.ToArray());
             return result.ToInt32();
         }
 

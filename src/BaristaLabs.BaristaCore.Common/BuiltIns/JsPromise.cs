@@ -37,7 +37,9 @@
                 arr.Push(val);
             }
             var fnRace = GetProperty<JsFunction>("race");
-            return fnRace.Call<JsPromise>(new JsValue[] { this, arr });
+            var result = fnRace.Call<JsPromise>(this, arr);
+            Context.CurrentScope.ResolvePendingPromises();
+            return result;
         }
 
         public JsPromise Reject(JsValue reason)
@@ -83,45 +85,20 @@
 
         private string WaitInternal(JsObject promise)
         {
-            const string waitScript = @"(async () => { this.$EXPORTS = await this.$PROMISE; })();";
+            const string waitScript = @"
+(async () => await Promise.resolve(this.$PROMISE))().then((result) => { this.$EXPORTS = result }, (reject) => { this.$ERROR = reject; });";
+            
             Context.GlobalObject["$PROMISE"] = promise;
+            Context.GlobalObject.DeleteProperty("$ERROR");
+            var res = Engine.JsRunScript(waitScript, sourceUrl: "[eval wait]");
+            Context.CurrentScope.ResolvePendingPromises();
 
-            var promiseTaskQueue = new PromiseTaskQueue();
-            JavaScriptPromiseContinuationCallback promiseContinuationCallback = (IntPtr taskHandle, IntPtr callbackState) =>
+            if (Context.GlobalObject.HasOwnProperty("$ERROR"))
             {
-                var task = new JavaScriptValueSafeHandle(taskHandle);
-                var promiseTask = ValueFactory.CreateValue<JsFunction>(task);
-                promiseTaskQueue.Enqueue(promiseTask);
-            };
-            var promiseContinuationCallbackDelegateHandle = GCHandle.Alloc(promiseContinuationCallback);
-            Engine.JsSetPromiseContinuationCallback(promiseContinuationCallback, IntPtr.Zero);
-
-            try
-            {
-                var resultHandle = Engine.JsRunScript(waitScript, sourceUrl: "[eval wait]");
-
-                //Evaluate any pending promises.
-                var args = new IntPtr[] { Context.Undefined.Handle.DangerousGetHandle() };
-                while (promiseTaskQueue.Count > 0)
-                {
-                    var promiseTask = promiseTaskQueue.Dequeue();
-                    try
-                    {
-                        var promiseResult = Engine.JsCallFunction(promiseTask.Handle, args, (ushort)args.Length);
-                        promiseResult.Dispose();
-                    }
-                    finally
-                    {
-                        promiseTask.Dispose();
-                    }
-                }
-                return "$EXPORTS";
+                throw new BaristaScriptException(Context.GlobalObject.GetProperty<JsObject>("$ERROR"));
             }
-            finally
-            {
-                Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
-                promiseContinuationCallbackDelegateHandle.Free();
-            }
+
+            return "$EXPORTS";
         }
     }
 }

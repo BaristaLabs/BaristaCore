@@ -69,6 +69,30 @@
         }
 
         [Fact]
+        public void JsPromiseCanUnwrapAPromiseThrowingErrors()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var myTask = ctx.TaskFactory.StartNew(() =>
+                        {
+                            throw new InvalidOperationException("Boom");
+                        });
+
+                        var jsPromise = ctx.ValueFactory.CreatePromise(myTask);
+                        Assert.Throws<BaristaScriptException>(() =>
+                        {
+                            var result = ctx.Promise.Wait(jsPromise);
+                        });
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void JsPromiseCanRace()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
@@ -84,26 +108,26 @@
                         {
                             Task.Delay(250).GetAwaiter().GetResult();
                             iRan1 = true;
-                            return "foo";
+                            return "foo1";
                         });
 
                         var t2 = ctx.TaskFactory.StartNew(() =>
                         {
                             Task.Delay(500).GetAwaiter().GetResult();
                             iRan2 = true;
-                            return "foo";
+                            return "foo2";
                         });
 
 
                         var p1 = ctx.ValueFactory.CreatePromise(t1);
                         var p2 = ctx.ValueFactory.CreatePromise(t2);
-                        var raceResult = ctx.Promise.Race(p1, p2);
-                        Assert.NotNull(raceResult);
+                        var racePromise = ctx.Promise.Race(p1, p2);
+                        Assert.NotNull(racePromise);
                         Assert.True(iRan1);
                         Assert.True(iRan2);
 
-                        //FIXME: Not sure why this is always undefined.
-                        var rel = ctx.Promise.Wait(raceResult);
+                        var rel = ctx.Promise.Wait(racePromise);
+                        Assert.Equal("foo1", rel.ToString());
                     }
                 }
             }

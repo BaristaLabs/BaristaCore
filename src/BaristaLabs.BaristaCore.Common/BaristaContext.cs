@@ -25,12 +25,10 @@
         private readonly Lazy<JsObject> m_globalValue;
         private readonly Lazy<JsPromise> m_promiseValue;
         
-
         private readonly IBaristaValueFactory m_valueFactory;
         private readonly IBaristaConversionStrategy m_conversionStrategy;
         private readonly IPromiseTaskQueue m_promiseTaskQueue;
         private readonly IBaristaModuleLoader m_moduleLoader;
-
 
         private readonly TaskFactory m_taskFactory;
         private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
@@ -98,6 +96,20 @@
         public IBaristaConversionStrategy Converter
         {
             get { return m_conversionStrategy; }
+        }
+
+        /// <summary>
+        /// Gets the current execution scope.
+        /// </summary>
+        public BaristaExecutionScope CurrentScope
+        {
+            get
+            {
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(BaristaContext));
+
+                return m_currentExecutionScope;
+            }
         }
 
         /// <summary>
@@ -303,7 +315,7 @@ global.$EXPORTS = child; }});
                 mainModuleScript = $@"
 import child from '{subModuleName}';
 let global = (new Function('return this;'))();
-(async () => await child)().then((result) => {{ global.$EXPORTS = result; }});
+(async () => await child)().then((result) => {{ global.$EXPORTS = result; }}, (reject) => {{ global.$ERROR = reject }});
 ";
             }
 
@@ -359,40 +371,17 @@ let global = (new Function('return this;'))();
 
             //Now we're ready, evaluate the main module.
 
-            //Clear and set the task queue if specified
-            GCHandle promiseContinuationCallbackDelegateHandle = default(GCHandle);
-            if (m_promiseTaskQueue != null)
-            {
-                m_promiseTaskQueue.Clear();
-                JavaScriptPromiseContinuationCallback promiseContinuationCallback = (IntPtr taskHandle, IntPtr callbackState) =>
-                {
-                    PromiseContinuationCallback(taskHandle, callbackState);
-                };
-                promiseContinuationCallbackDelegateHandle = GCHandle.Alloc(promiseContinuationCallback);
-                Engine.JsSetPromiseContinuationCallback(promiseContinuationCallback, IntPtr.Zero);
-            }
-
             try
             {
 
                 Engine.JsModuleEvaluation(mainModuleHandle);
 
                 //Evaluate any pending promises.
-                if (m_promiseTaskQueue != null)
+                CurrentScope.ResolvePendingPromises();
+
+                if (m_promiseTaskQueue != null && GlobalObject.HasOwnProperty("$ERROR"))
                 {
-                    var args = new IntPtr[] { Undefined.Handle.DangerousGetHandle() };
-                    while (m_promiseTaskQueue.Count > 0)
-                    {
-                        var promise = m_promiseTaskQueue.Dequeue();
-                        try
-                        {
-                            Engine.JsCallFunction(promise.Handle, args, (ushort)args.Length);
-                        }
-                        finally
-                        {
-                            promise.Dispose();
-                        }
-                    }
+                    throw new BaristaScriptException(GlobalObject.GetProperty<JsObject>("$ERROR"));
                 }
 
                 //Return the name of the global.
@@ -400,16 +389,6 @@ let global = (new Function('return this;'))();
             }
             finally
             {
-                //Unset the Promise callback.
-                if (m_promiseTaskQueue != null)
-                {
-                    Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
-                }
-                if (promiseContinuationCallbackDelegateHandle != default(GCHandle))
-                {
-                    promiseContinuationCallbackDelegateHandle.Free();
-                }
-
                 Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
                 fetchImportedModuleCallbackHandle.Free();
 
@@ -428,7 +407,7 @@ let global = (new Function('return this;'))();
             if (0 == Interlocked.Exchange(ref m_withinScope, 1))
             {
                 Engine.JsSetCurrentContext(Handle);
-                m_currentExecutionScope = new BaristaExecutionScope(ReleaseScope);
+                m_currentExecutionScope = new BaristaExecutionScope(this, m_promiseTaskQueue, ReleaseScope);
                 return m_currentExecutionScope;
             }
             else
@@ -531,17 +510,6 @@ export default defaultExport;
             Engine.JsParseModuleSource(moduleRecord, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.LongLength, JavaScriptParseModuleSourceFlags.DataIsUTF8);
             dependentModuleRecord = moduleRecord;
             return false;
-        }
-
-        private void PromiseContinuationCallback(IntPtr taskHandle, IntPtr callbackState)
-        {
-            if (IsDisposed || m_promiseTaskQueue == null)
-            {
-                return;
-            }
-            var task = new JavaScriptValueSafeHandle(taskHandle);
-            var promise = m_valueFactory.CreateValue<JsFunction>(task);
-            m_promiseTaskQueue.Enqueue(promise);
         }
 
         private void ReleaseScope()
