@@ -1,10 +1,12 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Threading;
 
+    [ExcludeFromCodeCoverage]
     public static class PlatformApis
     {
         static PlatformApis()

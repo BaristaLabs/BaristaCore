@@ -372,7 +372,7 @@
                     {
                         throw new BaristaException($"Index {segments[i]} not valid on {currentObject.ToString()}.");
                     }
-                    return null;
+                    return Context.Undefined.Handle;
                 }
 
                 currentObject = (JsObject)propertyValue;
@@ -487,22 +487,24 @@
             if (indexes.Length != 1)
                 return base.TryGetIndex(binder, indexes, out result);
 
-            if (indexes[0] is string propertyName)
+            var targetIndex = indexes[0];
+
+            if (targetIndex is string propertyName)
             {
                 result = GetProperty(propertyName);
                 return true;
             }
-            else if (indexes[0] is int index)
+            else if (targetIndex is int index)
             {
                 result = GetProperty(index);
                 return true;
             }
-            else if (indexes[0] is JsSymbol symbol)
+            else if (targetIndex is JsSymbol symbol)
             {
                 result = GetProperty(symbol);
                 return true;
             }
-            else if (Context.Converter.TryFromObject(ValueFactory, indexes[0], out JsValue jsIndex))
+            else if (Context.Converter.TryFromObject(ValueFactory, targetIndex, out JsValue jsIndex))
             {
                 result = GetProperty(jsIndex);
                 return true;
