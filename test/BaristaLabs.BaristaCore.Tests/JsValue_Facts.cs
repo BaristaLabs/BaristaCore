@@ -252,7 +252,6 @@
             {
                 using (var ctx = rt.CreateContext())
                 {
-                    JsValue bar;
                     using (ctx.Scope())
                     {
                         var script = "export default { foo: 'bar' };";

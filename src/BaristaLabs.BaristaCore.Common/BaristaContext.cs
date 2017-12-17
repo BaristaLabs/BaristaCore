@@ -356,7 +356,7 @@ let global = (new Function('return this;'))();
 ";
             }
 
-            var mainModuleReady = false;
+            BaristaException baristaNotifyException = null;
 
             var mainModuleNameHandle = Engine.JsCreateString(mainModuleName, (ulong)mainModuleName.Length);
             var mainModuleHandle = Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, mainModuleNameHandle);
@@ -374,14 +374,7 @@ let global = (new Function('return this;'))();
             //Set the notify callback.
             JavaScriptNotifyModuleReadyCallback mainModuleNotifyCallback = (IntPtr referencingModule, IntPtr exceptionVar) =>
             {
-                if (exceptionVar != IntPtr.Zero)
-                {
-                    JsError error = m_valueFactory.CreateValue<JsError>(new JavaScriptValueSafeHandle(exceptionVar));
-                    throw new BaristaScriptException(error);
-                }
-
-                mainModuleReady = true;
-                return false;
+                return NotifyModuleReadyCallback(referencingModule, exceptionVar, out baristaNotifyException);
             };
 
             var mainModuleNotifyCallbackHandle = GCHandle.Alloc(mainModuleNotifyCallback);
@@ -399,11 +392,29 @@ let global = (new Function('return this;'))();
 
             //Now Parse the user-provided script.
             var scriptBuffer = Encoding.UTF8.GetBytes(script);
-            Engine.JsParseModuleSource(subModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
+            try
+            {
+                var parseError = Engine.JsParseModuleSource(subModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
+                if (parseError != JavaScriptValueSafeHandle.Invalid)
+                {
+                    var jsError = ValueFactory.CreateValue<JsError>(parseError);
+                    throw new BaristaScriptException(jsError);
+                }
+            }
+            catch(Exception)
+            {
+                //Debug.Assert(mainModuleReady, "Main module is not ready. Ensure all script modules are loaded.");
+                //Attempt to wrap exceptions with those raised thro
+                if (baristaNotifyException != null)
+                {
+                    throw baristaNotifyException;
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
-
-            Debug.Assert(mainModuleReady, "Main module is not ready. Ensure all script modules are loaded.");
-            
             //Now we're ready, evaluate the main module.
 
             try
@@ -508,6 +519,19 @@ let global = (new Function('return this;'))();
                 dependentModule = referencingModule;
                 return true;
             };
+        }
+
+        private bool NotifyModuleReadyCallback(IntPtr referencingModule, IntPtr exceptionVar, out BaristaException exception)
+        {
+            if (exceptionVar != IntPtr.Zero)
+            {
+                var error = m_valueFactory.CreateValue<JsError>(new JavaScriptValueSafeHandle(exceptionVar));
+                exception = new BaristaScriptException(error);
+                return true;
+            }
+
+            exception = null;
+            return false;
         }
 
         private bool InstallModule(IBaristaModule module, JavaScriptModuleRecord referencingModuleRecord, JavaScriptValueSafeHandle specifierHandle, out JavaScriptModuleRecord dependentModuleRecord)
