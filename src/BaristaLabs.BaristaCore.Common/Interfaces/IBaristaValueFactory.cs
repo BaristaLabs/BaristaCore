@@ -6,14 +6,6 @@
 
     public interface IBaristaValueFactory : IDisposable
     {
-        /// <summary>
-        /// Gets or sets the context associated with the Value Factory.
-        /// </summary>
-        BaristaContext Context
-        {
-            get;
-        }
-
         JsArray CreateArray(uint length);
 
         JsArrayBuffer CreateArrayBuffer(string data);

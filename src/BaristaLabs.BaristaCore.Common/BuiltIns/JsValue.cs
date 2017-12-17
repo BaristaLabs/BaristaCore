@@ -93,18 +93,6 @@
         }
         #endregion
 
-        /// <summary>
-        /// Gets the actual value type of the object.
-        /// </summary>
-        /// <returns></returns>
-        protected JavaScriptValueType GetValueType()
-        {
-            if (IsDisposed)
-                throw new ObjectDisposedException(nameof(JsValue));
-
-            return Engine.JsGetValueType(Handle);
-        }
-
         #region DynamicObject overrides
         public override bool TryConvert(ConvertBinder binder, out object result)
         {
@@ -263,7 +251,7 @@
         /// <param name="e"></param>
         protected virtual void OnBeforeCollect(IntPtr handle, IntPtr callbackState)
         {
-            if (!IsDisposed && null != BeforeCollect)
+            if (null != BeforeCollect)
             {
                 lock (BeforeCollect)
                 {

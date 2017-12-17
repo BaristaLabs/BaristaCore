@@ -20,14 +20,15 @@
             m_jsonConverter = jsonConverter;
         }
 
-        public bool TryFromObject(IBaristaValueFactory valueFactory, object obj, out JsValue value)
+        public bool TryFromObject(BaristaContext context, object obj, out JsValue value)
         {
-            if (valueFactory == null)
-                throw new ArgumentNullException(nameof(valueFactory));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
-            var context = valueFactory.Context;
             if (context.IsDisposed)
                 throw new ObjectDisposedException(nameof(context));
+
+            var valueFactory = context.ValueFactory;
 
             //Well this is easy!
             if (obj == null)
@@ -75,7 +76,7 @@
                     var arr = valueFactory.CreateArray((uint)arrayValue.LongLength);
                     for(int i = 0; i < arrayValue.Length; i++)
                     {
-                        if (TryFromObject(valueFactory, arrayValue.GetValue(i), out JsValue currentValue))
+                        if (TryFromObject(context, arrayValue.GetValue(i), out JsValue currentValue))
                         {
                             arr[i] = currentValue;
                         }

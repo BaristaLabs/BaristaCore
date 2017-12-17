@@ -27,6 +27,33 @@
         }
 
         [Fact]
+        public void CanGetBoolean()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    JsValue zip;
+                    using (ctx.Scope())
+                    {
+                        var script = "export default { foo: true, bar: false, baz: 'true', qix: 'false', zip: 1 };";
+                        var result = ctx.EvaluateModule<JsObject>(script);
+                        var value = result["foo"];
+
+                        Assert.True(result["foo"].ToBoolean());
+                        Assert.False(result["bar"].ToBoolean());
+                        Assert.True(result["baz"].ToBoolean());
+                        Assert.True(result["qix"].ToBoolean());
+
+                        zip = result["zip"];
+                    }
+
+                    Assert.True(zip.ToBoolean());
+                }
+            }
+        }
+
+        [Fact]
         public void CanRepresentTypedArray()
         {
             var script = @"

@@ -19,15 +19,15 @@
 
         public BaristaValueFactory(IJavaScriptEngine engine, BaristaContext context)
         {
-            m_context = context ?? throw new ArgumentNullException(nameof(context));
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
+            m_context = context ?? throw new ArgumentNullException(nameof(context));
             m_valuePool = new BaristaObjectPool<JsValue, JavaScriptValueSafeHandle>();
         }
 
         /// <summary>
-        /// Gets or sets the context associated with the value factory.
+        /// Gets the context associated with the value factory.
         /// </summary>
-        public BaristaContext Context
+        private BaristaContext Context
         {
             get
             {
@@ -36,6 +36,14 @@
 
                 return m_context;
             }
+        }
+
+        /// <summary>
+        /// Gets the number of JsValues currently interned in the factory's value pool.
+        /// </summary>
+        public int Count
+        {
+            get { return m_valuePool.Count; }
         }
 
         public JsArray CreateArray(uint length)
@@ -146,7 +154,7 @@
                 try
                 {
                     var nativeResult = func.DynamicInvoke(nativeArgs);
-                    if (Context.Converter.TryFromObject(this, nativeResult, out JsValue valueResult))
+                    if (Context.Converter.TryFromObject(Context, nativeResult, out JsValue valueResult))
                     {
                         return valueResult.Handle.DangerousGetHandle();
                     }
@@ -208,7 +216,7 @@
             {
                 if (t.IsCanceled || t.IsFaulted)
                 {
-                    if (Context.Converter.TryFromObject(this, t.Exception, out JsValue rejectValue))
+                    if (Context.Converter.TryFromObject(Context, t.Exception, out JsValue rejectValue))
                     {
                         reject.Call(GetGlobalObject(), rejectValue);
                     }
@@ -229,7 +237,7 @@
                 var result = resultProperty.GetValue(t);
 
                 //If we got an object back attempt to convert it into a JsValue and call the resolve method with the value.
-                if (Context.Converter.TryFromObject(this, result, out JsValue resolveValue))
+                if (Context.Converter.TryFromObject(Context, result, out JsValue resolveValue))
                 {
                     resolve.Call(GetGlobalObject(), resolveValue);
                 }
@@ -419,25 +427,16 @@
             return CreateValue<JsUndefined>(undefinedValueHandle);
         }
 
+        /// <summary>
+        /// Raised by JsValues created via the factory. Cleans up the pool.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         private void JsValueBeforeCollectCallback(object sender, BaristaObjectBeforeCollectEventArgs args)
         {
             ((JsValue)sender).BeforeCollect -= JsValueBeforeCollectCallback;
             Debug.Assert(m_valuePool != null);
             m_valuePool.RemoveHandle(new JavaScriptValueSafeHandle(args.Handle));
-        }
-
-        /// <summary>
-        /// Method that all objects created though this factory call when the runtime disposes of them.
-        /// </summary>
-        /// <param name="handle"></param>
-        /// <param name="callbackState"></param>
-        private void OnBeforeCollectCallback(IntPtr handle, IntPtr callbackState)
-        {
-            //If the valuepool is null, this factory has already been disposed.
-            if (m_valuePool == null)
-                return;
-
-            m_valuePool.RemoveHandle(new JavaScriptValueSafeHandle(handle));
         }
 
         #region IDisposable

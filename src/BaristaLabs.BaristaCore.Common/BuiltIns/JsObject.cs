@@ -467,7 +467,7 @@
                 DeleteProperty(symbol);
                 return true;
             }
-            else if (Context.Converter.TryFromObject(ValueFactory, indexes[0], out JsValue jsIndex))
+            else if (Context.Converter.TryFromObject(Context, indexes[0], out JsValue jsIndex))
             {
                 DeleteProperty(jsIndex);
                 return true;
@@ -504,7 +504,7 @@
                 result = GetProperty(symbol);
                 return true;
             }
-            else if (Context.Converter.TryFromObject(ValueFactory, targetIndex, out JsValue jsIndex))
+            else if (Context.Converter.TryFromObject(Context, targetIndex, out JsValue jsIndex))
             {
                 result = GetProperty(jsIndex);
                 return true;
@@ -523,7 +523,7 @@
         {
             if (GetProperty(binder.Name) is JsFunction fn)
             {
-                if (Context.Converter.TryFromObject(ValueFactory, args, out JsValue jsArguments))
+                if (Context.Converter.TryFromObject(Context, args, out JsValue jsArguments))
                 {
                     result = fn.Call(this, jsArguments);
                     return true;
@@ -538,7 +538,7 @@
             if (indexes.Length != 1)
                 return base.TrySetIndex(binder, indexes, value);
 
-            if (Context.Converter.TryFromObject(ValueFactory, value, out JsValue jsValue))
+            if (Context.Converter.TryFromObject(Context, value, out JsValue jsValue))
             {
 
                 if (indexes[0] is string propertyName)
@@ -556,7 +556,7 @@
                     SetProperty(symbol, jsValue);
                     return true;
                 }
-                else if (Context.Converter.TryFromObject(ValueFactory, indexes[0], out JsValue jsIndex))
+                else if (Context.Converter.TryFromObject(Context, indexes[0], out JsValue jsIndex))
                 {
                     SetProperty(jsIndex, jsValue);
                     return true;
@@ -568,7 +568,7 @@
 
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
-            if (Context.Converter.TryFromObject(ValueFactory, value, out JsValue jsValue))
+            if (Context.Converter.TryFromObject(Context, value, out JsValue jsValue))
             {
                 SetProperty(binder.Name, jsValue);
                 return true;

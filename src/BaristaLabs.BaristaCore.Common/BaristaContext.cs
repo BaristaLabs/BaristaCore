@@ -313,7 +313,7 @@
         private string EvaluateModuleInternal(string script)
         {
             if (IsDisposed)
-                throw new ObjectDisposedException(nameof(BaristaRuntime));
+                throw new ObjectDisposedException(nameof(BaristaContext));
 
             var mainModuleName = "";
             var subModuleId = Guid.NewGuid();
@@ -498,7 +498,7 @@ let global = (new Function('return this;'))();
                 return true;
             }
 
-            if (Converter.TryFromObject(m_valueFactory, moduleValue, out JsValue convertedValue))
+            if (Converter.TryFromObject(this, moduleValue, out JsValue convertedValue))
             {
                 return CreateSingleValueModule(convertedValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
             }
