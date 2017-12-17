@@ -19,14 +19,6 @@
         event EventHandler<BaristaObjectBeforeCollectEventArgs> BeforeCollect;
 
         /// <summary>
-        /// Gets the JavaScript Engine associated with the JavaScript object.
-        /// </summary>
-        IJavaScriptEngine Engine
-        {
-            get;
-        }
-
-        /// <summary>
         /// Gets the underlying JavaScript Reference
         /// </summary>
         T Handle

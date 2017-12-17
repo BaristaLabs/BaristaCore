@@ -17,13 +17,21 @@
 
         }
 
-        public JsPromise All(JsValue iterable)
+        public JsPromise All(params JsValue[] values)
         {
-            if (iterable == null)
-                throw new ArgumentNullException(nameof(iterable));
+            if(values == null)
+                throw new ArgumentNullException(nameof(values));
+
+            var arr = ValueFactory.CreateArray(0);
+            foreach (var val in values)
+            {
+                arr.Push(val);
+            }
 
             var fnAll = GetProperty<JsFunction>("all");
-            return fnAll.Call<JsPromise>(fnAll, iterable);
+            var result = fnAll.Call<JsPromise>(this, arr);
+            Context.CurrentScope.ResolvePendingPromises();
+            return result;
         }
 
         public JsPromise Race(params JsValue[] values)
@@ -48,7 +56,9 @@
                 throw new ArgumentNullException(nameof(reason));
 
             var fnReject = GetProperty<JsFunction>("reject");
-            return fnReject.Call<JsPromise>(this, reason);
+            var result = fnReject.Call<JsPromise>(this, reason);
+            Context.CurrentScope.ResolvePendingPromises();
+            return result;
         }
 
         public JsPromise Resolve(JsValue value)
@@ -57,7 +67,9 @@
                 throw new ArgumentNullException(nameof(value));
 
             var fnResolve = GetProperty<JsFunction>("resolve");
-            return fnResolve.Call<JsPromise>(this, value);
+            var result = fnResolve.Call<JsPromise>(this, value);
+            Context.CurrentScope.ResolvePendingPromises();
+            return result;
         }
 
         /// <summary>

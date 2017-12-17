@@ -2,6 +2,7 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.Diagnostics;
     using System.Dynamic;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -54,7 +55,7 @@
         /// <summary>
         /// Gets the JavaScript Engine associated with the JavaScript object.
         /// </summary>
-        public IJavaScriptEngine Engine
+        protected IJavaScriptEngine Engine
         {
             get { return m_javaScriptEngine; }
         }
@@ -255,7 +256,7 @@
             {
                 lock (BeforeCollect)
                 {
-                    BeforeCollect?.Invoke(this, new BaristaObjectBeforeCollectEventArgs(handle, callbackState));
+                    BeforeCollect.Invoke(this, new BaristaObjectBeforeCollectEventArgs(handle, callbackState));
                 }
             }
         }
@@ -270,7 +271,9 @@
                 //These throw an invalid argument exception when attempting to set a beforecollectcallback.
                 if ((this is JsNumber) == false)
                 {
-                    //Unset the before collect callback.
+                    //Unset the before collect callback -- since this is a value, we need a current context.
+                    Debug.Assert(Context.HasCurrentScope);
+
                     Engine.JsSetObjectBeforeCollectCallback(Handle, IntPtr.Zero, null);
                     m_beforeCollectCallbackDelegateHandle.Free();
                 }

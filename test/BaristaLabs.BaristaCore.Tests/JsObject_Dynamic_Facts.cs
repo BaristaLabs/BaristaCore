@@ -29,6 +29,42 @@
         }
 
         [Fact]
+        public void JsValueConvertsToABoolDirectly()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default true";
+                        dynamic result = ctx.EvaluateModule(script);
+
+                        Assert.True((bool)result == true);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsValueConvertsToABoolWithCoersion()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default 1";
+                        dynamic result = ctx.EvaluateModule(script);
+
+                        Assert.True((bool)result == true);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void JsValueConvertsToAnIntDirectly()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
@@ -95,6 +131,27 @@
                         dynamic result = ctx.EvaluateModule(script);
 
                         Assert.True((double)result == 42.1);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsValueThrowsWhenCoersingToSomethingElse()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var script = "export default 1";
+                        dynamic result = ctx.EvaluateModule(script);
+
+                        Assert.Throws<Microsoft.CSharp.RuntimeBinder.RuntimeBinderException>(() =>
+                        {
+                            var foo = (StringBuilder)result;
+                        });
                     }
                 }
             }

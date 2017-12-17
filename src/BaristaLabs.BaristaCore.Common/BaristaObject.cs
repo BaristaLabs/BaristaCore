@@ -70,11 +70,11 @@
         /// <param name="e"></param>
         protected virtual void OnBeforeCollect(IntPtr handle, IntPtr callbackState)
         {
-            if (!IsDisposed && null != BeforeCollect)
+            if (null != BeforeCollect)
             {
                 lock (BeforeCollect)
                 {
-                    BeforeCollect?.Invoke(this, new BaristaObjectBeforeCollectEventArgs(handle, callbackState));
+                    BeforeCollect.Invoke(this, new BaristaObjectBeforeCollectEventArgs(handle, callbackState));
                 }
             }
         }

@@ -4,6 +4,8 @@
     using BaristaLabs.BaristaCore.JavaScript.Extensions;
     using BaristaLabs.BaristaCore.Tasks;
     using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
@@ -101,7 +103,13 @@
         /// </summary>
         public IBaristaConversionStrategy Converter
         {
-            get { return m_conversionStrategy; }
+            get
+            {
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(BaristaContext));
+
+                return m_conversionStrategy;
+            }
         }
 
         /// <summary>
@@ -235,7 +243,13 @@
         /// </summary>
         public TaskFactory TaskFactory
         {
-            get { return m_taskFactory; }
+            get
+            {
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(BaristaContext));
+
+                return m_taskFactory;
+            }
         }
 
         /// <summary>
@@ -243,7 +257,13 @@
         /// </summary>
         public IBaristaValueFactory ValueFactory
         {
-            get { return m_valueFactory; }
+            get
+            {
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(BaristaContext));
+
+                return m_valueFactory;
+            }
         }
 
         /// <summary>
@@ -312,9 +332,6 @@
 
         private string EvaluateModuleInternal(string script)
         {
-            if (IsDisposed)
-                throw new ObjectDisposedException(nameof(BaristaContext));
-
             var mainModuleName = "";
             var subModuleId = Guid.NewGuid();
             var subModuleName = subModuleId.ToString();
@@ -327,7 +344,7 @@
                 mainModuleScript = $@"
 import child from '{subModuleName}';
 let global = (new Function('return this;'))();
-global.$EXPORTS = child; }});
+global.$EXPORTS = child;
 ";
             }
             else
@@ -383,17 +400,14 @@ let global = (new Function('return this;'))();
             //Now Parse the user-provided script.
             var scriptBuffer = Encoding.UTF8.GetBytes(script);
             Engine.JsParseModuleSource(subModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
-            
-            if (!mainModuleReady)
-            {
-                throw new InvalidOperationException("Main module is not ready. Ensure all script modules are loaded.");
-            }
 
+
+            Debug.Assert(mainModuleReady, "Main module is not ready. Ensure all script modules are loaded.");
+            
             //Now we're ready, evaluate the main module.
 
             try
             {
-
                 Engine.JsModuleEvaluation(mainModuleHandle);
 
                 //Evaluate any pending promises.
@@ -438,13 +452,27 @@ let global = (new Function('return this;'))();
 
         private JavaScriptFetchImportedModuleCallback GetFetchImportedModuleDelegate(string childModuleName, JavaScriptModuleRecord childModuleRecord)
         {
+            var importedModules = new Dictionary<string, JavaScriptModuleRecord>();
+
             return (IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModule) =>
             {
                 var specifierHandle = new JavaScriptValueSafeHandle(specifier);
                 var moduleName = Engine.GetStringUtf8(specifierHandle);
-                if (moduleName == childModuleName)
+
+                // Leaving this code here for postarity -- the way we do module loading would cause the following scenario to be exceedingly rare.
+                // That is, the top-level module would need to know a-priori the guid-based sub-module name. If this happens, better go buy a scratch-off.
+                //if (moduleName == childModuleName)
+                //{
+                //    //Top-level self-referencing module. Reference itself.
+                //    dependentModule = childModuleRecord.DangerousGetHandle();
+                //    return false;
+                //}
+
+                if (importedModules.ContainsKey(moduleName))
                 {
-                    dependentModule = childModuleRecord.DangerousGetHandle();
+                    //The module has already been imported, return the existing JavaScriptModuleRecord
+                    dependentModule = importedModules[moduleName].DangerousGetHandle();
+                    return false;
                 }
                 else if (m_moduleLoader != null)
                 {
@@ -460,8 +488,9 @@ let global = (new Function('return this;'))();
                             case BaristaScriptModule scriptModule:
                                 var script = (scriptModule.ExportDefault(this, referencingModuleRecord)).GetAwaiter().GetResult() as string;
                                 if (script == null)
-                                    script = "";
+                                    script = "export default null";
                                 var moduleRecord = Engine.JsInitializeModuleRecord(referencingModuleRecord, specifierHandle);
+                                importedModules.Add(moduleName, moduleRecord);
                                 var scriptBuffer = Encoding.UTF8.GetBytes(script);
                                 Engine.JsParseModuleSource(moduleRecord, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.LongLength, JavaScriptParseModuleSourceFlags.DataIsUTF8);
                                 dependentModule = moduleRecord.DangerousGetHandle();
@@ -469,6 +498,7 @@ let global = (new Function('return this;'))();
                             //Otherwise, install the module.
                             default:
                                 var result = InstallModule(module, referencingModuleRecord, specifierHandle, out JavaScriptModuleRecord dependentModuleRecord);
+                                importedModules.Add(moduleName, dependentModuleRecord);
                                 dependentModule = dependentModuleRecord.DangerousGetHandle();
                                 return result;
                         }
@@ -492,19 +522,14 @@ let global = (new Function('return this;'))();
                 throw new BaristaException($"An error occurred while obtaining a module's default export: {module.Name}.", ex);
             }
 
-            if (moduleValue == null)
-            {
-                CreateSingleValueModule(m_valueFactory.GetNullValue().Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
-                return true;
-            }
-
             if (Converter.TryFromObject(this, moduleValue, out JsValue convertedValue))
             {
                 return CreateSingleValueModule(convertedValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
             }
-
-            dependentModuleRecord = referencingModuleRecord;
-            return false;
+            else
+            {
+                throw new BaristaException($"Unable to install module {module.Name}: the default exported value could not be converted into a JavaScript object.");
+            }
         }
 
         /// <summary>
@@ -545,20 +570,17 @@ export default defaultExport;
         {
             if (disposing && !IsDisposed)
             {
-                if (m_valueFactory != null || m_promiseTaskQueue != null)
+                BaristaExecutionScope scope = null;
+                if (!HasCurrentScope)
+                    scope = Scope();
+                try
                 {
-                    BaristaExecutionScope scope = null;
-                    if (!HasCurrentScope)
-                        scope = Scope();
-                    try
-                    {
-                        m_valueFactory.Dispose();
-                    }
-                    finally
-                    {
-                        if (scope != null)
-                            scope.Dispose();
-                    }
+                    m_valueFactory.Dispose();
+                }
+                finally
+                {
+                    if (scope != null)
+                        scope.Dispose();
                 }
             }
 

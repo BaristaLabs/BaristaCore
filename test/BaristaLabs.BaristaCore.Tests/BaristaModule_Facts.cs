@@ -7,6 +7,7 @@
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
+    using System.Text;
     using System.Threading.Tasks;
     using Xunit;
 
@@ -60,6 +61,68 @@ export default 'banana';
                         var result = ctx.EvaluateModule(script);
 
                         Assert.True(result.ToString() == "hello, world! banana");
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsScriptModulesWithNullScriptsContinue()
+        {
+            var script = @"
+import banana from 'banana';
+export default 'hello, world! ' + banana;
+";
+            var bananaModule = new BaristaScriptModule
+            {
+                Name = "banana",
+                Script = null
+            };
+
+            ModuleLoader.RegisterModule(bananaModule);
+
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var result = ctx.EvaluateModule(script);
+
+                        Assert.True(result.ToString() == "hello, world! null");
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsModulesImportingThemselvesContinue()
+        {
+            var script = @"
+import banana from 'banana';
+export default 'hello, world! ' + banana;
+";
+            var bananaModule = new BaristaScriptModule
+            {
+                Name = "banana",
+                Script = @"
+import banana from 'banana'
+export default 'banana' + ' ' + banana;
+"
+            };
+
+            ModuleLoader.RegisterModule(bananaModule);
+
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var result = ctx.EvaluateModule(script);
+
+                        //FIXME: Not sure the full discussion around self-referencing modules, are they allowed for n?
+                        Assert.Equal("hello, world! banana undefined", result.ToString());
                     }
                 }
             }
@@ -128,6 +191,50 @@ export default 'banana';
 
                     Assert.NotNull(result);
                     Assert.Equal(42, result.ToInt32());
+                }
+            }
+        }
+
+        [Fact]
+        public void JsFawltyModulesWillThrow()
+        {
+            var script = @"
+        import derp from 'Fawlty';
+        export default derp;
+        ";
+            var fawltyModule = new FawltyModule();
+            ModuleLoader.RegisterModule(fawltyModule);
+
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    Assert.Throws<BaristaException>(() =>
+                    {
+                        var result = ctx.EvaluateModule<JsNumber>(script);
+                    });
+                }
+            }
+        }
+
+        [Fact]
+        public void JsModulesWithUnconvertableDefaultExportsWillThrow()
+        {
+            var script = @"
+        import derp from 'TooSmart';
+        export default derp;
+        ";
+            var tooSmartModule = new TooSmartModule();
+            ModuleLoader.RegisterModule(tooSmartModule);
+
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    Assert.Throws<BaristaException>(() =>
+                    {
+                        var result = ctx.EvaluateModule<JsNumber>(script);
+                    });
                 }
             }
         }
@@ -213,6 +320,30 @@ export default 'banana';
             public Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule)
             {
                 return Task.FromResult<object>(42);
+            }
+        }
+
+        private sealed class FawltyModule : IBaristaModule
+        {
+            public string Name => "Fawlty";
+
+            public string Description => "Derp!";
+
+            public Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule)
+            {
+                throw new Exception("Derp!");
+            }
+        }
+
+        private sealed class TooSmartModule : IBaristaModule
+        {
+            public string Name => "TooSmart";
+
+            public string Description => "So complicated!";
+
+            public Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule)
+            {
+                return Task.FromResult<object>(new StringBuilder());
             }
         }
     }
