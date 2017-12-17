@@ -506,7 +506,7 @@ let global = (new Function('return this;'))();
                 }
 
                 dependentModule = referencingModule;
-                return false;
+                return true;
             };
         }
 

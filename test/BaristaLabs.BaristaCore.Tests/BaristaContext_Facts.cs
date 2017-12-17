@@ -538,8 +538,8 @@ export default result;
         public void JsModulesThatImportUnknownModulesWillThrow()
         {
             var script = @"
-import { soAmazing } from 'myModule';
-export default result;
+import soAmazing from 'myModule';
+export default soAmazing;
 ";
             using (var rt = BaristaRuntimeFactory.CreateRuntime(JavaScriptRuntimeAttributes.None))
             {
