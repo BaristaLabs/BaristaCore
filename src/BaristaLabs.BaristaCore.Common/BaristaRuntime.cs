@@ -37,7 +37,15 @@
 
             JavaScriptMemoryAllocationCallback runtimeMemoryAllocationChanging = (IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize) =>
             {
-                return OnRuntimeMemoryAllocationChanging(callbackState, allocationEvent, allocationSize);
+                try
+                {
+                    return OnRuntimeMemoryAllocationChanging(callbackState, allocationEvent, allocationSize);
+                }
+                catch
+                {
+                    //Do Nothing.
+                    return true;
+                }
             };
 
             m_runtimeMemoryAllocationChangingDelegateHandle = GCHandle.Alloc(runtimeMemoryAllocationChanging);
@@ -45,7 +53,14 @@
             
             JavaScriptBeforeCollectCallback beforeCollectCallback = (IntPtr callbackState) =>
             {
-                OnBeforeCollect(IntPtr.Zero, callbackState);
+                try
+                {
+                    OnBeforeCollect(IntPtr.Zero, callbackState);
+                }
+                catch
+                {
+                    //Do Nothing.
+                }
             };
 
             m_beforeCollectCallbackDelegateHandle = GCHandle.Alloc(beforeCollectCallback);

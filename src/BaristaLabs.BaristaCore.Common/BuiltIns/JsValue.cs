@@ -35,7 +35,14 @@
                 //Set the event that will be called prior to the engine collecting the value.
                 JavaScriptObjectBeforeCollectCallback beforeCollectCallback = (IntPtr handle, IntPtr callbackState) =>
                 {
-                    OnBeforeCollect(handle, callbackState);
+                    try
+                    {
+                        OnBeforeCollect(handle, callbackState);
+                    }
+                    catch
+                    {
+                        //Do Nothing.
+                    }
                 };
 
                 m_beforeCollectCallbackDelegateHandle = GCHandle.Alloc(beforeCollectCallback);

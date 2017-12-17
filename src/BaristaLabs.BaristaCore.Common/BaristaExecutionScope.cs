@@ -24,7 +24,14 @@
                 m_promiseTaskQueue.Clear();
                 JavaScriptPromiseContinuationCallback promiseContinuationCallback = (IntPtr taskHandle, IntPtr callbackState) =>
                 {
-                    PromiseContinuationCallback(taskHandle, callbackState);
+                    try
+                    {
+                        PromiseContinuationCallback(taskHandle, callbackState);
+                    }
+                    catch
+                    {
+                        //Do Nothing.
+                    }
                 };
                 m_promiseContinuationCallbackDelegateHandle = GCHandle.Alloc(promiseContinuationCallback);
                 m_context.Engine.JsSetPromiseContinuationCallback(promiseContinuationCallback, IntPtr.Zero);

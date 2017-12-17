@@ -89,7 +89,14 @@
             //Set the event that will be called prior to the engine collecting the context.
             JavaScriptObjectBeforeCollectCallback beforeCollectCallback = (IntPtr handle, IntPtr callbackState) =>
             {
-                OnBeforeCollect(handle, callbackState);
+                try
+                {
+                    OnBeforeCollect(handle, callbackState);
+                }
+                catch
+                {
+                    // Do Nothing.
+                }
             };
 
             m_beforeCollectCallbackDelegateHandle = GCHandle.Alloc(beforeCollectCallback);
@@ -366,20 +373,59 @@ let global = (new Function('return this;'))();
             //Associate functions that will handle module loading
 
             //Set the fetch callback.
-            JavaScriptFetchImportedModuleCallback fetchImportedModule = GetFetchImportedModuleDelegate(subModuleName, subModuleHandle);
-            var fetchImportedModuleCallbackHandle = GCHandle.Alloc(fetchImportedModule);
+            m_importedModules = new Dictionary<string, JavaScriptModuleRecord>();
+            GCHandle fetchImportedModuleCallbackHandle = default(GCHandle);
+            JavaScriptFetchImportedModuleCallback fetchImportedModule = (IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModule) =>
+            {
+                try
+                {
+                    return FetchImportedModule(referencingModule, specifier, out dependentModule);
+                }
+                catch(Exception ex)
+                {
+                    Engine.JsSetException(ValueFactory.CreateError(ex.Message).Handle);
+
+                    if (fetchImportedModuleCallbackHandle != default(GCHandle) && fetchImportedModuleCallbackHandle.IsAllocated)
+                    {
+                        Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
+                        fetchImportedModuleCallbackHandle.Free();
+                    }
+                    dependentModule = referencingModule;
+                    return true;
+                }
+            };
+
+            fetchImportedModuleCallbackHandle = GCHandle.Alloc(fetchImportedModule);
             IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchImportedModule);
             Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, fetchCallbackPtr);
 
             //Set the notify callback.
+            GCHandle mainModuleNotifyCallbackHandle = default(GCHandle);
             JavaScriptNotifyModuleReadyCallback mainModuleNotifyCallback = (IntPtr referencingModule, IntPtr exceptionVar) =>
             {
-                var result = NotifyModuleReadyCallback(referencingModule, exceptionVar);
-                mainModuleReady = !result;
-                return result;
+                try
+                {
+                    var result = NotifyModuleReadyCallback(referencingModule, exceptionVar);
+                    mainModuleReady = !result;
+                    return result;
+                }
+                catch(Exception ex)
+                {
+                    if (!Engine.JsHasException())
+                    {
+                        Engine.JsSetException(ValueFactory.CreateError(ex.Message).Handle);
+                    }
+
+                     if (mainModuleNotifyCallbackHandle != default(GCHandle) && mainModuleNotifyCallbackHandle.IsAllocated)
+                    {
+                        Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, IntPtr.Zero);
+                        mainModuleNotifyCallbackHandle.Free();
+                    }
+                    return true;
+                }
             };
 
-            var mainModuleNotifyCallbackHandle = GCHandle.Alloc(mainModuleNotifyCallback);
+            mainModuleNotifyCallbackHandle = GCHandle.Alloc(mainModuleNotifyCallback);
             IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate(mainModuleNotifyCallback);
             Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, notifyCallbackPtr);
 
@@ -397,6 +443,7 @@ let global = (new Function('return this;'))();
                 var scriptBuffer = Encoding.UTF8.GetBytes(script);
                 Engine.JsParseModuleSource(subModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
 
+                //Assert that the notification delegate executed for the main module.
                 Debug.Assert(mainModuleReady, "Main module is not ready. Ensure all script modules are loaded.");
 
                 //Now we're ready, evaluate the main module.
@@ -417,11 +464,13 @@ let global = (new Function('return this;'))();
             finally
             {
                 Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
-                fetchImportedModuleCallbackHandle.Free();
+                if (fetchImportedModuleCallbackHandle.IsAllocated)
+                    fetchImportedModuleCallbackHandle.Free();
 
                 //Unset the Notify callback.
                 Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, IntPtr.Zero);
-                mainModuleNotifyCallbackHandle.Free();
+                if (mainModuleNotifyCallbackHandle.IsAllocated)
+                    mainModuleNotifyCallbackHandle.Free();
             }
         }
 
@@ -443,13 +492,11 @@ let global = (new Function('return this;'))();
             }
         }
 
-        private JavaScriptFetchImportedModuleCallback GetFetchImportedModuleDelegate(string childModuleName, JavaScriptModuleRecord childModuleRecord)
-        {
-            var importedModules = new Dictionary<string, JavaScriptModuleRecord>();
+        private Dictionary<string, JavaScriptModuleRecord> m_importedModules;
 
-            return (IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModule) =>
-            {
-                var specifierHandle = new JavaScriptValueSafeHandle(specifier);
+        private bool FetchImportedModule(IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModule)
+        {
+            var specifierHandle = new JavaScriptValueSafeHandle(specifier);
                 var moduleName = Engine.GetStringUtf8(specifierHandle);
 
                 // Leaving this code here for postarity -- the way we do module loading would cause the following scenario to be exceedingly rare.
@@ -461,10 +508,10 @@ let global = (new Function('return this;'))();
                 //    return false;
                 //}
 
-                if (importedModules.ContainsKey(moduleName))
+                if (m_importedModules.ContainsKey(moduleName))
                 {
                     //The module has already been imported, return the existing JavaScriptModuleRecord
-                    dependentModule = importedModules[moduleName].DangerousGetHandle();
+                    dependentModule = m_importedModules[moduleName].DangerousGetHandle();
                     return false;
                 }
                 else if (m_moduleLoader != null)
@@ -483,7 +530,7 @@ let global = (new Function('return this;'))();
                                 if (script == null)
                                     script = "export default null";
                                 var moduleRecord = Engine.JsInitializeModuleRecord(referencingModuleRecord, specifierHandle);
-                                importedModules.Add(moduleName, moduleRecord);
+                                m_importedModules.Add(moduleName, moduleRecord);
                                 var scriptBuffer = Encoding.UTF8.GetBytes(script);
                                 Engine.JsParseModuleSource(moduleRecord, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.LongLength, JavaScriptParseModuleSourceFlags.DataIsUTF8);
                                 dependentModule = moduleRecord.DangerousGetHandle();
@@ -491,7 +538,7 @@ let global = (new Function('return this;'))();
                             //Otherwise, install the module.
                             default:
                                 var result = InstallModule(module, referencingModuleRecord, specifierHandle, out JavaScriptModuleRecord dependentModuleRecord);
-                                importedModules.Add(moduleName, dependentModuleRecord);
+                                m_importedModules.Add(moduleName, dependentModuleRecord);
                                 dependentModule = dependentModuleRecord.DangerousGetHandle();
                                 return result;
                         }
@@ -500,7 +547,6 @@ let global = (new Function('return this;'))();
 
                 dependentModule = referencingModule;
                 return true;
-            };
         }
 
         private bool NotifyModuleReadyCallback(IntPtr referencingModule, IntPtr exceptionVar)
@@ -523,7 +569,7 @@ let global = (new Function('return this;'))();
             }
             catch (Exception ex)
             {
-                throw new BaristaException($"An error occurred while obtaining a module's default export: {module.Name}.", ex);
+                throw new BaristaException($"An error occurred while obtaining the default export of the native module named {module.Name}: {ex.Message}", ex);
             }
 
             if (Converter.TryFromObject(this, moduleValue, out JsValue convertedValue))

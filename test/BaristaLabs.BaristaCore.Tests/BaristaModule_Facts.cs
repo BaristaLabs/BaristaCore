@@ -72,7 +72,7 @@ export default asdf@11;
                 {
                     using (ctx.Scope())
                     {
-                        Assert.Throws<BaristaScriptException>(() =>
+                        Assert.Throws<JavaScriptScriptException>(() =>
                         {
                             var result = ctx.EvaluateModule(script);
                         });
@@ -149,7 +149,7 @@ export default soAmazing;
                 {
                     using (ctx.Scope())
                     {
-                        Assert.Throws<BaristaScriptException>(() =>
+                        Assert.Throws<JavaScriptScriptException>(() =>
                         {
                             var result = ctx.EvaluateModule(script);
                         });
@@ -353,7 +353,7 @@ export default 'banana' + ' ' + banana;
             {
                 using (var ctx = rt.CreateContext())
                 {
-                    Assert.Throws<BaristaException>(() =>
+                    Assert.Throws<JavaScriptScriptException>(() =>
                     {
                         var result = ctx.EvaluateModule<JsNumber>(script);
                     });
@@ -375,7 +375,7 @@ export default 'banana' + ' ' + banana;
             {
                 using (var ctx = rt.CreateContext())
                 {
-                    Assert.Throws<BaristaException>(() =>
+                    Assert.Throws<JavaScriptScriptException>(() =>
                     {
                         var result = ctx.EvaluateModule<JsNumber>(script);
                     });
