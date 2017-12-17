@@ -2,6 +2,7 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a TypedArray
@@ -9,9 +10,15 @@
     /// <remarks>
     /// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray
     /// </remarks>
-    public sealed class JsTypedArray : JsObject
+    public class JsTypedArray : JsObject
     {
         private Lazy<JavaScriptTypedArrayInfo> m_arrayInfo;
+
+        public JsTypedArray(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueHandle)
+        {
+            m_arrayInfo = new Lazy<JavaScriptTypedArrayInfo>(GetTypedArrayInfo);
+        }
 
         #region Properties
 
@@ -43,7 +50,8 @@
         {
             get
             {
-                return GetPropertyByName<uint>("length");
+                dynamic result = GetProperty<JsNumber>("length");
+                return (uint)result;
             }
         }
 
@@ -56,23 +64,25 @@
         }
         #endregion
 
-        public JsTypedArray(IJavaScriptEngine engine, BaristaContext context, BaristaValueFactory valueFactory, JavaScriptValueSafeHandle value)
-            : base(engine, context, valueFactory, value)
+        public byte[] GetTypedArrayStorage()
         {
-            m_arrayInfo = new Lazy<JavaScriptTypedArrayInfo>(GetTypedArrayInfo);
+            var ptrBuffer = Engine.JsGetTypedArrayStorage(Handle, out uint bufferLength, out JavaScriptTypedArrayType typedArrayType, out int elementSize);
+            byte[] buffer = new byte[bufferLength * elementSize];
+            Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
+
+            //TODO: Convert the values to the appropriate typed array type.
+            return buffer;
         }
 
         private JavaScriptTypedArrayInfo GetTypedArrayInfo()
         {
-            var result = new JavaScriptTypedArrayInfo();
-
-            uint byteOffset, byteLength;
-            JavaScriptValueSafeHandle arrayBufferHandle;
-
-            result.Type = Engine.JsGetTypedArrayInfo(Handle, out arrayBufferHandle, out byteOffset, out byteLength);
-            result.ByteOffset = byteOffset;
-            result.ByteLength = byteLength;
-            result.Buffer = new JsArrayBuffer(Engine, Context, arrayBufferHandle);
+            var result = new JavaScriptTypedArrayInfo
+            {
+                Type = Engine.JsGetTypedArrayInfo(Handle, out JavaScriptValueSafeHandle arrayBufferHandle, out uint byteOffset, out uint byteLength),
+                ByteOffset = byteOffset,
+                ByteLength = byteLength,
+                Buffer = ValueFactory.CreateValue<JsArrayBuffer>(arrayBufferHandle)
+            };
 
             return result;
         }

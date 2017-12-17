@@ -2,12 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
 
     /// <summary>
-    /// Represents a simple in-memory barista module service.
+    /// Represents a simple in-memory barista module loader.
     /// </summary>
-    public class InMemoryModuleService : IBaristaModuleService
+    public class InMemoryModuleLoader : IBaristaModuleLoader
     {
         private IDictionary<string, IBaristaModule> m_modules = new Dictionary<string, IBaristaModule>();
 

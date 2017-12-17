@@ -1,6 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Internal
 {
-    using Internal;
     using System;
     using System.Diagnostics;
     using System.Text;
@@ -13,7 +12,7 @@
     /// </remarks>
     public static class Helpers
     {
-        public static string GetStringUtf8(JavaScriptValueSafeHandle stringHandle, bool autoConvert = false, bool releaseHandle = false)
+        public static string GetStringUtf8(JavaScriptValueSafeHandle stringHandle, bool releaseHandle = false)
         {
             bool stringHandleWasCreated = false;
             if (stringHandle == null || stringHandle == JavaScriptValueSafeHandle.Invalid)
@@ -21,24 +20,6 @@
 
             //Don't use our helper error class in order to prevent recursive errors.
             JavaScriptErrorCode innerError;
-
-            //If Auto Convert is specified, ensure that the type is a string, otherwise convert it.
-            if (autoConvert)
-            {
-                
-                innerError = LibChakraCore.JsGetValueType(stringHandle, out JavaScriptValueType handleValueType);
-                Debug.Assert(innerError == JavaScriptErrorCode.NoError);
-
-                if (handleValueType != JavaScriptValueType.String)
-                {
-                    LibChakraCore.JsConvertValueToString(stringHandle, out JavaScriptValueSafeHandle convertedToStringHandle);
-                    if (releaseHandle)
-                        stringHandle.Dispose();
-
-                    stringHandle = convertedToStringHandle;
-                    stringHandleWasCreated = true;
-                }
-            }
 
             //Get the size
             innerError = LibChakraCore.JsCopyString(stringHandle, null, 0, out ulong size);
@@ -52,7 +33,8 @@
             Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
             var strResult = Encoding.UTF8.GetString(result, 0, result.Length);
-            if (stringHandleWasCreated)
+
+            if (stringHandleWasCreated || releaseHandle)
                 stringHandle.Dispose();
 
             return strResult;

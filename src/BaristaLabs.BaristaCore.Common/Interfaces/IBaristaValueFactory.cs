@@ -2,30 +2,92 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.Threading.Tasks;
 
     public interface IBaristaValueFactory : IDisposable
     {
-        JsString CreateString(BaristaContext context, string str);
+        JsArray CreateArray(uint length);
 
-        JsExternalArrayBuffer CreateExternalArrayBufferFromString(BaristaContext context, string data);
+        JsArrayBuffer CreateArrayBuffer(string data);
 
-        JsError CreateError(BaristaContext context, JavaScriptValueSafeHandle valueHandle);
+        JsError CreateError(string message);
 
-        JsFunction CreateFunction(BaristaContext context, JavaScriptValueSafeHandle valueHandle);
+        JsFunction CreateFunction(Delegate func);
 
-        JsNumber CreateNumber(BaristaContext context, int number);
+        JsNumber CreateNumber(double number);
 
-        JsValue CreateValue(BaristaContext context, JavaScriptValueSafeHandle valueHandle);
+        JsNumber CreateNumber(int number);
 
-        T CreateValue<T>(BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+        JsObject CreateObject();
+        
+        /// <summary>
+        /// Returns a new Promise that will resolve/reject via the corresponding out parameters.
+        /// </summary>
+        /// <param name="resolve"></param>
+        /// <param name="reject"></param>
+        /// <returns></returns>
+        JsObject CreatePromise(out JsFunction resolve, out JsFunction reject);
+
+        /// <summary>
+        /// Returns a new Promise created from the specified task. The task must be created using the TaskFactory on the context.
+        /// </summary>
+        /// <param name="task"></param>
+        /// <returns></returns>
+        JsObject CreatePromise(Task task);
+
+        JsString CreateString(string str);
+
+        JsSymbol CreateSymbol(string description);
+
+        /// <summary>
+        /// Returns a new JsValue for the specified handle using the specified type information. If no type information is provided, the object will be queried for its type.
+        /// </summary>
+        /// <param name="valueHandle"></param>
+        /// <param name="valueType"></param>
+        /// <returns></returns>
+        JsValue CreateValue(JavaScriptValueSafeHandle valueHandle, JavaScriptValueType? valueType = null);
+
+        /// <summary>
+        /// Returns a new JavaScriptValue for the specified handle using the supplied type information.
+        /// </summary>
+        /// <returns>The JavaScript Value that represents the Handle</returns>
+        JsValue CreateValue(Type targetType, JavaScriptValueSafeHandle valueHandle);
+
+        /// <summary>
+        /// Returns a new JavaScriptValue for the specified handle using the supplied type information.
+        /// </summary>
+        /// <returns>The JavaScript Value that represents the Handle</returns>
+        T CreateValue<T>(JavaScriptValueSafeHandle valueHandle)
             where T : JsValue;
 
-        JsBoolean GetFalseValue(BaristaContext context);
+        /// <summary>
+        /// Gets the value of false in the specified script context.
+        /// </summary>
+        /// <returns></returns>
+        JsBoolean GetFalseValue();
 
-        JsNull GetNullValue(BaristaContext context);
+        /// <summary>
+        /// Gets the global object in the specified script context.
+        /// </summary>
+        /// <returns></returns>
+        JsObject GetGlobalObject();
 
-        JsBoolean GetTrueValue(BaristaContext context);
+        /// <summary>
+        /// Gets the value of null in the specified script context.
+        /// </summary>
+        /// <returns></returns>
+        JsNull GetNullValue();
 
-        JsUndefined GetUndefinedValue(BaristaContext context);
+        /// <summary>
+        /// Gets the value of true in the specified script context.
+        /// </summary>
+        /// <returns></returns>
+        JsBoolean GetTrueValue();
+
+        /// <summary>
+        /// Gets the value of undefined in the specified script context.
+        /// </summary>
+        /// <returns></returns>
+        JsUndefined GetUndefinedValue();
     }
 }

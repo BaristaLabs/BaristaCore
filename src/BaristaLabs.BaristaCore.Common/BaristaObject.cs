@@ -6,6 +6,11 @@
     public abstract class BaristaObject<T> : IBaristaObject<T>
         where T : JavaScriptReference<T>
     {
+        /// <summary>
+        /// Event that is raised prior to the underlying runtime collecting the object.
+        /// </summary>
+        public event EventHandler<BaristaObjectBeforeCollectEventArgs> BeforeCollect;
+
         private readonly IJavaScriptEngine m_javaScriptEngine;
         private T m_javaScriptReference;
 
@@ -53,6 +58,24 @@
             get
             {
                 return m_javaScriptReference == null || m_javaScriptReference.IsClosed;
+            }
+        }
+
+        /// <summary>
+        /// Raises the BeforeCollect event.
+        /// </summary>
+        /// <remarks>
+        /// Objects that participate in Garbage Collection should assoicate a callback within the constructor that calls this function.
+        /// </remarks>
+        /// <param name="e"></param>
+        protected virtual void OnBeforeCollect(IntPtr handle, IntPtr callbackState)
+        {
+            if (null != BeforeCollect)
+            {
+                lock (BeforeCollect)
+                {
+                    BeforeCollect.Invoke(this, new BaristaObjectBeforeCollectEventArgs(handle, callbackState));
+                }
             }
         }
 

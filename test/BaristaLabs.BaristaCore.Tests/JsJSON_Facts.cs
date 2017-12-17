@@ -3,14 +3,16 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
-    public class JavaScriptObject_Dynamic_Facts
+    [ExcludeFromCodeCoverage]
+    public class JsJSON_Facts
     {
         private readonly ServiceCollection ServiceCollection;
         private readonly IServiceProvider m_provider;
 
-        public JavaScriptObject_Dynamic_Facts()
+        public JsJSON_Facts()
         {
             ServiceCollection = new ServiceCollection();
             ServiceCollection.AddBaristaCore();
@@ -24,7 +26,7 @@
         }
 
         [Fact]
-        public void JavaScriptValueConvertsToAnIntDirectly()
+        public void JsJSONCanBeCreated()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -32,17 +34,15 @@
                 {
                     using (ctx.Scope())
                     {
-                        var script = "export default 41+1";
-                        dynamic result = ctx.EvaluateModule(script);
-
-                        Assert.True((int)result == 42);
+                        Assert.NotNull(ctx.JSON);
+                        Assert.Equal(JavaScript.JavaScriptValueType.Object, ctx.JSON.Type);
                     }
                 }
             }
         }
 
         [Fact]
-        public void JavaScriptValueConvertsToAnIntWithCoersion()
+        public void JsJSONCanParse()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -50,17 +50,19 @@
                 {
                     using (ctx.Scope())
                     {
-                        var script = "export default '42'";
-                        dynamic result = ctx.EvaluateModule(script);
+                        var str = ctx.ValueFactory.CreateString("{ \"foo\": \"bar\" }");
 
-                        Assert.True((int)result == 42);
+                        var jsObject = ctx.JSON.Parse(str) as JsObject;
+                        Assert.NotNull(jsObject);
+                        var bar = jsObject["foo"];
+                        Assert.Equal("bar", bar.ToString());
                     }
                 }
             }
         }
 
         [Fact]
-        public void JavaScriptValueConvertsToADoubleDirectly()
+        public void JsJSONCanStringify()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -68,28 +70,11 @@
                 {
                     using (ctx.Scope())
                     {
-                        var script = "export default 41.0+1.1";
-                        dynamic result = ctx.EvaluateModule(script);
+                        var str = ctx.EvaluateModule<JsObject>("export default { 'hello': 'world' };");
 
-                        Assert.True((double)result == 42.1);
-                    }
-                }
-            }
-        }
-
-        [Fact]
-        public void JavaScriptValueConvertsToADoubleWithCoersion()
-        {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
-            {
-                using (var ctx = rt.CreateContext())
-                {
-                    using (ctx.Scope())
-                    {
-                        var script = "export default '42.1'";
-                        dynamic result = ctx.EvaluateModule(script);
-
-                        Assert.True((double)result == 42.1);
+                        var json = ctx.JSON.Stringify(str);
+                        Assert.NotNull(json);
+                        Assert.Equal("{\"hello\":\"world\"}", json);
                     }
                 }
             }

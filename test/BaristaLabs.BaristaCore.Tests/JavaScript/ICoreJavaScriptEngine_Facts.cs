@@ -1,10 +1,12 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
     using System.Text;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class ICoreJavaScriptEngine_Facts
     {
         private IJavaScriptEngine Engine;
@@ -510,13 +512,7 @@ export default function cube(x) {
 
             JavaScriptNotifyModuleReadyCallback notifyCallback = (IntPtr referencingModule, IntPtr exceptionVar) =>
             {
-                if (exceptionVar != IntPtr.Zero)
-                {
-                    var type = Engine.JsGetValueType(new JavaScriptValueSafeHandle(exceptionVar));
-                    var ex = Extensions.IJavaScriptEngineExtensions.Stringify(Engine, new JavaScriptValueSafeHandle(exceptionVar));
-                    Assert.True(ex == "{}", ex);
-                }
-
+                Assert.Equal(IntPtr.Zero, exceptionVar);
                 mainModuleReady = true;
                 return false;
             };
@@ -533,6 +529,7 @@ export default function cube(x) {
                     Assert.True(mainModuleHandle != JavaScriptModuleRecord.Invalid);
 
                     //Set the fetch callback.
+                    var fetchCallbackDelegateHandle = GCHandle.Alloc(fetchCallback);
                     IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchCallback);
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, fetchCallbackPtr);
 
@@ -541,6 +538,7 @@ export default function cube(x) {
                     Assert.Equal(fetchCallbackPtr, moduleHostPtr);
 
                     //Set the fetchScript callback
+                    var fetchFromScriptCallbackDelegateHandle = GCHandle.Alloc(fetchCallback);
                     IntPtr fetchFromScriptCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchFromScriptCallback);
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleFromScriptCallback, fetchFromScriptCallbackPtr);
 
@@ -549,6 +547,7 @@ export default function cube(x) {
                     Assert.Equal(fetchFromScriptCallbackPtr, moduleHostPtr);
 
                     //Set the notify callback
+                    var notifyCallbackDelegateHandle = GCHandle.Alloc(fetchCallback);
                     IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate(notifyCallback);
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, notifyCallbackPtr);
 
@@ -592,6 +591,15 @@ export default function cube(x) {
 
                     var result = Engine.JsNumberToInt(resultHandle);
                     Assert.Equal(27, result);
+
+
+                    //Cleanup
+                    Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
+                    fetchCallbackDelegateHandle.Free();
+                    Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleFromScriptCallback, IntPtr.Zero);
+                    fetchFromScriptCallbackDelegateHandle.Free();
+                    Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, IntPtr.Zero);
+                    notifyCallbackDelegateHandle.Free();
                 }
             }
         }

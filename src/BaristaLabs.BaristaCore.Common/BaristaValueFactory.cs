@@ -1,31 +1,58 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.JavaScript;
-    using BaristaLabs.BaristaCore.JavaScript.Extensions;
     using System;
+    using System.Linq;
+    using System.Diagnostics;
     using System.Runtime.InteropServices;
+    using System.Reflection;
+    using System.Threading.Tasks;
+    using System.Threading;
 
     public sealed class BaristaValueFactory : IBaristaValueFactory
     {
         private BaristaObjectPool<JsValue, JavaScriptValueSafeHandle> m_valuePool;
 
         private readonly IJavaScriptEngine m_engine;
+        private readonly BaristaContext m_context;
 
-        public BaristaValueFactory(IJavaScriptEngine engine)
+        public BaristaValueFactory(IJavaScriptEngine engine, BaristaContext context)
         {
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
-            m_valuePool = new BaristaObjectPool<JsValue, JavaScriptValueSafeHandle>((target) =>
-            {
-                // Certain types do not participate in collect callback.
-                //These throw an invalid argument exception when attempting to set a beforecollectcallback.
-                if (target is JsNumber)
-                    return;
-
-                m_engine.JsSetObjectBeforeCollectCallback(target.Handle, IntPtr.Zero, null);
-            });
+            m_context = context ?? throw new ArgumentNullException(nameof(context));
+            m_valuePool = new BaristaObjectPool<JsValue, JavaScriptValueSafeHandle>();
         }
 
-        public JsExternalArrayBuffer CreateExternalArrayBufferFromString(BaristaContext context, string data)
+        /// <summary>
+        /// Gets the context associated with the value factory.
+        /// </summary>
+        private BaristaContext Context
+        {
+            get
+            {
+                if (m_context.IsDisposed)
+                    throw new ObjectDisposedException(nameof(Context));
+
+                return m_context;
+            }
+        }
+
+        /// <summary>
+        /// Gets the number of JsValues currently interned in the factory's value pool.
+        /// </summary>
+        public int Count
+        {
+            get { return m_valuePool.Count; }
+        }
+
+        public JsArray CreateArray(uint length)
+        {
+            var arrayHandle = m_engine.JsCreateArray(length);
+            return CreateValue<JsArray>(arrayHandle);
+        }
+
+        public JsArrayBuffer CreateArrayBuffer(string data)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
@@ -44,215 +71,372 @@
                 throw;
             }
 
-            var flyweight = new JavaScriptManagedExternalArrayBuffer(m_engine, context, externalArrayHandle, ptrData, (ptr) =>
+            var result = m_valuePool.GetOrAdd(externalArrayHandle, () =>
             {
-                Marshal.ZeroFreeGlobalAllocAnsi(ptr);
-            });
-            if (m_valuePool.TryAdd(flyweight))
+                var flyweight = new JsManagedExternalArrayBuffer(m_engine, Context, externalArrayHandle, ptrData, (ptr) =>
+                {
+                    Marshal.ZeroFreeGlobalAllocAnsi(ptr);
+                });
+
                 return flyweight;
+            });
 
-            //This would be... unexpected.
-            flyweight.Dispose();
-            throw new InvalidOperationException("Could not create external array buffer. The external array buffer already exists at that location in memory.");
+            var resultArrayBuffer = result as JsArrayBuffer;
+            if (resultArrayBuffer == null)
+                throw new InvalidOperationException($"Expected the result object to be a JsArrayBuffer, however the value was {result.GetType()}");
+
+            return (JsArrayBuffer)result;
         }
 
-        public JsError CreateError(BaristaContext context, JavaScriptValueSafeHandle fnHandle)
+        public JsError CreateError(string message)
         {
-            var error = m_valuePool.GetOrAdd(fnHandle, () =>
-            {
-                return new JsError(m_engine, context, this, fnHandle);
-            }) as JsError;
-
-            if (error == null)
-                throw new InvalidOperationException("An object with the specified handle already exists and is not of type JsError");
-
-            var things = m_engine.JsGetOwnPropertyNames(error.Handle);
-            //dynamic foo = CreateValue(context, things);
-            var resu = m_engine.Stringify(things);
-
-            return error;
+            var messageHandle = CreateString(message);
+            var errorHandle = m_engine.JsCreateError(messageHandle.Handle);
+            return CreateValue<JsError>(errorHandle);
         }
 
-        public JsFunction CreateFunction(BaristaContext context, JavaScriptValueSafeHandle fnHandle)
+        public JsError CreateError(Exception ex)
         {
-            var fn = m_valuePool.GetOrAdd(fnHandle, () =>
-            {
-                return new JsFunction(m_engine, context, this, fnHandle);
-            }) as JsFunction;
-
-            if (fn == null)
-                throw new InvalidOperationException("An object with the specified handle already exists and is not of type JsFunction");
-            return fn;
+            //TODO: Add more exception properties.
+            var messageHandle = CreateString(ex.Message);
+            var errorHandle = m_engine.JsCreateError(messageHandle.Handle);
+            return CreateValue<JsError>(errorHandle);
         }
 
-        public JsNumber CreateNumber(BaristaContext context, int number)
+        public JsFunction CreateFunction(Delegate func)
+        {
+            if (func == null)
+                throw new ArgumentNullException(nameof(func));
+
+            //This is crazy fun.
+            var funcParams = func.Method.GetParameters();
+            JavaScriptNativeFunction fnDelegate = (IntPtr callee, bool isConstructCall, IntPtr[] arguments, ushort argumentCount, IntPtr callbackData) =>
+            {
+                //Make sure that we have argument values for each parameter.
+                var nativeArgs = new object[funcParams.Length];
+                for(int i = 0; i < funcParams.Length; i++)
+                {
+                    var targetParameterType = funcParams[i].ParameterType;
+
+                    var currentArgument = arguments.ElementAtOrDefault(i);
+                    if (currentArgument == default(IntPtr))
+                    {
+                        //If the argument wasn't specified, use the default value for the target parameter.
+                        nativeArgs[i] = targetParameterType.GetDefaultValue();
+                    }
+                    else
+                    {
+                        //As the argument has been specified, convert the JsValue back to an Object using
+                        //the conversion strategy associated with the context.
+
+                        var argValueHandle = new JavaScriptValueSafeHandle(currentArgument);
+                        var jsValue = CreateValue(argValueHandle);
+                        if (Context.Converter.TryToObject(Context, jsValue, out object obj))
+                        {
+                            try
+                            {
+                                nativeArgs[i] = Convert.ChangeType(obj, targetParameterType);
+                            }
+                            catch(Exception)
+                            {
+                                //Something went wrong, use the default value.
+                                nativeArgs[i] = targetParameterType.GetDefaultValue();
+                            }
+                        }
+                        else
+                        {
+                            //If we couldn't convert the type, use the default value.
+                            nativeArgs[i] = targetParameterType.GetDefaultValue();
+                        }
+                    }
+                }
+
+                try
+                {
+                    var nativeResult = func.DynamicInvoke(nativeArgs);
+                    if (Context.Converter.TryFromObject(Context, nativeResult, out JsValue valueResult))
+                    {
+                        return valueResult.Handle.DangerousGetHandle();
+                    }
+                    else
+                    {
+                        return Context.Undefined.Handle.DangerousGetHandle();
+                    }
+                }
+                catch(TargetInvocationException exceptionResult)
+                {
+                    var jsError = CreateError(exceptionResult.InnerException);
+                    m_engine.JsSetException(jsError.Handle);
+                    return Context.Undefined.Handle.DangerousGetHandle();
+                }
+            };
+
+            var fnHandle = m_engine.JsCreateFunction(fnDelegate, IntPtr.Zero);
+
+            //this is a special case where we cannot use our CreateValue<> method.
+            return m_valuePool.GetOrAdd(fnHandle, () =>
+            {
+                var jsNativeFunction = new JsNativeFunction(m_engine, Context, fnHandle, fnDelegate);
+                jsNativeFunction.BeforeCollect += JsValueBeforeCollectCallback;
+                return jsNativeFunction;
+            }) as JsNativeFunction;
+        }
+
+        public JsNumber CreateNumber(double number)
+        {
+            var numberHandle = m_engine.JsDoubleToNumber(number);
+            return CreateValue<JsNumber>(numberHandle);
+        }
+
+        public JsNumber CreateNumber(int number)
         {
             var numberHandle = m_engine.JsIntToNumber(number);
-            return CreateNumber(context, numberHandle);
+            return CreateValue<JsNumber>(numberHandle);
         }
 
-        public JsNumber CreateNumber(BaristaContext context, JavaScriptValueSafeHandle numberHandle)
+        public JsObject CreateObject()
         {
-            var number = m_valuePool.GetOrAdd(numberHandle, () =>
-            {
-                return new JsNumber(m_engine, context, numberHandle);
-            }) as JsNumber;
-
-            if (number == null)
-                throw new InvalidOperationException("An object with the specified handle already exists and is not of type JsNumber");
-            return number;
+            var objectHandle = m_engine.JsCreateObject();
+            return CreateValue<JsObject>(objectHandle);
         }
 
-        public JsString CreateString(BaristaContext context, string str)
+        public JsObject CreatePromise(out JsFunction resolve, out JsFunction reject)
+        {
+            var promiseHandle = m_engine.JsCreatePromise(out JavaScriptValueSafeHandle resolveHandle, out JavaScriptValueSafeHandle rejectHandle);
+            resolve = CreateValue<JsFunction>(resolveHandle);
+            reject = CreateValue<JsFunction>(rejectHandle);
+            return CreateValue<JsObject>(promiseHandle);
+        }
+
+        public JsObject CreatePromise(Task task)
+        {
+            //Create a promise
+            var promise = CreatePromise(out JsFunction resolve, out JsFunction reject);
+            task.ContinueWith((t) =>
+            {
+                if (t.IsCanceled || t.IsFaulted)
+                {
+                    if (Context.Converter.TryFromObject(Context, t.Exception, out JsValue rejectValue))
+                    {
+                        reject.Call(GetGlobalObject(), rejectValue);
+                    }
+                    else
+                    {
+                        reject.Call(GetGlobalObject(), GetUndefinedValue());
+                    }
+                }
+
+                var resultType = t.GetType();
+                var resultProperty = resultType.GetProperty("Result");
+                if (resultProperty == null)
+                {
+                    resolve.Call(GetGlobalObject(), GetNullValue());
+                    return;
+                }
+
+                var result = resultProperty.GetValue(t);
+
+                //If we got an object back attempt to convert it into a JsValue and call the resolve method with the value.
+                if (Context.Converter.TryFromObject(Context, result, out JsValue resolveValue))
+                {
+                    resolve.Call(GetGlobalObject(), resolveValue);
+                }
+                else
+                {
+                    resolve.Call(GetGlobalObject(), GetUndefinedValue());
+                }
+
+            }, Context.TaskFactory.Scheduler);
+
+            //Start the task.
+            
+            Context.TaskFactory.StartNew(
+                () => { return task; },
+                CancellationToken.None,
+                TaskCreationOptions.DenyChildAttach,
+                Context.TaskFactory.Scheduler);
+
+            return promise;
+        }
+
+        public JsString CreateString(string str)
         {
             if (str == null)
                 throw new ArgumentNullException(nameof(str));
 
             var stringHandle = m_engine.JsCreateString(str, (ulong)str.Length);
-            var flyweight = new JsString(m_engine, context, stringHandle);
-            if (m_valuePool.TryAdd(flyweight))
+            return CreateValue<JsString>(stringHandle);
+        }
+
+        public JsSymbol CreateSymbol(string description)
+        {
+            JavaScriptValueSafeHandle descriptionHandle = JavaScriptValueSafeHandle.Invalid;
+            if (description != null)
             {
-                m_engine.JsSetObjectBeforeCollectCallback(stringHandle, IntPtr.Zero, OnBeforeCollectCallback);
-                return flyweight;
+                var descriptionValue = CreateString(description);
+                descriptionHandle = descriptionValue.Handle;
             }
 
-            flyweight.Dispose();
-            throw new InvalidOperationException("Could not create string. The string already exists at that location in memory.");
+            var symbolHandle = m_engine.JsCreateSymbol(descriptionHandle);
+            return CreateValue<JsSymbol>(symbolHandle);
         }
 
         /// <summary>
         /// Returns a new JavaScriptValue for the specified handle querying for the handle's value type.
         /// </summary>
+        /// <remarks>
+        /// Use the valueType parameter carefully. If the resulting type does not match the handle type unexpected issues may occur.
+        /// </remarks>
         /// <returns>The JavaScript Value that represents the handle</returns>
-        public JsValue CreateValue(BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+        public JsValue CreateValue(JavaScriptValueSafeHandle valueHandle, JavaScriptValueType? valueType = null)
         {
-            if (context == null)
-                throw new ArgumentNullException(nameof(context));
-
-            if (context.IsDisposed)
-                throw new ObjectDisposedException(nameof(context));
-
             return m_valuePool.GetOrAdd(valueHandle, () =>
             {
-                var valueType = m_engine.JsGetValueType(valueHandle);
+                if (valueType.HasValue == false)
+                {
+                    valueType = m_engine.JsGetValueType(valueHandle);
+                }
+
                 JsValue result;
-                switch (valueType)
+                switch (valueType.Value)
                 {
                     case JavaScriptValueType.Array:
-                        result = new JsArray(m_engine, context, this, valueHandle);
+                        result = new JsArray(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.ArrayBuffer:
-                        result = new JsArrayBuffer(m_engine, context, valueHandle);
+                        result = new JsArrayBuffer(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Boolean:
-                        result = new JsBoolean(m_engine, context, valueHandle);
+                        result = new JsBoolean(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.DataView:
-                        //TODO: Add a dataview
-                        throw new NotImplementedException();
+                        result = new JsDataView(m_engine, Context, valueHandle);
+                        break;
                     case JavaScriptValueType.Error:
-                        result = new JsError(m_engine, context, this, valueHandle);
+                        result = new JsError(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Function:
-                        result = new JsFunction(m_engine, context, this, valueHandle);
+                        result = new JsFunction(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Null:
-                        result = new JsNull(m_engine, context, valueHandle);
+                        result = new JsNull(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Number:
-                        result = new JsNumber(m_engine, context, valueHandle);
+                        result = new JsNumber(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Object:
-                        result = new JsObject(m_engine, context, this, valueHandle);
+                        result = new JsObject(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.String:
-                        result = new JsString(m_engine, context, valueHandle);
+                        result = new JsString(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Symbol:
-                        //TODO: add symbol class.
-                        throw new NotImplementedException();
+                        result = new JsSymbol(m_engine, Context, valueHandle);
+                        break;
                     case JavaScriptValueType.TypedArray:
-                        result = new JsTypedArray(m_engine, context, this, valueHandle);
+                        result = new JsTypedArray(m_engine, Context, valueHandle);
                         break;
                     case JavaScriptValueType.Undefined:
-                        result = new JsUndefined(m_engine, context, valueHandle);
+                        result = new JsUndefined(m_engine, Context, valueHandle);
                         break;
                     default:
                         throw new NotImplementedException($"Error Creating JavaScript Value: The JavaScript Value Type '{valueType}' is unknown, invalid, or has not been implemented.");
                 }
 
-                //Certain types do not participate in collect callback.
-                //These throw an invalid argument exception when attempting to set a beforecollectcallback.
-                if (result is JsNumber)
-                    return result;
+                result.BeforeCollect += JsValueBeforeCollectCallback;
 
-                m_engine.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, OnBeforeCollectCallback);
                 return result;
             });
         }
 
-        /// <summary>
-        /// Returns a new JavaScriptValue for the specified handle using the supplied type information.
-        /// </summary>
-        /// <returns>The JavaScript Value that represents the Handle</returns>
-        public T CreateValue<T>(BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+        public JsValue CreateValue(Type targetType, JavaScriptValueSafeHandle valueHandle)
+        {
+            if (targetType == null)
+                throw new ArgumentNullException(nameof(targetType));
+
+            if (typeof(JsValue).IsSameOrSubclass(targetType) == false)
+                throw new ArgumentOutOfRangeException(nameof(targetType));
+
+            return m_valuePool.GetOrAdd(valueHandle, () =>
+            {
+                JsValue result;
+
+                if (typeof(JsObject).IsSameOrSubclass(targetType))
+                {
+                    result = Activator.CreateInstance(targetType, new object[] { m_engine, Context, valueHandle }) as JsValue;
+                }
+                else if (typeof(JsSymbol).IsSameOrSubclass(targetType))
+                {
+                    result = new JsSymbol(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsUndefined).IsSameOrSubclass(targetType))
+                {
+                    result = new JsUndefined(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsNull).IsSameOrSubclass(targetType))
+                {
+                    result = new JsNull(m_engine, Context, valueHandle);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Type {targetType} must subclass JsValue");
+                }
+
+                if (result == null)
+                    throw new BaristaException($"Unable to create an object of type {targetType}.");
+
+                result.BeforeCollect += JsValueBeforeCollectCallback;
+                return result;
+            });
+        }
+
+        public T CreateValue<T>(JavaScriptValueSafeHandle valueHandle)
             where T : JsValue
         {
-            return CreateValue(context, valueHandle) as T;
+            var targetType = typeof(T);
+            return CreateValue(targetType, valueHandle) as T;
         }
 
-
-        public JsBoolean GetFalseValue(BaristaContext context)
+        public JsObject GetGlobalObject()
         {
-            var falseValue = m_engine.JsGetFalseValue();
-            var result = new JsBoolean(m_engine, context, falseValue);
-            if (m_valuePool.TryAdd(result))
-                return result;
-
-            result.Dispose();
-            throw new InvalidOperationException("Could not add JsFalse to the Value Pool associated with the context.");
+            var globalValueHandle = m_engine.JsGetGlobalObject();
+            return CreateValue<JsObject>(globalValueHandle);
         }
 
-        public JsNull GetNullValue(BaristaContext context)
+        public JsBoolean GetFalseValue()
         {
-            var nullValue = m_engine.JsGetNullValue();
-            var result = new JsNull(m_engine, context, nullValue);
-            if (m_valuePool.TryAdd(result))
-                return result;
-
-            result.Dispose();
-            throw new InvalidOperationException("Could not add JsNull to the Value Pool associated with the context.");
+            var falseValueHandle = m_engine.JsGetFalseValue();
+            return CreateValue<JsBoolean>(falseValueHandle);
         }
 
-        public JsBoolean GetTrueValue(BaristaContext context)
+        public JsNull GetNullValue()
         {
-            var trueValue = m_engine.JsGetTrueValue();
-            var result = new JsBoolean(m_engine, context, trueValue);
-            if (m_valuePool.TryAdd(result))
-                return result;
-
-            result.Dispose();
-            throw new InvalidOperationException("Could not add JsTrue to the Value Pool associated with the context.");
+            var nullValueHandle = m_engine.JsGetNullValue();
+            return CreateValue<JsNull>(nullValueHandle);
         }
 
-        public JsUndefined GetUndefinedValue(BaristaContext context)
+        public JsBoolean GetTrueValue()
         {
-            var undefinedValue = m_engine.JsGetUndefinedValue();
-            var result = new JsUndefined(m_engine, context, undefinedValue);
-            if (m_valuePool.TryAdd(result))
-                return result;
-
-            result.Dispose();
-            throw new InvalidOperationException("Could not add JsUndefined to the Value Pool associated with the context.");
+            var trueValueHandle = m_engine.JsGetTrueValue();
+            return CreateValue<JsBoolean>(trueValueHandle);
         }
 
-        private void OnBeforeCollectCallback(IntPtr handle, IntPtr callbackState)
+        public JsUndefined GetUndefinedValue()
         {
-            //If the valuepool is null, this factory has already been disposed.
-            if (m_valuePool == null)
-                return;
+            var undefinedValueHandle = m_engine.JsGetUndefinedValue();
+            return CreateValue<JsUndefined>(undefinedValueHandle);
+        }
 
-            m_valuePool.RemoveHandle(new JavaScriptValueSafeHandle(handle));
+        /// <summary>
+        /// Raised by JsValues created via the factory. Cleans up the pool.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void JsValueBeforeCollectCallback(object sender, BaristaObjectBeforeCollectEventArgs args)
+        {
+            ((JsValue)sender).BeforeCollect -= JsValueBeforeCollectCallback;
+            Debug.Assert(m_valuePool != null);
+            m_valuePool.RemoveHandle(new JavaScriptValueSafeHandle(args.Handle));
         }
 
         #region IDisposable
@@ -269,7 +453,7 @@
         }
 
         /// <summary>
-        /// Disposes of the factory and all references contained within.
+        /// Disposes of the service and all references contained within.
         /// </summary>
         public void Dispose()
         {

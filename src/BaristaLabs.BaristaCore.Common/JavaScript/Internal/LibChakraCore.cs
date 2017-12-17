@@ -6,6 +6,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
     /// <summary>
     ///	Represents the Unmanaged ChakraCore Library
     /// </summary>
+    [System.Diagnostics.DebuggerNonUserCode]
     public static class LibChakraCore
     {
         private const string DllName = "ChakraCore/libChakraCore";

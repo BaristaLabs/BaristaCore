@@ -2,11 +2,12 @@
 {
     using BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.JavaScript;
-    using BaristaLabs.BaristaCore.JavaScript.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class BaristaContext_Facts
     {
         private IServiceProvider m_provider;
@@ -24,13 +25,8 @@
             get { return m_provider.GetRequiredService<IBaristaRuntimeFactory>(); }
         }
 
-        public InMemoryModuleService ModuleService
-        {
-            get { return m_provider.GetRequiredService<IBaristaModuleService>() as InMemoryModuleService; }
-        }
-
         [Fact]
-        public void JavaScriptContextCanBeCreated()
+        public void BaristaContextCanBeCreated()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -39,6 +35,62 @@
 
                 }
             }
+            Assert.True(true);
+        }
+
+        [Fact]
+        public void BaristaContextThrowsIfValueFactoryNotSpecified()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                var converter = m_provider.GetRequiredService<IBaristaConversionStrategy>();
+                var taskQueue = m_provider.GetRequiredService<IPromiseTaskQueue>();
+                var moduleLoader = m_provider.GetRequiredService<IBaristaModuleLoader>();
+
+                var contextHandle = rt.Engine.JsCreateContext(rt.Handle);
+
+                try
+                {
+                    Assert.Throws<ArgumentNullException>(() =>
+                    {
+                        var ctx = new BaristaContext(rt.Engine, null, converter, taskQueue, moduleLoader, contextHandle);
+                    });
+                }
+                finally
+                {
+                    //Without disposing of the contextHandle, the runtime *will* crash the process.
+                    contextHandle.Dispose();
+                }
+            }
+
+            Assert.True(true);
+        }
+
+        [Fact]
+        public void BaristaContextThrowsIfConversionStrategyNotSpecified()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                var valueFactoryBuilder = m_provider.GetRequiredService<IBaristaValueFactoryBuilder>();
+                var taskQueue = m_provider.GetRequiredService<IPromiseTaskQueue>();
+                var moduleLoader = m_provider.GetRequiredService<IBaristaModuleLoader>();
+
+                var contextHandle = rt.Engine.JsCreateContext(rt.Handle);
+
+                try
+                {
+                    Assert.Throws<ArgumentNullException>(() =>
+                    {
+                        var ctx = new BaristaContext(rt.Engine, valueFactoryBuilder, null, taskQueue, moduleLoader, contextHandle);
+                    });
+                }
+                finally
+                {
+                    //Without disposing of the contextHandle, the runtime *will* crash the process.
+                    contextHandle.Dispose();
+                }
+            }
+
             Assert.True(true);
         }
 
@@ -55,6 +107,121 @@
         }
 
         [Fact]
+        public void BeforeCollectCallbackIsCalled()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                bool hasRaisedBeforeCollect = false;
+                EventHandler<BaristaObjectBeforeCollectEventArgs> beforeCollect = (sender, e) =>
+                {
+                    hasRaisedBeforeCollect = true;
+                };
+
+                var ctx1 = rt.CreateContext();
+                ctx1.BeforeCollect += beforeCollect;
+
+                //Manually dispose of the value handle and trigger a garbage collect to trigger the beforeCollect event.
+                ctx1.Handle.Dispose();
+                rt.CollectGarbage();
+
+                Assert.True(hasRaisedBeforeCollect);
+            }
+        }
+
+        [Fact]
+        public void NestedScopesAreNotAllowed()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.Throws<BaristaException>(() =>
+                        {
+                            ctx.Scope();
+                        });
+                    }
+                }
+            }
+        }
+
+        #region Barista Properties
+        [Fact]
+        public void JavaScriptContextShouldGetTaskFactory()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.TaskFactory);
+                    }
+
+                    ctx.Dispose();
+                    Assert.Throws<ObjectDisposedException>(() =>
+                    {
+                        var foo = ctx.TaskFactory;
+                    });
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextShouldGetValueFactory()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.ValueFactory);
+                    }
+
+                    ctx.Dispose();
+                    Assert.Throws<ObjectDisposedException>(() =>
+                    {
+                        var foo = ctx.ValueFactory;
+                    });
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextShouldGetCurrentScope()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.CurrentScope);
+                        Assert.True(ctx.HasCurrentScope);
+                    }
+
+                    Assert.Null(ctx.CurrentScope);
+                    Assert.False(ctx.HasCurrentScope);
+
+                    ctx.Dispose();
+                    Assert.Throws<ObjectDisposedException>(() =>
+                    {
+                        var foo = ctx.CurrentScope;
+                    });
+
+                    Assert.Throws<ObjectDisposedException>(() =>
+                    {
+                        var foo = ctx.HasCurrentScope;
+                    });
+                }
+            }
+        }
+        #endregion
+
+        #region Built-In Objects
+        [Fact]
         public void JavaScriptContextShouldGetFalse()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
@@ -66,21 +233,12 @@
                         Assert.NotNull(ctx.False);
                         Assert.False(ctx.False);
                     }
-                }
-            }
-        }
 
-        [Fact]
-        public void JavaScriptContextShouldGetNull()
-        {
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
-            {
-                using (var ctx = rt.CreateContext())
-                {
-                    using (ctx.Scope())
+                    ctx.Dispose();
+                    Assert.Throws<ObjectDisposedException>(() =>
                     {
-                        Assert.NotNull(ctx.Null);
-                    }
+                        var foo = ctx.False;
+                    });
                 }
             }
         }
@@ -97,6 +255,33 @@
                         Assert.NotNull(ctx.True);
                         Assert.True(ctx.True);
                     }
+
+                    ctx.Dispose();
+                    Assert.Throws<ObjectDisposedException>(() =>
+                    {
+                        var foo = ctx.True;
+                    });
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextShouldGetNull()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.Null);
+                    }
+
+                    ctx.Dispose();
+                    Assert.Throws<ObjectDisposedException>(() =>
+                    {
+                        var foo = ctx.Null;
+                    });
                 }
             }
         }
@@ -112,6 +297,96 @@
                     {
                         Assert.NotNull(ctx.Undefined);
                     }
+
+                    ctx.Dispose();
+                    Assert.Throws<ObjectDisposedException>(() =>
+                    {
+                        var foo = ctx.Undefined;
+                    });
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextShouldGetGlobalObject()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.GlobalObject);
+                    }
+
+                    ctx.Dispose();
+                    Assert.Throws<ObjectDisposedException>(() =>
+                    {
+                        var foo = ctx.GlobalObject;
+                    });
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextShouldGetJSONBuiltIn()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.JSON);
+                    }
+
+                    ctx.Dispose();
+                    Assert.Throws<ObjectDisposedException>(() =>
+                    {
+                        var foo = ctx.JSON;
+                    });
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextShouldGetObjectBuiltIn()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.Object);
+                    }
+
+                    ctx.Dispose();
+                    Assert.Throws<ObjectDisposedException>(() =>
+                    {
+                        var foo = ctx.Object;
+                    });
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextShouldGetPromiseBuiltIn()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.NotNull(ctx.Promise);
+                    }
+
+                    ctx.Dispose();
+                    Assert.Throws<ObjectDisposedException>(() =>
+                    {
+                        var foo = ctx.Promise;
+                    });
                 }
             }
         }
@@ -156,47 +431,7 @@
                 }
             }
         }
-
-        [Fact]
-        public void JsModuleCanBeEvaluated()
-        {
-            var script = @"
-export default 'hello, world!';
-";
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
-            {
-                using (var ctx = rt.CreateContext())
-                {
-                    using (ctx.Scope())
-                    {
-                        var result = ctx.EvaluateModule(script);
-                        Assert.True(result.ToString() == "hello, world!");
-                    }
-                }
-            }
-        }
-
-        [Fact]
-        public void JsModulesContainingPromisesCanBeEvaluated()
-        {
-            var script = @"
-var result = new Promise((resolve, reject) => {
-        resolve('hello, world!');
-    });
-export default result;
-";
-            using (var rt = BaristaRuntimeFactory.CreateRuntime(JavaScriptRuntimeAttributes.None))
-            {
-                using (var ctx = rt.CreateContext())
-                {
-                    using (ctx.Scope())
-                    {
-                        var result = ctx.EvaluateModule(script);
-                        Assert.True(result.ToString() == "hello, world!");
-                    }
-                }
-            }
-        }
+        #endregion
 
         [Fact]
         public void JsPropertyCanBeRetrievedByName()
@@ -217,93 +452,10 @@ export default fooObj;";
                         var fooObj = ctx.EvaluateModule(script) as JsObject;
                         Assert.NotNull(fooObj);
 
-                        var fooValue = fooObj.GetPropertyByName<string>("foo");
-                        Assert.Equal("bar", fooValue);
+                        dynamic fooValue = fooObj.GetProperty<JsString>("foo");
+                        Assert.Equal("bar", (string)fooValue);
                     }
                 }
-            }
-        }
-
-        [Fact]
-        public void JsModulesCanBeDynamicallyProvided()
-        {
-            var script = @"
-import banana from 'banana';
-export default 'hello, world! ' + banana;
-";
-            var bananaModule = new BaristaScriptModule
-            {
-                Name = "banana",
-                Script = @"
-export default 'banana';
-"
-            };
-
-            ModuleService.RegisterModule(bananaModule);
-
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
-            {
-                using (var ctx = rt.CreateContext())
-                {
-                    using (ctx.Scope())
-                    {
-                        var result = ctx.EvaluateModule(script);
-
-                        Assert.True(result.ToString() == "hello, world! banana");
-                    }
-                }
-            }
-        }
-
-        [Fact]
-        public void JsDynamicModulesCanExportNativeObjects()
-        {
-            var script = @"
-        import reverse from 'reverse';
-        export default reverse('hello, world!');
-        ";
-            ModuleService.RegisterModule(new ReverseModule());
-
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
-            {
-                using (var ctx = rt.CreateContext())
-                {
-                    using (ctx.Scope())
-                    {
-                        var result = ctx.EvaluateModule(script);
-
-                        Assert.Equal("!dlrow ,olleh", result.ToString());
-                    }
-                }
-            }
-        }
-
-        private class ReverseModule : IBaristaModule
-        {
-            public string Name => "reverse";
-
-            public string Description => "reverses the string passed in.";
-
-            public object InstallModule(BaristaContext context, JavaScriptModuleRecord referencingModule)
-            {
-                IntPtr fnReverse(IntPtr callee, bool isConstructCall, IntPtr[] arguments, ushort argumentCount, IntPtr callbackData)
-                {
-                    if (argumentCount < 2)
-                    {
-                        return context.Undefined.Handle.DangerousGetHandle();
-                    }
-
-                    var str = context.Engine.GetStringUtf8(new JavaScriptValueSafeHandle(arguments[1]), true);
-
-                    var charArray = str.ToCharArray();
-                    Array.Reverse(charArray);
-                    var reversed = new string(charArray);
-
-                    var reversedHandle = context.Engine.JsCreateString(reversed, (ulong)reversed.Length);
-                    return reversedHandle.DangerousGetHandle();
-                }
-
-                return context.Engine.JsCreateFunction(fnReverse, IntPtr.Zero);
             }
         }
     }

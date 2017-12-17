@@ -1,9 +1,11 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Text;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class IDebugWindowsJavaScriptEngine_Facts
     {
         private IJavaScriptEngine Engine;

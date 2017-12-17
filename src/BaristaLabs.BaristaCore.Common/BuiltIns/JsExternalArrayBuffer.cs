@@ -8,8 +8,8 @@
     /// </summary>
     public class JsExternalArrayBuffer : JsArrayBuffer
     {
-        protected JsExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
-            : base(engine, context, value)
+        protected JsExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueHandle)
         {
         }
     }
@@ -17,13 +17,13 @@
     /// <summary>
     /// Represents an external array buffer that is backed by memory managed by the application.
     /// </summary>
-    public sealed class JavaScriptManagedExternalArrayBuffer : JsExternalArrayBuffer
+    public sealed class JsManagedExternalArrayBuffer : JsExternalArrayBuffer
     {
         private IntPtr m_bufferHandle;
         private readonly Action<IntPtr> m_releaseBufferHandle;
 
-        public JavaScriptManagedExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value, IntPtr bufferHandle, Action<IntPtr> releaseBufferHandle)
-            : base(engine, context, value)
+        public JsManagedExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle, IntPtr bufferHandle, Action<IntPtr> releaseBufferHandle)
+            : base(engine, context, valueHandle)
         {
             if (bufferHandle == default(IntPtr) || bufferHandle == null)
                 throw new ArgumentNullException(nameof(bufferHandle));

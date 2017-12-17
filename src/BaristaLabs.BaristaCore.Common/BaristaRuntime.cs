@@ -2,6 +2,7 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a JavaScript Runtime
@@ -11,10 +12,20 @@
     /// </remarks>
     public sealed class BaristaRuntime : BaristaObject<JavaScriptRuntimeSafeHandle>
     {
+        /// <summary>
+        /// Event that is raised when the JavaScript engine indicates that memory allocation is changing
+        /// </summary>
         public event EventHandler<JavaScriptMemoryEventArgs> MemoryAllocationChanging;
-        public event EventHandler<EventArgs> GarbageCollecting;
+
+        /// <summary>
+        /// Event that is raised after the runtime handle has been released.
+        /// </summary>
+        public event EventHandler<EventArgs> AfterDispose;
 
         private IBaristaContextFactory m_contextFactory;
+
+        private readonly GCHandle m_runtimeMemoryAllocationChangingDelegateHandle;
+        private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
 
         /// <summary>
         /// Creates a new instance of a Barista Runtime.
@@ -23,9 +34,37 @@
             : base(engine, runtimeHandle)
         {
             m_contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+
+            JavaScriptMemoryAllocationCallback runtimeMemoryAllocationChanging = (IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize) =>
+            {
+                try
+                {
+                    return OnRuntimeMemoryAllocationChanging(callbackState, allocationEvent, allocationSize);
+                }
+                catch
+                {
+                    //Do Nothing.
+                    return true;
+                }
+            };
+
+            m_runtimeMemoryAllocationChangingDelegateHandle = GCHandle.Alloc(runtimeMemoryAllocationChanging);
+            Engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, runtimeMemoryAllocationChanging);
             
-            Engine.JsSetRuntimeMemoryAllocationCallback(runtimeHandle, IntPtr.Zero, OnRuntimeMemoryAllocationChanging);
-            Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, OnRuntimeGarbageCollecting);
+            JavaScriptBeforeCollectCallback beforeCollectCallback = (IntPtr callbackState) =>
+            {
+                try
+                {
+                    OnBeforeCollect(IntPtr.Zero, callbackState);
+                }
+                catch
+                {
+                    //Do Nothing.
+                }
+            };
+
+            m_beforeCollectCallbackDelegateHandle = GCHandle.Alloc(beforeCollectCallback);
+            Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, beforeCollectCallback);
         }
 
         /// <summary>
@@ -64,24 +103,26 @@
 
         private bool OnRuntimeMemoryAllocationChanging(IntPtr callbackState, JavaScriptMemoryEventType allocationEvent, UIntPtr allocationSize)
         {
-            if (!IsDisposed && MemoryAllocationChanging != null)
+            if (!IsDisposed && null != MemoryAllocationChanging)
             {
-                var args = new JavaScriptMemoryEventArgs(allocationSize, allocationEvent);
-                MemoryAllocationChanging(this, args);
-                if (args.IsCancelable && args.Cancel)
-                    return false;
+                lock(MemoryAllocationChanging)
+                {
+                    if (null != MemoryAllocationChanging)
+                    {
+                        var args = new JavaScriptMemoryEventArgs(allocationSize, allocationEvent);
+                        MemoryAllocationChanging(this, args);
+                        if (args.IsCancelable && args.Cancel)
+                            return false;
+                    }
+                }
             }
 
             return true;
         }
 
-        private void OnRuntimeGarbageCollecting(IntPtr callbackState)
+        private void OnAfterDispose()
         {
-            if (!IsDisposed && GarbageCollecting != null)
-            {
-                var args = new EventArgs();
-                GarbageCollecting(this, args);
-            }
+            AfterDispose?.Invoke(this, new EventArgs());
         }
 
         protected override void Dispose(bool disposing)
@@ -93,15 +134,22 @@
                     m_contextFactory.Dispose();
                     m_contextFactory = null;
                 }
+            }
 
+            if (!IsDisposed)
+            {
                 //We don't need no more steekin' memory monitoring.
                 Engine.JsSetRuntimeMemoryAllocationCallback(Handle, IntPtr.Zero, null);
+                m_runtimeMemoryAllocationChangingDelegateHandle.Free();
 
                 //Don't need no before collect monitoring either!
                 Engine.JsSetRuntimeBeforeCollectCallback(Handle, IntPtr.Zero, null);
+                m_beforeCollectCallbackDelegateHandle.Free();
             }
 
             base.Dispose(disposing);
+
+            OnAfterDispose();
         }
     }
 }

@@ -6,10 +6,10 @@
     /// <summary>
     /// Represents a JavaScript Numeric Value
     /// </summary>
-    public sealed class JsNumber : JsValue
+    public class JsNumber : JsObject
     {
-        public JsNumber(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle value)
-            : base(engine, context, value)
+        public JsNumber(IJavaScriptEngine engine, BaristaContext context,JavaScriptValueSafeHandle valueHandle)
+            : base(engine, context, valueHandle)
         {
         }
 
@@ -40,6 +40,18 @@
                 throw new ObjectDisposedException(nameof(JsValue));
 
             return Engine.JsNumberToInt(Handle);
+        }
+
+        /// <summary>
+        /// Returns the long representation of the numeric value.
+        /// </summary>
+        /// <returns></returns>
+        public long ToInt64()
+        {
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(JsValue));
+
+            throw new NotImplementedException();
         }
     }
 }

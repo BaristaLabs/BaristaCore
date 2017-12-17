@@ -6,17 +6,17 @@
     /// <summary>
     /// Represents an object that acts as a flyweight to a JavaScript reference.
     /// </summary>
+    /// <remarks>
+    /// IBaristaObjects are treated as flyweight objects -- that is, their lifecycle can exist independently of actual JavaScript objects created by the runtime.
+    /// </remarks>
     /// <typeparam name="T"></typeparam>
     public interface IBaristaObject<T>: IDisposable
         where T : JavaScriptReference<T>
     {
         /// <summary>
-        /// Gets the JavaScript Engine associated with the JavaScript object.
+        /// Event that is raised prior to the underlying runtime collecting the object.
         /// </summary>
-        IJavaScriptEngine Engine
-        {
-            get;
-        }
+        event EventHandler<BaristaObjectBeforeCollectEventArgs> BeforeCollect;
 
         /// <summary>
         /// Gets the underlying JavaScript Reference

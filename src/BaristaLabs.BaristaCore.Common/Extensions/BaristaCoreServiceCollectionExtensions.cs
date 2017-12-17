@@ -14,19 +14,20 @@
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static IServiceCollection AddBaristaCore(this IServiceCollection services, IBaristaModuleService moduleService = null)
+        public static IServiceCollection AddBaristaCore(this IServiceCollection services, IBaristaModuleLoader moduleService = null)
         {
             IJavaScriptEngine chakraEngine = JavaScriptEngineFactory.CreateChakraEngine();
             if (moduleService == null)
-                moduleService = new InMemoryModuleService();
+                moduleService = new InMemoryModuleLoader();
 
             services.AddSingleton(chakraEngine);
             services.AddSingleton(moduleService);
-
-            services.AddTransient<IBaristaValueFactory, BaristaValueFactory>();
-            services.AddTransient<IBaristaContextFactory, BaristaContextFactory>();
-            services.AddTransient<IPromiseTaskQueue, PromiseTaskQueue>();
+            services.AddSingleton<IBaristaValueFactoryBuilder, BaristaValueFactoryBuilder>();
             services.AddSingleton<IBaristaRuntimeFactory, BaristaRuntimeFactory>();
+
+            services.AddTransient<IBaristaContextFactory, BaristaContextFactory>();
+            services.AddTransient<IBaristaConversionStrategy, BaristaConversionStrategy>();
+            services.AddTransient<IPromiseTaskQueue, PromiseTaskQueue>();
 
             return services;
         }
@@ -38,25 +39,25 @@
         /// <returns></returns>
         public static IServiceCollection FreeBaristaCoreServices(this IServiceCollection services)
         {
-            var runtimeFactoryDescriptors = new List<ServiceDescriptor>();
+            var runtimeServiceDescriptors = new List<ServiceDescriptor>();
             var chakraEngineDescriptors = new List<ServiceDescriptor>();
 
             foreach (var sd in services)
             {
                 if (sd.ImplementationInstance is BaristaRuntimeFactory)
-                    runtimeFactoryDescriptors.Add(sd);
+                    runtimeServiceDescriptors.Add(sd);
 
                 if (sd.ImplementationInstance is IJavaScriptEngine)
                     chakraEngineDescriptors.Add(sd);
             }
 
-            foreach(var sd in runtimeFactoryDescriptors)
+            foreach(var sd in runtimeServiceDescriptors)
             {
-                var runtimeFactory = sd.ImplementationInstance as BaristaRuntimeFactory;
+                var runtimeService = sd.ImplementationInstance as BaristaRuntimeFactory;
 
                 services.Remove(sd);
-                runtimeFactory.Dispose();
-                runtimeFactory = null;
+                runtimeService.Dispose();
+                runtimeService = null;
             }
 
             foreach (var sd in chakraEngineDescriptors)

@@ -1,12 +1,13 @@
 ﻿namespace BaristaLabs.BaristaCore.Tests
 {
-    using BaristaLabs.BaristaCore.Collections;
     using BaristaLabs.BaristaCore.JavaScript;
     using BaristaLabs.BaristaCore.JavaScript.Internal;
     using System;
     using System.Collections.Concurrent;
+    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class JavaScriptReference_Facts
     {
         #region Test Support

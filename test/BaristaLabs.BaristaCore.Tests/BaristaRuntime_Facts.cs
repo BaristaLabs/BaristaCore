@@ -4,8 +4,10 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class BaristaRuntime_Facts
     {
         private readonly ServiceCollection ServiceCollection;
@@ -48,10 +50,10 @@
         public void JavaScriptRuntimeShouldFireMemoryChangingCallbacks()
         {
             int changeCount = 0;
-            EventHandler<JavaScriptMemoryEventArgs> handler = (sender, e) =>
+            void handler(object sender, JavaScriptMemoryEventArgs e)
             {
                 changeCount++;
-            };
+            }
 
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -68,16 +70,16 @@
         public void JavaScriptRuntimeShouldFireGarbageCollectionCallbacks()
         {
             int collectingCount = 0;
-            EventHandler<EventArgs> handler = (sender, e) =>
+            EventHandler<BaristaObjectBeforeCollectEventArgs> handler = (sender, e) =>
             {
                 collectingCount++;
             };
 
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
-                rt.GarbageCollecting += handler;
+                rt.BeforeCollect += handler;
                 rt.CollectGarbage();
-                rt.GarbageCollecting -= handler;
+                rt.BeforeCollect -= handler;
             }
 
             Assert.True(collectingCount > 0);

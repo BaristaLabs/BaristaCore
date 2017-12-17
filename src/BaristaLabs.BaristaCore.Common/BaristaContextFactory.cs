@@ -3,7 +3,11 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Diagnostics;
 
+    /// <summary>
+    /// Represents a factory that creates Barista Contexts.
+    /// </summary>
     public sealed class BaristaContextFactory : IBaristaContextFactory
     {
         private BaristaObjectPool<BaristaContext, JavaScriptContextSafeHandle> m_contextPool;
@@ -15,10 +19,7 @@
         {
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
             m_serviceProvider = serviceProvider;
-            m_contextPool = new BaristaObjectPool<BaristaContext, JavaScriptContextSafeHandle>((target) =>
-            {
-                m_engine.JsSetObjectBeforeCollectCallback(target.Handle, IntPtr.Zero, null);
-            });
+            m_contextPool = new BaristaObjectPool<BaristaContext, JavaScriptContextSafeHandle>();
         }
 
         public BaristaContext CreateContext(BaristaRuntime runtime)
@@ -29,27 +30,28 @@
             if (runtime.IsDisposed)
                 throw new ObjectDisposedException(nameof(runtime));
 
-            var moduleService = m_serviceProvider.GetRequiredService<IBaristaModuleService>();
-            var valueFactory = m_serviceProvider.GetRequiredService<IBaristaValueFactory>();
-
-            //For flexability, a promise task queue is not required.
-            var promiseTaskQueue = m_serviceProvider.GetService<IPromiseTaskQueue>();
-
             var contextHandle = m_engine.JsCreateContext(runtime.Handle);
             return m_contextPool.GetOrAdd(contextHandle, () =>
             {
-                m_engine.JsSetObjectBeforeCollectCallback(contextHandle, IntPtr.Zero, OnBeforeCollectCallback);
-                return new BaristaContext(m_engine, valueFactory, promiseTaskQueue, moduleService, contextHandle);
+                var moduleService = m_serviceProvider.GetRequiredService<IBaristaModuleLoader>();
+                var valueFactoryBuilder = m_serviceProvider.GetRequiredService<IBaristaValueFactoryBuilder>();
+                var conversionStrategy = m_serviceProvider.GetRequiredService<IBaristaConversionStrategy>();
+
+                //For flexability, a promise task queue is not required.
+                var promiseTaskQueue = m_serviceProvider.GetService<IPromiseTaskQueue>();
+
+                //Set the handle that will be called prior to the engine collecting the context.
+                var context = new BaristaContext(m_engine, valueFactoryBuilder, conversionStrategy, promiseTaskQueue, moduleService, contextHandle);
+
+                void beforeCollect(object sender, BaristaObjectBeforeCollectEventArgs args)
+                {
+                    context.BeforeCollect -= beforeCollect;
+                    Debug.Assert(m_contextPool != null);
+                    m_contextPool.RemoveHandle(new JavaScriptContextSafeHandle(args.Handle));
+                }
+                context.BeforeCollect += beforeCollect;
+                return context;
             });
-        }
-
-        private void OnBeforeCollectCallback(IntPtr handle, IntPtr callbackState)
-        {
-            //If the contextpool is null, this factory has already been disposed.
-            if (m_contextPool == null)
-                return;
-
-            m_contextPool.RemoveHandle(new JavaScriptContextSafeHandle(handle));
         }
 
         #region IDisposable

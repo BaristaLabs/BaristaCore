@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
     using System.Text;
     using Xunit;
@@ -10,6 +11,7 @@
     /// <summary>
     /// Direct tests against the IChakraApi layer
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class ICommonJavaScriptEngine_Facts
     {
         #region Test Support
@@ -125,6 +127,7 @@
                 called = true;
                 return true;
             };
+            var callbackHandle = GCHandle.Alloc(callback);
 
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
@@ -137,6 +140,7 @@
             }
 
             Assert.True(called);
+            callbackHandle.Free();
         }
 
         [Fact]
@@ -147,15 +151,19 @@
             {
                 called = true;
             };
+            var callbackHandle = GCHandle.Alloc(callback);
 
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
                 Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, callback);
 
                 Engine.JsCollectGarbage(runtimeHandle);
+
+                Engine.JsSetRuntimeBeforeCollectCallback(runtimeHandle, IntPtr.Zero, null);
             }
 
             Assert.True(called);
+            callbackHandle.Free();
         }
 
         [Fact]
@@ -217,6 +225,7 @@
             {
                 called = true;
             };
+            var callbackHandle = GCHandle.Alloc(callback);
 
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
@@ -235,6 +244,8 @@
                 Engine.JsCollectGarbage(runtimeHandle);
                 Assert.True(called);
             }
+
+            callbackHandle.Free();
         }
 
         [Fact]
@@ -245,6 +256,7 @@
             {
                 called = true;
             };
+            var callbackHandle = GCHandle.Alloc(callback);
 
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
@@ -270,6 +282,7 @@
             }
 
             Assert.False(called);
+            callbackHandle.Free();
         }
 
         [Fact]
@@ -280,6 +293,7 @@
             {
                 called = true;
             };
+            var callbackHandle = GCHandle.Alloc(callback);
 
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
@@ -298,6 +312,7 @@
             //Since the object was not disposed, and a reference still exists,
             //the callback is called during runtime collection
             Assert.True(called);
+            callbackHandle.Free();
         }
 
         [Fact]
@@ -308,6 +323,7 @@
             {
                 called = true;
             };
+            var callbackHandle = GCHandle.Alloc(callback);
 
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
@@ -329,6 +345,7 @@
             }
 
             Assert.False(called);
+            callbackHandle.Free();
         }
 
         [Fact]
@@ -339,6 +356,7 @@
             {
                 called = true;
             };
+            var callbackHandle = GCHandle.Alloc(callback);
 
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
@@ -354,6 +372,7 @@
                 Engine.JsCollectGarbage(runtimeHandle);
                 Assert.True(called);
             }
+            callbackHandle.Free();
         }
 
         [Fact]
@@ -364,6 +383,7 @@
             {
                 called = true;
             };
+            var callbackHandle = GCHandle.Alloc(callback);
 
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
@@ -373,6 +393,7 @@
                 }
             }
             Assert.True(called);
+            callbackHandle.Free();
         }
 
         [Fact]
@@ -383,6 +404,7 @@
             {
                 called = true;
             };
+            var callbackHandle = GCHandle.Alloc(callback);
 
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
             {
@@ -401,6 +423,7 @@
 
             //As "Undefined" is a 'const' it disposes when the runtime itself cleans up.
             Assert.True(called);
+            callbackHandle.Free();
         }
 
         [Fact]
@@ -2442,6 +2465,7 @@ new Promise(function(resolve, reject) {
                         Assert.Equal(JavaScriptValueType.Function, valueType);
                         taskQueue.Push(task);
                     };
+                    var callbackHandle = GCHandle.Alloc(promiseContinuationCallback);
                     Engine.JsSetPromiseContinuationCallback(promiseContinuationCallback, IntPtr.Zero);
 
                     var promiseHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
@@ -2488,6 +2512,7 @@ new Promise(function(resolve, reject) {
                     undefinedHandle.Dispose();
                     globalObjectHandle.Dispose();
                     promiseHandle.Dispose();
+                    callbackHandle.Free();
                 }
             }
 
@@ -3039,6 +3064,9 @@ function throwAtHost() {
 
                     errorHandle.Dispose();
                     messageHandle.Dispose();
+
+                    var clearedException = Engine.JsGetAndClearException();
+                    Assert.Equal(errorHandle, clearedException);
                 }
             }
         }

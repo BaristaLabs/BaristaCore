@@ -1,10 +1,12 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
     using System.Text;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class ICommonWindowsScriptEngine_Facts
     {
         private IJavaScriptEngine Engine;
