@@ -16,7 +16,7 @@
     <tags>Barista,BaristaCore,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-		  <dependency id="BaristaLabs.BaristaCore.ChakraCore" version="1.7.5-beta1" />
+		  <dependency id="BaristaLabs.BaristaCore.ChakraCore" version="1.7.5-beta2" />
 	  </group>
     </dependencies>
   </metadata>

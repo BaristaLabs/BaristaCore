@@ -2,7 +2,7 @@ This folder contains pre-built ChakraCore libraries for macOS, Ubuntu and Window
 
 chakracore.dll - Windows 10, x64, Release - 1.7.5
 libChakraCore.dylib - macOS Sierra, amd64, Release - 1.7.5
-libChakraCore.so - Ubuntu 16.04.1, amd64, Release - 1.7.4
+libChakraCore.so - Ubuntu 16.04.1, amd64, Release - 1.7.5
 
 
 These pre-build binaries are only included for convenience as ChakraCore is a relatively big build and these cover the majority of platforms.
