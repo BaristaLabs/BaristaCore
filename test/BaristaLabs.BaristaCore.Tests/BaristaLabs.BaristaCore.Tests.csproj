@@ -21,13 +21,6 @@
     </None>
   </ItemGroup>
 
-  <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
-    <ItemGroup>
-      <ChakraCore Include="..\..\lib\ChakraCore\**\*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(ChakraCore)" DestinationFolder="$(TargetDir)\ChakraCore\%(RecursiveDir)" />
-  </Target>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.csproj" />
   </ItemGroup>
