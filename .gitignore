@@ -236,3 +236,7 @@ ModelManifest.xml
 #JetBrains
 .idea/
 opencoverCoverage.xml
+
+# NuGet Artifacts
+lib/ChakraCore/NuGet.exe
+lib/ChakraCore/Artifacts/

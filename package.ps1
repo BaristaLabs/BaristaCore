@@ -1,0 +1,1 @@
+nuget pack .\src\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.nuspec -Properties Configuration=Release

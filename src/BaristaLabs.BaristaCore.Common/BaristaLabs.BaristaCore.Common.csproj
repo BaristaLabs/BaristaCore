@@ -10,6 +10,19 @@
     <Platforms>AnyCPU;x64</Platforms>
     <DebugType>Full</DebugType>
     <RootNamespace>BaristaLabs.BaristaCore</RootNamespace>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Authors>Sean McLellan</Authors>
+    <Copyright>Copyright (c) 2017 BaristaLabs, LLC</Copyright>
+    <Description>Provides a high-level wrapper around Chakra, the JavaScript engine that powers Microsoft Edge, allowing for a fully managed and sandboxed JavaScript-based scripting environment.
+
+BaristaCore.Common is utilized within the Barista Functions-as-a-Service platform.</Description>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/BaristaLabs/BaristaCore</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/BaristaLabs/BaristaCore.git</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Barista,BaristaCore,Sandbox,FaaS,RulesEngineChakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</PackageTags>
+    <Version>1.0.0-beta1</Version>
+    <PackageReleaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -21,7 +34,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />
+    <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore" Version="1.7.5-beta1" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />

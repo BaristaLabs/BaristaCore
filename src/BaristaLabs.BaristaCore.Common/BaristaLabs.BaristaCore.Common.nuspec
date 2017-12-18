@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>BaristaLabs.BaristaCore.Common</id>
+    <version>1.0.0-beta1</version>
+    <authors>Sean McLellan</authors>
+    <owners>BaristaLabs, LLC</owners>
+    <licenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/BaristaLabs/BaristaCore</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <developmentDependency>true</developmentDependency>
+    <description>Provides a high-level wrapper around Chakra, the JavaScript engine that powers Microsoft Edge, allowing for a fully managed and sandboxed JavaScript-based scripting environment.</description>
+    <releaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</releaseNotes>
+    <copyright>Copyright (c) 2017 BaristaLabs, LLC</copyright>
+    <language>en-US</language>
+    <tags>Barista,BaristaCore,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+		  <dependency id="BaristaLabs.BaristaCore.ChakraCore" version="1.7.5-beta1" />
+	  </group>
+    </dependencies>
+  </metadata>
+  <files>
+	  <file src=".\bin\x64\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Common.dll" target="lib\netstandard2.0\"/>
+    <file src=".\bin\x64\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Common.pdb" target="lib\netstandard2.0\"/>
+  </files>
+</package>

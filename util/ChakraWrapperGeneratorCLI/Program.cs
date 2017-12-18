@@ -72,7 +72,7 @@
             var generator = Handlebars.Compile(templateContents);
             var libChakraCore = generator(new
             {
-                DllName = "ChakraCore/libChakraCore",
+                DllName = "libChakraCore",
                 Externs = externs
             });
 

@@ -9,7 +9,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
     [System.Diagnostics.DebuggerNonUserCode]
     public static class LibChakraCore
     {
-        private const string DllName = "ChakraCore/libChakraCore";
+        private const string DllName = "libChakraCore";
 
         /// <summary>
         ///     Initialize a ModuleRecord from host
