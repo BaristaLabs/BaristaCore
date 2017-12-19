@@ -1,7 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.Tests
 {
     using BaristaCore.Extensions;
-    using BaristaLabs.BaristaCore.JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -44,8 +43,8 @@
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 var converter = m_provider.GetRequiredService<IBaristaConversionStrategy>();
+                var moduleRecordFactory = m_provider.GetRequiredService<IBaristaModuleRecordFactory>();
                 var taskQueue = m_provider.GetRequiredService<IPromiseTaskQueue>();
-                var moduleLoader = m_provider.GetRequiredService<IBaristaModuleLoader>();
 
                 var contextHandle = rt.Engine.JsCreateContext(rt.Handle);
 
@@ -53,7 +52,7 @@
                 {
                     Assert.Throws<ArgumentNullException>(() =>
                     {
-                        var ctx = new BaristaContext(rt.Engine, null, converter, taskQueue, moduleLoader, contextHandle);
+                        var ctx = new BaristaContext(rt.Engine, null, converter, moduleRecordFactory, taskQueue, contextHandle);
                     });
                 }
                 finally
@@ -72,8 +71,8 @@
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
                 var valueFactoryBuilder = m_provider.GetRequiredService<IBaristaValueFactoryBuilder>();
+                var moduleRecordFactory = m_provider.GetRequiredService<IBaristaModuleRecordFactory>();
                 var taskQueue = m_provider.GetRequiredService<IPromiseTaskQueue>();
-                var moduleLoader = m_provider.GetRequiredService<IBaristaModuleLoader>();
 
                 var contextHandle = rt.Engine.JsCreateContext(rt.Handle);
 
@@ -81,7 +80,7 @@
                 {
                     Assert.Throws<ArgumentNullException>(() =>
                     {
-                        var ctx = new BaristaContext(rt.Engine, valueFactoryBuilder, null, taskQueue, moduleLoader, contextHandle);
+                        var ctx = new BaristaContext(rt.Engine, valueFactoryBuilder, null, moduleRecordFactory, taskQueue, contextHandle);
                     });
                 }
                 finally

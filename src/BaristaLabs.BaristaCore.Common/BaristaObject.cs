@@ -65,7 +65,7 @@
         /// Raises the BeforeCollect event.
         /// </summary>
         /// <remarks>
-        /// Objects that participate in Garbage Collection should assoicate a callback within the constructor that calls this function.
+        /// Objects that participate in Garbage Collection should associate a callback within the constructor that calls this function.
         /// </remarks>
         /// <param name="e"></param>
         protected virtual void OnBeforeCollect(IntPtr handle, IntPtr callbackState)

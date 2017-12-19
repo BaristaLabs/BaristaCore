@@ -13,11 +13,8 @@
             if (disposing && !IsClosed)
             {
                 //Ensure that a context is not active, otherwise the runtime will throw a "Runtime In Use" exception.
-                var error = LibChakraCore.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
-                Debug.Assert(error == JavaScriptErrorCode.NoError);
-
-                error = LibChakraCore.JsDisposeRuntime(handle);
-                Debug.Assert(error == JavaScriptErrorCode.NoError);
+                LibChakraCore.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
+                LibChakraCore.JsDisposeRuntime(handle);
             }
 
             //Do not call the base implementation as we have no references to free.

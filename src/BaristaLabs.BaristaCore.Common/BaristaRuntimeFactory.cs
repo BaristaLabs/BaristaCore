@@ -45,7 +45,6 @@
                 void afterDispose(object sender, EventArgs args)
                 {
                     rt.AfterDispose -= afterDispose;
-                    Debug.Assert(m_runtimePool != null);
                     m_runtimePool.RemoveHandle(runtimeHandle);
                 }
 

@@ -23,14 +23,12 @@
 
             //Get the size
             innerError = LibChakraCore.JsCopyString(stringHandle, null, 0, out ulong size);
-            Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
             if ((int)size > int.MaxValue)
                 throw new OutOfMemoryException("Exceeded maximum string length.");
 
             byte[] result = new byte[(int)size];
             innerError = LibChakraCore.JsCopyString(stringHandle, result, (ulong)result.Length, out ulong written);
-            Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
             var strResult = Encoding.UTF8.GetString(result, 0, result.Length);
 

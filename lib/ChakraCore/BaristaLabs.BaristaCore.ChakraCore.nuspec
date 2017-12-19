@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
     <id>BaristaLabs.BaristaCore.ChakraCore</id>
-    <version>1.7.5-beta2</version>
+    <version>1.7.5</version>
     <authors>Sean McLellan</authors>
     <owners>BaristaLabs, LLC</owners>
     <licenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</licenseUrl>
@@ -16,9 +16,9 @@
     <tags>Barista,BaristaCore,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-		  <dependency id="BaristaLabs.BaristaCore.ChakraCore.win-x64" version="1.7.5-beta1" />
-		  <dependency id="BaristaLabs.BaristaCore.ChakraCore.osx-x64" version="1.7.5-beta1" />
-		  <dependency id="BaristaLabs.BaristaCore.ChakraCore.linux-x64" version="1.7.5-beta1" />
+		  <dependency id="BaristaLabs.BaristaCore.ChakraCore.win-x64" version="1.7.5" />
+		  <dependency id="BaristaLabs.BaristaCore.ChakraCore.osx-x64" version="1.7.5" />
+		  <dependency id="BaristaLabs.BaristaCore.ChakraCore.linux-x64" version="1.7.5" />
 	  </group>
     </dependencies>
   </metadata>

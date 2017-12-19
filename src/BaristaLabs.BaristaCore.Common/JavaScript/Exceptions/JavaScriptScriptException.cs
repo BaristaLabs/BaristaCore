@@ -48,22 +48,17 @@
 
             //Get the error object type
             innerError = LibChakraCore.JsGetValueType(error, out JavaScriptValueType errorType);
-            Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
             switch (errorType)
             {
                 case JavaScriptValueType.Error:
                     //Get the message of the Script Error.            
                     innerError = LibChakraCore.JsCreatePropertyId(MessagePropertyName, (ulong)MessagePropertyName.Length, out JavaScriptPropertyIdSafeHandle messagePropertyHandle);
-                    Debug.Assert(innerError == JavaScriptErrorCode.NoError);
-
                     innerError = LibChakraCore.JsHasProperty(error, messagePropertyHandle, out bool hasMessageProperty);
-                    Debug.Assert(innerError == JavaScriptErrorCode.NoError);
 
                     if (hasMessageProperty == true)
                     {
                         innerError = LibChakraCore.JsGetProperty(error, messagePropertyHandle, out JavaScriptValueSafeHandle messageValue);
-                        Debug.Assert(innerError == JavaScriptErrorCode.NoError);
                         m_message = Helpers.GetStringUtf8(messageValue, releaseHandle: true);
                     }
                     break;
