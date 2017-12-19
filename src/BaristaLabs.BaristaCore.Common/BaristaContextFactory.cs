@@ -33,7 +33,7 @@
             var contextHandle = m_engine.JsCreateContext(runtime.Handle);
             return m_contextPool.GetOrAdd(contextHandle, () =>
             {
-                var moduleService = m_serviceProvider.GetRequiredService<IBaristaModuleLoader>();
+                var moduleRecordFactory = m_serviceProvider.GetRequiredService<IBaristaModuleRecordFactory>();
                 var valueFactoryBuilder = m_serviceProvider.GetRequiredService<IBaristaValueFactoryBuilder>();
                 var conversionStrategy = m_serviceProvider.GetRequiredService<IBaristaConversionStrategy>();
 
@@ -41,7 +41,7 @@
                 var promiseTaskQueue = m_serviceProvider.GetService<IPromiseTaskQueue>();
 
                 //Set the handle that will be called prior to the engine collecting the context.
-                var context = new BaristaContext(m_engine, valueFactoryBuilder, conversionStrategy, promiseTaskQueue, moduleService, contextHandle);
+                var context = new BaristaContext(m_engine, valueFactoryBuilder, conversionStrategy, moduleRecordFactory, promiseTaskQueue, contextHandle);
 
                 void beforeCollect(object sender, BaristaObjectBeforeCollectEventArgs args)
                 {

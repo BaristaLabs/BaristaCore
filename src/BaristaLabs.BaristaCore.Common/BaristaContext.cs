@@ -1,10 +1,8 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
     using BaristaLabs.BaristaCore.JavaScript;
-    using BaristaLabs.BaristaCore.JavaScript.Extensions;
     using BaristaLabs.BaristaCore.Tasks;
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -27,11 +25,11 @@
         private readonly Lazy<JsObject> m_globalValue;
         private readonly Lazy<JsObjectConstructor> m_objectValue;
         private readonly Lazy<JsPromise> m_promiseValue;
-        
+
         private readonly IBaristaValueFactory m_valueFactory;
         private readonly IBaristaConversionStrategy m_conversionStrategy;
         private readonly IPromiseTaskQueue m_promiseTaskQueue;
-        private readonly IBaristaModuleLoader m_moduleLoader;
+        private readonly IBaristaModuleRecordFactory m_moduleRecordFactory;
 
         private readonly TaskFactory m_taskFactory;
         private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
@@ -45,7 +43,7 @@
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="contextHandle"></param>
-        public BaristaContext(IJavaScriptEngine engine, IBaristaValueFactoryBuilder valueFactoryBuilder, IBaristaConversionStrategy conversionStrategy, IPromiseTaskQueue taskQueue, IBaristaModuleLoader moduleLoader, JavaScriptContextSafeHandle contextHandle)
+        public BaristaContext(IJavaScriptEngine engine, IBaristaValueFactoryBuilder valueFactoryBuilder, IBaristaConversionStrategy conversionStrategy, IBaristaModuleRecordFactory moduleRecordFactory, IPromiseTaskQueue taskQueue, JavaScriptContextSafeHandle contextHandle)
             : base(engine, contextHandle)
         {
             if (valueFactoryBuilder == null)
@@ -84,7 +82,7 @@
 
 
             m_promiseTaskQueue = taskQueue;
-            m_moduleLoader = moduleLoader;
+            m_moduleRecordFactory = moduleRecordFactory ?? throw new ArgumentNullException(nameof(moduleRecordFactory));
 
             //Set the event that will be called prior to the engine collecting the context.
             JavaScriptObjectBeforeCollectCallback beforeCollectCallback = (IntPtr handle, IntPtr callbackState) =>
@@ -339,7 +337,6 @@
 
         private string EvaluateModuleInternal(string script)
         {
-            var mainModuleName = "";
             var subModuleId = Guid.NewGuid();
             var subModuleName = subModuleId.ToString();
 
@@ -363,92 +360,25 @@ let global = (new Function('return this;'))();
 ";
             }
 
-            bool mainModuleReady = false;
-
-            var mainModuleNameHandle = Engine.JsCreateString(mainModuleName, (ulong)mainModuleName.Length);
-            var mainModuleHandle = Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, mainModuleNameHandle);
-            var subModuleNameHandle = Engine.JsCreateString(subModuleName, (ulong)subModuleName.Length);
-            var subModuleHandle = Engine.JsInitializeModuleRecord(mainModuleHandle, subModuleNameHandle);
-
-            //Associate functions that will handle module loading
-
-            //Set the fetch callback.
-            m_importedModules = new Dictionary<string, JavaScriptModuleRecord>();
-            GCHandle fetchImportedModuleCallbackHandle = default(GCHandle);
-            JavaScriptFetchImportedModuleCallback fetchImportedModule = (IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModule) =>
-            {
-                try
-                {
-                    return FetchImportedModule(referencingModule, specifier, out dependentModule);
-                }
-                catch(Exception ex)
-                {
-                    Engine.JsSetException(ValueFactory.CreateError(ex.Message).Handle);
-
-                    if (fetchImportedModuleCallbackHandle != default(GCHandle) && fetchImportedModuleCallbackHandle.IsAllocated)
-                    {
-                        Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
-                        fetchImportedModuleCallbackHandle.Free();
-                    }
-                    dependentModule = referencingModule;
-                    return true;
-                }
-            };
-
-            fetchImportedModuleCallbackHandle = GCHandle.Alloc(fetchImportedModule);
-            IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(fetchImportedModule);
-            Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, fetchCallbackPtr);
-
-            //Set the notify callback.
-            GCHandle mainModuleNotifyCallbackHandle = default(GCHandle);
-            JavaScriptNotifyModuleReadyCallback mainModuleNotifyCallback = (IntPtr referencingModule, IntPtr exceptionVar) =>
-            {
-                try
-                {
-                    var result = NotifyModuleReadyCallback(referencingModule, exceptionVar);
-                    mainModuleReady = !result;
-                    return result;
-                }
-                catch(Exception ex)
-                {
-                    if (!Engine.JsHasException())
-                    {
-                        Engine.JsSetException(ValueFactory.CreateError(ex.Message).Handle);
-                    }
-
-                     if (mainModuleNotifyCallbackHandle != default(GCHandle) && mainModuleNotifyCallbackHandle.IsAllocated)
-                    {
-                        Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, IntPtr.Zero);
-                        mainModuleNotifyCallbackHandle.Free();
-                    }
-                    return true;
-                }
-            };
-
-            mainModuleNotifyCallbackHandle = GCHandle.Alloc(mainModuleNotifyCallback);
-            IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate(mainModuleNotifyCallback);
-            Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, notifyCallbackPtr);
-
-            //Indicate the host-defined, main module.
-            Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.HostDefined, mainModuleNameHandle.DangerousGetHandle());
+            var mainModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, "", null, true);
+            var subModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, subModuleName, mainModule);
 
             //Now start the parsing.
             try
             {
                 //First, parse our main module script.
-                var mainModuleScriptBuffer = Encoding.UTF8.GetBytes(mainModuleScript);
-                Engine.JsParseModuleSource(mainModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), mainModuleScriptBuffer, (uint)mainModuleScriptBuffer.LongLength, JavaScriptParseModuleSourceFlags.DataIsUTF8);
+                mainModule.ParseModuleSource(mainModuleScript);
 
                 //Now Parse the user-provided script.
-                var scriptBuffer = Encoding.UTF8.GetBytes(script);
-                Engine.JsParseModuleSource(subModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
-
-                //Assert that the notification delegate executed for the main module.
-                Debug.Assert(mainModuleReady, "Main module is not ready. Ensure all script modules are loaded.");
+                subModule.ParseModuleSource(script);
+               
+                //Assert that the notification delegate executed for the main and sub modules.
+                Debug.Assert(subModule.IsReady, "Sub module is not ready. Ensure all script modules are loaded.");
+                Debug.Assert(mainModule.IsReady, "Main module is not ready. Ensure all script modules are loaded.");
 
                 //Now we're ready, evaluate the main module.
 
-                Engine.JsModuleEvaluation(mainModuleHandle);
+                Engine.JsModuleEvaluation(mainModule.ModuleRecord);
 
                 //Evaluate any pending promises.
                 CurrentScope.ResolvePendingPromises();
@@ -463,14 +393,8 @@ let global = (new Function('return this;'))();
             }
             finally
             {
-                Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
-                if (fetchImportedModuleCallbackHandle.IsAllocated)
-                    fetchImportedModuleCallbackHandle.Free();
-
-                //Unset the Notify callback.
-                Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, IntPtr.Zero);
-                if (mainModuleNotifyCallbackHandle.IsAllocated)
-                    mainModuleNotifyCallbackHandle.Free();
+                subModule.Dispose();
+                mainModule.Dispose();
             }
         }
 
@@ -490,121 +414,6 @@ let global = (new Function('return this;'))();
             {
                 throw new BaristaException("This context already has an active execution scope.");
             }
-        }
-
-        private Dictionary<string, JavaScriptModuleRecord> m_importedModules;
-
-        private bool FetchImportedModule(IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModule)
-        {
-            var specifierHandle = new JavaScriptValueSafeHandle(specifier);
-                var moduleName = Engine.GetStringUtf8(specifierHandle);
-
-                // Leaving this code here for postarity -- the way we do module loading would cause the following scenario to be exceedingly rare.
-                // That is, the top-level module would need to know a-priori the guid-based sub-module name. If this happens, better go buy a scratch-off.
-                //if (moduleName == childModuleName)
-                //{
-                //    //Top-level self-referencing module. Reference itself.
-                //    dependentModule = childModuleRecord.DangerousGetHandle();
-                //    return false;
-                //}
-
-                if (m_importedModules.ContainsKey(moduleName))
-                {
-                    //The module has already been imported, return the existing JavaScriptModuleRecord
-                    dependentModule = m_importedModules[moduleName].DangerousGetHandle();
-                    return false;
-                }
-                else if (m_moduleLoader != null)
-                {
-                    var module = m_moduleLoader.GetModule(moduleName);
-
-                    if (module != null)
-                    {
-                        var referencingModuleRecord = new JavaScriptModuleRecord(referencingModule);
-
-                        switch (module)
-                        {
-                            //For the built-in Script Module type, parse the string returned by InstallModule and install it as a module.
-                            case BaristaScriptModule scriptModule:
-                                var script = (scriptModule.ExportDefault(this, referencingModuleRecord)).GetAwaiter().GetResult() as string;
-                                if (script == null)
-                                    script = "export default null";
-                                var moduleRecord = Engine.JsInitializeModuleRecord(referencingModuleRecord, specifierHandle);
-                                m_importedModules.Add(moduleName, moduleRecord);
-                                var scriptBuffer = Encoding.UTF8.GetBytes(script);
-                                Engine.JsParseModuleSource(moduleRecord, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.LongLength, JavaScriptParseModuleSourceFlags.DataIsUTF8);
-                                dependentModule = moduleRecord.DangerousGetHandle();
-                                return false;
-                            //Otherwise, install the module.
-                            default:
-                                var result = InstallModule(module, referencingModuleRecord, specifierHandle, out JavaScriptModuleRecord dependentModuleRecord);
-                                m_importedModules.Add(moduleName, dependentModuleRecord);
-                                dependentModule = dependentModuleRecord.DangerousGetHandle();
-                                return result;
-                        }
-                    }
-                }
-
-                dependentModule = referencingModule;
-                return true;
-        }
-
-        private bool NotifyModuleReadyCallback(IntPtr referencingModule, IntPtr exceptionVar)
-        {
-            if (exceptionVar != IntPtr.Zero)
-            {
-                var error = m_valueFactory.CreateValue<JsError>(new JavaScriptValueSafeHandle(exceptionVar));
-                throw new BaristaScriptException(error);
-            }
-
-            return false;
-        }
-
-        private bool InstallModule(IBaristaModule module, JavaScriptModuleRecord referencingModuleRecord, JavaScriptValueSafeHandle specifierHandle, out JavaScriptModuleRecord dependentModuleRecord)
-        {
-            object moduleValue;
-            try
-            {
-                moduleValue = module.ExportDefault(this, referencingModuleRecord).GetAwaiter().GetResult();
-            }
-            catch (Exception ex)
-            {
-                throw new BaristaException($"An error occurred while obtaining the default export of the native module named {module.Name}: {ex.Message}", ex);
-            }
-
-            if (Converter.TryFromObject(this, moduleValue, out JsValue convertedValue))
-            {
-                return CreateSingleValueModule(convertedValue.Handle, referencingModuleRecord, specifierHandle, out dependentModuleRecord);
-            }
-            else
-            {
-                throw new BaristaException($"Unable to install module {module.Name}: the default exported value could not be converted into a JavaScript object.");
-            }
-        }
-
-        /// <summary>
-        /// Creates a module that returns the specified value.
-        /// </summary>
-        /// <param name="valueSafeHandle"></param>
-        /// <param name="referencingModuleRecord"></param>
-        /// <param name="specifierHandle"></param>
-        /// <param name="dependentModuleRecord"></param>
-        /// <returns></returns>
-        private bool CreateSingleValueModule(JavaScriptValueSafeHandle valueSafeHandle, JavaScriptModuleRecord referencingModuleRecord, JavaScriptValueSafeHandle specifierHandle, out JavaScriptModuleRecord dependentModuleRecord)
-        {
-            var globalId = Guid.NewGuid();
-            var exposeNativeValueScript = $@"
-let global = (new Function('return this;'))();
-let defaultExport = global['$DEFAULTEXPORT_{globalId.ToString()}'];
-export default defaultExport;
-";
-            var moduleRecord = Engine.JsInitializeModuleRecord(referencingModuleRecord, specifierHandle);
-
-            Engine.SetGlobalVariable($"$DEFAULTEXPORT_{globalId.ToString()}", valueSafeHandle);
-            var scriptBuffer = Encoding.UTF8.GetBytes(exposeNativeValueScript);
-            Engine.JsParseModuleSource(moduleRecord, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.LongLength, JavaScriptParseModuleSourceFlags.DataIsUTF8);
-            dependentModuleRecord = moduleRecord;
-            return false;
         }
 
         private void ReleaseScope()

@@ -24,6 +24,7 @@
             services.AddSingleton(moduleService);
             services.AddSingleton<IBaristaValueFactoryBuilder, BaristaValueFactoryBuilder>();
             services.AddSingleton<IBaristaRuntimeFactory, BaristaRuntimeFactory>();
+            services.AddSingleton<IBaristaModuleRecordFactory, BaristaModuleRecordFactory>();
 
             services.AddTransient<IBaristaContextFactory, BaristaContextFactory>();
             services.AddTransient<IBaristaConversionStrategy, BaristaConversionStrategy>();

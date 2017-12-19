@@ -166,11 +166,11 @@ export default soAmazing;
             {
                 var converter = m_provider.GetRequiredService<IBaristaConversionStrategy>();
                 var valueFactoryBuilder = m_provider.GetRequiredService<IBaristaValueFactoryBuilder>();
+                var moduleRecordFactory = m_provider.GetRequiredService<IBaristaModuleRecordFactory>();
                 IPromiseTaskQueue taskQueue = null;
-                var moduleLoader = m_provider.GetRequiredService<IBaristaModuleLoader>();
 
                 var contextHandle = rt.Engine.JsCreateContext(rt.Handle);
-                using (var ctx = new BaristaContext(rt.Engine, valueFactoryBuilder, converter, taskQueue, moduleLoader, contextHandle))
+                using (var ctx = new BaristaContext(rt.Engine, valueFactoryBuilder, converter, moduleRecordFactory, taskQueue, contextHandle))
                 {
                     var result = ctx.EvaluateModule("export default 'foo';");
                     Assert.Equal("foo", result.ToString());
@@ -379,6 +379,29 @@ export default 'banana' + ' ' + banana;
                     {
                         var result = ctx.EvaluateModule<JsNumber>(script);
                     });
+                }
+            }
+        }
+
+        [Fact]
+        public void MultipleModulesCanBeRegisteredAndUsed()
+        {
+            var script = @"
+        import helloWorld from 'hello_world';
+        import fourtytwo from 'FourtyTwo';
+        export default helloWorld + ' ' + fourtytwo;
+        ";
+            ModuleLoader.RegisterModule(new FourtyTwoModule());
+            ModuleLoader.RegisterModule(new HelloWorldModule());
+
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    var result = ctx.EvaluateModule<JsString>(script);
+
+                    Assert.NotNull(result);
+                    Assert.Equal("Hello, World! 42", result.ToString());
                 }
             }
         }

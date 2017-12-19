@@ -290,6 +290,9 @@
         /// <returns>The JavaScript Value that represents the handle</returns>
         public JsValue CreateValue(JavaScriptValueSafeHandle valueHandle, JavaScriptValueType? valueType = null)
         {
+            if (valueHandle == JavaScriptValueSafeHandle.Invalid)
+                return null;
+
             return m_valuePool.GetOrAdd(valueHandle, () =>
             {
                 if (valueType.HasValue == false)
@@ -356,6 +359,9 @@
 
             if (typeof(JsValue).IsSameOrSubclass(targetType) == false)
                 throw new ArgumentOutOfRangeException(nameof(targetType));
+
+            if (valueHandle == JavaScriptValueSafeHandle.Invalid)
+                return null;
 
             return m_valuePool.GetOrAdd(valueHandle, () =>
             {
