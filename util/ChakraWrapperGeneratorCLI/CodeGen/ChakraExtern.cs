@@ -142,7 +142,8 @@
                             p.Type == "JavaScriptRuntimeSafeHandle" ||
                             p.Type == "JavaScriptContextSafeHandle" ||
                             p.Type == "JavaScriptValueSafeHandle" ||
-                            p.Type == "JavaScriptPropertyIdSafeHandle"
+                            p.Type == "JavaScriptPropertyIdSafeHandle" ||
+                            p.Type == "JavaScriptModuleRecord"
                         )
                 );
             }

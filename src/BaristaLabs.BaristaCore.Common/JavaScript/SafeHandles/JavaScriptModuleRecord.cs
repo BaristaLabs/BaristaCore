@@ -5,7 +5,7 @@
     /// <summary>
     /// Represents a Chakra Engine Module Record Safe Handle
     /// </summary>
-    public sealed class JavaScriptModuleRecord : JavaScriptReference
+    public sealed class JavaScriptModuleRecord : JavaScriptReference<JavaScriptModuleRecord>
     {
         public JavaScriptModuleRecord()
             : base()

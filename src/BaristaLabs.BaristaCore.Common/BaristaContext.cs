@@ -373,7 +373,7 @@ let global = (new Function('return this;'))();
 
                 //Now we're ready, evaluate the main module.
 
-                Engine.JsModuleEvaluation(mainModule.ModuleRecord);
+                Engine.JsModuleEvaluation(mainModule.Handle);
 
                 //Evaluate any pending promises.
                 CurrentScope.ResolvePendingPromises();
@@ -388,7 +388,6 @@ let global = (new Function('return this;'))();
             }
             finally
             {
-                subModule.Dispose();
                 mainModule.Dispose();
             }
         }

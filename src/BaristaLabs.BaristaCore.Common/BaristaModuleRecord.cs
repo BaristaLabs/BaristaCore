@@ -3,21 +3,18 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Runtime.InteropServices;
     using System.Text;
 
     /// <summary>
     /// Represents a JavaScript Module
     /// </summary>
-    public sealed class BaristaModuleRecord : IDisposable
+    public sealed class BaristaModuleRecord : BaristaObject<JavaScriptModuleRecord>
     {
         private readonly string m_name;
-        private readonly IJavaScriptEngine m_engine;
         private readonly BaristaContext m_context;
         private readonly IBaristaModuleRecordFactory m_moduleRecordFactory;
         private readonly IBaristaModuleLoader m_moduleLoader;
-        private readonly JavaScriptModuleRecord m_moduleRecord;
 
         private readonly GCHandle m_fetchImportedModuleCallbackHandle = default(GCHandle);
         private readonly GCHandle m_notifyCallbackHandle = default(GCHandle);
@@ -27,13 +24,12 @@
         private readonly BaristaModuleRecord m_parentModule; 
 
         public BaristaModuleRecord(string name, BaristaModuleRecord parentModule, IJavaScriptEngine engine, BaristaContext context, IBaristaModuleRecordFactory moduleRecordFactory, IBaristaModuleLoader moduleLoader, JavaScriptModuleRecord moduleRecord)
+            : base(engine, moduleRecord)
         {
             m_name = name ?? throw new ArgumentNullException(nameof(name));
             m_parentModule = parentModule;
-            m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
             m_context = context ?? throw new ArgumentNullException(nameof(context));
             m_moduleRecordFactory = moduleRecordFactory ?? throw new ArgumentNullException(nameof(moduleRecordFactory));
-            m_moduleRecord = moduleRecord ?? throw new ArgumentNullException(nameof(moduleRecord));
 
             m_moduleLoader = moduleLoader;
 
@@ -42,10 +38,10 @@
             if (m_parentModule == null)
             {
                 //Set the fetch module callback for the module.
-                m_fetchImportedModuleCallbackHandle = InitFetchImportedModuleCallback(m_moduleRecord);
+                m_fetchImportedModuleCallbackHandle = InitFetchImportedModuleCallback(Handle);
 
                 //Set the notify callback for the module.
-                m_notifyCallbackHandle = InitNotifyModuleReadyCallback(m_moduleRecord);
+                m_notifyCallbackHandle = InitNotifyModuleReadyCallback(Handle);
             }
         }
 
@@ -128,24 +124,11 @@
         }
 
         /// <summary>
-        /// Gets the underlying JavaScriptModuleRecord
-        /// </summary>
-        public JavaScriptModuleRecord ModuleRecord
-        {
-            get { return m_moduleRecord; }
-        }
-
-        /// <summary>
         /// Gets the name of the module.
         /// </summary>
         public string Name
         {
             get { return m_name; }
-        }
-
-        private IJavaScriptEngine Engine
-        {
-            get { return m_engine; }
         }
 
         private BaristaContext Context
@@ -182,7 +165,7 @@
         {
             var scriptBuffer = Encoding.UTF8.GetBytes(script);
 
-            var parseResultHandle = Engine.JsParseModuleSource(m_moduleRecord, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
+            var parseResultHandle = Engine.JsParseModuleSource(Handle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
             if (parseResultHandle != JavaScriptValueSafeHandle.Invalid)
             {
                 parseResult = Context.ValueFactory.CreateValue<JsError>(parseResultHandle);
@@ -208,7 +191,7 @@
             if (m_importedModules.ContainsKey(moduleName))
             {
                 //The module has already been imported, return the existing JavaScriptModuleRecord
-                dependentModule = m_importedModules[moduleName].m_moduleRecord.DangerousGetHandle();
+                dependentModule = m_importedModules[moduleName].Handle.DangerousGetHandle();
                 return false;
             }
             else if (m_moduleLoader != null)
@@ -228,7 +211,7 @@
                             if (script == null)
                                 script = "export default null";
 
-                            dependentModule = newModule.ModuleRecord.DangerousGetHandle();
+                            dependentModule = newModule.Handle.DangerousGetHandle();
                             if (newModule.TryParseModuleSource(script, out JsError parseResult) == false)
                             {
                                 if (!Engine.JsHasException())
@@ -243,7 +226,7 @@
                         default:
                             var result = InstallModule(newModule, module, specifier, referencingModule);
 
-                            dependentModule = newModule.ModuleRecord.DangerousGetHandle();
+                            dependentModule = newModule.Handle.DangerousGetHandle();
                             return result;
                     }
                 }
@@ -305,73 +288,52 @@ export default defaultExport;
         }
 
         #region IDisposable Support
-        private bool m_isDisposed = false;
-
-        private void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
-            if (!m_isDisposed)
+            if (!IsDisposed)
             {
                 if (disposing)
                 {
-                    // dispose managed state (managed objects).
+                    // free managed resources
+                    foreach(var importedModule in m_importedModules.Values)
+                    {
+                        importedModule.Dispose();
+                    }
                 }
 
                 // free unmanaged resources (unmanaged objects)
-
-                if (m_fetchImportedModuleCallbackHandle != default(GCHandle) && m_fetchImportedModuleCallbackHandle.IsAllocated)
+                if (m_parentModule == null)
                 {
                     try
                     {
-                        //if (m_fetchImportedModuleCallbackHandle.AddrOfPinnedObject() == m_engine.JsGetModuleHostInfo(m_moduleRecord, JavaScriptModuleHostInfoKind.FetchImportedModuleFromScriptCallback))
-                        //{
-                            m_engine.JsSetModuleHostInfo(m_moduleRecord, JavaScriptModuleHostInfoKind.FetchImportedModuleFromScriptCallback, IntPtr.Zero);
-                        //}
-
-                        //if (m_fetchImportedModuleCallbackHandle.AddrOfPinnedObject() == m_engine.JsGetModuleHostInfo(m_moduleRecord, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback))
-                        //{
-                            m_engine.JsSetModuleHostInfo(m_moduleRecord, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
-                        //}
+                        Engine.JsSetModuleHostInfo(Handle, JavaScriptModuleHostInfoKind.FetchImportedModuleFromScriptCallback, IntPtr.Zero);
+                        Engine.JsSetModuleHostInfo(Handle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
+                        Engine.JsSetModuleHostInfo(Handle, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, IntPtr.Zero);
                     }
                     catch
                     {
                         //Do Nothing...
                     }
+                }
 
+                if (m_fetchImportedModuleCallbackHandle != default(GCHandle) && m_fetchImportedModuleCallbackHandle.IsAllocated)
+                {
                     m_fetchImportedModuleCallbackHandle.Free();
                 }
 
                 if (m_notifyCallbackHandle != default(GCHandle) && m_notifyCallbackHandle.IsAllocated)
                 {
-                    //if (m_notifyCallbackHandle.AddrOfPinnedObject() == m_engine.JsGetModuleHostInfo(m_moduleRecord, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback))
-                    //{
-                        m_engine.JsSetModuleHostInfo(m_moduleRecord, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, IntPtr.Zero);
-                    //}
-
                     m_notifyCallbackHandle.Free();
                 }
-
-                m_moduleRecord.Dispose();
-                // TODO: set large fields to null.
-
-                m_isDisposed = true;
             }
-        }
 
-         ~BaristaModuleRecord()
-        {
-            Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            base.Dispose(disposing);
         }
         #endregion
 
         public override string ToString()
         {
-            return $"{Name} ({m_moduleRecord.DangerousGetHandle().ToString()})";
+            return $"{Name} ({Handle.DangerousGetHandle().ToString()})";
         }
     }
 }
