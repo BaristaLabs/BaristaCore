@@ -1,5 +1,8 @@
 $CONFIGURATION = "Release"
 $FRAMEWORK = "netcoreapp1.0"
+
+Remove-Item *.nupkg
+
 dotnet restore
 dotnet build -c $CONFIGURATION
 

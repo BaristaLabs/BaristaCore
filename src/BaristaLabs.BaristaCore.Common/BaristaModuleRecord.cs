@@ -127,15 +127,16 @@
             return Context.ValueFactory.CreateValue<JsError>(parseResultHandle);
         }
 
-        private bool FetchImportedModule(JavaScriptModuleRecord referencingModule, JavaScriptValueSafeHandle specifier, out IntPtr dependentModule)
+        private bool FetchImportedModule(JavaScriptModuleRecord jsReferencingModuleRecord, JavaScriptValueSafeHandle specifier, out IntPtr dependentModule)
         {
             var moduleName = Context.ValueFactory.CreateValue(specifier).ToString();
+            var referencingModuleRecord = m_moduleRecordFactory.GetBaristaModuleRecord(jsReferencingModuleRecord);
 
             //If the current module name is equal to the fetching module name, return this value.
             if (Name == moduleName)
             {
                 //Top-level self-referencing module. Reference itself.
-                dependentModule = referencingModule.DangerousGetHandle();
+                dependentModule = jsReferencingModuleRecord.DangerousGetHandle();
                 return false;
             }
 
@@ -151,35 +152,35 @@
 
                 if (module != null)
                 {
-                    var newModule = m_moduleRecordFactory.CreateBaristaModuleRecord(Context, moduleName, this, false);
-                    m_importedModules.Add(moduleName, newModule);
+                    var newModuleRecord = m_moduleRecordFactory.CreateBaristaModuleRecord(Context, moduleName, this, false);
+                    m_importedModules.Add(moduleName, newModuleRecord);
                     
                     switch (module)
                     {
-                        //For the built-in Script Module type, parse the string returned by InstallModule and install it as a module.
-                        case BaristaScriptModule scriptModule:
-                            var script = (scriptModule.ExportDefault(Context, referencingModule)).GetAwaiter().GetResult() as string;
+                        //For the built-in Script Module type, parse the string returned by ExportDefault and install it as a module.
+                        case IBaristaScriptModule scriptModule:
+                            var script = (scriptModule.ExportDefault(Context, newModuleRecord)).GetAwaiter().GetResult() as string;
                             if (script == null)
                                 script = "export default null";
 
-                            dependentModule = newModule.Handle.DangerousGetHandle();
-                            newModule.ParseModuleSource(script);
+                            dependentModule = newModuleRecord.Handle.DangerousGetHandle();
+                            newModuleRecord.ParseModuleSource(script);
                             return false;
                         //Otherwise, install the module.
                         default:
-                            var result = InstallModule(newModule, module, specifier, referencingModule);
+                            var result = InstallModule(newModuleRecord, referencingModuleRecord, module, specifier);
 
-                            dependentModule = newModule.Handle.DangerousGetHandle();
+                            dependentModule = newModuleRecord.Handle.DangerousGetHandle();
                             return result;
                     }
                 }
             }
 
-            dependentModule = referencingModule.DangerousGetHandle();
+            dependentModule = jsReferencingModuleRecord.DangerousGetHandle();
             return true;
         }
 
-        private bool InstallModule(BaristaModuleRecord moduleRecord, IBaristaModule module, JavaScriptValueSafeHandle specifier, JavaScriptModuleRecord referencingModuleRecord)
+        private bool InstallModule(BaristaModuleRecord newModuleRecord, BaristaModuleRecord referencingModuleRecord, IBaristaModule module, JavaScriptValueSafeHandle specifier)
         {
             object moduleValue;
             try
@@ -193,7 +194,7 @@
 
             if (Context.Converter.TryFromObject(Context, moduleValue, out JsValue convertedValue))
             {
-                return CreateSingleValueModule(moduleRecord, specifier, convertedValue);
+                return CreateSingleValueModule(newModuleRecord, specifier, convertedValue);
             }
             else
             {

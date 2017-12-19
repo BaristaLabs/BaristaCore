@@ -16,12 +16,12 @@
     <tags>Barista,BaristaCore,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-		  <dependency id="BaristaLabs.BaristaCore.ChakraCore" version="1.7.5-beta2" />
+		  <dependency id="BaristaLabs.BaristaCore.ChakraCore" version="1.7.5" />
 	  </group>
     </dependencies>
   </metadata>
   <files>
-	  <file src=".\bin\x64\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Common.dll" target="lib\netstandard2.0\"/>
-    <file src=".\bin\x64\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Common.pdb" target="lib\netstandard2.0\"/>
+	  <file src=".\src\BaristaLabs.BaristaCore.Common\bin\x64\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Common.dll" target="lib\netstandard2.0\"/>
+    <file src=".\src\BaristaLabs.BaristaCore.Common\bin\x64\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Common.pdb" target="lib\netstandard2.0\"/>
   </files>
 </package>
