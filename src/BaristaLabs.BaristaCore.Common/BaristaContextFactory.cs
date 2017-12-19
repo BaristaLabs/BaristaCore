@@ -46,7 +46,6 @@
                 void beforeCollect(object sender, BaristaObjectBeforeCollectEventArgs args)
                 {
                     context.BeforeCollect -= beforeCollect;
-                    Debug.Assert(m_contextPool != null);
                     m_contextPool.RemoveHandle(new JavaScriptContextSafeHandle(args.Handle));
                 }
                 context.BeforeCollect += beforeCollect;

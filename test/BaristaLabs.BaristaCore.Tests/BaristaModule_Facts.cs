@@ -50,7 +50,17 @@ export default 'hello, world!';
                         var result = ctx.EvaluateModule(script);
                         Assert.True(result.ToString() == "hello, world!");
                     }
+                }
+            }
+        }
 
+        [Fact]
+        public void JsModulesCannotBeEvaluatedWhenContextIsDisposed()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
                     ctx.Dispose();
                     Assert.Throws<ObjectDisposedException>(() =>
                     {

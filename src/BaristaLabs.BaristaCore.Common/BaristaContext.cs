@@ -5,7 +5,6 @@
     using System;
     using System.Diagnostics;
     using System.Runtime.InteropServices;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -371,10 +370,6 @@ let global = (new Function('return this;'))();
 
                 //Now Parse the user-provided script.
                 subModule.ParseModuleSource(script);
-               
-                //Assert that the notification delegate executed for the main and sub modules.
-                Debug.Assert(subModule.IsReady, "Sub module is not ready. Ensure all script modules are loaded.");
-                Debug.Assert(mainModule.IsReady, "Main module is not ready. Ensure all script modules are loaded.");
 
                 //Now we're ready, evaluate the main module.
 
@@ -435,6 +430,7 @@ let global = (new Function('return this;'))();
                 try
                 {
                     m_valueFactory.Dispose();
+                    m_moduleRecordFactory.Dispose();
                 }
                 finally
                 {

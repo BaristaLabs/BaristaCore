@@ -15,6 +15,7 @@
         private readonly string m_name;
         private readonly IJavaScriptEngine m_engine;
         private readonly BaristaContext m_context;
+        private readonly IBaristaModuleRecordFactory m_moduleRecordFactory;
         private readonly IBaristaModuleLoader m_moduleLoader;
         private readonly JavaScriptModuleRecord m_moduleRecord;
 
@@ -25,12 +26,13 @@
 
         private readonly BaristaModuleRecord m_parentModule; 
 
-        public BaristaModuleRecord(string name, BaristaModuleRecord parentModule, IJavaScriptEngine engine, BaristaContext context, IBaristaModuleLoader moduleLoader, JavaScriptModuleRecord moduleRecord)
+        public BaristaModuleRecord(string name, BaristaModuleRecord parentModule, IJavaScriptEngine engine, BaristaContext context, IBaristaModuleRecordFactory moduleRecordFactory, IBaristaModuleLoader moduleLoader, JavaScriptModuleRecord moduleRecord)
         {
             m_name = name ?? throw new ArgumentNullException(nameof(name));
             m_parentModule = parentModule;
             m_engine = engine ?? throw new ArgumentNullException(nameof(engine));
             m_context = context ?? throw new ArgumentNullException(nameof(context));
+            m_moduleRecordFactory = moduleRecordFactory ?? throw new ArgumentNullException(nameof(moduleRecordFactory));
             m_moduleRecord = moduleRecord ?? throw new ArgumentNullException(nameof(moduleRecord));
 
             m_moduleLoader = moduleLoader;
@@ -40,14 +42,14 @@
             if (m_parentModule == null)
             {
                 //Set the fetch module callback for the module.
-                m_fetchImportedModuleCallbackHandle = InitFetchImportedModuleCallback();
+                m_fetchImportedModuleCallbackHandle = InitFetchImportedModuleCallback(m_moduleRecord);
 
                 //Set the notify callback for the module.
-                m_notifyCallbackHandle = InitNotifyModuleReadyCallback();
+                m_notifyCallbackHandle = InitNotifyModuleReadyCallback(m_moduleRecord);
             }
         }
 
-        private GCHandle InitFetchImportedModuleCallback()
+        private GCHandle InitFetchImportedModuleCallback(JavaScriptModuleRecord moduleRecord)
         {
             JavaScriptFetchImportedModuleCallback fetchImportedModule = (IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModule) =>
             {
@@ -64,7 +66,7 @@
 
                     if (m_fetchImportedModuleCallbackHandle != default(GCHandle) && m_fetchImportedModuleCallbackHandle.IsAllocated)
                     {
-                        Engine.JsSetModuleHostInfo(m_moduleRecord, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
+                        Engine.JsSetModuleHostInfo(moduleRecord, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
                         m_fetchImportedModuleCallbackHandle.Free();
                     }
 
@@ -75,12 +77,12 @@
 
             var handle = GCHandle.Alloc(fetchImportedModule);
             IntPtr fetchCallbackPtr = Marshal.GetFunctionPointerForDelegate(handle.Target);
-            Engine.JsSetModuleHostInfo(m_moduleRecord, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, fetchCallbackPtr);
-            Engine.JsSetModuleHostInfo(m_moduleRecord, JavaScriptModuleHostInfoKind.FetchImportedModuleFromScriptCallback, fetchCallbackPtr);
+            Engine.JsSetModuleHostInfo(moduleRecord, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, fetchCallbackPtr);
+            Engine.JsSetModuleHostInfo(moduleRecord, JavaScriptModuleHostInfoKind.FetchImportedModuleFromScriptCallback, fetchCallbackPtr);
             return handle;
         }
 
-        private GCHandle InitNotifyModuleReadyCallback()
+        private GCHandle InitNotifyModuleReadyCallback(JavaScriptModuleRecord moduleRecord)
         {
             JavaScriptNotifyModuleReadyCallback moduleNotifyCallback = (IntPtr referencingModule, IntPtr exceptionVar) =>
             {
@@ -90,6 +92,7 @@
                     {
                         Engine.JsSetException(new JavaScriptValueSafeHandle(exceptionVar));
                     }
+                    var ex = Context.ValueFactory.CreateValue(new JavaScriptValueSafeHandle(exceptionVar));
                     return true;
                 }
 
@@ -110,7 +113,7 @@
 
             var handle = GCHandle.Alloc(moduleNotifyCallback);
             IntPtr notifyCallbackPtr = Marshal.GetFunctionPointerForDelegate(handle.Target);
-            Engine.JsSetModuleHostInfo(m_moduleRecord, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, notifyCallbackPtr);
+            Engine.JsSetModuleHostInfo(moduleRecord, JavaScriptModuleHostInfoKind.NotifyModuleReadyCallback, notifyCallbackPtr);
             return handle;
         }
 
@@ -151,13 +154,43 @@
         }
         #endregion
 
-        public void ParseModuleSource(string script)
+        public JsError ParseModuleSource(string script)
+        {
+            if (!TryParseModuleSource(script, out JsError parseResult))
+            {
+                if (!Engine.JsHasException())
+                {
+                    Engine.JsSetException(parseResult.Handle);
+                }
+
+                return parseResult;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Attempts to parse the specified source within the module. If the parse was successful, returns true, otherwise false and the parseResult is set.
+        /// </summary>
+        /// <remarks>
+        /// This method should only be called once. If called multiple times a JavaScriptFatalException of type ModuleParsed occurs.
+        /// </remarks>
+        /// <param name="script"></param>
+        /// <param name="parseResult"></param>
+        /// <returns></returns>
+        public bool TryParseModuleSource(string script, out JsError parseResult)
         {
             var scriptBuffer = Encoding.UTF8.GetBytes(script);
-            var jsError = Engine.JsParseModuleSource(m_moduleRecord, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
 
-            //TODO: Fix this to property handle the error.
-            Debug.Assert(jsError == JavaScriptValueSafeHandle.Invalid);
+            var parseResultHandle = Engine.JsParseModuleSource(m_moduleRecord, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
+            if (parseResultHandle != JavaScriptValueSafeHandle.Invalid)
+            {
+                parseResult = Context.ValueFactory.CreateValue<JsError>(parseResultHandle);
+                return false;
+            }
+
+            parseResult = null;
+            return true;
         }
 
         private bool FetchImportedModule(JavaScriptModuleRecord referencingModule, JavaScriptValueSafeHandle specifier, out IntPtr dependentModule)
@@ -184,8 +217,7 @@
 
                 if (module != null)
                 {
-                    var newModuleRecord = Engine.JsInitializeModuleRecord(referencingModule, specifier);
-                    var newModule = new BaristaModuleRecord(moduleName, this, Engine, Context, m_moduleLoader, newModuleRecord);
+                    var newModule = m_moduleRecordFactory.CreateBaristaModuleRecord(Context, moduleName, this, false);
                     m_importedModules.Add(moduleName, newModule);
                     
                     switch (module)
@@ -196,15 +228,22 @@
                             if (script == null)
                                 script = "export default null";
 
-                            newModule.ParseModuleSource(script);
+                            dependentModule = newModule.ModuleRecord.DangerousGetHandle();
+                            if (newModule.TryParseModuleSource(script, out JsError parseResult) == false)
+                            {
+                                if (!Engine.JsHasException())
+                                {
+                                    Engine.JsSetException(parseResult.Handle);
+                                }
+                                return true;
+                            }
 
-                            dependentModule = newModuleRecord.DangerousGetHandle();
                             return false;
                         //Otherwise, install the module.
                         default:
-                            var result = InstallModule(newModule, module, referencingModule);
+                            var result = InstallModule(newModule, module, specifier, referencingModule);
 
-                            dependentModule = newModuleRecord.DangerousGetHandle();
+                            dependentModule = newModule.ModuleRecord.DangerousGetHandle();
                             return result;
                     }
                 }
@@ -214,7 +253,7 @@
             return true;
         }
 
-        private bool InstallModule(BaristaModuleRecord moduleRecord, IBaristaModule module, JavaScriptModuleRecord referencingModuleRecord)
+        private bool InstallModule(BaristaModuleRecord moduleRecord, IBaristaModule module, JavaScriptValueSafeHandle specifier, JavaScriptModuleRecord referencingModuleRecord)
         {
             object moduleValue;
             try
@@ -228,7 +267,7 @@
 
             if (Context.Converter.TryFromObject(Context, moduleValue, out JsValue convertedValue))
             {
-                return CreateSingleValueModule(moduleRecord, convertedValue);
+                return CreateSingleValueModule(moduleRecord, specifier, convertedValue);
             }
             else
             {
@@ -244,7 +283,7 @@
         /// <param name="specifierHandle"></param>
         /// <param name="dependentModuleRecord"></param>
         /// <returns></returns>
-        private bool CreateSingleValueModule(BaristaModuleRecord moduleRecord, JsValue defaultExportedValue)
+        private bool CreateSingleValueModule(BaristaModuleRecord moduleRecord, JavaScriptValueSafeHandle specifier, JsValue defaultExportedValue)
         {
             var globalId = Guid.NewGuid();
             var exposeNativeValueScript = $@"
@@ -254,7 +293,14 @@ export default defaultExport;
 ";
 
             Context.GlobalObject.SetProperty($"$DEFAULTEXPORT_{globalId.ToString()}", defaultExportedValue);
-            moduleRecord.ParseModuleSource(exposeNativeValueScript);
+            if (!moduleRecord.TryParseModuleSource(exposeNativeValueScript, out JsError parseResult))
+            {
+                if (!Engine.JsHasException())
+                {
+                    Engine.JsSetException(parseResult.Handle);
+                }
+                return true;
+            }
             return false;
         }
 

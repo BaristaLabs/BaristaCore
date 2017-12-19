@@ -441,7 +441,6 @@
         private void JsValueBeforeCollectCallback(object sender, BaristaObjectBeforeCollectEventArgs args)
         {
             ((JsValue)sender).BeforeCollect -= JsValueBeforeCollectCallback;
-            Debug.Assert(m_valuePool != null);
             m_valuePool.RemoveHandle(new JavaScriptValueSafeHandle(args.Handle));
         }
 

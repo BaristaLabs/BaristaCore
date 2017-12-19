@@ -70,7 +70,6 @@
             if (disposing && !IsClosed)
             {
                 var error = LibChakraCore.JsRelease(this, out uint count);
-                Debug.Assert(error == JavaScriptErrorCode.NoError);
 
                 //This has no effect.
                 SetHandleAsInvalid();
