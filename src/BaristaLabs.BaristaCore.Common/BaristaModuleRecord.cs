@@ -60,12 +60,6 @@
                         Engine.JsSetException(Context.ValueFactory.CreateError(ex.Message).Handle);
                     }
 
-                    if (m_fetchImportedModuleCallbackHandle != default(GCHandle) && m_fetchImportedModuleCallbackHandle.IsAllocated)
-                    {
-                        Engine.JsSetModuleHostInfo(moduleRecord, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
-                        m_fetchImportedModuleCallbackHandle.Free();
-                    }
-
                     dependentModule = referencingModule;
                     return true;
                 }
@@ -92,19 +86,8 @@
                     return true;
                 }
 
-                try
-                {
-                    IsReady = true;
-                    return false;
-                }
-                catch (Exception ex)
-                {
-                    if (!Engine.JsHasException())
-                    {
-                        Engine.JsSetException(Context.ValueFactory.CreateError(ex.Message).Handle);
-                    }
-                    return true;
-                }
+                IsReady = true;
+                return false;
             };
 
             var handle = GCHandle.Alloc(moduleNotifyCallback);
@@ -139,41 +122,9 @@
 
         public JsError ParseModuleSource(string script)
         {
-            if (!TryParseModuleSource(script, out JsError parseResult))
-            {
-                if (!Engine.JsHasException())
-                {
-                    Engine.JsSetException(parseResult.Handle);
-                }
-
-                return parseResult;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Attempts to parse the specified source within the module. If the parse was successful, returns true, otherwise false and the parseResult is set.
-        /// </summary>
-        /// <remarks>
-        /// This method should only be called once. If called multiple times a JavaScriptFatalException of type ModuleParsed occurs.
-        /// </remarks>
-        /// <param name="script"></param>
-        /// <param name="parseResult"></param>
-        /// <returns></returns>
-        public bool TryParseModuleSource(string script, out JsError parseResult)
-        {
             var scriptBuffer = Encoding.UTF8.GetBytes(script);
-
             var parseResultHandle = Engine.JsParseModuleSource(Handle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
-            if (parseResultHandle != JavaScriptValueSafeHandle.Invalid)
-            {
-                parseResult = Context.ValueFactory.CreateValue<JsError>(parseResultHandle);
-                return false;
-            }
-
-            parseResult = null;
-            return true;
+            return Context.ValueFactory.CreateValue<JsError>(parseResultHandle);
         }
 
         private bool FetchImportedModule(JavaScriptModuleRecord referencingModule, JavaScriptValueSafeHandle specifier, out IntPtr dependentModule)
@@ -212,15 +163,7 @@
                                 script = "export default null";
 
                             dependentModule = newModule.Handle.DangerousGetHandle();
-                            if (newModule.TryParseModuleSource(script, out JsError parseResult) == false)
-                            {
-                                if (!Engine.JsHasException())
-                                {
-                                    Engine.JsSetException(parseResult.Handle);
-                                }
-                                return true;
-                            }
-
+                            newModule.ParseModuleSource(script);
                             return false;
                         //Otherwise, install the module.
                         default:
@@ -276,14 +219,7 @@ export default defaultExport;
 ";
 
             Context.GlobalObject.SetProperty($"$DEFAULTEXPORT_{globalId.ToString()}", defaultExportedValue);
-            if (!moduleRecord.TryParseModuleSource(exposeNativeValueScript, out JsError parseResult))
-            {
-                if (!Engine.JsHasException())
-                {
-                    Engine.JsSetException(parseResult.Handle);
-                }
-                return true;
-            }
+            moduleRecord.ParseModuleSource(exposeNativeValueScript);
             return false;
         }
 
@@ -330,10 +266,5 @@ export default defaultExport;
             base.Dispose(disposing);
         }
         #endregion
-
-        public override string ToString()
-        {
-            return $"{Name} ({Handle.DangerousGetHandle().ToString()})";
-        }
     }
 }

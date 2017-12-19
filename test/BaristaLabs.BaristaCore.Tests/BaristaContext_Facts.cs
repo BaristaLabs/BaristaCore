@@ -1,7 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.Tests
 {
     using BaristaCore.Extensions;
-    using BaristaLabs.BaristaCore.JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Diagnostics.CodeAnalysis;
