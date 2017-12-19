@@ -21,7 +21,7 @@ BaristaCore.Common is utilized within the Barista Functions-as-a-Service platfor
     <RepositoryUrl>https://github.com/BaristaLabs/BaristaCore.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Barista,BaristaCore,Sandbox,FaaS,RulesEngineChakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</PackageTags>
-    <Version>1.0.0-beta1</Version>
+    <Version>1.0.0-beta2</Version>
     <PackageReleaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</PackageReleaseNotes>
   </PropertyGroup>
 

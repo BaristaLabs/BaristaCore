@@ -10,9 +10,9 @@ BaristaCore
 | __macOS 10.12.1 (x64)__       | [![Build Status](https://travis-ci.org/BaristaLabs/BaristaCore.svg?branch=master)](https://travis-ci.org/BaristaLabs/BaristaCore) |
 
 
-> **12/7/2017** *BaristaCore is currently in active development. The functionality described below indicates the design goals of BaristaCore and may not be all currently implemented.*
+> **12/19/2017** *BaristaCore is currently in active development. The functionality described below indicates the design goals of BaristaCore and may not be all currently implemented.*
 
-> Updated with ChakraCore 1.7.4
+> Updated with ChakraCore 1.7.5
 
 BaristaCore is an open-source cross-platform sandbox to run code with a http call.
 
@@ -40,6 +40,14 @@ To summarize, BaristaCore provides:
  - Hyperdev
 
  However, each of the solutions above are closed-source cloud implementations. BaristaCore lets you have the same types of flexability as the above, but within your own datacenter.
+
+Embedding BaristaCore Within your own application
+ ----------
+  
+BaristaCore.Common can provide scripting capabilities within any .Net Standard application and can be found as a cross-platform .Net Standard 2.0 NuGet Package here:
+https://www.nuget.org/packages/BaristaLabs.BaristaCore.Common/
+
+For more information, please read [this wiki topic on embedding BaristaCore](https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application)
 
 Roadmap
 ----------
@@ -126,6 +134,9 @@ Documentation
    - [ ] Update with BaristaCore
  - [ ] BaristaCore Docs (Github Wiki)
 
+Distribution (BaristaCore.Common)
+ - [X] NuGet (Pre-release)
+ 
 Distribution (BaristaServer)
  - [ ] Chocolatey
  - [ ] Brew
@@ -137,6 +148,7 @@ Continuous Integration
   - [X] Linux
   - [X] macOS
  - [ ] Automated Releases
+  - [ ] NuGet
   - [ ] Chocolatey
   - [ ] Apt-Get
   - [ ] Brew
