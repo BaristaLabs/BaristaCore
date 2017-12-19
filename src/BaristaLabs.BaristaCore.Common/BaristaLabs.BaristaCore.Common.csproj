@@ -21,7 +21,7 @@ BaristaCore.Common is utilized within the Barista Functions-as-a-Service platfor
     <RepositoryUrl>https://github.com/BaristaLabs/BaristaCore.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Barista,BaristaCore,Sandbox,FaaS,RulesEngineChakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</PackageTags>
-    <Version>1.0.0-beta1</Version>
+    <Version>1.0.0-beta3</Version>
     <PackageReleaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</PackageReleaseNotes>
   </PropertyGroup>
 
@@ -34,7 +34,7 @@ BaristaCore.Common is utilized within the Barista Functions-as-a-Service platfor
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore" Version="1.7.5-beta1" />
+    <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore" Version="1.7.5" />
     <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />

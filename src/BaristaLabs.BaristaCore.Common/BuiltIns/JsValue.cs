@@ -279,8 +279,6 @@
                 if ((this is JsNumber) == false)
                 {
                     //Unset the before collect callback -- since this is a value, we need a current context.
-                    Debug.Assert(Context.HasCurrentScope);
-
                     Engine.JsSetObjectBeforeCollectCallback(Handle, IntPtr.Zero, null);
                     m_beforeCollectCallbackDelegateHandle.Free();
                 }

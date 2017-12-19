@@ -36,6 +36,179 @@
         }
 
         [Fact]
+        public void BaristaModuleThrowsIfNameNotSpecified()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    var converter = m_provider.GetRequiredService<IBaristaConversionStrategy>();
+                    var moduleRecordFactory = m_provider.GetRequiredService<IBaristaModuleRecordFactory>();
+                    var moduleLoader = m_provider.GetRequiredService<IBaristaModuleLoader>();
+
+                    using (ctx.Scope())
+                    {
+                        var specifier = ctx.ValueFactory.CreateString("");
+                        var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
+
+                        try
+                        {
+                            Assert.Throws<ArgumentNullException>(() =>
+                            {
+                                var mod = new BaristaModuleRecord(null, null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
+                            });
+                        }
+                        finally
+                        {
+                            //Without disposing of the moduleHandle, the runtime *will* crash the process.
+                            moduleHandle.Dispose();
+                        }
+                    }
+                }
+            }
+
+            Assert.True(true);
+        }
+
+        [Fact]
+        public void BaristaModuleThrowsIfContextNotSpecified()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    var converter = m_provider.GetRequiredService<IBaristaConversionStrategy>();
+                    var moduleRecordFactory = m_provider.GetRequiredService<IBaristaModuleRecordFactory>();
+                    var moduleLoader = m_provider.GetRequiredService<IBaristaModuleLoader>();
+
+                    using (ctx.Scope())
+                    {
+                        var specifier = ctx.ValueFactory.CreateString("");
+                        var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
+
+                        try
+                        {
+                            Assert.Throws<ArgumentNullException>(() =>
+                            {
+                                var mod = new BaristaModuleRecord("", null, rt.Engine, null, moduleRecordFactory, moduleLoader, moduleHandle);
+                            });
+                        }
+                        finally
+                        {
+                            //Without disposing of the moduleHandle, the runtime *will* crash the process.
+                            moduleHandle.Dispose();
+                        }
+                    }
+                }
+            }
+
+            Assert.True(true);
+        }
+
+        [Fact]
+        public void BaristaModuleThrowsIfModuleRecordFactoryNotSpecified()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    var converter = m_provider.GetRequiredService<IBaristaConversionStrategy>();
+                    var moduleRecordFactory = m_provider.GetRequiredService<IBaristaModuleRecordFactory>();
+                    var moduleLoader = m_provider.GetRequiredService<IBaristaModuleLoader>();
+
+                    using (ctx.Scope())
+                    {
+                        var specifier = ctx.ValueFactory.CreateString("");
+                        var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
+
+                        try
+                        {
+                            Assert.Throws<ArgumentNullException>(() =>
+                            {
+                                var mod = new BaristaModuleRecord("", null, rt.Engine, ctx, null, moduleLoader, moduleHandle);
+                            });
+                        }
+                        finally
+                        {
+                            //Without disposing of the moduleHandle, the runtime *will* crash the process.
+                            moduleHandle.Dispose();
+                        }
+                    }
+                }
+            }
+
+            Assert.True(true);
+        }
+
+        [Fact]
+        public void BaristaModuleCanParseAndIndicateReady()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    var converter = m_provider.GetRequiredService<IBaristaConversionStrategy>();
+                    var moduleRecordFactory = m_provider.GetRequiredService<IBaristaModuleRecordFactory>();
+                    var moduleLoader = m_provider.GetRequiredService<IBaristaModuleLoader>();
+
+                    using (ctx.Scope())
+                    {
+                        var specifier = ctx.ValueFactory.CreateString("");
+                        var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
+
+                        try
+                        {
+                            var mod = new BaristaModuleRecord("", null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
+                            mod.ParseModuleSource("export default 'hello, world!'");
+                            Assert.True(mod.IsReady);
+                        }
+                        finally
+                        {
+                            //Without disposing of the moduleHandle, the runtime *will* crash the process.
+                            moduleHandle.Dispose();
+                        }
+                    }
+                }
+            }
+
+            Assert.True(true);
+        }
+
+        [Fact]
+        public void BaristaModuleCanReferenceItself()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    var converter = m_provider.GetRequiredService<IBaristaConversionStrategy>();
+                    var moduleRecordFactory = m_provider.GetRequiredService<IBaristaModuleRecordFactory>();
+                    var moduleLoader = m_provider.GetRequiredService<IBaristaModuleLoader>();
+
+                    using (ctx.Scope())
+                    {
+                        var specifier = ctx.ValueFactory.CreateString("");
+                        var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
+
+                        try
+                        {
+                            var mod = new BaristaModuleRecord("foo", null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
+                            mod.ParseModuleSource("import foo from 'foo'; export default 'hello, world!'");
+                            Assert.True(mod.IsReady);
+                        }
+                        finally
+                        {
+                            //Without disposing of the moduleHandle, the runtime *will* crash the process.
+                            moduleHandle.Dispose();
+                        }
+                    }
+                }
+            }
+
+            Assert.True(true);
+        }
+
+        [Fact]
         public void JsModulesCanBeEvaluated()
         {
             var script = @"
@@ -50,7 +223,17 @@ export default 'hello, world!';
                         var result = ctx.EvaluateModule(script);
                         Assert.True(result.ToString() == "hello, world!");
                     }
+                }
+            }
+        }
 
+        [Fact]
+        public void JsModulesCannotBeEvaluatedWhenContextIsDisposed()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
                     ctx.Dispose();
                     Assert.Throws<ObjectDisposedException>(() =>
                     {
@@ -166,11 +349,11 @@ export default soAmazing;
             {
                 var converter = m_provider.GetRequiredService<IBaristaConversionStrategy>();
                 var valueFactoryBuilder = m_provider.GetRequiredService<IBaristaValueFactoryBuilder>();
+                var moduleRecordFactory = m_provider.GetRequiredService<IBaristaModuleRecordFactory>();
                 IPromiseTaskQueue taskQueue = null;
-                var moduleLoader = m_provider.GetRequiredService<IBaristaModuleLoader>();
 
                 var contextHandle = rt.Engine.JsCreateContext(rt.Handle);
-                using (var ctx = new BaristaContext(rt.Engine, valueFactoryBuilder, converter, taskQueue, moduleLoader, contextHandle))
+                using (var ctx = new BaristaContext(rt.Engine, valueFactoryBuilder, converter, moduleRecordFactory, taskQueue, contextHandle))
                 {
                     var result = ctx.EvaluateModule("export default 'foo';");
                     Assert.Equal("foo", result.ToString());
@@ -267,6 +450,38 @@ export default 'banana' + ' ' + banana;
 
                         //FIXME: Not sure the full discussion around self-referencing modules, are they allowed for n?
                         Assert.Equal("hello, world! banana undefined", result.ToString());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsModulesImportingBadScriptsThrow()
+        {
+            var script = @"
+import banana from 'badbanana';
+export default 'hello, world! ' + banana;
+";
+            var bananaModule = new BaristaScriptModule
+            {
+                Name = "badbanana",
+                Script = @"
+export default asdf@11;
+"
+            };
+
+            ModuleLoader.RegisterModule(bananaModule);
+
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.Throws<JavaScriptScriptException>(() =>
+                        {
+                            var result = ctx.EvaluateModule(script);
+                        });
                     }
                 }
             }
@@ -379,6 +594,29 @@ export default 'banana' + ' ' + banana;
                     {
                         var result = ctx.EvaluateModule<JsNumber>(script);
                     });
+                }
+            }
+        }
+
+        [Fact]
+        public void MultipleModulesCanBeRegisteredAndUsed()
+        {
+            var script = @"
+        import helloWorld from 'hello_world';
+        import fourtytwo from 'FourtyTwo';
+        export default helloWorld + ' ' + fourtytwo;
+        ";
+            ModuleLoader.RegisterModule(new FourtyTwoModule());
+            ModuleLoader.RegisterModule(new HelloWorldModule());
+
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    var result = ctx.EvaluateModule<JsString>(script);
+
+                    Assert.NotNull(result);
+                    Assert.Equal("Hello, World! 42", result.ToString());
                 }
             }
         }

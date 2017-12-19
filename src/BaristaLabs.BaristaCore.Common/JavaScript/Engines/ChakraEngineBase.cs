@@ -10,6 +10,11 @@ namespace BaristaLabs.BaristaCore.JavaScript
         public JavaScriptModuleRecord JsInitializeModuleRecord(JavaScriptModuleRecord referencingModule, JavaScriptValueSafeHandle normalizedSpecifier)
         {
             Errors.ThrowIfError(LibChakraCore.JsInitializeModuleRecord(referencingModule, normalizedSpecifier, out JavaScriptModuleRecord moduleRecord));
+            moduleRecord.NativeFunctionSource = nameof(LibChakraCore.JsInitializeModuleRecord);
+            if (moduleRecord != JavaScriptModuleRecord.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(moduleRecord, out uint valueRefCount));
+			}
             return moduleRecord;
         }
 
