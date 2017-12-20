@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
     <id>BaristaLabs.BaristaCore.Common</id>
-    <version>1.0.0-beta3</version>
+    <version>1.0.0-beta4</version>
     <authors>Sean McLellan</authors>
     <owners>BaristaLabs, LLC</owners>
     <licenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</licenseUrl>
