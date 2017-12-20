@@ -5,6 +5,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
 	using System;
 	using System.Runtime.InteropServices;
 
+    [System.Diagnostics.DebuggerNonUserCode]
     public abstract class ChakraEngineBase : IJavaScriptEngine
     {
         public JavaScriptModuleRecord JsInitializeModuleRecord(JavaScriptModuleRecord referencingModule, JavaScriptValueSafeHandle normalizedSpecifier)

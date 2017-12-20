@@ -389,7 +389,7 @@
                 }
 
                 if (result == null)
-                    throw new BaristaException($"Unable to create an object of type {targetType}.");
+                    throw new ArgumentOutOfRangeException(nameof(targetType), $"Unable to create an object of type {targetType}.");
 
                 result.BeforeCollect += JsValueBeforeCollectCallback;
                 return result;

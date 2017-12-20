@@ -15,7 +15,8 @@
 
         public JavaScriptReference_Facts()
         {
-            Engine = JavaScriptEngineFactory.CreateChakraEngine();
+            var chakraCoreFactory = new ChakraCoreFactory();
+            Engine = chakraCoreFactory.CreateJavaScriptEngine();
         }
 
         /// <summary>
@@ -43,7 +44,7 @@
 
                 //Certain values, such as undefined, null, true, false, etc, cannot have a callback set. InvalidArgument is returned in these situations.
                 var errorCode = LibChakraCore.JsSetObjectBeforeCollectCallback(handle, callbackState, OnObjectBeforeCollect);
-                if (errorCode == JavaScriptErrorCode.NoError)
+                if (errorCode == JsErrorCode.NoError)
                 {
 
                     //If any other error occured, throw it.

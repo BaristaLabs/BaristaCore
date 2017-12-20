@@ -186,7 +186,7 @@
                     obj = jsTypedArray.GetTypedArrayStorage();
                     return true;
                 case JsError jsError:
-                    obj = new BaristaScriptException(jsError);
+                    obj = new JsScriptException(JsErrorCode.ScriptException, jsError.Handle);
                     return true;
                 case JsObject jsObject:
                     //TODO: we can cheat a bit here with Json converter

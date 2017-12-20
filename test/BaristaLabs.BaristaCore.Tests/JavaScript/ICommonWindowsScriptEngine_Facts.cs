@@ -13,7 +13,8 @@
 
         public ICommonWindowsScriptEngine_Facts()
         {
-            Engine = JavaScriptEngineFactory.CreateChakraEngine();
+            var chakraCoreFactory = new ChakraCoreFactory();
+            Engine = chakraCoreFactory.CreateJavaScriptEngine();
         }
 
         public ICommonWindowsJavaScriptEngine CommonWindowsEngine

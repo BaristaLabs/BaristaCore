@@ -1,9 +1,9 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
     /// <summary>
     ///     An error code returned from a Chakra hosting API.
     /// </summary>
-    public enum JavaScriptErrorCode
+    public enum JsErrorCode
     {
         /// <summary>
         ///     Success error code.

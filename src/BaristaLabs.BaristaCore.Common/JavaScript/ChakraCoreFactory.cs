@@ -2,9 +2,9 @@
 {
     using System;
 
-    public static class JavaScriptEngineFactory
+    public class ChakraCoreFactory : IJavaScriptEngineFactory
     {
-        public static IJavaScriptEngine CreateChakraEngine()
+        public IJavaScriptEngine CreateJavaScriptEngine()
         {
             if (PlatformApis.IsWindows)
             {

@@ -31,7 +31,7 @@
         /// </returns>
         {{/if}}
         [DllImport(DllName, EntryPoint = "{{Name}}", CallingConvention = CallingConvention.Cdecl{{#if DllImportEx}}{{DllImportEx}}{{/if}})]
-        public static extern JavaScriptErrorCode {{Name}}({{Signature}});
+        public static extern JsErrorCode {{Name}}({{Signature}});
 
         {{/each}}
     }

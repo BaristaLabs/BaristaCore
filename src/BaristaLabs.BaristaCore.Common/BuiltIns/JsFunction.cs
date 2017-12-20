@@ -58,24 +58,7 @@
                 .Prepend(thisObj.Handle.DangerousGetHandle())
                 .ToArray();
 
-            try
-            {
-                return Engine.JsCallFunction(Handle, argPtrs, (ushort)argPtrs.Length);
-            }
-            catch(JavaScriptException jsEx)
-            {
-                //TODO: This logic needs to be reused... somewhere.
-
-                var exceptionHandle = Engine.JsGetAndClearException();
-                JsError jsError = ValueFactory.CreateValue<JsError>(exceptionHandle);
-                switch (jsEx.ErrorCode)
-                {
-                    case JavaScriptErrorCode.ScriptException:
-                        throw new BaristaScriptException(jsError.Message);
-                    default:
-                        throw new BaristaException(jsError.Message);
-                }
-            }
+            return Engine.JsCallFunction(Handle, argPtrs, (ushort)argPtrs.Length);
         }
 
         private const string toStringPropertyName = "toString";

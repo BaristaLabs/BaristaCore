@@ -125,7 +125,7 @@
             }
 
             //If the result is a JavaScriptException, serialize exception details.
-            if (formatterContext.ObjectType.IsAssignableFrom(typeof(JavaScriptException)))
+            if (formatterContext.ObjectType.IsAssignableFrom(typeof(JsException)))
             {
                 var formatterSettings = JsonSerializerSettingsProvider.CreateSerializerSettings();
                 return new JsonOutputFormatter(formatterSettings, ArrayPool<char>.Create());

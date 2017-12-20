@@ -255,7 +255,7 @@ export default asdf@11;
                 {
                     using (ctx.Scope())
                     {
-                        Assert.Throws<JavaScriptScriptException>(() =>
+                        Assert.Throws<JsScriptException>(() =>
                         {
                             var result = ctx.EvaluateModule(script);
                         });
@@ -301,13 +301,13 @@ export default result;
                 {
                     using (ctx.Scope())
                     {
-                        Assert.Throws<BaristaScriptException>(() =>
+                        Assert.Throws<JsScriptException>(() =>
                         {
                             try
                             {
                                 var result = ctx.EvaluateModule(script);
                             }
-                            catch (BaristaScriptException ex)
+                            catch (JsScriptException ex)
                             {
                                 Assert.Equal("No. Bad.", ex.Message);
                                 throw;
@@ -332,7 +332,7 @@ export default soAmazing;
                 {
                     using (ctx.Scope())
                     {
-                        Assert.Throws<JavaScriptScriptException>(() =>
+                        Assert.Throws<JsScriptException>(() =>
                         {
                             var result = ctx.EvaluateModule(script);
                         });
@@ -507,7 +507,7 @@ export default asdf@11;
                 {
                     using (ctx.Scope())
                     {
-                        Assert.Throws<JavaScriptScriptException>(() =>
+                        Assert.Throws<JsScriptException>(() =>
                         {
                             var result = ctx.EvaluateModule(script);
                         });
@@ -597,7 +597,7 @@ export default asdf@11;
             {
                 using (var ctx = rt.CreateContext())
                 {
-                    Assert.Throws<JavaScriptScriptException>(() =>
+                    Assert.Throws<JsScriptException>(() =>
                     {
                         var result = ctx.EvaluateModule<JsNumber>(script);
                     });
@@ -619,7 +619,7 @@ export default asdf@11;
             {
                 using (var ctx = rt.CreateContext())
                 {
-                    Assert.Throws<JavaScriptScriptException>(() =>
+                    Assert.Throws<JsScriptException>(() =>
                     {
                         var result = ctx.EvaluateModule<JsNumber>(script);
                     });

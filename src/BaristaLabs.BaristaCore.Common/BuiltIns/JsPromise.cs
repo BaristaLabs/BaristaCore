@@ -102,12 +102,13 @@
             
             Context.GlobalObject["$PROMISE"] = promise;
             Context.GlobalObject.DeleteProperty("$ERROR");
-            var res = Engine.JsRunScript(waitScript, sourceUrl: "[eval wait]");
+            Engine.JsRunScript(waitScript, sourceUrl: "[eval wait]");
             Context.CurrentScope.ResolvePendingPromises();
 
             if (Context.GlobalObject.HasOwnProperty("$ERROR"))
             {
-                throw new BaristaScriptException(Context.GlobalObject.GetProperty<JsObject>("$ERROR"));
+                var errorValue = Context.GlobalObject.GetProperty<JsValue>("$ERROR");
+                throw new JsScriptException(JsErrorCode.ScriptException, errorValue.Handle);
             }
 
             return "$EXPORTS";

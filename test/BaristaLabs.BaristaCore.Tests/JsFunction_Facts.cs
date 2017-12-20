@@ -80,12 +80,12 @@ export default () => { throw new Error('That is quite illogical, captain.'); };
                     {
                         var fn = ctx.EvaluateModule<JsFunction>(script);
 
-                        BaristaScriptException ex = null;
+                        JsScriptException ex = null;
                         try
                         {
                             var result = fn.Call();
                         }
-                        catch(BaristaScriptException invokeException)
+                        catch(JsScriptException invokeException)
                         {
                             ex = invokeException;
                         }
@@ -155,12 +155,12 @@ export default () => { throw new Error('That is quite illogical, captain.'); };
                         }));
                         Assert.NotNull(fnBoom);
 
-                        BaristaScriptException ex = null;
+                        JsScriptException ex = null;
                         try
                         {
                             var result = fnBoom.Call();
                         }
-                        catch(BaristaScriptException invokeException)
+                        catch(JsScriptException invokeException)
                         {
                             ex = invokeException;
                         }

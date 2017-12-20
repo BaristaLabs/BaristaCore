@@ -20,7 +20,8 @@
 
         public ICommonJavaScriptEngine_Facts(ITestOutputHelper output)
         {
-            Engine = JavaScriptEngineFactory.CreateChakraEngine();
+            var chakraCoreFactory = new ChakraCoreFactory();
+            Engine = chakraCoreFactory.CreateJavaScriptEngine();
             Output = output;
         }
 
@@ -271,7 +272,7 @@
                         Engine.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, callback);
                         Assert.False(true);
                     }
-                    catch (JavaScriptUsageException ex)
+                    catch (JsUsageException ex)
                     {
                         Assert.Equal("No current context.", ex.Message);
                     }
@@ -336,7 +337,7 @@
                         Engine.JsSetObjectBeforeCollectCallback(runtimeHandle, IntPtr.Zero, callback);
                         Assert.False(true);
                     }
-                    catch (JavaScriptUsageException ex)
+                    catch (JsUsageException ex)
                     {
                         Assert.Equal("Invalid argument.", ex.Message);
                     }
@@ -2425,7 +2426,7 @@ new Promise(function(resolve, reject) {
                         var promiseHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
                         Assert.True(false, "Promises should not be able to be resolved without a promise continuation callback defined.");
                     }
-                    catch (JavaScriptScriptException ex)
+                    catch (JsScriptException ex)
                     {
                         Assert.Equal("Host may not have set any promise continuation callback. Promises may not be executed.", ex.Message);
                     }
@@ -3021,9 +3022,9 @@ function throwAtHost() {
                     {
                         Engine.JsCallFunction(fnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
                     }
-                    catch(JavaScriptException ex)
+                    catch(JsException ex)
                     {
-                        Assert.True(ex.ErrorCode == JavaScriptErrorCode.ScriptException);
+                        Assert.True(ex.ErrorCode == JsErrorCode.ScriptException);
                     }
 
                     var hasException = Engine.JsHasException();

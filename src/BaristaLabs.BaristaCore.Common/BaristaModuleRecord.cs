@@ -82,7 +82,6 @@
                     {
                         Engine.JsSetException(new JavaScriptValueSafeHandle(exceptionVar));
                     }
-                    var ex = Context.ValueFactory.CreateValue(new JavaScriptValueSafeHandle(exceptionVar));
                     return true;
                 }
 
@@ -189,7 +188,9 @@
             }
             catch (Exception ex)
             {
-                throw new BaristaException($"An error occurred while obtaining the default export of the native module named {module.Name}: {ex.Message}", ex);
+                var error = Context.ValueFactory.CreateError($"An error occurred while obtaining the default export of the native module named {module.Name}: {ex.Message}");
+                Engine.JsSetException(error.Handle);
+                return true;
             }
 
             if (Context.Converter.TryFromObject(Context, moduleValue, out JsValue convertedValue))
@@ -198,7 +199,9 @@
             }
             else
             {
-                throw new BaristaException($"Unable to install module {module.Name}: the default exported value could not be converted into a JavaScript object.");
+                var error = Context.ValueFactory.CreateError($"Unable to install module {module.Name}: the default exported value could not be converted into a JavaScript object.");
+                Engine.JsSetException(error.Handle);
+                return true;
             }
         }
 

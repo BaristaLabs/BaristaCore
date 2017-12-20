@@ -370,7 +370,7 @@
                 {
                     if (errorWhenNoMatch == true)
                     {
-                        throw new BaristaException($"Index {segments[i]} not valid on {currentObject.ToString()}.");
+                        throw new IndexOutOfRangeException($"Index {segments[i]} not valid on {currentObject.ToString()}.");
                     }
                     return Context.Undefined.Handle;
                 }

@@ -16,11 +16,15 @@
         /// <returns></returns>
         public static IServiceCollection AddBaristaCore(this IServiceCollection services, IBaristaModuleLoader moduleService = null)
         {
-            IJavaScriptEngine chakraEngine = JavaScriptEngineFactory.CreateChakraEngine();
             if (moduleService == null)
                 moduleService = new InMemoryModuleLoader();
 
-            services.AddSingleton(chakraEngine);
+            services.AddSingleton<IJavaScriptEngineFactory, ChakraCoreFactory>();
+            services.AddSingleton((provider) =>
+            {
+                var jsEngineFactory = provider.GetRequiredService<IJavaScriptEngineFactory>();
+                return jsEngineFactory.CreateJavaScriptEngine();
+            });
             services.AddSingleton(moduleService);
             services.AddSingleton<IBaristaValueFactoryBuilder, BaristaValueFactoryBuilder>();
             services.AddSingleton<IBaristaRuntimeFactory, BaristaRuntimeFactory>();
