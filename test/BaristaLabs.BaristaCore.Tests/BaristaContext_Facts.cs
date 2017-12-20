@@ -136,7 +136,7 @@
                 {
                     using (ctx.Scope())
                     {
-                        Assert.Throws<BaristaException>(() =>
+                        Assert.Throws<InvalidOperationException>(() =>
                         {
                             ctx.Scope();
                         });
@@ -214,6 +214,97 @@
                     {
                         var foo = ctx.HasCurrentScope;
                     });
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextCanBeInExceptionState()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (var scope = ctx.Scope())
+                    {
+                        Assert.Throws<JsScriptException>(() =>
+                        {
+                            ctx.EvaluateModule("throw new Error('foo'); export default 'foo'");
+                        });
+                        
+                        Assert.True(scope.HasException());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextCanGetAndClearExceptionState()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (var scope = ctx.Scope())
+                    {
+                        Assert.Throws<JsScriptException>(() =>
+                        {
+                            ctx.EvaluateModule("throw new Error('foo'); export default 'foo'");
+                        });
+
+                        var exceptionState = scope.GetAndClearException() as JsError;
+                        Assert.NotNull(exceptionState);
+                        Assert.Equal("foo", exceptionState.Message);
+                        Assert.False(scope.HasException());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextCanGetAndClearExceptionStateFromValueException()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (var scope = ctx.Scope())
+                    {
+                        Assert.Throws<JsScriptException>(() =>
+                        {
+                            ctx.EvaluateModule("throw 'foo'; export default 'foo'");
+                        });
+
+                        var exceptionState = scope.GetAndClearException() as JsString;
+                        Assert.NotNull(exceptionState);
+                        Assert.Equal("foo", exceptionState.ToString());
+                        Assert.False(scope.HasException());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JavaScriptContextCanGetAndClearExceptionStateWithMetadata()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (var scope = ctx.Scope())
+                    {
+                        Assert.Throws<JsScriptException>(() =>
+                        {
+                            ctx.EvaluateModule("throw new Error('foo'); export default 'foo'");
+                        });
+
+                        var exceptionState = scope.GetAndClearExceptionWithMetadata() as JsObject;
+                        Assert.NotNull(exceptionState);
+                        var error = exceptionState.GetProperty<JsError>("exception");
+                        Assert.NotNull(error);
+                        Assert.Equal("foo", error.Message);
+                        Assert.False(scope.HasException());
+                    }
                 }
             }
         }

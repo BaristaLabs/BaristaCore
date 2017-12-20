@@ -1,9 +1,9 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
     /// <summary>
     ///     An error code returned from a Chakra hosting API.
     /// </summary>
-    public enum JavaScriptErrorCode
+    public enum JsErrorCode
     {
         /// <summary>
         ///     Success error code.
@@ -115,11 +115,11 @@
         /// </summary>
         PropertyNotString,
         /// <summary>
-        ///     Module evaulation is called in wrong context.
+        ///     Module evaluation is called in wrong context.
         /// </summary>
         InvalidContext,
         /// <summary>
-        ///     Module evaulation is called in wrong context.
+        ///     Module evaluation is called in wrong context.
         /// </summary>
         InvalidModuleHostInfoKind,
         /// <summary>
@@ -204,7 +204,7 @@
         /// </summary>
         DiagObjectNotFound,
         /// <summary>
-        ///     VM was unable to perfom the request action
+        ///     VM was unable to perform the request action
         /// </summary>
         DiagUnableToPerformAction,
     }

@@ -31,7 +31,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsInitializeModuleRecord", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsInitializeModuleRecord(JavaScriptModuleRecord referencingModule, JavaScriptValueSafeHandle normalizedSpecifier, out JavaScriptModuleRecord moduleRecord);
+        public static extern JsErrorCode JsInitializeModuleRecord(JavaScriptModuleRecord referencingModule, JavaScriptValueSafeHandle normalizedSpecifier, out JavaScriptModuleRecord moduleRecord);
 
         /// <summary>
         ///     Parse the module source
@@ -61,7 +61,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsParseModuleSource", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsParseModuleSource(JavaScriptModuleRecord requestModule, JavaScriptSourceContext sourceContext, byte[] script, uint scriptLength, JavaScriptParseModuleSourceFlags sourceFlag, out JavaScriptValueSafeHandle exceptionValueRef);
+        public static extern JsErrorCode JsParseModuleSource(JavaScriptModuleRecord requestModule, JavaScriptSourceContext sourceContext, byte[] script, uint scriptLength, JavaScriptParseModuleSourceFlags sourceFlag, out JavaScriptValueSafeHandle exceptionValueRef);
 
         /// <summary>
         ///     Execute module code.
@@ -81,7 +81,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsModuleEvaluation", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsModuleEvaluation(JavaScriptModuleRecord requestModule, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsModuleEvaluation(JavaScriptModuleRecord requestModule, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Set the host info for the specified module.
@@ -99,7 +99,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetModuleHostInfo", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetModuleHostInfo(JavaScriptModuleRecord requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, IntPtr hostInfo);
+        public static extern JsErrorCode JsSetModuleHostInfo(JavaScriptModuleRecord requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, IntPtr hostInfo);
 
         /// <summary>
         ///     Retrieve the host info for the specified module.
@@ -117,7 +117,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetModuleHostInfo", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetModuleHostInfo(JavaScriptModuleRecord requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, out IntPtr hostInfo);
+        public static extern JsErrorCode JsGetModuleHostInfo(JavaScriptModuleRecord requestModule, JavaScriptModuleHostInfoKind moduleHostInfo, out IntPtr hostInfo);
 
         /// <summary>
         ///     Returns metadata relating to the exception that caused the runtime of the current context to be in the exception state and resets the exception state for that runtime. The metadata includes a reference to the exception itself.
@@ -143,7 +143,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetAndClearExceptionWithMetadata", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetAndClearExceptionWithMetadata(out JavaScriptValueSafeHandle metadata);
+        public static extern JsErrorCode JsGetAndClearExceptionWithMetadata(out JavaScriptValueSafeHandle metadata);
 
         /// <summary>
         ///     Create JavascriptString variable from ASCII or Utf8 string
@@ -165,7 +165,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateString", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateString(string content, ulong length, out JavaScriptValueSafeHandle value);
+        public static extern JsErrorCode JsCreateString(string content, ulong length, out JavaScriptValueSafeHandle value);
 
         /// <summary>
         ///     Create JavascriptString variable from Utf16 string
@@ -187,7 +187,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateStringUtf16", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsCreateStringUtf16(string content, ulong length, out JavaScriptValueSafeHandle value);
+        public static extern JsErrorCode JsCreateStringUtf16(string content, ulong length, out JavaScriptValueSafeHandle value);
 
         /// <summary>
         ///     Write JavascriptString value into C string buffer (Utf8)
@@ -213,7 +213,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCopyString", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public static extern JavaScriptErrorCode JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, ulong bufferSize, out ulong length);
+        public static extern JsErrorCode JsCopyString(JavaScriptValueSafeHandle value, byte[] buffer, ulong bufferSize, out ulong length);
 
         /// <summary>
         ///     Write string value into Utf16 string buffer
@@ -247,7 +247,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCopyStringUtf16", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCopyStringUtf16(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer, out ulong written);
+        public static extern JsErrorCode JsCopyStringUtf16(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer, out ulong written);
 
         /// <summary>
         ///     Parses a script and returns a function representing the script.
@@ -279,7 +279,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsParse", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsParse(JavaScriptValueSafeHandle script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsParse(JavaScriptValueSafeHandle script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Executes a script.
@@ -311,7 +311,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsRun", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsRun(JavaScriptValueSafeHandle script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsRun(JavaScriptValueSafeHandle script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Creates the property ID associated with the name.
@@ -334,7 +334,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreatePropertyId", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreatePropertyId(string name, ulong length, out JavaScriptPropertyIdSafeHandle propertyId);
+        public static extern JsErrorCode JsCreatePropertyId(string name, ulong length, out JavaScriptPropertyIdSafeHandle propertyId);
 
         /// <summary>
         ///     Copies the name associated with the property ID into a buffer.
@@ -361,7 +361,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCopyPropertyId", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCopyPropertyId(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, ulong bufferSize, out ulong length);
+        public static extern JsErrorCode JsCopyPropertyId(JavaScriptPropertyIdSafeHandle propertyId, byte[] buffer, ulong bufferSize, out ulong length);
 
         /// <summary>
         ///     Serializes a parsed script to a buffer than can be reused.
@@ -390,7 +390,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSerialize", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSerialize(JavaScriptValueSafeHandle script, out JavaScriptValueSafeHandle buffer, JavaScriptParseScriptAttributes parseAttributes);
+        public static extern JsErrorCode JsSerialize(JavaScriptValueSafeHandle script, out JavaScriptValueSafeHandle buffer, JavaScriptParseScriptAttributes parseAttributes);
 
         /// <summary>
         ///     Parses a serialized script and returns a function representing the script. Provides the ability to lazy load the script source only if/when it is needed.
@@ -419,7 +419,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsParseSerialized", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsParseSerialized(JavaScriptValueSafeHandle buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsParseSerialized(JavaScriptValueSafeHandle buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Runs a serialized script. Provides the ability to lazy load the script source only if/when it is needed.
@@ -449,7 +449,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsRunSerialized", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsRunSerialized(JavaScriptValueSafeHandle buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsRunSerialized(JavaScriptValueSafeHandle buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Creates a new JavaScript Promise object.
@@ -470,7 +470,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreatePromise", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreatePromise(out JavaScriptValueSafeHandle promise, out JavaScriptValueSafeHandle resolveFunction, out JavaScriptValueSafeHandle rejectFunction);
+        public static extern JsErrorCode JsCreatePromise(out JavaScriptValueSafeHandle promise, out JavaScriptValueSafeHandle resolveFunction, out JavaScriptValueSafeHandle rejectFunction);
 
         /// <summary>
         ///     Creates a weak reference to a value.
@@ -485,7 +485,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateWeakReference", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateWeakReference(JavaScriptValueSafeHandle value, out JavaScriptWeakReferenceSafeHandle weakRef);
+        public static extern JsErrorCode JsCreateWeakReference(JavaScriptValueSafeHandle value, out JavaScriptWeakReferenceSafeHandle weakRef);
 
         /// <summary>
         ///     Gets a strong reference to the value referred to by a weak reference.
@@ -501,7 +501,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetWeakReferenceValue", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetWeakReferenceValue(JavaScriptWeakReferenceSafeHandle weakRef, out JavaScriptValueSafeHandle value);
+        public static extern JsErrorCode JsGetWeakReferenceValue(JavaScriptWeakReferenceSafeHandle weakRef, out JavaScriptValueSafeHandle value);
 
         /// <summary>
         ///     Creates a Javascript SharedArrayBuffer object with shared content get from JsGetSharedArrayBufferContent.
@@ -519,7 +519,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateSharedArrayBufferWithSharedContent", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateSharedArrayBufferWithSharedContent(IntPtr sharedContents, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsCreateSharedArrayBufferWithSharedContent(IntPtr sharedContents, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Get the storage object from a SharedArrayBuffer.
@@ -538,7 +538,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetSharedArrayBufferContent", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetSharedArrayBufferContent(JavaScriptValueSafeHandle sharedArrayBuffer, out IntPtr sharedContents);
+        public static extern JsErrorCode JsGetSharedArrayBufferContent(JavaScriptValueSafeHandle sharedArrayBuffer, out IntPtr sharedContents);
 
         /// <summary>
         ///     Decrease the reference count on a SharedArrayBuffer storage object.
@@ -553,7 +553,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsReleaseSharedArrayBufferContentHandle", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsReleaseSharedArrayBufferContentHandle(IntPtr sharedContents);
+        public static extern JsErrorCode JsReleaseSharedArrayBufferContentHandle(IntPtr sharedContents);
 
         /// <summary>
         ///     Determines whether an object has a non-inherited property.
@@ -574,7 +574,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsHasOwnProperty", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsHasOwnProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out bool hasOwnProperty);
+        public static extern JsErrorCode JsHasOwnProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out bool hasOwnProperty);
 
         /// <summary>
         ///     Write JS string value into char string buffer without a null terminator
@@ -611,7 +611,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCopyStringOneByte", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCopyStringOneByte(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer, out ulong written);
+        public static extern JsErrorCode JsCopyStringOneByte(JavaScriptValueSafeHandle value, int start, int length, byte[] buffer, out ulong written);
 
         /// <summary>
         ///     Obtains frequently used properties of a data view.
@@ -632,7 +632,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetDataViewInfo", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetDataViewInfo(JavaScriptValueSafeHandle dataView, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength);
+        public static extern JsErrorCode JsGetDataViewInfo(JavaScriptValueSafeHandle dataView, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength);
 
         /// <summary>
         ///     Creates a new runtime.
@@ -654,7 +654,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateRuntime", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateRuntime(JavaScriptRuntimeAttributes attributes, JavaScriptThreadServiceCallback threadService, out JavaScriptRuntimeSafeHandle runtime);
+        public static extern JsErrorCode JsCreateRuntime(JavaScriptRuntimeAttributes attributes, JavaScriptThreadServiceCallback threadService, out JavaScriptRuntimeSafeHandle runtime);
 
         /// <summary>
         ///     Performs a full garbage collection.
@@ -666,7 +666,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCollectGarbage", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCollectGarbage(JavaScriptRuntimeSafeHandle runtime);
+        public static extern JsErrorCode JsCollectGarbage(JavaScriptRuntimeSafeHandle runtime);
 
         /// <summary>
         ///     Disposes a runtime.
@@ -683,7 +683,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDisposeRuntime", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDisposeRuntime(IntPtr runtime);
+        public static extern JsErrorCode JsDisposeRuntime(IntPtr runtime);
 
         /// <summary>
         ///     Gets the current memory usage for a runtime.
@@ -702,7 +702,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetRuntimeMemoryUsage", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out ulong memoryUsage);
+        public static extern JsErrorCode JsGetRuntimeMemoryUsage(JavaScriptRuntimeSafeHandle runtime, out ulong memoryUsage);
 
         /// <summary>
         ///     Gets the current memory limit for a runtime.
@@ -721,7 +721,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetRuntimeMemoryLimit", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, out ulong memoryLimit);
+        public static extern JsErrorCode JsGetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, out ulong memoryLimit);
 
         /// <summary>
         ///     Sets the current memory limit for a runtime.
@@ -745,7 +745,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetRuntimeMemoryLimit", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, ulong memoryLimit);
+        public static extern JsErrorCode JsSetRuntimeMemoryLimit(JavaScriptRuntimeSafeHandle runtime, ulong memoryLimit);
 
         /// <summary>
         ///     Sets a memory allocation callback for specified runtime
@@ -774,7 +774,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetRuntimeMemoryAllocationCallback", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetRuntimeMemoryAllocationCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr callbackState, JavaScriptMemoryAllocationCallback allocationCallback);
+        public static extern JsErrorCode JsSetRuntimeMemoryAllocationCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr callbackState, JavaScriptMemoryAllocationCallback allocationCallback);
 
         /// <summary>
         ///     Sets a callback function that is called by the runtime before garbage collection.
@@ -798,7 +798,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetRuntimeBeforeCollectCallback", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetRuntimeBeforeCollectCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr callbackState, JavaScriptBeforeCollectCallback beforeCollectCallback);
+        public static extern JsErrorCode JsSetRuntimeBeforeCollectCallback(JavaScriptRuntimeSafeHandle runtime, IntPtr callbackState, JavaScriptBeforeCollectCallback beforeCollectCallback);
 
         /// <summary>
         ///     Adds a reference to a garbage collected object.
@@ -818,7 +818,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsAddRef", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsAddRef(SafeHandle @ref, out uint count);
+        public static extern JsErrorCode JsAddRef(SafeHandle @ref, out uint count);
 
         /// <summary>
         ///     Releases a reference to a garbage collected object.
@@ -836,7 +836,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsRelease", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsRelease(SafeHandle @ref, out uint count);
+        public static extern JsErrorCode JsRelease(SafeHandle @ref, out uint count);
 
         /// <summary>
         ///     Sets a callback function that is called by the runtime before garbage collection of an object.
@@ -859,7 +859,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetObjectBeforeCollectCallback", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetObjectBeforeCollectCallback(SafeHandle @ref, IntPtr callbackState, JavaScriptObjectBeforeCollectCallback objectBeforeCollectCallback);
+        public static extern JsErrorCode JsSetObjectBeforeCollectCallback(SafeHandle @ref, IntPtr callbackState, JavaScriptObjectBeforeCollectCallback objectBeforeCollectCallback);
 
         /// <summary>
         ///     Creates a script context for running scripts.
@@ -878,7 +878,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateContext", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateContext(JavaScriptRuntimeSafeHandle runtime, out JavaScriptContextSafeHandle newContext);
+        public static extern JsErrorCode JsCreateContext(JavaScriptRuntimeSafeHandle runtime, out JavaScriptContextSafeHandle newContext);
 
         /// <summary>
         ///     Gets the current script context on the thread.
@@ -890,7 +890,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetCurrentContext", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetCurrentContext(out JavaScriptContextSafeHandle currentContext);
+        public static extern JsErrorCode JsGetCurrentContext(out JavaScriptContextSafeHandle currentContext);
 
         /// <summary>
         ///     Sets the current script context on the thread.
@@ -902,7 +902,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetCurrentContext", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetCurrentContext(JavaScriptContextSafeHandle context);
+        public static extern JsErrorCode JsSetCurrentContext(JavaScriptContextSafeHandle context);
 
         /// <summary>
         ///     Gets the script context that the object belongs to.
@@ -917,7 +917,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetContextOfObject", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetContextOfObject(JavaScriptValueSafeHandle @object, out JavaScriptContextSafeHandle context);
+        public static extern JsErrorCode JsGetContextOfObject(JavaScriptValueSafeHandle @object, out JavaScriptContextSafeHandle context);
 
         /// <summary>
         ///     Gets the internal data set on JsrtContext.
@@ -932,7 +932,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetContextData", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetContextData(JavaScriptContextSafeHandle context, out IntPtr data);
+        public static extern JsErrorCode JsGetContextData(JavaScriptContextSafeHandle context, out IntPtr data);
 
         /// <summary>
         ///     Sets the internal data of JsrtContext.
@@ -947,7 +947,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetContextData", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetContextData(JavaScriptContextSafeHandle context, IntPtr data);
+        public static extern JsErrorCode JsSetContextData(JavaScriptContextSafeHandle context, IntPtr data);
 
         /// <summary>
         ///     Gets the runtime that the context belongs to.
@@ -962,7 +962,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetRuntime", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetRuntime(JavaScriptContextSafeHandle context, out JavaScriptRuntimeSafeHandle runtime);
+        public static extern JsErrorCode JsGetRuntime(JavaScriptContextSafeHandle context, out JavaScriptRuntimeSafeHandle runtime);
 
         /// <summary>
         ///     Tells the runtime to do any idle processing it need to do.
@@ -984,7 +984,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsIdle", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsIdle(out uint nextIdleTick);
+        public static extern JsErrorCode JsIdle(out uint nextIdleTick);
 
         /// <summary>
         ///     Gets the symbol associated with the property ID.
@@ -1002,7 +1002,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetSymbolFromPropertyId", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetSymbolFromPropertyId(JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptValueSafeHandle symbol);
+        public static extern JsErrorCode JsGetSymbolFromPropertyId(JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptValueSafeHandle symbol);
 
         /// <summary>
         ///     Gets the type of property
@@ -1020,7 +1020,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetPropertyIdType", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetPropertyIdType(JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptPropertyIdType propertyIdType);
+        public static extern JsErrorCode JsGetPropertyIdType(JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptPropertyIdType propertyIdType);
 
         /// <summary>
         ///     Gets the property ID associated with the symbol.
@@ -1039,7 +1039,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetPropertyIdFromSymbol", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetPropertyIdFromSymbol(JavaScriptValueSafeHandle symbol, out JavaScriptPropertyIdSafeHandle propertyId);
+        public static extern JsErrorCode JsGetPropertyIdFromSymbol(JavaScriptValueSafeHandle symbol, out JavaScriptPropertyIdSafeHandle propertyId);
 
         /// <summary>
         ///     Creates a Javascript symbol.
@@ -1057,7 +1057,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateSymbol", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateSymbol(JavaScriptValueSafeHandle description, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsCreateSymbol(JavaScriptValueSafeHandle description, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Gets the list of all symbol properties on the object.
@@ -1075,7 +1075,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetOwnPropertySymbols", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetOwnPropertySymbols(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle propertySymbols);
+        public static extern JsErrorCode JsGetOwnPropertySymbols(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle propertySymbols);
 
         /// <summary>
         ///     Gets the value of undefined in the current script context.
@@ -1090,7 +1090,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetUndefinedValue", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetUndefinedValue(out JavaScriptValueSafeHandle undefinedValue);
+        public static extern JsErrorCode JsGetUndefinedValue(out JavaScriptValueSafeHandle undefinedValue);
 
         /// <summary>
         ///     Gets the value of null in the current script context.
@@ -1105,7 +1105,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetNullValue", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetNullValue(out JavaScriptValueSafeHandle nullValue);
+        public static extern JsErrorCode JsGetNullValue(out JavaScriptValueSafeHandle nullValue);
 
         /// <summary>
         ///     Gets the value of true in the current script context.
@@ -1120,7 +1120,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetTrueValue", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetTrueValue(out JavaScriptValueSafeHandle trueValue);
+        public static extern JsErrorCode JsGetTrueValue(out JavaScriptValueSafeHandle trueValue);
 
         /// <summary>
         ///     Gets the value of false in the current script context.
@@ -1135,7 +1135,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetFalseValue", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetFalseValue(out JavaScriptValueSafeHandle falseValue);
+        public static extern JsErrorCode JsGetFalseValue(out JavaScriptValueSafeHandle falseValue);
 
         /// <summary>
         ///     Creates a Boolean value from a bool value.
@@ -1153,7 +1153,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsBoolToBoolean", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsBoolToBoolean(bool value, out JavaScriptValueSafeHandle booleanValue);
+        public static extern JsErrorCode JsBoolToBoolean(bool value, out JavaScriptValueSafeHandle booleanValue);
 
         /// <summary>
         ///     Retrieves the bool value of a Boolean value.
@@ -1168,7 +1168,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsBooleanToBool", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsBooleanToBool(JavaScriptValueSafeHandle value, out bool boolValue);
+        public static extern JsErrorCode JsBooleanToBool(JavaScriptValueSafeHandle value, out bool boolValue);
 
         /// <summary>
         ///     Converts the value to Boolean using standard JavaScript semantics.
@@ -1186,7 +1186,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsConvertValueToBoolean", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsConvertValueToBoolean(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle booleanValue);
+        public static extern JsErrorCode JsConvertValueToBoolean(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle booleanValue);
 
         /// <summary>
         ///     Gets the JavaScript type of a JsValueRef.
@@ -1201,7 +1201,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetValueType", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetValueType(JavaScriptValueSafeHandle value, out JavaScriptValueType type);
+        public static extern JsErrorCode JsGetValueType(JavaScriptValueSafeHandle value, out JavaScriptValueType type);
 
         /// <summary>
         ///     Creates a number value from a double value.
@@ -1219,7 +1219,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDoubleToNumber", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDoubleToNumber(double doubleValue, out JavaScriptValueSafeHandle value);
+        public static extern JsErrorCode JsDoubleToNumber(double doubleValue, out JavaScriptValueSafeHandle value);
 
         /// <summary>
         ///     Creates a number value from an int value.
@@ -1237,7 +1237,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsIntToNumber", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsIntToNumber(int intValue, out JavaScriptValueSafeHandle value);
+        public static extern JsErrorCode JsIntToNumber(int intValue, out JavaScriptValueSafeHandle value);
 
         /// <summary>
         ///     Retrieves the double value of a number value.
@@ -1256,7 +1256,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsNumberToDouble", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsNumberToDouble(JavaScriptValueSafeHandle value, out double doubleValue);
+        public static extern JsErrorCode JsNumberToDouble(JavaScriptValueSafeHandle value, out double doubleValue);
 
         /// <summary>
         ///     Retrieves the int value of a number value.
@@ -1275,7 +1275,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsNumberToInt", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsNumberToInt(JavaScriptValueSafeHandle value, out int intValue);
+        public static extern JsErrorCode JsNumberToInt(JavaScriptValueSafeHandle value, out int intValue);
 
         /// <summary>
         ///     Converts the value to number using standard JavaScript semantics.
@@ -1293,7 +1293,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsConvertValueToNumber", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsConvertValueToNumber(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle numberValue);
+        public static extern JsErrorCode JsConvertValueToNumber(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle numberValue);
 
         /// <summary>
         ///     Gets the length of a string value.
@@ -1308,7 +1308,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetStringLength", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetStringLength(JavaScriptValueSafeHandle stringValue, out int length);
+        public static extern JsErrorCode JsGetStringLength(JavaScriptValueSafeHandle stringValue, out int length);
 
         /// <summary>
         ///     Converts the value to string using standard JavaScript semantics.
@@ -1326,7 +1326,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsConvertValueToString", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsConvertValueToString(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle stringValue);
+        public static extern JsErrorCode JsConvertValueToString(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle stringValue);
 
         /// <summary>
         ///     Gets the global object in the current script context.
@@ -1341,7 +1341,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetGlobalObject", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetGlobalObject(out JavaScriptValueSafeHandle globalObject);
+        public static extern JsErrorCode JsGetGlobalObject(out JavaScriptValueSafeHandle globalObject);
 
         /// <summary>
         ///     Creates a new object.
@@ -1356,7 +1356,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateObject", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateObject(out JavaScriptValueSafeHandle @object);
+        public static extern JsErrorCode JsCreateObject(out JavaScriptValueSafeHandle @object);
 
         /// <summary>
         ///     Creates a new object that stores some external data.
@@ -1377,7 +1377,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateExternalObject", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateExternalObject(IntPtr data, JavaScriptObjectFinalizeCallback finalizeCallback, out JavaScriptValueSafeHandle @object);
+        public static extern JsErrorCode JsCreateExternalObject(IntPtr data, JavaScriptObjectFinalizeCallback finalizeCallback, out JavaScriptValueSafeHandle @object);
 
         /// <summary>
         ///     Converts the value to object using standard JavaScript semantics.
@@ -1395,7 +1395,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsConvertValueToObject", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsConvertValueToObject(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle @object);
+        public static extern JsErrorCode JsConvertValueToObject(JavaScriptValueSafeHandle value, out JavaScriptValueSafeHandle @object);
 
         /// <summary>
         ///     Returns the prototype of an object.
@@ -1413,7 +1413,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetPrototype", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetPrototype(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle prototypeObject);
+        public static extern JsErrorCode JsGetPrototype(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle prototypeObject);
 
         /// <summary>
         ///     Sets the prototype of an object.
@@ -1431,7 +1431,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetPrototype", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetPrototype(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle prototypeObject);
+        public static extern JsErrorCode JsSetPrototype(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle prototypeObject);
 
         /// <summary>
         ///     Performs JavaScript &quot;instanceof&quot; operator test.
@@ -1452,7 +1452,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsInstanceOf", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsInstanceOf(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle constructor, out bool result);
+        public static extern JsErrorCode JsInstanceOf(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle constructor, out bool result);
 
         /// <summary>
         ///     Returns a value that indicates whether an object is extensible or not.
@@ -1470,7 +1470,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetExtensionAllowed", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetExtensionAllowed(JavaScriptValueSafeHandle @object, out bool value);
+        public static extern JsErrorCode JsGetExtensionAllowed(JavaScriptValueSafeHandle @object, out bool value);
 
         /// <summary>
         ///     Makes an object non-extensible.
@@ -1485,7 +1485,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsPreventExtension", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsPreventExtension(JavaScriptValueSafeHandle @object);
+        public static extern JsErrorCode JsPreventExtension(JavaScriptValueSafeHandle @object);
 
         /// <summary>
         ///     Gets an object's property.
@@ -1506,7 +1506,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetProperty", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptValueSafeHandle value);
+        public static extern JsErrorCode JsGetProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptValueSafeHandle value);
 
         /// <summary>
         ///     Gets a property descriptor for an object's own property.
@@ -1527,7 +1527,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetOwnPropertyDescriptor", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetOwnPropertyDescriptor(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptValueSafeHandle propertyDescriptor);
+        public static extern JsErrorCode JsGetOwnPropertyDescriptor(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out JavaScriptValueSafeHandle propertyDescriptor);
 
         /// <summary>
         ///     Gets the list of all properties on the object.
@@ -1545,7 +1545,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetOwnPropertyNames", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetOwnPropertyNames(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle propertyNames);
+        public static extern JsErrorCode JsGetOwnPropertyNames(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle propertyNames);
 
         /// <summary>
         ///     Puts an object's property.
@@ -1569,7 +1569,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetProperty", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, JavaScriptValueSafeHandle value, bool useStrictRules);
+        public static extern JsErrorCode JsSetProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, JavaScriptValueSafeHandle value, bool useStrictRules);
 
         /// <summary>
         ///     Determines whether an object has a property.
@@ -1590,7 +1590,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsHasProperty", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsHasProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out bool hasProperty);
+        public static extern JsErrorCode JsHasProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, out bool hasProperty);
 
         /// <summary>
         ///     Deletes an object's property.
@@ -1614,7 +1614,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDeleteProperty", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDeleteProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, bool useStrictRules, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsDeleteProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, bool useStrictRules, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Defines a new object's own property from a property descriptor.
@@ -1638,7 +1638,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDefineProperty", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDefineProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, JavaScriptValueSafeHandle propertyDescriptor, out bool result);
+        public static extern JsErrorCode JsDefineProperty(JavaScriptValueSafeHandle @object, JavaScriptPropertyIdSafeHandle propertyId, JavaScriptValueSafeHandle propertyDescriptor, out bool result);
 
         /// <summary>
         ///     Tests whether an object has a value at the specified index.
@@ -1659,7 +1659,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsHasIndexedProperty", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsHasIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index, out bool result);
+        public static extern JsErrorCode JsHasIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index, out bool result);
 
         /// <summary>
         ///     Retrieve the value at the specified index of an object.
@@ -1680,7 +1680,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetIndexedProperty", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsGetIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Set the value at the specified index of an object.
@@ -1701,7 +1701,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetIndexedProperty", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index, JavaScriptValueSafeHandle value);
+        public static extern JsErrorCode JsSetIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index, JavaScriptValueSafeHandle value);
 
         /// <summary>
         ///     Delete the value at the specified index of an object.
@@ -1719,7 +1719,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDeleteIndexedProperty", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDeleteIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index);
+        public static extern JsErrorCode JsDeleteIndexedProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle index);
 
         /// <summary>
         ///     Determines whether an object has its indexed properties in external data.
@@ -1734,7 +1734,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsHasIndexedPropertiesExternalData", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsHasIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out bool value);
+        public static extern JsErrorCode JsHasIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out bool value);
 
         /// <summary>
         ///     Retrieves an object's indexed properties external data information.
@@ -1755,7 +1755,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetIndexedPropertiesExternalData", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out IntPtr data, out JavaScriptTypedArrayType arrayType, out uint elementLength);
+        public static extern JsErrorCode JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out IntPtr data, out JavaScriptTypedArrayType arrayType, out uint elementLength);
 
         /// <summary>
         ///     Sets an object's indexed properties to external data. The external data will be used as back store for the object's indexed properties and accessed like a typed array.
@@ -1779,7 +1779,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetIndexedPropertiesToExternalData", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JavaScriptTypedArrayType arrayType, uint elementLength);
+        public static extern JsErrorCode JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JavaScriptTypedArrayType arrayType, uint elementLength);
 
         /// <summary>
         ///     Compare two JavaScript values for equality.
@@ -1801,7 +1801,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsEquals", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsEquals(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2, out bool result);
+        public static extern JsErrorCode JsEquals(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2, out bool result);
 
         /// <summary>
         ///     Compare two JavaScript values for strict equality.
@@ -1823,7 +1823,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsStrictEquals", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsStrictEquals(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2, out bool result);
+        public static extern JsErrorCode JsStrictEquals(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2, out bool result);
 
         /// <summary>
         ///     Determines whether an object is an external object.
@@ -1838,7 +1838,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsHasExternalData", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsHasExternalData(JavaScriptValueSafeHandle @object, out bool value);
+        public static extern JsErrorCode JsHasExternalData(JavaScriptValueSafeHandle @object, out bool value);
 
         /// <summary>
         ///     Retrieves the data from an external object.
@@ -1854,7 +1854,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetExternalData", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetExternalData(JavaScriptValueSafeHandle @object, out IntPtr externalData);
+        public static extern JsErrorCode JsGetExternalData(JavaScriptValueSafeHandle @object, out IntPtr externalData);
 
         /// <summary>
         ///     Sets the external data on an external object.
@@ -1870,7 +1870,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetExternalData", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetExternalData(JavaScriptValueSafeHandle @object, IntPtr externalData);
+        public static extern JsErrorCode JsSetExternalData(JavaScriptValueSafeHandle @object, IntPtr externalData);
 
         /// <summary>
         ///     Creates a Javascript array object.
@@ -1888,7 +1888,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateArray", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateArray(uint length, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsCreateArray(uint length, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Creates a Javascript ArrayBuffer object.
@@ -1906,7 +1906,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateArrayBuffer", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateArrayBuffer(uint byteLength, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsCreateArrayBuffer(uint byteLength, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Creates a Javascript ArrayBuffer object to access external memory.
@@ -1933,7 +1933,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateExternalArrayBuffer", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateExternalArrayBuffer(IntPtr data, uint byteLength, JavaScriptObjectFinalizeCallback finalizeCallback, IntPtr callbackState, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsCreateExternalArrayBuffer(IntPtr data, uint byteLength, JavaScriptObjectFinalizeCallback finalizeCallback, IntPtr callbackState, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Creates a Javascript typed array object.
@@ -1966,7 +1966,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateTypedArray", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateTypedArray(JavaScriptTypedArrayType arrayType, JavaScriptValueSafeHandle baseArray, uint byteOffset, uint elementLength, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsCreateTypedArray(JavaScriptTypedArrayType arrayType, JavaScriptValueSafeHandle baseArray, uint byteOffset, uint elementLength, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Creates a Javascript DataView object.
@@ -1990,7 +1990,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateDataView", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateDataView(JavaScriptValueSafeHandle arrayBuffer, uint byteOffset, uint byteLength, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsCreateDataView(JavaScriptValueSafeHandle arrayBuffer, uint byteOffset, uint byteLength, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Obtains frequently used properties of a typed array.
@@ -2014,7 +2014,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetTypedArrayInfo", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetTypedArrayInfo(JavaScriptValueSafeHandle typedArray, out JavaScriptTypedArrayType arrayType, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength);
+        public static extern JsErrorCode JsGetTypedArrayInfo(JavaScriptValueSafeHandle typedArray, out JavaScriptTypedArrayType arrayType, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength);
 
         /// <summary>
         ///     Obtains the underlying memory storage used by an ArrayBuffer.
@@ -2034,7 +2034,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetArrayBufferStorage", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetArrayBufferStorage(JavaScriptValueSafeHandle arrayBuffer, out IntPtr buffer, out uint bufferLength);
+        public static extern JsErrorCode JsGetArrayBufferStorage(JavaScriptValueSafeHandle arrayBuffer, out IntPtr buffer, out uint bufferLength);
 
         /// <summary>
         ///     Obtains the underlying memory storage used by a typed array.
@@ -2060,7 +2060,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetTypedArrayStorage", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out IntPtr buffer, out uint bufferLength, out JavaScriptTypedArrayType arrayType, out int elementSize);
+        public static extern JsErrorCode JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out IntPtr buffer, out uint bufferLength, out JavaScriptTypedArrayType arrayType, out int elementSize);
 
         /// <summary>
         ///     Obtains the underlying memory storage used by a DataView.
@@ -2080,7 +2080,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetDataViewStorage", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetDataViewStorage(JavaScriptValueSafeHandle dataView, out IntPtr buffer, out uint bufferLength);
+        public static extern JsErrorCode JsGetDataViewStorage(JavaScriptValueSafeHandle dataView, out IntPtr buffer, out uint bufferLength);
 
         /// <summary>
         ///     Invokes a function.
@@ -2105,7 +2105,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCallFunction", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCallFunction(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsCallFunction(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Invokes a function as a constructor.
@@ -2129,7 +2129,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsConstructObject", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsConstructObject(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsConstructObject(JavaScriptValueSafeHandle function, IntPtr[] arguments, ushort argumentCount, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Creates a new JavaScript function.
@@ -2150,7 +2150,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateFunction", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateFunction(JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle function);
+        public static extern JsErrorCode JsCreateFunction(JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle function);
 
         /// <summary>
         ///     Creates a new JavaScript function with name.
@@ -2174,7 +2174,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateNamedFunction", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateNamedFunction(JavaScriptValueSafeHandle name, JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle function);
+        public static extern JsErrorCode JsCreateNamedFunction(JavaScriptValueSafeHandle name, JavaScriptNativeFunction nativeFunction, IntPtr callbackState, out JavaScriptValueSafeHandle function);
 
         /// <summary>
         ///     Creates a new JavaScript error object
@@ -2192,7 +2192,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateError", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
+        public static extern JsErrorCode JsCreateError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
 
         /// <summary>
         ///     Creates a new JavaScript RangeError error object
@@ -2210,7 +2210,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateRangeError", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateRangeError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
+        public static extern JsErrorCode JsCreateRangeError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
 
         /// <summary>
         ///     Creates a new JavaScript ReferenceError error object
@@ -2228,7 +2228,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateReferenceError", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateReferenceError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
+        public static extern JsErrorCode JsCreateReferenceError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
 
         /// <summary>
         ///     Creates a new JavaScript SyntaxError error object
@@ -2246,7 +2246,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateSyntaxError", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateSyntaxError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
+        public static extern JsErrorCode JsCreateSyntaxError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
 
         /// <summary>
         ///     Creates a new JavaScript TypeError error object
@@ -2264,7 +2264,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateTypeError", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateTypeError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
+        public static extern JsErrorCode JsCreateTypeError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
 
         /// <summary>
         ///     Creates a new JavaScript URIError error object
@@ -2282,7 +2282,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateURIError", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsCreateURIError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
+        public static extern JsErrorCode JsCreateURIError(JavaScriptValueSafeHandle message, out JavaScriptValueSafeHandle error);
 
         /// <summary>
         ///     Determines whether the runtime of the current context is in an exception state.
@@ -2304,7 +2304,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsHasException", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsHasException(out bool hasException);
+        public static extern JsErrorCode JsHasException(out bool hasException);
 
         /// <summary>
         ///     Returns the exception that caused the runtime of the current context to be in the exception state and resets the exception state for that runtime.
@@ -2324,7 +2324,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetAndClearException", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsGetAndClearException(out JavaScriptValueSafeHandle exception);
+        public static extern JsErrorCode JsGetAndClearException(out JavaScriptValueSafeHandle exception);
 
         /// <summary>
         ///     Sets the runtime of the current context to an exception state.
@@ -2341,7 +2341,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     JsNoError if the engine was set into an exception state, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetException", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetException(JavaScriptValueSafeHandle exception);
+        public static extern JsErrorCode JsSetException(JavaScriptValueSafeHandle exception);
 
         /// <summary>
         ///     Suspends script execution and terminates any running scripts in a runtime.
@@ -2361,7 +2361,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDisableRuntimeExecution", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDisableRuntimeExecution(JavaScriptRuntimeSafeHandle runtime);
+        public static extern JsErrorCode JsDisableRuntimeExecution(JavaScriptRuntimeSafeHandle runtime);
 
         /// <summary>
         ///     Enables script execution in a runtime.
@@ -2377,7 +2377,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsEnableRuntimeExecution", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsEnableRuntimeExecution(JavaScriptRuntimeSafeHandle runtime);
+        public static extern JsErrorCode JsEnableRuntimeExecution(JavaScriptRuntimeSafeHandle runtime);
 
         /// <summary>
         ///     Returns a value that indicates whether script execution is disabled in the runtime.
@@ -2392,7 +2392,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsIsRuntimeExecutionDisabled", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsIsRuntimeExecutionDisabled(JavaScriptRuntimeSafeHandle runtime, out bool isDisabled);
+        public static extern JsErrorCode JsIsRuntimeExecutionDisabled(JavaScriptRuntimeSafeHandle runtime, out bool isDisabled);
 
         /// <summary>
         ///     Sets a promise continuation callback function that is called by the context when a task needs to be queued for future execution
@@ -2410,7 +2410,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetPromiseContinuationCallback", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsSetPromiseContinuationCallback(JavaScriptPromiseContinuationCallback promiseContinuationCallback, IntPtr callbackState);
+        public static extern JsErrorCode JsSetPromiseContinuationCallback(JavaScriptPromiseContinuationCallback promiseContinuationCallback, IntPtr callbackState);
 
         /// <summary>
         ///     Starts debugging in the given runtime.
@@ -2431,7 +2431,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagStartDebugging", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagStartDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagDebugEventCallback debugEventCallback, IntPtr callbackState);
+        public static extern JsErrorCode JsDiagStartDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagDebugEventCallback debugEventCallback, IntPtr callbackState);
 
         /// <summary>
         ///     Stops debugging in the given runtime.
@@ -2449,7 +2449,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagStopDebugging", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagStopDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, out IntPtr callbackState);
+        public static extern JsErrorCode JsDiagStopDebugging(JavaScriptRuntimeSafeHandle runtimeHandle, out IntPtr callbackState);
 
         /// <summary>
         ///     Request the runtime to break on next JavaScript statement.
@@ -2464,7 +2464,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagRequestAsyncBreak", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagRequestAsyncBreak(JavaScriptRuntimeSafeHandle runtimeHandle);
+        public static extern JsErrorCode JsDiagRequestAsyncBreak(JavaScriptRuntimeSafeHandle runtimeHandle);
 
         /// <summary>
         ///     List all breakpoints in the current runtime.
@@ -2484,7 +2484,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagGetBreakpoints", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagGetBreakpoints(out JavaScriptValueSafeHandle breakpoints);
+        public static extern JsErrorCode JsDiagGetBreakpoints(out JavaScriptValueSafeHandle breakpoints);
 
         /// <summary>
         ///     Sets breakpoint in the specified script at give location.
@@ -2512,7 +2512,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagSetBreakpoint", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagSetBreakpoint(uint scriptId, uint lineNumber, uint columnNumber, out JavaScriptValueSafeHandle breakpoint);
+        public static extern JsErrorCode JsDiagSetBreakpoint(uint scriptId, uint lineNumber, uint columnNumber, out JavaScriptValueSafeHandle breakpoint);
 
         /// <summary>
         ///     Remove a breakpoint.
@@ -2527,7 +2527,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagRemoveBreakpoint", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagRemoveBreakpoint(uint breakpointId);
+        public static extern JsErrorCode JsDiagRemoveBreakpoint(uint breakpointId);
 
         /// <summary>
         ///     Sets break on exception handling.
@@ -2545,7 +2545,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagSetBreakOnException", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagSetBreakOnException(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagBreakOnExceptionAttributes exceptionAttributes);
+        public static extern JsErrorCode JsDiagSetBreakOnException(JavaScriptRuntimeSafeHandle runtimeHandle, JavaScriptDiagBreakOnExceptionAttributes exceptionAttributes);
 
         /// <summary>
         ///     Gets break on exception setting.
@@ -2563,7 +2563,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagGetBreakOnException", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagGetBreakOnException(JavaScriptRuntimeSafeHandle runtimeHandle, out JavaScriptDiagBreakOnExceptionAttributes exceptionAttributes);
+        public static extern JsErrorCode JsDiagGetBreakOnException(JavaScriptRuntimeSafeHandle runtimeHandle, out JavaScriptDiagBreakOnExceptionAttributes exceptionAttributes);
 
         /// <summary>
         ///     Sets the step type in the runtime after a debug break.
@@ -2578,7 +2578,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagSetStepType", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagSetStepType(JavaScriptDiagStepType stepType);
+        public static extern JsErrorCode JsDiagSetStepType(JavaScriptDiagStepType stepType);
 
         /// <summary>
         ///     Gets list of scripts.
@@ -2604,7 +2604,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagGetScripts", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagGetScripts(out JavaScriptValueSafeHandle scriptsArray);
+        public static extern JsErrorCode JsDiagGetScripts(out JavaScriptValueSafeHandle scriptsArray);
 
         /// <summary>
         ///     Gets source for a specific script identified by scriptId from JsDiagGetScripts.
@@ -2628,7 +2628,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagGetSource", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagGetSource(uint scriptId, out JavaScriptValueSafeHandle source);
+        public static extern JsErrorCode JsDiagGetSource(uint scriptId, out JavaScriptValueSafeHandle source);
 
         /// <summary>
         ///     Gets the source information for a function object.
@@ -2653,7 +2653,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagGetFunctionPosition", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagGetFunctionPosition(JavaScriptValueSafeHandle function, out JavaScriptValueSafeHandle functionPosition);
+        public static extern JsErrorCode JsDiagGetFunctionPosition(JavaScriptValueSafeHandle function, out JavaScriptValueSafeHandle functionPosition);
 
         /// <summary>
         ///     Gets the stack trace information.
@@ -2676,7 +2676,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagGetStackTrace", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagGetStackTrace(out JavaScriptValueSafeHandle stackTrace);
+        public static extern JsErrorCode JsDiagGetStackTrace(out JavaScriptValueSafeHandle stackTrace);
 
         /// <summary>
         ///     Gets the list of properties corresponding to the frame.
@@ -2746,7 +2746,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagGetStackProperties", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagGetStackProperties(uint stackFrameIndex, out JavaScriptValueSafeHandle properties);
+        public static extern JsErrorCode JsDiagGetStackProperties(uint stackFrameIndex, out JavaScriptValueSafeHandle properties);
 
         /// <summary>
         ///     Gets the list of children of a handle.
@@ -2770,7 +2770,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagGetProperties", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagGetProperties(uint objectHandle, uint fromCount, uint totalCount, out JavaScriptValueSafeHandle propertiesObject);
+        public static extern JsErrorCode JsDiagGetProperties(uint objectHandle, uint fromCount, uint totalCount, out JavaScriptValueSafeHandle propertiesObject);
 
         /// <summary>
         ///     Gets the object corresponding to handle.
@@ -2795,7 +2795,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagGetObjectFromHandle", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagGetObjectFromHandle(uint objectHandle, out JavaScriptValueSafeHandle handleObject);
+        public static extern JsErrorCode JsDiagGetObjectFromHandle(uint objectHandle, out JavaScriptValueSafeHandle handleObject);
 
         /// <summary>
         ///     Evaluates an expression on given frame.
@@ -2844,7 +2844,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     Other error code for invalid parameters or API was not called at break
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsDiagEvaluate", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JavaScriptErrorCode JsDiagEvaluate(JavaScriptValueSafeHandle expression, uint stackFrameIndex, JavaScriptParseScriptAttributes parseAttributes, bool forceSetValueProp, out JavaScriptValueSafeHandle evalResult);
+        public static extern JsErrorCode JsDiagEvaluate(JavaScriptValueSafeHandle expression, uint stackFrameIndex, JavaScriptParseScriptAttributes parseAttributes, bool forceSetValueProp, out JavaScriptValueSafeHandle evalResult);
 
         /// <summary>
         ///     Parses a script and returns a function representing the script.
@@ -2868,7 +2868,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsParseScript", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsParseScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsParseScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Parses a script and returns a function representing the script.
@@ -2895,7 +2895,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsParseScriptWithAttributes", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsParseScriptWithAttributes(string script, JavaScriptSourceContext sourceContext, string sourceUrl, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsParseScriptWithAttributes(string script, JavaScriptSourceContext sourceContext, string sourceUrl, JavaScriptParseScriptAttributes parseAttributes, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Executes a script.
@@ -2919,7 +2919,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsRunScript", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsRunScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsRunScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Serializes a parsed script to a buffer than can be reused.
@@ -2944,7 +2944,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSerializeScript", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsSerializeScript(string script, byte[] buffer, ref uint bufferSize);
+        public static extern JsErrorCode JsSerializeScript(string script, byte[] buffer, ref uint bufferSize);
 
         /// <summary>
         ///     Parses a serialized script and returns a function representing the script. Provides the ability to lazy load the script source only if/when it is needed.
@@ -2978,7 +2978,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsParseSerializedScriptWithCallback", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsParseSerializedScriptWithCallback(JavaScriptSerializedScriptLoadSourceCallback scriptLoadCallback, JavaScriptSerializedScriptUnloadCallback scriptUnloadCallback, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsParseSerializedScriptWithCallback(JavaScriptSerializedScriptLoadSourceCallback scriptLoadCallback, JavaScriptSerializedScriptUnloadCallback scriptUnloadCallback, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Runs a serialized script. Provides the ability to lazy load the script source only if/when it is needed.
@@ -3012,7 +3012,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsRunSerializedScriptWithCallback", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsRunSerializedScriptWithCallback(JavaScriptSerializedScriptLoadSourceCallback scriptLoadCallback, JavaScriptSerializedScriptUnloadCallback scriptUnloadCallback, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsRunSerializedScriptWithCallback(JavaScriptSerializedScriptLoadSourceCallback scriptLoadCallback, JavaScriptSerializedScriptUnloadCallback scriptUnloadCallback, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Parses a serialized script and returns a function representing the script.
@@ -3041,7 +3041,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsParseSerializedScript", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsParseSerializedScript(string script, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsParseSerializedScript(string script, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Runs a serialized script.
@@ -3070,7 +3070,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsRunSerializedScript", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsRunSerializedScript(string script, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsRunSerializedScript(string script, byte[] buffer, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Gets the property ID associated with the name.
@@ -3089,7 +3089,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetPropertyIdFromName", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsGetPropertyIdFromName(string name, out JavaScriptPropertyIdSafeHandle propertyId);
+        public static extern JsErrorCode JsGetPropertyIdFromName(string name, out JavaScriptPropertyIdSafeHandle propertyId);
 
         /// <summary>
         ///     Gets the name associated with the property ID.
@@ -3109,7 +3109,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetPropertyNameFromId", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsGetPropertyNameFromId(JavaScriptPropertyIdSafeHandle propertyId, out IntPtr name);
+        public static extern JsErrorCode JsGetPropertyNameFromId(JavaScriptPropertyIdSafeHandle propertyId, out IntPtr name);
 
         /// <summary>
         ///     Creates a string value from a string pointer.
@@ -3130,7 +3130,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsPointerToString", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsPointerToString(string stringValue, ulong stringLength, out JavaScriptValueSafeHandle value);
+        public static extern JsErrorCode JsPointerToString(string stringValue, ulong stringLength, out JavaScriptValueSafeHandle value);
 
         /// <summary>
         ///     Retrieves the string pointer of a string value.
@@ -3156,7 +3156,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsStringToPointer", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern JavaScriptErrorCode JsStringToPointer(JavaScriptValueSafeHandle value, out IntPtr stringValue, out ulong stringLength);
+        public static extern JsErrorCode JsStringToPointer(JavaScriptValueSafeHandle value, out IntPtr stringValue, out ulong stringLength);
 
     }
 }

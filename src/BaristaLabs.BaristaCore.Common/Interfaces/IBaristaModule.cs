@@ -1,6 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
-    using JavaScript;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -27,8 +26,9 @@
         /// <summary>
         /// Gets the default export of the module given the specified scope and referencing module.
         /// </summary>
-        /// <param name="engine"></param>
+        /// <param name="context">The current BaristaContext</param>
+        /// <param name="referencingModule">The module that is requesting the module.</param>
         /// <returns></returns>
-        Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule);
+        Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule);
     }
 }

@@ -374,13 +374,14 @@ let global = (new Function('return this;'))();
                 //Now we're ready, evaluate the main module.
 
                 Engine.JsModuleEvaluation(mainModule.Handle);
-
+                
                 //Evaluate any pending promises.
                 CurrentScope.ResolvePendingPromises();
 
                 if (m_promiseTaskQueue != null && GlobalObject.HasOwnProperty("$ERROR"))
                 {
-                    throw new BaristaScriptException(GlobalObject.GetProperty<JsObject>("$ERROR"));
+                    var errorValue = GlobalObject.GetProperty<JsObject>("$ERROR");
+                    throw new JsScriptException(JsErrorCode.ScriptException, errorValue.Handle);
                 }
 
                 //Return the name of the global.
@@ -406,7 +407,7 @@ let global = (new Function('return this;'))();
             }
             else
             {
-                throw new BaristaException("This context already has an active execution scope.");
+                throw new InvalidOperationException("This context already has an active execution scope.");
             }
         }
 

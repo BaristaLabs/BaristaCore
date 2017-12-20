@@ -19,7 +19,7 @@
                 throw new ArgumentNullException(nameof(stringHandle));
 
             //Don't use our helper error class in order to prevent recursive errors.
-            JavaScriptErrorCode innerError;
+            JsErrorCode innerError;
 
             //Get the size
             innerError = LibChakraCore.JsCopyString(stringHandle, null, 0, out ulong size);

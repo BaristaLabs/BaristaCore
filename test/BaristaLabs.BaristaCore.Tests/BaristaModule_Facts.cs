@@ -255,7 +255,7 @@ export default asdf@11;
                 {
                     using (ctx.Scope())
                     {
-                        Assert.Throws<JavaScriptScriptException>(() =>
+                        Assert.Throws<JsScriptException>(() =>
                         {
                             var result = ctx.EvaluateModule(script);
                         });
@@ -301,13 +301,13 @@ export default result;
                 {
                     using (ctx.Scope())
                     {
-                        Assert.Throws<BaristaScriptException>(() =>
+                        Assert.Throws<JsScriptException>(() =>
                         {
                             try
                             {
                                 var result = ctx.EvaluateModule(script);
                             }
-                            catch (BaristaScriptException ex)
+                            catch (JsScriptException ex)
                             {
                                 Assert.Equal("No. Bad.", ex.Message);
                                 throw;
@@ -332,7 +332,7 @@ export default soAmazing;
                 {
                     using (ctx.Scope())
                     {
-                        Assert.Throws<JavaScriptScriptException>(() =>
+                        Assert.Throws<JsScriptException>(() =>
                         {
                             var result = ctx.EvaluateModule(script);
                         });
@@ -388,6 +388,35 @@ export default 'banana';
                         var result = ctx.EvaluateModule(script);
 
                         Assert.True(result.ToString() == "hello, world! banana");
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsModulesCanUseResourceStrings()
+        {
+            var script = @"
+import banana from 'banana';
+export default 'hello, world! ' + banana;
+";
+            var bananaModule = new BaristaResourceScriptModule(Properties.Resources.ResourceManager)
+            {
+                Name = "banana",
+                ResourceName = "String1"
+            };
+
+            ModuleLoader.RegisterModule(bananaModule);
+
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var result = ctx.EvaluateModule(script);
+
+                        Assert.Equal("hello, world! hello, world!", result.ToString());
                     }
                 }
             }
@@ -478,7 +507,7 @@ export default asdf@11;
                 {
                     using (ctx.Scope())
                     {
-                        Assert.Throws<JavaScriptScriptException>(() =>
+                        Assert.Throws<JsScriptException>(() =>
                         {
                             var result = ctx.EvaluateModule(script);
                         });
@@ -568,7 +597,7 @@ export default asdf@11;
             {
                 using (var ctx = rt.CreateContext())
                 {
-                    Assert.Throws<JavaScriptScriptException>(() =>
+                    Assert.Throws<JsScriptException>(() =>
                     {
                         var result = ctx.EvaluateModule<JsNumber>(script);
                     });
@@ -590,7 +619,7 @@ export default asdf@11;
             {
                 using (var ctx = rt.CreateContext())
                 {
-                    Assert.Throws<JavaScriptScriptException>(() =>
+                    Assert.Throws<JsScriptException>(() =>
                     {
                         var result = ctx.EvaluateModule<JsNumber>(script);
                     });
@@ -621,13 +650,46 @@ export default asdf@11;
             }
         }
 
+        [Fact]
+        public void JsModulesCanDetermineTheModuleRequestingIt()
+        {
+            var script = @"
+import banana from 'level2';
+export default 'hello, world! ' + banana;
+";
+            var bananaModule = new BaristaScriptModule
+            {
+                Name = "level2",
+                Script = @"
+import requestorName from 'depedendent';
+export default 'Requested By: ' + requestorName;
+"
+            };
+
+            ModuleLoader.RegisterModule(bananaModule);
+            ModuleLoader.RegisterModule(new ReturnDependentNameModule());
+
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var result = ctx.EvaluateModule(script);
+
+                        Assert.Equal("hello, world! Requested By: level2", result.ToString());
+                    }
+                }
+            }
+        }
+
         private sealed class HelloWorldModule : IBaristaModule
         {
             public string Name => "hello_world";
 
             public string Description => "Only the best module ever.";
 
-            public Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule)
+            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>(context.ValueFactory.CreateString("Hello, World!"));
             }
@@ -641,7 +703,7 @@ export default asdf@11;
 
             public string Description => "reverses the string passed in.";
 
-            public Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule)
+            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 //This module goes through the trouble of creating a JavaScriptValueSafeHandle to ensure that it can be done.
                 JavaScriptNativeFunction fnReverse = (callee, isConstructCall, arguments, argumentCount, callbackData) =>
@@ -699,7 +761,7 @@ export default asdf@11;
 
             public string Description => "The answer...";
 
-            public Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule)
+            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>(42);
             }
@@ -711,7 +773,7 @@ export default asdf@11;
 
             public string Description => "Derp!";
 
-            public Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule)
+            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 throw new Exception("Derp!");
             }
@@ -723,9 +785,21 @@ export default asdf@11;
 
             public string Description => "So complicated!";
 
-            public Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule)
+            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>(new StringBuilder());
+            }
+        }
+
+        private sealed class ReturnDependentNameModule : IBaristaModule
+        {
+            public string Name => "depedendent";
+
+            public string Description => "Returns the name of the requesting module.";
+
+            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            {
+                return Task.FromResult<object>(referencingModule.Name);
             }
         }
     }

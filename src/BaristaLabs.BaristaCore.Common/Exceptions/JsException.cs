@@ -1,48 +1,48 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
     using System;
 
     /// <summary>
-    ///     An exception returned from the Chakra engine.
+    ///     An exception returned from a JavaScript engine.
     /// </summary>
-    public abstract class JavaScriptException : Exception
+    public abstract class JsException : Exception
     {
         /// <summary>
         /// The error code.
         /// </summary>
-        private readonly JavaScriptErrorCode m_code;
+        private readonly JsErrorCode m_code;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="JavaScriptException"/> class. 
+        ///     Initializes a new instance of the <see cref="JsException"/> class. 
         /// </summary>
         /// <param name="code">The error code returned.</param>
-        public JavaScriptException(JavaScriptErrorCode code) :
+        public JsException(JsErrorCode code) :
             this(code, "A fatal exception has occurred in a JavaScript runtime")
         {
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="JavaScriptException"/> class. 
+        ///     Initializes a new instance of the <see cref="JsException"/> class. 
         /// </summary>
         /// <param name="code">The error code returned.</param>
         /// <param name="message">The error message.</param>
-        public JavaScriptException(JavaScriptErrorCode code, string message) :
+        public JsException(JsErrorCode code, string message) :
             base(message)
         {
             m_code = code;
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="JavaScriptException"/> class. 
+        ///     Initializes a new instance of the <see cref="JsException"/> class. 
         /// </summary>
         /// <param name="message">the error message</param>
         /// <param name="innerException">An inner exception</param>
-        protected JavaScriptException(string message, Exception innerException) :
+        protected JsException(string message, Exception innerException) :
             base(message, innerException)
         {
             if (message != null)
             {
-                m_code = (JavaScriptErrorCode)HResult;
+                m_code = (JsErrorCode)HResult;
             }
         }
 
@@ -61,7 +61,7 @@
         /// <summary>
         ///     Gets the error code.
         /// </summary>
-        public JavaScriptErrorCode ErrorCode
+        public JsErrorCode ErrorCode
         {
             get { return m_code; }
         }

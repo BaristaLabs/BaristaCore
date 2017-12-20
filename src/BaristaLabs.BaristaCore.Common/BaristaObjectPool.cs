@@ -48,6 +48,25 @@
         }
 
         /// <summary>
+        /// Attems to get the specified flyweight from the pool directly
+        /// </summary>
+        /// <param name="jsRef"></param>
+        /// <returns></returns>
+        public bool TryGet(TJavaScriptReference jsRef, out TBaristaObject obj)
+        {
+            if (jsRef == default(TJavaScriptReference) || jsRef.IsInvalid)
+                throw new ArgumentNullException(nameof(jsRef));
+
+            if (m_javaScriptReferencePool.TryGetValue(jsRef, out WeakReference<TBaristaObject> weakObj))
+            {
+                return weakObj.TryGetTarget(out obj);
+            }
+
+            obj = null;
+            return false;
+        }
+
+        /// <summary>
         /// Gets or adds the specified JavaScript Reference to the pool.
         /// </summary>
         /// <param name="jsRef"></param>

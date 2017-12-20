@@ -14,7 +14,8 @@
 
         public IDebugJavaScriptEngine_Facts()
         {
-            Engine = JavaScriptEngineFactory.CreateChakraEngine();
+            var chakraCoreFactory = new ChakraCoreFactory();
+            Engine = chakraCoreFactory.CreateJavaScriptEngine();
         }
 
         [Fact]

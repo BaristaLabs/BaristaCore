@@ -39,6 +39,35 @@
         }
 
         /// <summary>
+        /// Returns a value that indicates if the current context is in an exception state.
+        /// </summary>
+        /// <returns></returns>
+        public bool HasException()
+        {
+            return m_context.Engine.JsHasException();
+        }
+
+        /// <summary>
+        /// Returns the exception that caused the runtime of the current context to be in the exception state and resets the exception state for the runtime.
+        /// </summary>
+        /// <returns></returns>
+        public JsValue GetAndClearException()
+        {
+            var valueHandle = m_context.Engine.JsGetAndClearException();
+            return m_context.ValueFactory.CreateValue(valueHandle);
+        }
+
+        /// <summary>
+        /// Returns metadata relating to the exception that caused the runtime of the current context to be in the exception state and resets the exception state for the runtime.
+        /// </summary>
+        /// <returns></returns>
+        public JsValue GetAndClearExceptionWithMetadata()
+        {
+            var valueHandle = m_context.Engine.JsGetAndClearExceptionWithMetadata();
+            return m_context.ValueFactory.CreateValue(valueHandle);
+        }
+
+        /// <summary>
         /// Resolves any pending promises queued in the execution scope.
         /// </summary>
         /// <remarks>
@@ -56,6 +85,7 @@
                 var promise = m_promiseTaskQueue.Dequeue();
                 try
                 {
+                    //All results from this are undefined.
                     m_context.Engine.JsCallFunction(promise.Handle, args, (ushort)args.Length);
                 }
                 finally

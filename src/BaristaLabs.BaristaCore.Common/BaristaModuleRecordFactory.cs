@@ -18,6 +18,19 @@
             m_moduleReferencePool = new BaristaObjectPool<BaristaModuleRecord, JavaScriptModuleRecord>();
         }
 
+        public BaristaModuleRecord GetBaristaModuleRecord(JavaScriptModuleRecord moduleRecord)
+        {
+            if (moduleRecord == null)
+                throw new ArgumentNullException(nameof(moduleRecord));
+
+            if (m_moduleReferencePool.TryGet(moduleRecord, out BaristaModuleRecord existingModuleRecord))
+            {
+                return existingModuleRecord;
+            }
+
+            return null;
+        }
+
         public BaristaModuleRecord CreateBaristaModuleRecord(BaristaContext context, string moduleName, BaristaModuleRecord parentModule = null, bool setAsHost = false)
         {
             if (context == null)

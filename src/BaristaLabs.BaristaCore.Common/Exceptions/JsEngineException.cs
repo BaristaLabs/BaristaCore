@@ -1,37 +1,37 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
     using System;
 
     /// <summary>
-    ///     A fatal exception occurred.
+    ///     An exception that occurred in the workings of the JavaScript engine itself.
     /// </summary>
-    public sealed class JavaScriptFatalException : JavaScriptException
+    public sealed class JsEngineException : JsException
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="JavaScriptFatalException"/> class. 
+        ///     Initializes a new instance of the <see cref="JsEngineException"/> class. 
         /// </summary>
         /// <param name="code">The error code returned.</param>
-        public JavaScriptFatalException(JavaScriptErrorCode code) :
+        public JsEngineException(JsErrorCode code) :
             this(code, "A fatal exception has occurred in a JavaScript runtime")
         {
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="JavaScriptFatalException"/> class. 
+        ///     Initializes a new instance of the <see cref="JsEngineException"/> class. 
         /// </summary>
         /// <param name="code">The error code returned.</param>
         /// <param name="message">The error message.</param>
-        public JavaScriptFatalException(JavaScriptErrorCode code, string message) :
+        public JsEngineException(JsErrorCode code, string message) :
             base(code, message)
         {
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="JavaScriptFatalException"/> class.
+        ///     Initializes a new instance of the <see cref="JsEngineException"/> class.
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        private JavaScriptFatalException(string message, Exception innerException) :
+        private JsEngineException(string message, Exception innerException) :
             base(message, innerException)
         {
         }

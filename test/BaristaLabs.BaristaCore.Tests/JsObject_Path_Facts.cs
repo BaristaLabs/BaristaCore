@@ -134,7 +134,7 @@
                     {
                         var script = "export default { foo: { bar: { baz: 'qix' } } };";
                         var obj = ctx.EvaluateModule<JsObject>(script);
-                        Assert.Throws<BaristaException>(() =>
+                        Assert.Throws<IndexOutOfRangeException>(() =>
                         {
                             var qix = obj.SelectValue("foo.bat.man", true);
                         });

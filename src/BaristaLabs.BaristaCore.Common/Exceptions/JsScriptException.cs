@@ -1,13 +1,13 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
-    using Internal;
+    using BaristaLabs.BaristaCore.JavaScript;
+    using BaristaLabs.BaristaCore.JavaScript.Internal;
     using System;
-    using System.Diagnostics;
 
     /// <summary>
     ///     A script exception.
     /// </summary>
-    public sealed class JavaScriptScriptException : JavaScriptException, IDisposable
+    public sealed class JsScriptException : JsException, IDisposable
     {
         private const string MessagePropertyName = "message";
         private const string NamePropertyName = "name";
@@ -22,29 +22,29 @@
         private readonly JavaScriptValueSafeHandle m_error;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="JavaScriptScriptException"/> class. 
+        ///     Initializes a new instance of the <see cref="JsScriptException"/> class. 
         /// </summary>
         /// <param name="code">The error code returned.</param>
         /// <param name="error">The JavaScript error object.</param>
-        public JavaScriptScriptException(JavaScriptErrorCode code, JavaScriptValueSafeHandle error) :
+        public JsScriptException(JsErrorCode code, JavaScriptValueSafeHandle error) :
             this(code, error, "JavaScript Exception")
         {
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="JavaScriptScriptException"/> class. 
+        ///     Initializes a new instance of the <see cref="JsScriptException"/> class. 
         /// </summary>
         /// <param name="code">The error code returned.</param>
         /// <param name="error">The JavaScript error object.</param>
         /// <param name="message">The error message.</param>
-        public JavaScriptScriptException(JavaScriptErrorCode code, JavaScriptValueSafeHandle error, string message) :
+        public JsScriptException(JsErrorCode code, JavaScriptValueSafeHandle error, string message) :
             base(code, message)
         {
             m_error = error;
             m_message = message;
 
             //Don't use our helper errors class in order to prevent recursive errors.
-            JavaScriptErrorCode innerError;
+            JsErrorCode innerError;
 
             //Get the error object type
             innerError = LibChakraCore.JsGetValueType(error, out JavaScriptValueType errorType);
@@ -69,11 +69,11 @@
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="JavaScriptScriptException"/> class.
+        ///     Initializes a new instance of the <see cref="JsScriptException"/> class.
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        private JavaScriptScriptException(string message, Exception innerException) :
+        private JsScriptException(string message, Exception innerException) :
             base(message, innerException)
         {
         }

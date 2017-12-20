@@ -83,7 +83,7 @@
                         });
 
                         var jsPromise = ctx.ValueFactory.CreatePromise(myTask);
-                        Assert.Throws<BaristaScriptException>(() =>
+                        Assert.Throws<JsScriptException>(() =>
                         {
                             var result = ctx.Promise.Wait(jsPromise);
                         });
@@ -195,13 +195,13 @@
                     using (ctx.Scope())
                     {
                         var rejectPromise = ctx.Promise.Reject(ctx.ValueFactory.CreateString("foo"));
-                        Assert.Throws<BaristaScriptException>(() =>
+                        Assert.Throws<JsScriptException>(() =>
                         {
                             try
                             {
                                 ctx.Promise.Wait<JsString>(rejectPromise);
                             }
-                            catch(BaristaScriptException ex)
+                            catch(JsScriptException ex)
                             {
                                 Assert.Equal("foo", ex.Message);
                                 throw;
