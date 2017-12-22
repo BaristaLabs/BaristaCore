@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.csproj" />
+    <ProjectReference Include="..\BaristaLabs.BaristaCore.MyTestModule\BaristaLabs.BaristaCore.MyTestModule.csproj" />
   </ItemGroup>
 
   <ItemGroup>
