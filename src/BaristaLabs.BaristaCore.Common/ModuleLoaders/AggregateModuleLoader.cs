@@ -5,7 +5,7 @@
     using System.Text.RegularExpressions;
 
     /// <summary>
-    /// Represents a module loader that consolidates multiple module loaders into a single module loader. 
+    /// Represents a module loader that consolidates multiple module loaders into a single module loader using a module name prefix as a specifier. 
     /// </summary>
     public class AggregateModuleLoader : IBaristaModuleLoader
     {
@@ -19,7 +19,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the prefix seperator that will be used to separate
+        /// Gets or sets the prefix seperator that will be used to separate the module prefix from the module name. Defaults to '!' 
         /// </summary>
         public string PrefixSeperator
         {
@@ -59,6 +59,11 @@
             m_moduleLoaders.Add(prefix, new Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, IBaristaModule>>(moduleLoader, moduleLoaderFactory));
         }
 
+        /// <summary>
+        /// Removes the module loader with the specified prefix.
+        /// </summary>
+        /// <param name="prefix">The prefix to remove.</param>
+        /// <returns>true if the element is successfully found and removed; otherwise, false.</returns>
         public bool RemoveModuleLoader(string prefix)
         {
             return m_moduleLoaders.Remove(prefix);
