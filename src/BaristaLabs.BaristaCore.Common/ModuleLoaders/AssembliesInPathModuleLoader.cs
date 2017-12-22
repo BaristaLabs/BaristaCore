@@ -97,8 +97,27 @@
                 if (typeList.Length > 0)
                 {
                     var baristaModuleAttribute = BaristaModuleAttribute.GetBaristaModuleAttributeFromType(type);
-                    m_loadedModules.Add(baristaModuleAttribute.Name, type);
                     m_serviceCollection.AddTransient(typeof(IBaristaModule), type);
+
+                    if (type.IsSubclassOf(typeof(IBaristaScriptModule)))
+                    {
+                        using (var serviceProvider = m_serviceCollection.BuildServiceProvider())
+                        {
+                            var modules = serviceProvider.GetServices<IBaristaModule>();
+                            if (modules.Where(s => s.GetType() == type).FirstOrDefault() is IBaristaScriptModule scriptModule)
+                            {
+                                m_loadedModules.Add(scriptModule.Name, type);
+                            }
+                            else
+                            {
+                                m_loadedModules.Add(baristaModuleAttribute.Name, type);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        m_loadedModules.Add(baristaModuleAttribute.Name, type);
+                    }
                 }
             }
         }
