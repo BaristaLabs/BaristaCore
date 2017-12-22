@@ -5,5 +5,20 @@
     /// </summary>
     public interface IBaristaScriptModule : IBaristaModule
     {
+        /// <summary>
+        /// Gets the name of the module.
+        /// </summary>
+        string Name
+        {
+            get;
+        }
+
+        /// <summary>
+        /// Gets the description of the module.
+        /// </summary>
+        string Description
+        {
+            get;
+        }
     }
 }

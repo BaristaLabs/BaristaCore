@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.ModuleLoaders
 {
+    using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -12,7 +13,8 @@
     public class AssembliesInPathModuleLoader : IBaristaModuleLoader, IDisposable
     {
         private readonly string m_moduleFolderFullPath;
-        private readonly Dictionary<string, IBaristaModule> m_loadedModules;
+        private readonly ServiceCollection m_serviceCollection;
+        private readonly Dictionary<string, Type> m_loadedModules;
 
         public AssembliesInPathModuleLoader(string modulePath = ".\\barista_modules")
         {
@@ -20,20 +22,26 @@
                 throw new ArgumentNullException(nameof(modulePath));
 
             m_moduleFolderFullPath = Path.GetFullPath(modulePath);
-            m_loadedModules = new Dictionary<string, IBaristaModule>();
+            m_loadedModules = new Dictionary<string, Type>();
+            m_serviceCollection = new ServiceCollection();
         }
 
         public IBaristaModule GetModule(string name)
         {
             //Look for any already loaded modules
-            if (m_loadedModules.ContainsKey(name))
-                return m_loadedModules[name];
+            if (TryGetModuleByName(name, out IBaristaModule baristaModule))
+            {
+                return baristaModule;
+            }
 
             //If not found scan the configured folder.
             ScanModuleFolder();
 
-            if (m_loadedModules.ContainsKey(name))
-                return m_loadedModules[name];
+            //Try locating it again.
+            if (TryGetModuleByName(name, out IBaristaModule newBaristaModule))
+            {
+                return newBaristaModule;
+            }
 
             //Couldn't find one? Get outta Dodge.
             return null;
@@ -88,10 +96,29 @@
                 var typeList = type.FindInterfaces(BaristaModuleInterfaceFilter, typeof(IBaristaModule));
                 if (typeList.Length > 0)
                 {
-                    var baristaModule = Activator.CreateInstance(type) as IBaristaModule;
-                    m_loadedModules.Add(baristaModule.Name, baristaModule);
+                    var baristaModuleAttribute = BaristaModuleAttribute.GetBaristaModuleAttributeFromType(type);
+                    m_loadedModules.Add(baristaModuleAttribute.Name, type);
+                    m_serviceCollection.AddTransient(typeof(IBaristaModule), type);
                 }
             }
+        }
+
+        private bool TryGetModuleByName(string moduleName, out IBaristaModule baristaModule)
+        {
+            if (m_loadedModules.ContainsKey(moduleName))
+            {
+                var moduleType = m_loadedModules[moduleName];
+                using (var serviceProvider = m_serviceCollection.BuildServiceProvider())
+                {
+                    var modules = serviceProvider.GetServices<IBaristaModule>();
+                    baristaModule = modules.Where(s => s.GetType() == moduleType).FirstOrDefault();
+                    if (baristaModule != null)
+                        return true;
+                }
+            }
+
+            baristaModule = null;
+            return false;
         }
 
         /// <summary>
@@ -139,23 +166,11 @@
             {
                 if (disposing)
                 {
-                    foreach (var moduleLoader in m_loadedModules.Values)
-                    {
-                        if (moduleLoader is IDisposable disposableModuleLoader)
-                        {
-                            try
-                            {
-                                disposableModuleLoader.Dispose();
-                            }
-                            catch
-                            {
-                                //Do Nothing.
-                            }
-                        }
-                    }
+                    //Do Nothing.
                 }
 
                 m_loadedModules.Clear();
+                m_serviceCollection.Clear();
                 m_isDisposed = true;
             }
         }

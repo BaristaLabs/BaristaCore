@@ -9,14 +9,26 @@
     public sealed class BaristaConversionStrategy : IBaristaConversionStrategy
     {
         private readonly IJsonConverter m_jsonConverter;
+        private readonly IBaristaTypeConversionStrategy m_typeConversionStrategy;
 
         public BaristaConversionStrategy()
+            : this(null, null)
         {
         }
 
         public BaristaConversionStrategy(IJsonConverter jsonConverter)
+            : this(null, jsonConverter)
         {
-            //JsonConverter is not required.
+        }
+
+        public BaristaConversionStrategy(IBaristaTypeConversionStrategy typeConversionStrategy)
+            : this(typeConversionStrategy, null)
+        {
+        }
+
+        public BaristaConversionStrategy(IBaristaTypeConversionStrategy typeConversionStrategy, IJsonConverter jsonConverter)
+        {
+            m_typeConversionStrategy = typeConversionStrategy;
             m_jsonConverter = jsonConverter;
         }
 
@@ -92,14 +104,20 @@
                     value = valueFactory.CreateFunction(delegateValue);
                     return true;
                 case Exception exValue:
-                    //Create an error.
-                    var error = valueFactory.CreateError(exValue.Message);
-                    //TODO: Potentially populate error properties.
-                    value = error;
+                    value = valueFactory.CreateError(exValue.Message);
                     return true;
                 case Task taskValue:
                     value = valueFactory.CreatePromise(taskValue);
                     return true;
+                case Type typeValue:
+                    if (m_typeConversionStrategy == null)
+                    {
+                        value = null;
+                        return false;
+                    }
+                    var result = m_typeConversionStrategy.TryCreatePrototypeFunction(typeValue, out JsFunction fnValue);
+                    value = fnValue;
+                    return result;
             }
 
             var objType = obj.GetType();

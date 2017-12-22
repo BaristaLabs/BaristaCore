@@ -1,21 +1,17 @@
-﻿namespace BaristaLabs.BaristaCore.Tests
+﻿namespace BaristaLabs.BaristaCore.Tests.ModuleLoader
 {
     using BaristaCore.Extensions;
-    using BaristaLabs.BaristaCore.JavaScript;
-    using BaristaLabs.BaristaCore.JavaScript.Extensions;
     using BaristaLabs.BaristaCore.ModuleLoaders;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Diagnostics.CodeAnalysis;
-    using System.Runtime.InteropServices;
-    using System.Text;
     using System.Threading.Tasks;
     using Xunit;
 
     [ExcludeFromCodeCoverage]
-    public class BaristaModuleLoader_Facts
+    public class AggregateModuleLoader_Facts
     {
-        public BaristaModuleLoader_Facts()
+        public AggregateModuleLoader_Facts()
         {
         }
 
@@ -26,31 +22,6 @@
 
             var provider = serviceCollection.BuildServiceProvider();
             return provider.GetRequiredService<IBaristaRuntimeFactory>();
-        }
-
-        [Fact]
-        public void JsInMemoryModuleLoaderReturnsModules()
-        {
-            var script = @"
-        import helloworld from 'hello_world';
-        export default helloworld;
-        ";
-
-            var inMemoryModuleLoader = new InMemoryModuleLoader();
-            inMemoryModuleLoader.RegisterModule(new HelloWorldModule());
-
-
-            var baristaRuntime = GetRuntimeFactory(inMemoryModuleLoader);
-
-            using (var rt = baristaRuntime.CreateRuntime())
-            {
-                using (var ctx = rt.CreateContext())
-                {
-                    var result = ctx.EvaluateModule(script);
-
-                    Assert.Equal("Hello, World!", result.ToString());
-                }
-            }
         }
 
         [Fact]
@@ -122,24 +93,80 @@
             }
         }
 
+        [Fact]
+        public void JsAggregateModuleLoaderPrefixesMustBeUnique()
+        {
+            var inMemoryModuleLoader1 = new InMemoryModuleLoader();
+            inMemoryModuleLoader1.RegisterModule(new HelloWorldModule());
+
+            var inMemoryModuleLoader2 = new InMemoryModuleLoader();
+            inMemoryModuleLoader2.RegisterModule(new GoodnightMoonModule());
+
+            var aggregateModuleLoader = new AggregateModuleLoader();
+            aggregateModuleLoader.RegisterModuleLoader("daytime", inMemoryModuleLoader1);
+            Assert.Throws<ArgumentException>(() =>
+            {
+                aggregateModuleLoader.RegisterModuleLoader("daytime", inMemoryModuleLoader2);
+            });
+        }
+
+        [Fact]
+        public void JsAggregateModuleLoaderPrefixesMustBeSpecified()
+        {
+            var inMemoryModuleLoader1 = new InMemoryModuleLoader();
+            inMemoryModuleLoader1.RegisterModule(new HelloWorldModule());
+
+            var inMemoryModuleLoader2 = new InMemoryModuleLoader();
+            inMemoryModuleLoader2.RegisterModule(new GoodnightMoonModule());
+
+            var aggregateModuleLoader = new AggregateModuleLoader();
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                aggregateModuleLoader.RegisterModuleLoader("", inMemoryModuleLoader1);
+            });
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                aggregateModuleLoader.RegisterModuleLoader(null, inMemoryModuleLoader2);
+            });
+
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                aggregateModuleLoader.RegisterModuleLoader("foobar", null);
+            });
+        }
+
+        [Fact]
+        public void JsAggregateModuleLoaderCanRemoveLoader()
+        {
+            var inMemoryModuleLoader1 = new InMemoryModuleLoader();
+            inMemoryModuleLoader1.RegisterModule(new HelloWorldModule());
+
+            var inMemoryModuleLoader2 = new InMemoryModuleLoader();
+            inMemoryModuleLoader2.RegisterModule(new GoodnightMoonModule());
+
+            var aggregateModuleLoader = new AggregateModuleLoader();
+
+            Assert.False(aggregateModuleLoader.HasModuleLoader("foo"));
+            aggregateModuleLoader.RegisterModuleLoader("foo", inMemoryModuleLoader1);
+            Assert.True(aggregateModuleLoader.HasModuleLoader("foo"));
+            aggregateModuleLoader.RemoveModuleLoader("foo");
+            Assert.False(aggregateModuleLoader.HasModuleLoader("foo"));
+        }
+
+        [BaristaModule("hello_world", "Only the best module ever.")]
         private sealed class HelloWorldModule : IBaristaModule
         {
-            public string Name => "hello_world";
-
-            public string Description => "Only the best module ever.";
-
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>("Hello, World!");
             }
         }
 
+        [BaristaModule("goodnight_moon", "Yaaaawwwwwn")]
         private sealed class GoodnightMoonModule : IBaristaModule
         {
-            public string Name => "goodnight_moon";
-
-            public string Description => "Yaaaawwwwwn.";
-
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>("Goodnight, moon.");

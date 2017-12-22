@@ -1,15 +1,11 @@
 ﻿namespace BaristaLabs.BaristaCore.Modules.Fetch
 {
     using System.Threading.Tasks;
-    using BaristaLabs.BaristaCore.JavaScript;
 
+    [BaristaModule("barista-fetch", "Provides a subset of the standard Fetch Specification.")]
     public class FetchModule : IBaristaModule
     {
-        public string Name => "barista-fetch";
-
-        public string Description => "Provides a subset of the standard Fetch Specification";
-
-        public Task<object> ExportDefault(BaristaContext context, JavaScriptModuleRecord referencingModule)
+        public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
             throw new System.NotImplementedException();
         }

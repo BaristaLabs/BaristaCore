@@ -14,7 +14,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-
+  
+  <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <ChakraCore Include="..\BaristaLabs.BaristaCore.MyTestModule\bin\$(ConfigurationName)\netcoreapp2.0\*Test*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ChakraCore)" DestinationFolder="$(TargetDir)\barista_modules\%(RecursiveDir)" />
+  </Target>
+  
   <ItemGroup>
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

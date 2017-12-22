@@ -12,13 +12,27 @@
 
         public void RegisterModule(IBaristaModule module)
         {
-            if (string.IsNullOrWhiteSpace(module.Name))
+            if (module == null)
+                throw new ArgumentNullException(nameof(module));
+
+            string name;
+            if (module is IBaristaScriptModule scriptModule)
+            {
+                name = scriptModule.Name;
+            }
+            else
+            {
+                var baristaModuleAttribute = BaristaModuleAttribute.GetBaristaModuleAttributeFromType(module.GetType());
+                name = baristaModuleAttribute.Name;
+            }
+            
+            if (string.IsNullOrWhiteSpace(name))
                 throw new InvalidOperationException("The specfied module must indicate a name.");
 
-            if (m_modules.ContainsKey(module.Name))
-                throw new InvalidOperationException("A module with the specified name has already been registered.");
+            if (m_modules.ContainsKey(name))
+                throw new InvalidOperationException($"A module with the specified name ({name}) has already been registered.");
 
-            m_modules.Add(module.Name, module);
+            m_modules.Add(name, module);
         }
 
         public IBaristaModule GetModule(string name)

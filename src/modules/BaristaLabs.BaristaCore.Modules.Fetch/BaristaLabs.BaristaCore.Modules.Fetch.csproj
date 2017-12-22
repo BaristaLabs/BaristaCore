@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BaristaLabs.BaristaCore.Common" Version="1.0.0-beta3" />
+    <ProjectReference Include="..\..\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.csproj" />
   </ItemGroup>
 
 </Project>

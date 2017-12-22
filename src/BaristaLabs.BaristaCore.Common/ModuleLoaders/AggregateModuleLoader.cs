@@ -10,12 +10,12 @@
     public class AggregateModuleLoader : IBaristaModuleLoader
     {
         private readonly Dictionary<string, Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, IBaristaModule>>> m_moduleLoaders;
-        private string m_prefixSeperator = "!";
-        
+
         public AggregateModuleLoader()
         {
             m_moduleLoaders = new Dictionary<string, Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, IBaristaModule>>>();
             FallbackModuleLoader = null;
+            PrefixSeperator = "!";
         }
 
         /// <summary>
@@ -23,8 +23,8 @@
         /// </summary>
         public string PrefixSeperator
         {
-            get { return m_prefixSeperator; }
-            set { m_prefixSeperator = value; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -34,6 +34,16 @@
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Returns a value that indicates if a module loader has been already registered with the specified prefix.
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
+        public bool HasModuleLoader(string prefix)
+        {
+            return m_moduleLoaders.ContainsKey(prefix);
         }
 
         /// <summary>

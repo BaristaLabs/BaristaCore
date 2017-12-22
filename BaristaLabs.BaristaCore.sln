@@ -18,6 +18,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Fiddle", "src\BaristaLabs.BaristaCore.Fiddle\BaristaLabs.BaristaCore.Fiddle.csproj", "{D39A215A-C493-4A4E-A1F5-508228BBBF89}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Tests", "test\BaristaLabs.BaristaCore.Tests\BaristaLabs.BaristaCore.Tests.csproj", "{E3FF6242-6102-4BA5-927B-BD43903BA195}"
+	ProjectSection(ProjectDependencies) = postProject
+		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3} = {107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaServer", "src\BaristaServer\BaristaServer.csproj", "{624574AB-E6D3-4030-9A4F-E816723B6625}"
 EndProject
@@ -30,6 +33,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "modules", "modules", "{CD7F41BC-D1C2-466C-9E6E-081E8C85DB0A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Modules.Fetch", "src\modules\BaristaLabs.BaristaCore.Modules.Fetch\BaristaLabs.BaristaCore.Modules.Fetch.csproj", "{9C4BBB8C-46E4-4168-88A7-E687D58468B1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.MyTestModule", "test\BaristaLabs.BaristaCore.MyTestModule\BaristaLabs.BaristaCore.MyTestModule.csproj", "{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +100,14 @@ Global
 		{9C4BBB8C-46E4-4168-88A7-E687D58468B1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9C4BBB8C-46E4-4168-88A7-E687D58468B1}.Release|x64.ActiveCfg = Release|Any CPU
 		{9C4BBB8C-46E4-4168-88A7-E687D58468B1}.Release|x64.Build.0 = Release|Any CPU
+		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}.Debug|x64.Build.0 = Debug|Any CPU
+		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}.Release|x64.ActiveCfg = Release|Any CPU
+		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -108,6 +121,7 @@ Global
 		{343AFCA5-8768-43D7-B038-3221A4CAA057} = {36B7F578-1E35-489D-91A2-B3BE0F53187F}
 		{CD7F41BC-D1C2-466C-9E6E-081E8C85DB0A} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
 		{9C4BBB8C-46E4-4168-88A7-E687D58468B1} = {CD7F41BC-D1C2-466C-9E6E-081E8C85DB0A}
+		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3} = {BF7A5A92-FCD0-4CA4-9234-B96B543F2488}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {43910680-2459-4C25-9FC4-821E302DAE91}

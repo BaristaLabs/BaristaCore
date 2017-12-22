@@ -8,6 +8,8 @@
     /// <summary>
     /// Represents a module that returns scripts from a resource file
     /// </summary>
+    [BaristaModule("ResourceScriptModule", "Built-in module that allows for specifying a script as coming from a resource.")]
+
     public class BaristaResourceScriptModule : IBaristaScriptModule
     {
         private readonly ResourceManager m_resourceManager;

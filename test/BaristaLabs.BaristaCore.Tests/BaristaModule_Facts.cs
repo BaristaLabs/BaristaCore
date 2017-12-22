@@ -518,7 +518,7 @@ export default asdf@11;
         }
 
         [Fact]
-        public void JsModulesCanReturnJsValues()
+        public void BaristaModulesCanReturnJsValues()
         {
             var script = @"
         import helloworld from 'hello_world';
@@ -539,7 +539,7 @@ export default asdf@11;
         }
 
         [Fact]
-        public void JsModulesCanReturnSafeHandles()
+        public void BaristaModulesCanReturnSafeHandles()
         {
             var script = @"
         import reverse from 'reverse';
@@ -563,7 +563,7 @@ export default asdf@11;
 
 
         [Fact]
-        public void JsModulesCanReturnNativeObjects()
+        public void BaristaModulesCanReturnNativeObjects()
         {
             var script = @"
         import fourtytwo from 'FourtyTwo';
@@ -585,7 +585,7 @@ export default asdf@11;
         }
 
         [Fact]
-        public void JsFawltyModulesWillThrow()
+        public void BaristaFawltyModulesWillThrow()
         {
             var script = @"
         import derp from 'Fawlty';
@@ -607,7 +607,17 @@ export default asdf@11;
         }
 
         [Fact]
-        public void JsModulesWithUnconvertableDefaultExportsWillThrow()
+        public void BaristaModulesThatDoNotProvideAnAttributeWillThrow()
+        {
+            var noAttributeModule = new NoBaristaModuleAttributeModule();
+            Assert.Throws<BaristaModuleMissingAttributeException>(() =>
+            {
+                ModuleLoader.RegisterModule(noAttributeModule);
+            });
+        }
+
+        [Fact]
+        public void BaristaModulesWithUnconvertableDefaultExportsWillThrow()
         {
             var script = @"
         import derp from 'TooSmart';
@@ -684,25 +694,19 @@ export default 'Requested By: ' + requestorName;
             }
         }
 
+        [BaristaModule("hello_world", "Only the best module ever.")]
         private sealed class HelloWorldModule : IBaristaModule
         {
-            public string Name => "hello_world";
-
-            public string Description => "Only the best module ever.";
-
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>(context.ValueFactory.CreateString("Hello, World!"));
             }
         }
 
+        [BaristaModule("reverse", "reverses the string passed in.")]
         private sealed class ReverseModule : IBaristaModule, IDisposable
         {
             private GCHandle m_reverseDelegateHandle;
-
-            public string Name => "reverse";
-
-            public string Description => "reverses the string passed in.";
 
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
@@ -756,51 +760,47 @@ export default 'Requested By: ' + requestorName;
             #endregion
         }
 
+        [BaristaModule("FourtyTwo", "The answer is...")]
         private sealed class FourtyTwoModule : IBaristaModule
         {
-            public string Name => "FourtyTwo";
-
-            public string Description => "The answer...";
-
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>(42);
             }
         }
 
+        [BaristaModule("Fawlty", "Derp!")]
         private sealed class FawltyModule : IBaristaModule
         {
-            public string Name => "Fawlty";
-
-            public string Description => "Derp!";
-
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 throw new Exception("Derp!");
             }
         }
 
+        [BaristaModule("TooSmart", "So complicated!")]
         private sealed class TooSmartModule : IBaristaModule
         {
-            public string Name => "TooSmart";
-
-            public string Description => "So complicated!";
-
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>(new StringBuilder());
             }
         }
 
+        [BaristaModule("depedendent", "Returns the name of the requesting module.")]
         private sealed class ReturnDependentNameModule : IBaristaModule
         {
-            public string Name => "depedendent";
-
-            public string Description => "Returns the name of the requesting module.";
-
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>(referencingModule.Name);
+            }
+        }
+
+        private sealed class NoBaristaModuleAttributeModule : IBaristaModule
+        {
+            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            {
+                return Task.FromResult<object>("You'll not see me.");
             }
         }
     }
