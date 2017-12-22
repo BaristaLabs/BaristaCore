@@ -9,12 +9,12 @@
     /// </summary>
     public class AggregateModuleLoader : IBaristaModuleLoader
     {
-        private readonly Dictionary<string, IBaristaModuleLoader> m_moduleLoaders;
+        private readonly Dictionary<string, Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, IBaristaModule>>> m_moduleLoaders;
         private string m_prefixSeperator = "!";
         
         public AggregateModuleLoader()
         {
-            m_moduleLoaders = new Dictionary<string, IBaristaModuleLoader>();
+            m_moduleLoaders = new Dictionary<string, Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, IBaristaModule>>>();
             FallbackModuleLoader = null;
         }
 
@@ -36,7 +36,13 @@
             set;
         }
 
-        public void RegisterModuleLoader(string prefix, IBaristaModuleLoader moduleLoader)
+        /// <summary>
+        /// Registers a module loader for the specified prefix, optionally specifiying an initializer.
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <param name="moduleLoader"></param>
+        /// <param name="moduleInitializer"></param>
+        public void RegisterModuleLoader(string prefix, IBaristaModuleLoader moduleLoader, Func<string, string, IBaristaModuleLoader, IBaristaModule> moduleLoaderFactory = null)
         {
             if (string.IsNullOrWhiteSpace(prefix))
                 throw new ArgumentNullException(nameof(prefix));
@@ -47,7 +53,10 @@
             if (moduleLoader == null)
                 throw new ArgumentNullException(nameof(moduleLoader));
 
-            m_moduleLoaders.Add(prefix, moduleLoader);
+            if (moduleLoaderFactory == null)
+                moduleLoaderFactory = InitializeAndReturnModule;
+
+            m_moduleLoaders.Add(prefix, new Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, IBaristaModule>>(moduleLoader, moduleLoaderFactory));
         }
 
         public bool RemoveModuleLoader(string prefix)
@@ -71,8 +80,11 @@
 
                 if (!string.IsNullOrWhiteSpace(modulePrefix) && m_moduleLoaders.ContainsKey(modulePrefix))
                 {
-                    var selectedModuleLoader = m_moduleLoaders[modulePrefix];
-                    return selectedModuleLoader.GetModule(moduleName);
+                    var moduleLoaderRecord = m_moduleLoaders[modulePrefix];
+                    var moduleLoader = moduleLoaderRecord.Item1;
+                    var moduleLoaderFactory = moduleLoaderRecord.Item2;
+
+                    return moduleLoaderFactory(modulePrefix, moduleName, moduleLoader);
                 }
                 else
                 {
@@ -89,6 +101,18 @@
 
             //We didn't have a prefix match, no fallback module loader is specified. That's it, we're done.
             return null;
+        }
+
+        /// <summary>
+        /// Nominal implementation to retrieve a module.
+        /// </summary>
+        /// <param name="modulePrefix"></param>
+        /// <param name="moduleName"></param>
+        /// <param name="moduleLoader"></param>
+        /// <returns></returns>
+        private IBaristaModule InitializeAndReturnModule(string modulePrefix, string moduleName, IBaristaModuleLoader moduleLoader)
+        {
+            return moduleLoader.GetModule(moduleName);
         }
     }
 }
