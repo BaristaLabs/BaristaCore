@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.Tests.ModuleLoader
+﻿namespace BaristaLabs.BaristaCore.Tests.ModuleLoaders
 {
     using BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.ModuleLoaders;
@@ -70,7 +70,7 @@
         }
 
         [Fact]
-        public void AssembliesInPathModuleLoaderOkToNotFindModules()
+        public void AssembliesInPathModuleThrowsWhenModuleNotFound()
         {
             var script = @"
         import helloworld from 'ThisIsntAModule';
@@ -91,6 +91,58 @@
                 }
             }
 
+
+            inPathModuleLoader.Dispose();
+        }
+
+        [Fact]
+        public void AssembliesInPathModuleLoaderThrowsOnNonExistantPaths()
+        {
+            var script = @"
+        import helloworld from 'ThisIsntAModule';
+        export default helloworld;
+        ";
+
+            var inPathModuleLoader = new AssembliesInPathModuleLoader("foobar");
+            var baristaRuntime = GetRuntimeFactory(inPathModuleLoader);
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    Assert.Throws<JsScriptException>(() =>
+                    {
+                        var result = ctx.EvaluateModule(script);
+                    });
+                }
+            }
+
+            inPathModuleLoader.Dispose();
+        }
+
+        [Fact]
+        public void AssembliesInPathModuleLoaderCanReuseModules()
+        {
+            var script = @"
+        import helloworld from 'MyTestModule';
+        export default helloworld;
+        ";
+
+            var inPathModuleLoader = new AssembliesInPathModuleLoader();
+            var baristaRuntime = GetRuntimeFactory(inPathModuleLoader);
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    var result = ctx.EvaluateModule(script);
+                }
+
+                using (var ctx = rt.CreateContext())
+                {
+                    var result = ctx.EvaluateModule(script);
+                }
+            }
 
             inPathModuleLoader.Dispose();
         }

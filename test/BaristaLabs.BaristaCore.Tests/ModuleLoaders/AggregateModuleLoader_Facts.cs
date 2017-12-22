@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.Tests.ModuleLoader
+﻿namespace BaristaLabs.BaristaCore.Tests.ModuleLoaders
 {
     using BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.ModuleLoaders;
@@ -108,6 +108,89 @@
             {
                 aggregateModuleLoader.RegisterModuleLoader("daytime", inMemoryModuleLoader2);
             });
+        }
+
+        [Fact]
+        public void JsAggregateModuleLoaderThrowsWhenUnregisteredPrefixesAreUsed()
+        {
+            var script = @"
+        import helloworld from 'football!hello_world';
+        export default helloworld;
+        ";
+
+            var inMemoryModuleLoader1 = new InMemoryModuleLoader();
+            inMemoryModuleLoader1.RegisterModule(new HelloWorldModule());
+
+            var aggregateModuleLoader = new AggregateModuleLoader();
+            aggregateModuleLoader.RegisterModuleLoader("daytime", inMemoryModuleLoader1);
+
+            var baristaRuntime = GetRuntimeFactory(aggregateModuleLoader);
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    Assert.Throws<JsScriptException>(() =>
+                    {
+                        var result = ctx.EvaluateModule(script);
+                    });
+                }
+            }
+        }
+
+        [Fact]
+        public void JsAggregateModuleLoaderThrowsWhenWhitespacePrefixesAreUsed()
+        {
+            var script = @"
+        import helloworld from '       !hello_world';
+        export default helloworld;
+        ";
+
+            var inMemoryModuleLoader1 = new InMemoryModuleLoader();
+            inMemoryModuleLoader1.RegisterModule(new HelloWorldModule());
+
+            var aggregateModuleLoader = new AggregateModuleLoader();
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                aggregateModuleLoader.RegisterModuleLoader("       ", inMemoryModuleLoader1);
+            });
+
+            var baristaRuntime = GetRuntimeFactory(aggregateModuleLoader);
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    Assert.Throws<JsScriptException>(() =>
+                    {
+                        var result = ctx.EvaluateModule(script);
+                    });
+                }
+            }
+        }
+
+        [Fact]
+        public void JsAggregateModuleLoaderThrowsWhenNoLoaderCouldBeFound()
+        {
+            var script = @"
+        import helloworld from 'hello_world';
+        export default helloworld;
+        ";
+
+            var aggregateModuleLoader = new AggregateModuleLoader();
+
+            var baristaRuntime = GetRuntimeFactory(aggregateModuleLoader);
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    Assert.Throws<JsScriptException>(() =>
+                    {
+                        var result = ctx.EvaluateModule(script);
+                    });
+                }
+            }
         }
 
         [Fact]

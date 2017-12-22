@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.ModuleLoaders
 {
+    using BaristaLabs.BaristaCore.Extensions;
     using System;
     using System.Collections.Generic;
 
@@ -15,17 +16,8 @@
             if (module == null)
                 throw new ArgumentNullException(nameof(module));
 
-            string name;
-            if (module is IBaristaScriptModule scriptModule)
-            {
-                name = scriptModule.Name;
-            }
-            else
-            {
-                var baristaModuleAttribute = BaristaModuleAttribute.GetBaristaModuleAttributeFromType(module.GetType());
-                name = baristaModuleAttribute.Name;
-            }
-            
+            var name = module.GetModuleName();
+
             if (string.IsNullOrWhiteSpace(name))
                 throw new InvalidOperationException("The specfied module must indicate a name.");
 

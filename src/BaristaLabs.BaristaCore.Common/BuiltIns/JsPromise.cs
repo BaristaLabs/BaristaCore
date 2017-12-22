@@ -1,10 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
     using BaristaLabs.BaristaCore.JavaScript;
-    using BaristaLabs.BaristaCore.JavaScript.Extensions;
     using System;
-    using System.Collections.Generic;
-    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents the built-in Promise Object.
@@ -79,8 +76,8 @@
         /// <returns></returns>
         public JsValue Wait(JsObject promise)
         {
-            var globalName = WaitInternal(promise);
-            return Context.GlobalObject.GetProperty(globalName);
+            Context.GlobalObject["$PROMISE"] = promise;
+            return Context.EvaluateModule("export default $PROMISE");
         }
 
         /// <summary>
@@ -91,27 +88,8 @@
         public T Wait<T>(JsObject promise)
             where T : JsValue
         {
-            var globalName = WaitInternal(promise);
-            return Context.GlobalObject.GetProperty<T>(globalName);
-        }
-
-        private string WaitInternal(JsObject promise)
-        {
-            const string waitScript = @"
-(async () => await Promise.resolve(this.$PROMISE))().then((result) => { this.$EXPORTS = result }, (reject) => { this.$ERROR = reject; });";
-            
             Context.GlobalObject["$PROMISE"] = promise;
-            Context.GlobalObject.DeleteProperty("$ERROR");
-            Engine.JsRunScript(waitScript, sourceUrl: "[eval wait]");
-            Context.CurrentScope.ResolvePendingPromises();
-
-            if (Context.GlobalObject.HasOwnProperty("$ERROR"))
-            {
-                var errorValue = Context.GlobalObject.GetProperty<JsValue>("$ERROR");
-                throw new JsScriptException(JsErrorCode.ScriptException, errorValue.Handle);
-            }
-
-            return "$EXPORTS";
+            return Context.EvaluateModule<T>("export default $PROMISE");
         }
     }
 }

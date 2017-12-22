@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
+    using BaristaLabs.BaristaCore.Tests.Extensions;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
@@ -758,7 +759,7 @@ return obj;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    JavaScriptValueSafeHandle objHandle = Engine.JsRunScript(script);
 
                     var propertySymbols = Engine.JsGetOwnPropertySymbols(objHandle);
 
@@ -1337,7 +1338,7 @@ var oCat = new MammalSpecies('Felis');
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    JavaScriptValueSafeHandle objHandle = Engine.JsRunScript(script);
 
                     var oCatPropertyHandle = Engine.JsCreatePropertyId("oCat", (ulong)"oCat".Length);
                     var fnMammalSpeciesPropertyHandle = Engine.JsCreatePropertyId("MammalSpecies", (ulong)"MammalSpecies".Length);
@@ -1422,7 +1423,7 @@ return obj;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    JavaScriptValueSafeHandle objHandle = Engine.JsRunScript(script);
 
                     var propertyName = "plugh";
                     var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
@@ -1462,7 +1463,7 @@ return obj;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    JavaScriptValueSafeHandle objHandle = Engine.JsRunScript(script);
 
                     var propertyName = "corge";
                     var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
@@ -1503,7 +1504,7 @@ return obj;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    JavaScriptValueSafeHandle objHandle = Engine.JsRunScript(script);
 
                     var propertySymbols = Engine.JsGetOwnPropertyNames(objHandle);
 
@@ -1540,7 +1541,7 @@ return obj;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    JavaScriptValueSafeHandle objHandle = Engine.JsRunScript(script);
 
                     var propertyName = "baz";
                     var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
@@ -1585,7 +1586,7 @@ return obj;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    JavaScriptValueSafeHandle objHandle = Engine.JsRunScript(script);
 
                     var propertyName = "lol";
                     var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
@@ -1623,7 +1624,7 @@ return o;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    JavaScriptValueSafeHandle objHandle = Engine.JsRunScript(script);
 
                     var propertyName = "prop";
                     var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
@@ -1670,7 +1671,7 @@ return obj;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    JavaScriptValueSafeHandle objHandle = Engine.JsRunScript(script);
 
                     var propertyName = "waldo";
                     var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
@@ -1715,8 +1716,8 @@ return obj;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle objHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
-                    JavaScriptValueSafeHandle propertyDefHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, propertyDef);
+                    JavaScriptValueSafeHandle objHandle = Engine.JsRunScript(script);
+                    JavaScriptValueSafeHandle propertyDefHandle = Engine.JsRunScript(propertyDef);
 
                     var propertyName = "rico";
                     var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length);
@@ -1806,13 +1807,13 @@ return arr;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle arrayHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    JavaScriptValueSafeHandle arrayHandle = Engine.JsRunScript(script);
 
                     var arrayIndexHandle = Engine.JsIntToNumber(10);
                     var valueHandle = Engine.JsGetIndexedProperty(arrayHandle, arrayIndexHandle);
                     Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
 
-                    var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, valueHandle);
+                    var result = Engine.GetStringUtf8(valueHandle);
                     Assert.Equal("Robert", result);
 
                     valueHandle.Dispose();
@@ -1843,7 +1844,7 @@ return arr;
                     var resultHandle = Engine.JsGetIndexedProperty(arrayHandle, arrayIndexHandle);
                     Assert.True(valueHandle != JavaScriptValueSafeHandle.Invalid);
 
-                    var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, valueHandle);
+                    var result = Engine.GetStringUtf8(valueHandle);
                     Assert.Equal("The Bicameral Mind", result);
 
                     resultHandle.Dispose();
@@ -1868,7 +1869,7 @@ return arr;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptValueSafeHandle arrayHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    JavaScriptValueSafeHandle arrayHandle = Engine.JsRunScript(script);
 
                     var arrayIndexHandle = Engine.JsIntToNumber(12);
 
@@ -2423,7 +2424,7 @@ new Promise(function(resolve, reject) {
 
                     try
                     {
-                        var promiseHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                        var promiseHandle = Engine.JsRunScript(script);
                         Assert.True(false, "Promises should not be able to be resolved without a promise continuation callback defined.");
                     }
                     catch (JsScriptException ex)
@@ -2469,7 +2470,7 @@ new Promise(function(resolve, reject) {
                     var callbackHandle = GCHandle.Alloc(promiseContinuationCallback);
                     Engine.JsSetPromiseContinuationCallback(promiseContinuationCallback, IntPtr.Zero);
 
-                    var promiseHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    var promiseHandle = Engine.JsRunScript(script);
                     Assert.True(promiseHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var undefinedHandle = Engine.JsGetUndefinedValue();
@@ -2579,7 +2580,7 @@ return fn;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var fnHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
+                    var fnHandle = Engine.JsRunScript(script);
                     var nameHandle = Engine.JsCreateString(name, (ulong)name.Length);
 
                     var handleType = Engine.JsGetValueType(fnHandle);
@@ -2600,7 +2601,7 @@ return fn;
                     var propertyHandleType = Engine.JsGetValueType(namePropertyHandle);
                     Assert.True(propertyHandleType == JavaScriptValueType.String);
 
-                    var resultStr = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, namePropertyHandle);
+                    var resultStr = Engine.GetStringUtf8(namePropertyHandle);
                     Assert.True(resultStr == name);
 
                     namePropertyHandle.Dispose();
@@ -2729,7 +2730,7 @@ return fn;
                     Assert.True(handleType == JavaScriptValueType.String);
                     Assert.True(called);
 
-                    var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, resultHandle);
+                    var result = Engine.GetStringUtf8(resultHandle);
                     Assert.Equal(foo, result);
 
                     resultHandle.Dispose();
@@ -2774,7 +2775,7 @@ return fn;
                     var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyId(toStringPropertyName, (ulong)toStringPropertyName.Length);
                     var fnToStringFnHandle = Engine.JsGetProperty(fnHandle, toStringFunctionPropertyIdHandle);
                     var fnToStringResultHandle = Engine.JsCallFunction(fnToStringFnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
-                    var result = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, fnToStringResultHandle);
+                    var result = Engine.GetStringUtf8(fnToStringResultHandle);
                     Assert.Equal("function hogwarts() { [native code] }", result);
 
                     toStringFunctionPropertyIdHandle.Dispose();
@@ -3014,8 +3015,8 @@ function throwAtHost() {
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, script);
-                    var fnHandle = Extensions.IJavaScriptEngineExtensions.GetGlobalVariable(Engine, "throwAtHost");
+                    Engine.JsRunScript(script);
+                    var fnHandle = Engine.GetGlobalVariable("throwAtHost");
                     Assert.True(fnHandle != JavaScriptValueSafeHandle.Invalid);
 
                     try

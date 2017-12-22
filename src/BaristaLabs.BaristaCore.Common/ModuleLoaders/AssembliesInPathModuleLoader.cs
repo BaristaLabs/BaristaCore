@@ -99,31 +99,22 @@
                     var baristaModuleAttribute = BaristaModuleAttribute.GetBaristaModuleAttributeFromType(type);
                     m_serviceCollection.AddTransient(typeof(IBaristaModule), type);
 
-                    if (type.IsSubclassOf(typeof(IBaristaScriptModule)))
-                    {
-                        using (var serviceProvider = m_serviceCollection.BuildServiceProvider())
-                        {
-                            var modules = serviceProvider.GetServices<IBaristaModule>();
-                            if (modules.Where(s => s.GetType() == type).FirstOrDefault() is IBaristaScriptModule scriptModule)
-                            {
-                                m_loadedModules.Add(scriptModule.Name, type);
-                            }
-                            else
-                            {
-                                m_loadedModules.Add(baristaModuleAttribute.Name, type);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        m_loadedModules.Add(baristaModuleAttribute.Name, type);
-                    }
+                    string targetModuleName = baristaModuleAttribute.Name;
+                    
+                    if (string.IsNullOrWhiteSpace(targetModuleName))
+                        throw new InvalidOperationException($"The specfied module ({type}) must indicate a name.");
+
+                    if (m_loadedModules.ContainsKey(targetModuleName))
+                        throw new InvalidOperationException($"A module with the specified name ({targetModuleName}) has already been registered. ({m_loadedModules[targetModuleName]})");
+
+                    m_loadedModules.Add(targetModuleName, type);
                 }
             }
         }
 
         private bool TryGetModuleByName(string moduleName, out IBaristaModule baristaModule)
         {
+            baristaModule = null;
             if (m_loadedModules.ContainsKey(moduleName))
             {
                 var moduleType = m_loadedModules[moduleName];
@@ -131,13 +122,10 @@
                 {
                     var modules = serviceProvider.GetServices<IBaristaModule>();
                     baristaModule = modules.Where(s => s.GetType() == moduleType).FirstOrDefault();
-                    if (baristaModule != null)
-                        return true;
                 }
             }
 
-            baristaModule = null;
-            return false;
+            return baristaModule != null;
         }
 
         /// <summary>

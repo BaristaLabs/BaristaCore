@@ -1,8 +1,9 @@
-﻿namespace BaristaLabs.BaristaCore.Tests.ModuleLoader
+﻿namespace BaristaLabs.BaristaCore.Tests.ModuleLoaders
 {
     using BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.ModuleLoaders;
     using Microsoft.Extensions.DependencyInjection;
+    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Xunit;
@@ -46,13 +47,43 @@
                 }
             }
         }
-        
+
+        [Fact]
+        public void JsInMemoryModuleLoaderThrowsOnInvalidArguments()
+        {
+            var inMemoryModuleLoader = new InMemoryModuleLoader();
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                inMemoryModuleLoader.RegisterModule(null);
+            });
+
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                inMemoryModuleLoader.RegisterModule(new PhantomModule());
+            });
+
+            inMemoryModuleLoader.RegisterModule(new HelloWorldModule());
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                inMemoryModuleLoader.RegisterModule(new HelloWorldModule());
+            });
+        }
+
         [BaristaModule("hello_world", "Only the best module ever.")]
         private sealed class HelloWorldModule : IBaristaModule
         {
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>("Hello, World!");
+            }
+        }
+
+        [BaristaModule("", "If it weren't for you meddling kids...")]
+        private sealed class PhantomModule : IBaristaModule
+        {
+            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            {
+                return Task.FromResult<object>("Spooky.");
             }
         }
     }

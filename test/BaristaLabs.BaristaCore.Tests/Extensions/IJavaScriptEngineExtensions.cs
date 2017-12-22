@@ -1,48 +1,15 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript.Extensions
+﻿namespace BaristaLabs.BaristaCore.Tests.Extensions
 {
+    using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
     using System.Text;
 
+    [ExcludeFromCodeCoverage]
     public static class IJavaScriptEngineExtensions
     {
         private const string EvalSourceUrl = "[eval code]";
-
-        public static string GetStringUtf8(this IJavaScriptEngine jsrt, JavaScriptValueSafeHandle stringHandle, bool autoConvert = false)
-        {
-            bool stringHandleWasCreated = false;
-            if (stringHandle == null || stringHandle == JavaScriptValueSafeHandle.Invalid)
-                throw new ArgumentNullException(nameof(stringHandle));
-
-            //If Auto Convert is specified, ensure that the type is a string, otherwise convert it.
-            if (autoConvert)
-            {
-                var handleValueType = jsrt.JsGetValueType(stringHandle);
-
-                if (handleValueType != JavaScriptValueType.String)
-                {
-                    var convertedToStringHandle = jsrt.JsConvertValueToString(stringHandle);
-
-                    stringHandle = convertedToStringHandle;
-                    stringHandleWasCreated = true;
-                }
-            }
-
-            //Get the size
-            var size = jsrt.JsCopyString(stringHandle, null, 0);
- 
-            if ((int)size > int.MaxValue)
-                throw new OutOfMemoryException("Exceeded maximum string length.");
-
-            byte[] result = new byte[(int)size];
-            var written = jsrt.JsCopyString(stringHandle, result, (ulong)result.Length);
-
-            var strResult = Encoding.UTF8.GetString(result, 0, result.Length);
-            if (stringHandleWasCreated)
-                stringHandle.Dispose();
-
-            return strResult;
-        }
 
         /// <summary>
         /// Executes a script, automatically storing the script value within an ExternalArrayBuffer.
@@ -97,6 +64,42 @@
                 sourceUrlHandle.Dispose();
                 scriptHandle.Dispose();
             }
+        }
+
+        public static string GetStringUtf8(this IJavaScriptEngine jsrt, JavaScriptValueSafeHandle stringHandle, bool autoConvert = false)
+        {
+            bool stringHandleWasCreated = false;
+            if (stringHandle == null || stringHandle == JavaScriptValueSafeHandle.Invalid)
+                throw new ArgumentNullException(nameof(stringHandle));
+
+            //If Auto Convert is specified, ensure that the type is a string, otherwise convert it.
+            if (autoConvert)
+            {
+                var handleValueType = jsrt.JsGetValueType(stringHandle);
+
+                if (handleValueType != JavaScriptValueType.String)
+                {
+                    var convertedToStringHandle = jsrt.JsConvertValueToString(stringHandle);
+
+                    stringHandle = convertedToStringHandle;
+                    stringHandleWasCreated = true;
+                }
+            }
+
+            //Get the size
+            var size = jsrt.JsCopyString(stringHandle, null, 0);
+
+            if ((int)size > int.MaxValue)
+                throw new OutOfMemoryException("Exceeded maximum string length.");
+
+            byte[] result = new byte[(int)size];
+            var written = jsrt.JsCopyString(stringHandle, result, (ulong)result.Length);
+
+            var strResult = Encoding.UTF8.GetString(result, 0, result.Length);
+            if (stringHandleWasCreated)
+                stringHandle.Dispose();
+
+            return strResult;
         }
 
         public static JavaScriptValueSafeHandle GetGlobalVariable(this IJavaScriptEngine jsrt, string name)

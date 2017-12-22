@@ -2,8 +2,8 @@
 {
     using BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.JavaScript;
-    using BaristaLabs.BaristaCore.JavaScript.Extensions;
     using BaristaLabs.BaristaCore.ModuleLoaders;
+    using BaristaLabs.BaristaCore.Tests.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -370,9 +370,8 @@ export default soAmazing;
 import banana from 'banana';
 export default 'hello, world! ' + banana;
 ";
-            var bananaModule = new BaristaScriptModule
+            var bananaModule = new BaristaScriptModule("banana")
             {
-                Name = "banana",
                 Script = @"
 export default 'banana';
 "
@@ -401,9 +400,8 @@ export default 'banana';
 import banana from 'banana';
 export default 'hello, world! ' + banana;
 ";
-            var bananaModule = new BaristaResourceScriptModule(Properties.Resources.ResourceManager)
+            var bananaModule = new BaristaResourceScriptModule("banana", Properties.Resources.ResourceManager)
             {
-                Name = "banana",
                 ResourceName = "String1"
             };
 
@@ -430,9 +428,8 @@ export default 'hello, world! ' + banana;
 import banana from 'banana';
 export default 'hello, world! ' + banana;
 ";
-            var bananaModule = new BaristaScriptModule
+            var bananaModule = new BaristaScriptModule("banana")
             {
-                Name = "banana",
                 Script = null
             };
 
@@ -459,9 +456,8 @@ export default 'hello, world! ' + banana;
 import banana from 'banana';
 export default 'hello, world! ' + banana;
 ";
-            var bananaModule = new BaristaScriptModule
+            var bananaModule = new BaristaScriptModule("banana")
             {
-                Name = "banana",
                 Script = @"
 import banana from 'banana'
 export default 'banana' + ' ' + banana;
@@ -492,9 +488,8 @@ export default 'banana' + ' ' + banana;
 import banana from 'badbanana';
 export default 'hello, world! ' + banana;
 ";
-            var bananaModule = new BaristaScriptModule
+            var bananaModule = new BaristaScriptModule("badbanana")
             {
-                Name = "badbanana",
                 Script = @"
 export default asdf@11;
 "
@@ -668,9 +663,8 @@ export default asdf@11;
 import banana from 'level2';
 export default 'hello, world! ' + banana;
 ";
-            var bananaModule = new BaristaScriptModule
+            var bananaModule = new BaristaScriptModule("level2")
             {
-                Name = "level2",
                 Script = @"
 import requestorName from 'depedendent';
 export default 'Requested By: ' + requestorName;

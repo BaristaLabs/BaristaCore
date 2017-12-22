@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using BaristaLabs.BaristaCore.Tests.Extensions;
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
@@ -481,7 +482,7 @@ export default function cube(x) {
 
             JavaScriptFetchImportedModuleCallback fetchCallback = (IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModuleRecord) =>
             {
-                var moduleName = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, new JavaScriptValueSafeHandle(specifier));
+                var moduleName = Engine.GetStringUtf8(new JavaScriptValueSafeHandle(specifier));
                 if (string.IsNullOrWhiteSpace(moduleName))
                 {
                     dependentModuleRecord = referencingModule;
@@ -497,7 +498,7 @@ export default function cube(x) {
 
             JavaScriptFetchImportedModuleFromScriptCallback fetchFromScriptCallback = (IntPtr referencingModule, IntPtr specifier, out IntPtr dependentModuleRecord) =>
             {
-                var moduleName = Extensions.IJavaScriptEngineExtensions.GetStringUtf8(Engine, new JavaScriptValueSafeHandle(specifier));
+                var moduleName = Engine.GetStringUtf8(new JavaScriptValueSafeHandle(specifier));
                 if (string.IsNullOrWhiteSpace(moduleName))
                 {
                     dependentModuleRecord = referencingModule;
@@ -586,7 +587,7 @@ export default function cube(x) {
                     var evalResultType = Engine.JsGetValueType(evalResultHandle);
                     Assert.True(evalResultType == JavaScriptValueType.Undefined);
 
-                    var resultHandle = Extensions.IJavaScriptEngineExtensions.GetGlobalVariable(Engine, "$EXPORTS");
+                    var resultHandle = Engine.GetGlobalVariable("$EXPORTS");
                     var handleType = Engine.JsGetValueType(resultHandle);
                     Assert.True(handleType == JavaScriptValueType.Number);
 
@@ -699,7 +700,7 @@ export default function cube(x) {
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var sharedArrayBufferHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, source);
+                    var sharedArrayBufferHandle = Engine.JsRunScript(source);
                     var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
 
                     //Apparently the type is object for now.
@@ -729,7 +730,7 @@ export default function cube(x) {
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var sharedArrayBufferHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, source);
+                    var sharedArrayBufferHandle = Engine.JsRunScript(source);
                     var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
 
                     //Apparently the type is object for now.
@@ -766,7 +767,7 @@ export default function cube(x) {
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var sharedArrayBufferHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(Engine, source);
+                    var sharedArrayBufferHandle = Engine.JsRunScript(source);
                     var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
 
                     //Apparently the type is object for now.
