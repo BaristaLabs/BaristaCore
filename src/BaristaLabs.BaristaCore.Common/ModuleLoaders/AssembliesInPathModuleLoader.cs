@@ -16,10 +16,10 @@
         private readonly ServiceCollection m_serviceCollection;
         private readonly Dictionary<string, Type> m_loadedModules;
 
-        public AssembliesInPathModuleLoader(string modulePath = ".\\barista_modules")
+        public AssembliesInPathModuleLoader(string modulePath = null)
         {
             if (string.IsNullOrWhiteSpace(modulePath))
-                throw new ArgumentNullException(nameof(modulePath));
+                modulePath = "barista_modules";
 
             m_moduleFolderFullPath = Path.GetFullPath(modulePath);
             m_loadedModules = new Dictionary<string, Type>();
