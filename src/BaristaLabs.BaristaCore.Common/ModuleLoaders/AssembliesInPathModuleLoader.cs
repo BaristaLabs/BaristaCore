@@ -21,7 +21,11 @@
             if (string.IsNullOrWhiteSpace(modulePath))
                 modulePath = "barista_modules";
 
-            m_moduleFolderFullPath = Path.GetFullPath(modulePath);
+            if (Path.IsPathRooted(modulePath))
+                m_moduleFolderFullPath = modulePath;
+            else
+                m_moduleFolderFullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, modulePath);
+
             m_loadedModules = new Dictionary<string, Type>();
             m_serviceCollection = new ServiceCollection();
         }
