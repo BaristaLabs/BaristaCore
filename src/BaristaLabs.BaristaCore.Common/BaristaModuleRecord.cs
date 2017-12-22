@@ -1,6 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
     using BaristaLabs.BaristaCore.JavaScript;
+    using BaristaLabs.BaristaCore.ModuleLoaders;
     using System;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
@@ -12,6 +13,7 @@
     public sealed class BaristaModuleRecord : BaristaObject<JavaScriptModuleRecord>
     {
         private readonly string m_name;
+        private readonly JavaScriptValueSafeHandle m_moduleSpecifier;
         private readonly BaristaContext m_context;
         private readonly IBaristaModuleRecordFactory m_moduleRecordFactory;
         private readonly IBaristaModuleLoader m_moduleLoader;
@@ -21,20 +23,22 @@
 
         private readonly Dictionary<string, BaristaModuleRecord> m_importedModules = new Dictionary<string, BaristaModuleRecord>();
 
-        private readonly BaristaModuleRecord m_parentModule; 
+        private readonly BaristaModuleRecord m_parentModule;
+        private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
 
-        public BaristaModuleRecord(string name, BaristaModuleRecord parentModule, IJavaScriptEngine engine, BaristaContext context, IBaristaModuleRecordFactory moduleRecordFactory, IBaristaModuleLoader moduleLoader, JavaScriptModuleRecord moduleRecord)
+        public BaristaModuleRecord(string name, JavaScriptValueSafeHandle moduleSpecifier, BaristaModuleRecord parentModule, IJavaScriptEngine engine, BaristaContext context, IBaristaModuleRecordFactory moduleRecordFactory, IBaristaModuleLoader moduleLoader, JavaScriptModuleRecord moduleRecord)
             : base(engine, moduleRecord)
         {
             m_name = name ?? throw new ArgumentNullException(nameof(name));
+            m_moduleSpecifier = moduleSpecifier ?? throw new ArgumentNullException(nameof(moduleSpecifier));
             m_parentModule = parentModule;
             m_context = context ?? throw new ArgumentNullException(nameof(context));
             m_moduleRecordFactory = moduleRecordFactory ?? throw new ArgumentNullException(nameof(moduleRecordFactory));
 
+            //Module loader is not required, but if not specified, imports will fail.
             m_moduleLoader = moduleLoader;
 
             //Associate functions that will handle module loading
-
             if (m_parentModule == null)
             {
                 //Set the fetch module callback for the module.
@@ -43,6 +47,22 @@
                 //Set the notify callback for the module.
                 m_notifyCallbackHandle = InitNotifyModuleReadyCallback(Handle);
             }
+
+            //Set the event that will be called prior to the engine collecting the context.
+            JavaScriptObjectBeforeCollectCallback beforeCollectCallback = (IntPtr handle, IntPtr callbackState) =>
+            {
+                try
+                {
+                    OnBeforeCollect(handle, callbackState);
+                }
+                catch
+                {
+                    // Do Nothing.
+                }
+            };
+
+            m_beforeCollectCallbackDelegateHandle = GCHandle.Alloc(beforeCollectCallback);
+            Engine.JsSetObjectBeforeCollectCallback(moduleRecord, IntPtr.Zero, beforeCollectCallback);
         }
 
         private GCHandle InitFetchImportedModuleCallback(JavaScriptModuleRecord moduleRecord)
@@ -113,6 +133,14 @@
             get { return m_name; }
         }
 
+        /// <summary>
+        /// Gets the handle of the module specifier.
+        /// </summary>
+        public JavaScriptValueSafeHandle Specifier
+        {
+            get { return m_moduleSpecifier; }
+        }
+
         private BaristaContext Context
         {
             get { return m_context; }
@@ -147,11 +175,20 @@
             }
             else if (m_moduleLoader != null)
             {
-                var module = m_moduleLoader.GetModule(moduleName);
+                IBaristaModule module = null;
+                try
+                {
+                    module = m_moduleLoader.GetModule(moduleName);
+                }
+                catch (Exception ex)
+                {
+                    var error = Context.ValueFactory.CreateError($"An error occurred while attempting to load a module named {moduleName}: {ex.Message}");
+                    Engine.JsSetException(error.Handle);
+                }
 
                 if (module != null)
                 {
-                    var newModuleRecord = m_moduleRecordFactory.CreateBaristaModuleRecord(Context, moduleName, this, false);
+                    var newModuleRecord = m_moduleRecordFactory.CreateBaristaModuleRecord(Context, specifier, this, false);
                     m_importedModules.Add(moduleName, newModuleRecord);
                     
                     switch (module)
@@ -188,7 +225,7 @@
             }
             catch (Exception ex)
             {
-                var error = Context.ValueFactory.CreateError($"An error occurred while obtaining the default export of the native module named {module.Name}: {ex.Message}");
+                var error = Context.ValueFactory.CreateError($"An error occurred while obtaining the default export of the native module named {newModuleRecord.Name}: {ex.Message}");
                 Engine.JsSetException(error.Handle);
                 return true;
             }
@@ -199,7 +236,7 @@
             }
             else
             {
-                var error = Context.ValueFactory.CreateError($"Unable to install module {module.Name}: the default exported value could not be converted into a JavaScript object.");
+                var error = Context.ValueFactory.CreateError($"Unable to install module {newModuleRecord.Name}: the default exported value could not be converted into a JavaScript object.");
                 Engine.JsSetException(error.Handle);
                 return true;
             }
@@ -256,6 +293,9 @@ export default defaultExport;
                     }
                 }
 
+                //Unset the before collect callback.
+                Engine.JsSetObjectBeforeCollectCallback(Handle, IntPtr.Zero, null);
+
                 if (m_fetchImportedModuleCallbackHandle != default(GCHandle) && m_fetchImportedModuleCallbackHandle.IsAllocated)
                 {
                     m_fetchImportedModuleCallbackHandle.Free();
@@ -265,6 +305,8 @@ export default defaultExport;
                 {
                     m_notifyCallbackHandle.Free();
                 }
+
+                m_beforeCollectCallbackDelegateHandle.Free();
             }
 
             base.Dispose(disposing);

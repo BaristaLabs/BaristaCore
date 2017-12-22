@@ -34,7 +34,6 @@ BaristaCore.Common is utilized within the Barista Functions-as-a-Service platfor
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore" Version="1.7.5" />
     <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />

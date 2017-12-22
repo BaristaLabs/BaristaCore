@@ -3,6 +3,7 @@
     using BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.JavaScript;
     using BaristaLabs.BaristaCore.JavaScript.Extensions;
+    using BaristaLabs.BaristaCore.ModuleLoaders;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -55,7 +56,7 @@
                         {
                             Assert.Throws<ArgumentNullException>(() =>
                             {
-                                var mod = new BaristaModuleRecord(null, null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
+                                var mod = new BaristaModuleRecord(null, specifier.Handle, null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
                             });
                         }
                         finally
@@ -90,7 +91,7 @@
                         {
                             Assert.Throws<ArgumentNullException>(() =>
                             {
-                                var mod = new BaristaModuleRecord("", null, rt.Engine, null, moduleRecordFactory, moduleLoader, moduleHandle);
+                                var mod = new BaristaModuleRecord("", null, null, rt.Engine, null, moduleRecordFactory, moduleLoader, moduleHandle);
                             });
                         }
                         finally
@@ -125,7 +126,7 @@
                         {
                             Assert.Throws<ArgumentNullException>(() =>
                             {
-                                var mod = new BaristaModuleRecord("", null, rt.Engine, ctx, null, moduleLoader, moduleHandle);
+                                var mod = new BaristaModuleRecord("", specifier.Handle, null, rt.Engine, ctx, null, moduleLoader, moduleHandle);
                             });
                         }
                         finally
@@ -158,7 +159,7 @@
 
                         try
                         {
-                            var mod = new BaristaModuleRecord("", null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
+                            var mod = new BaristaModuleRecord("", specifier.Handle, null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
                             mod.ParseModuleSource("export default 'hello, world!'");
                             Assert.True(mod.IsReady);
                         }
@@ -192,7 +193,7 @@
 
                         try
                         {
-                            var mod = new BaristaModuleRecord("foo", null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
+                            var mod = new BaristaModuleRecord("foo", specifier.Handle, null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
                             mod.ParseModuleSource("import foo from 'foo'; export default 'hello, world!'");
                             Assert.True(mod.IsReady);
                         }

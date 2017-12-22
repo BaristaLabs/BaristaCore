@@ -7,6 +7,11 @@
     {
         private bool m_bodyUsed = false;
 
+        public bool BodyUsed
+        {
+            get { return m_bodyUsed; }
+        }
+
         public Task<JsObject> Blob()
         {
             throw new NotImplementedException();

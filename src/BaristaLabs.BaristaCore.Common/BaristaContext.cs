@@ -443,6 +443,7 @@ let global = (new Function('return this;'))();
             {
                 //Unset the before collect callback.
                 Engine.JsSetObjectBeforeCollectCallback(Handle, IntPtr.Zero, null);
+                m_beforeCollectCallbackDelegateHandle.Free();
             }
 
             base.Dispose(disposing);

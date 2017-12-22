@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore
+﻿namespace BaristaLabs.BaristaCore.ModuleLoaders
 {
     using System;
     using System.Collections.Generic;
