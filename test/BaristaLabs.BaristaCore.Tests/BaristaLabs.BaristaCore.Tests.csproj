@@ -17,7 +17,7 @@
   
   <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
     <ItemGroup>
-      <ChakraCore Include="..\BaristaLabs.BaristaCore.MyTestModule\bin\$(ConfigurationName)\netcoreapp2.0\*Test*.dll" />
+      <ChakraCore Include="..\BaristaLabs.BaristaCore.MyTestModule\$(OutDir)\*Test*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(ChakraCore)" DestinationFolder="$(TargetDir)\barista_modules\%(RecursiveDir)" />
   </Target>
