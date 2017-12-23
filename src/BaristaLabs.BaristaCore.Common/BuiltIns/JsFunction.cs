@@ -61,6 +61,27 @@
             return Engine.JsCallFunction(Handle, argPtrs, (ushort)argPtrs.Length);
         }
 
+        /// <summary>
+        /// Invokes function as a constructor.
+        /// </summary>
+        /// <param name="thisObj"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public JsObject Construct(JsObject thisObj = null, params JsValue[] args)
+        {
+            //Must at least have a 'thisObject'
+            if (thisObj == null)
+                thisObj = Context.GlobalObject;
+
+            var argPtrs = args
+                .Select(a => a == null ? Context.Undefined.Handle.DangerousGetHandle() : a.Handle.DangerousGetHandle())
+                .Prepend(thisObj.Handle.DangerousGetHandle())
+                .ToArray();
+
+            var newObjHandle = Engine.JsConstructObject(Handle, argPtrs, (ushort)argPtrs.Length);
+            return ValueFactory.CreateValue<JsObject>(newObjHandle);
+        }
+
         private const string toStringPropertyName = "toString";
 
         public override string ToString()

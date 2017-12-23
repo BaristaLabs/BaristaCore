@@ -198,7 +198,7 @@
 
                         Assert.Throws<Microsoft.CSharp.RuntimeBinder.RuntimeBinderException>(() =>
                         {
-                            result.test = new StringBuilder("test");
+                            result.test = 'c';
                         });
                     }
                 }
@@ -233,7 +233,7 @@
                         //Can't invoke undefines nor values.
                         Assert.Throws<Microsoft.CSharp.RuntimeBinder.RuntimeBinderException>(() =>
                         {
-                            result.foo(new StringBuilder("test"));
+                            result.foo('c');
                         });
                     }
                 }
@@ -270,11 +270,6 @@
                         {
                             var foo = result["123", "456"];
                         });
-
-                        Assert.Throws<Microsoft.CSharp.RuntimeBinder.RuntimeBinderException>(() =>
-                        {
-                            var foo = result[new StringBuilder("test")];
-                        });
                     }
                 }
             }
@@ -306,7 +301,7 @@
                         });
                         Assert.Throws<Microsoft.CSharp.RuntimeBinder.RuntimeBinderException>(() =>
                         {
-                            result[new StringBuilder("test")] = "qix";
+                            result['c'] = "qix";
                         });
 
                         Assert.Equal("qix", (string)result.baz);
@@ -354,7 +349,7 @@
 
                         //Since C# doesn't implement these, it actually doesn't care when it goes to the base.TryDeleteIndex implementation.
                         ((DynamicObject)result).TryDeleteIndex(new MyDeleteIndexBinder(new CallInfo(0)), new object[] { "foo", "bar" });
-                        ((DynamicObject)result).TryDeleteIndex(new MyDeleteIndexBinder(new CallInfo(0)), new object[] { new StringBuilder() });
+                        ((DynamicObject)result).TryDeleteIndex(new MyDeleteIndexBinder(new CallInfo(0)), new object[] { 'c' });
                     }
                 }
             }

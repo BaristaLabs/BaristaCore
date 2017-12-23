@@ -136,11 +136,28 @@
             }
 
             //We've run out of options, convert the non-primitive object.
-            return TryConvertFromNonPrimitiveObject(valueFactory, obj, out value);
+            return TryConvertFromNonPrimitiveObject(context, valueFactory, obj, out value);
         }
 
-        private bool TryConvertFromNonPrimitiveObject(IBaristaValueFactory valueFactory, object obj, out JsValue value)
+        private bool TryConvertFromNonPrimitiveObject(BaristaContext context, IBaristaValueFactory valueFactory, object obj, out JsValue value)
         {
+            if (m_typeConversionStrategy == null)
+            {
+                //TODO: think about cheating with a JsonConversion
+                value = null;
+                return false;
+            }
+                
+            Type typeToConvert = obj.GetType();
+            if (m_typeConversionStrategy.TryCreatePrototypeFunction(context, typeToConvert, out JsFunction fnCtor))
+            {
+                var exObj = context.ValueFactory.CreateExternalObject(obj);
+                var resultValue = fnCtor.Construct(null, exObj);
+                
+                value = resultValue;
+                return true;
+            }
+            
             value = null;
             return false;
         }
@@ -209,6 +226,10 @@
                     //TODO: we can cheat a bit here with Json converter
                     //Also, figure out how to convert other types, like the date built-in.
                     obj = jsObject;
+                    return true;
+                case JsExternalObject jsExternalObject:
+                    //Just pass it through.
+                    obj = jsExternalObject;
                     return true;
                 default:
                     obj = null;

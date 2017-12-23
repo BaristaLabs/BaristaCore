@@ -688,6 +688,38 @@ export default 'Requested By: ' + requestorName;
             }
         }
 
+        [Fact]
+        public void JsModulesCanExposeNativeObjects()
+        {
+            var script = @"
+import carlyRae from 'native-object';
+carlyRae.name = 'New Name';
+for(var i = 0; i < 10; i++)
+{
+    carlyRae.callMeMaybe();
+}
+export default carlyRae;
+";
+            var nomModule = new NativeObjectModule();
+            ModuleLoader.RegisterModule(nomModule);
+
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var result = ctx.EvaluateModule(script) as JsObject;
+                        Assert.NotNull(result);
+
+                        Assert.Equal(10, result["calls"].ToInt32());
+                        Assert.Equal("New Name", result["name"].ToString());
+                    }
+                }
+            }
+        }
+
+        #region Module Types
         [BaristaModule("hello_world", "Only the best module ever.")]
         private sealed class HelloWorldModule : IBaristaModule
         {
@@ -797,5 +829,43 @@ export default 'Requested By: ' + requestorName;
                 return Task.FromResult<object>("You'll not see me.");
             }
         }
+
+        [BaristaModule("native-object", "Returns a native .net object that can be used within scripts.")]
+        private sealed class NativeObjectModule : IBaristaModule
+        {
+            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            {
+                var foo = new CarlyRae() { Name = "Kilroy" };
+
+                return Task.FromResult<object>(foo);
+            }
+
+            private class CarlyRae
+            {
+                private int m_calls = -1;
+
+                public CarlyRae()
+                {
+                    m_calls = 0;
+                }
+
+                public string Name
+                {
+                    get;
+                    set;
+                }
+
+                public int Calls
+                {
+                    get { return m_calls; }
+                }
+
+                public void CallMeMaybe()
+                {
+                    m_calls++;
+                }
+            }
+        }
+        #endregion
     }
 }

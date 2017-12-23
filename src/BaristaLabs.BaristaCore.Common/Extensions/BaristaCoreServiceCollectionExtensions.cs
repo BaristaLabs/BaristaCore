@@ -29,11 +29,11 @@
             services.AddSingleton(moduleLoader);
             services.AddSingleton<IBaristaValueFactoryBuilder, BaristaValueFactoryBuilder>();
             services.AddSingleton<IBaristaRuntimeFactory, BaristaRuntimeFactory>();
-            
+            services.AddSingleton<IBaristaConversionStrategy, BaristaConversionStrategy>();
+            services.AddSingleton<IBaristaTypeConversionStrategy, BaristaTypeConversionStrategy>();
+
             services.AddTransient<IBaristaContextFactory, BaristaContextFactory>();
             services.AddTransient<IBaristaModuleRecordFactory, BaristaModuleRecordFactory>();
-            services.AddTransient<IBaristaConversionStrategy, BaristaConversionStrategy>();
-            services.AddTransient<IBaristaTypeConversionStrategy, BaristaTypeConversionStrategy>();
             services.AddTransient<IPromiseTaskQueue, PromiseTaskQueue>();
 
             return services;

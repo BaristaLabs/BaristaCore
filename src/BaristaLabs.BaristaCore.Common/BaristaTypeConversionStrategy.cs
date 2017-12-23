@@ -10,6 +10,7 @@
     public sealed class BaristaTypeConversionStrategy : IBaristaTypeConversionStrategy
     {
         private const string BaristaObjectPropertyName = "__baristaObject";
+        private IDictionary<Type, JsFunction> m_prototypes = new Dictionary<Type, JsFunction>();
 
         public bool TryCreatePrototypeFunction(BaristaContext context, Type typeToConvert, out JsFunction ctor)
         {
@@ -18,6 +19,12 @@
 
             if (typeToConvert == null)
                 throw new ArgumentNullException(nameof(typeToConvert));
+
+            if (m_prototypes.ContainsKey(typeToConvert))
+            {
+                ctor = m_prototypes[typeToConvert];
+                return true;
+            }
 
             var reflector = new ObjectReflector(typeToConvert);
             var objectName = BaristaObjectAttribute.GetBaristaObjectNameFromType(typeToConvert);
@@ -36,13 +43,20 @@
 
                     //Use Object.create to create an object bound to this prototype.
                     var resultValue = context.Object.Create(thisObj);
+                    JsExternalObject externalObject = null;
+                    if (args.Length == 1 && args[0] is JsExternalObject exObj)
+                    {
+                        externalObject = exObj;
+                    }
+                    else
+                    {
+                        //TODO: Find the best constructor.
+                        var newObj = publicConstructors.First().Invoke(new object[] { });
+                        externalObject = context.ValueFactory.CreateExternalObject(newObj);
+                    }
 
-                    //TODO: Find the best constructor.
-                    var result = publicConstructors.First().Invoke(new object[] { });
-
-                    var obj = context.ValueFactory.CreateExternalObject(result);
-                    //TODO: This might work better as a symbol.
-                    resultValue.SetProperty(BaristaObjectPropertyName, obj);
+                    //TODO: This might work better as a symbol and/or non-enumerable and sealed.
+                    resultValue.SetProperty(BaristaObjectPropertyName, externalObject);
                     return resultValue;
                 });
 
@@ -74,6 +88,7 @@
             //Project instance methods on to the constructor prototype;
             ProjectMethods(context, fnCtorPrototype, reflector.GetMethods(true));
 
+            m_prototypes.Add(typeToConvert, fnCtor);
 
             ctor = fnCtor;
             return true;
@@ -83,6 +98,9 @@
         {
             foreach (var prop in properties)
             {
+                if (BaristaIgnoreAttribute.ShouldIgnore(prop))
+                    continue;
+
                 if (prop.GetIndexParameters().Length > 0)
                     throw new NotSupportedException("Index properties not supported for projecting CLR to JavaScript objects.");
 
@@ -175,6 +193,9 @@
             //TODO: Resolve arity issues.
             foreach(var method in methods)
             {
+                if (BaristaIgnoreAttribute.ShouldIgnore(method))
+                    continue;
+
                 var methodName = method.Name.Camelize();
                 var functionDescriptor = context.ValueFactory.CreateObject();
                 functionDescriptor.SetProperty("enumerable", context.True);
