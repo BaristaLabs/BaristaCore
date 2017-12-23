@@ -116,6 +116,33 @@ export default myFoo;
             }
         }
 
+        [Fact]
+        public void ConverterExposesStaticAndInstanceMethods()
+        {
+            var script = @"
+Foo.myStaticMethod('test123');
+var myFoo = new Foo();
+myFoo.myMethod('123Test');
+export default myFoo;
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Foo.MyStaticProperty = null;
+                        ctx.Converter.TryFromObject(ctx, typeof(Foo), out JsValue value);
+                        ctx.GlobalObject["Foo"] = value;
+
+                        var result = ctx.EvaluateModule<JsObject>(script);
+                        Assert.Equal("test123", Foo.MyStaticProperty);
+                        Assert.Equal("123Test", result["myProperty"].ToString());
+                    }
+                }
+            }
+        }
+
         private class Foo
         {
             public Foo()
@@ -132,6 +159,16 @@ export default myFoo;
             {
                 get;
                 set;
+            }
+
+            public static void MyStaticMethod(string value)
+            {
+                MyStaticProperty = value;
+            }
+
+            public void MyMethod(string value)
+            {
+                MyProperty = value;
             }
         }
     }

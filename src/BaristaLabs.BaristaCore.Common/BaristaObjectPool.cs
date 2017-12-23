@@ -48,7 +48,7 @@
         }
 
         /// <summary>
-        /// Attems to get the specified flyweight from the pool directly
+        /// Attempts to get the specified flyweight from the pool directly
         /// </summary>
         /// <param name="jsRef"></param>
         /// <returns></returns>

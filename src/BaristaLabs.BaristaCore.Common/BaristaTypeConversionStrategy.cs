@@ -172,12 +172,52 @@
 
         private void ProjectMethods(BaristaContext context, JsObject targetObject, IEnumerable<MethodInfo> methods)
         {
+            //TODO: Resolve arity issues.
             foreach(var method in methods)
             {
-                //method.
-                //Activator.CreateInstance(typeof(Func<>).MakeGenericType()
-                //var foo = new Func<JsObject, object>((a) => method.Invoke()
-                //context.ValueFactory.CreateFunction()
+                var methodName = method.Name.Camelize();
+                var functionDescriptor = context.ValueFactory.CreateObject();
+                functionDescriptor.SetProperty("enumerable", context.True);
+
+                var fn = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((isConstructCall, thisObj, args) =>
+                {
+                    object targetObj = null;
+
+                    if (thisObj == null)
+                    {
+                        context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not call function '{methodName}' because there was an invalid 'this' context."));
+                        return context.Undefined;
+                    }
+
+                    //If the property exists we're probably an instance -- though we should find a way to check this better.
+                    if (thisObj.HasProperty(BaristaObjectPropertyName))
+                    {
+                        var xoObj = thisObj.GetProperty<JsExternalObject>(BaristaObjectPropertyName);
+                        targetObj = xoObj.Target;
+                    }
+
+                    try
+                    {
+                        var result = method.Invoke(targetObj, args);
+                        if (context.Converter.TryFromObject(context, result, out JsValue resultValue))
+                        {
+                            return resultValue;
+                        }
+                        else
+                        {
+                            return context.Undefined;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        context.CurrentScope.SetException(context.ValueFactory.CreateError(ex.Message));
+                        return context.Undefined;
+                    }
+
+                }));
+
+                functionDescriptor.SetProperty("value", fn);
+                context.Object.DefineProperty(targetObject, context.ValueFactory.CreateString(methodName), functionDescriptor);
             }
         }
     }

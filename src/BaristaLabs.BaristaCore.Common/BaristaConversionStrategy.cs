@@ -126,7 +126,6 @@
             {
                 if (m_jsonConverter == null)
                 {
-                    //throw new ArgumentException("Non-primitive value types require that a json converter func be specified.");
                     value = null;
                     return false;
                 }
