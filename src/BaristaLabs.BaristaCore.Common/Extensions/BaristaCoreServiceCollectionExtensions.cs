@@ -33,6 +33,7 @@
             services.AddTransient<IBaristaContextFactory, BaristaContextFactory>();
             services.AddTransient<IBaristaModuleRecordFactory, BaristaModuleRecordFactory>();
             services.AddTransient<IBaristaConversionStrategy, BaristaConversionStrategy>();
+            services.AddTransient<IBaristaTypeConversionStrategy, BaristaTypeConversionStrategy>();
             services.AddTransient<IPromiseTaskQueue, PromiseTaskQueue>();
 
             return services;

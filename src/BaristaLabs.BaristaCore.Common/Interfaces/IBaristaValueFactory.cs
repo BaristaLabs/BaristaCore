@@ -12,7 +12,9 @@
 
         JsError CreateError(string message);
 
-        JsFunction CreateFunction(Delegate func);
+        JsExternalObject CreateExternalObject(object obj);
+
+        JsFunction CreateFunction(Delegate func, string name = null);
 
         JsNumber CreateNumber(double number);
 
@@ -38,6 +40,13 @@
         JsString CreateString(string str);
 
         JsSymbol CreateSymbol(string description);
+
+        /// <summary>
+        /// Creates a new JavaScript TypeError object.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        JsError CreateTypeError(string message);
 
         /// <summary>
         /// Returns a new JsValue for the specified handle using the specified type information. If no type information is provided, the object will be queried for its type.

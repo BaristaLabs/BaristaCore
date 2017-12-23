@@ -4,11 +4,10 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
     using System.Linq;
-    using System.Diagnostics;
-    using System.Runtime.InteropServices;
     using System.Reflection;
-    using System.Threading.Tasks;
+    using System.Runtime.InteropServices;
     using System.Threading;
+    using System.Threading.Tasks;
 
     public sealed class BaristaValueFactory : IBaristaValueFactory
     {
@@ -103,18 +102,72 @@
             return CreateValue<JsError>(errorHandle);
         }
 
-        public JsFunction CreateFunction(Delegate func)
+        public JsExternalObject CreateExternalObject(object obj)
+        {
+            //TODO: Set the Callback to a static method and remove it from the value.
+            GCHandle objHandle = GCHandle.Alloc(obj);
+            var xoHandle = m_engine.JsCreateExternalObject(GCHandle.ToIntPtr(objHandle), null);
+
+            //this is a special case where we cannot use our CreateValue<> method.
+            return m_valuePool.GetOrAdd(xoHandle, () =>
+            {
+                var jsExternalObject = new JsExternalObject(m_engine, Context, xoHandle, objHandle);
+                jsExternalObject.BeforeCollect += JsValueBeforeCollectCallback;
+                return jsExternalObject;
+            }) as JsExternalObject;
+        }
+
+        public JsFunction CreateFunction(Delegate func, string name = null)
         {
             if (func == null)
                 throw new ArgumentNullException(nameof(func));
 
+            JavaScriptNativeFunction fnDelegate;
+            switch(func)
+            {
+                case BaristaFunctionDelegate fnBaristaFunctionDelegate:
+                    fnDelegate = CreateNativeFunctionForDelegate(fnBaristaFunctionDelegate);
+                    break;
+                default:
+                    fnDelegate = CreateNativeFunctionForDelegate(func);
+                    break;
+            }
+
+            JavaScriptValueSafeHandle fnHandle;
+            if (String.IsNullOrWhiteSpace(name))
+            {
+                fnHandle = m_engine.JsCreateFunction(fnDelegate, IntPtr.Zero);
+            }
+            else
+            {
+                var nameValue = CreateString(name);
+                fnHandle = m_engine.JsCreateNamedFunction(nameValue.Handle, fnDelegate, IntPtr.Zero);
+            }
+            
+
+            //this is a special case where we cannot use our CreateValue<> method.
+            return m_valuePool.GetOrAdd(fnHandle, () =>
+            {
+                var jsNativeFunction = new JsNativeFunction(m_engine, Context, fnHandle, fnDelegate);
+                jsNativeFunction.BeforeCollect += JsValueBeforeCollectCallback;
+                return jsNativeFunction;
+            }) as JsNativeFunction;
+        }
+
+        /// <summary>
+        /// Returns a delegate that will attempt to coerce supplied arguments into the specified delegate and return the result.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        private JavaScriptNativeFunction CreateNativeFunctionForDelegate(Delegate func)
+        {
             //This is crazy fun.
             var funcParams = func.Method.GetParameters();
             JavaScriptNativeFunction fnDelegate = (IntPtr callee, bool isConstructCall, IntPtr[] arguments, ushort argumentCount, IntPtr callbackData) =>
             {
                 //Make sure that we have argument values for each parameter.
                 var nativeArgs = new object[funcParams.Length];
-                for(int i = 0; i < funcParams.Length; i++)
+                for (int i = 0; i < funcParams.Length; i++)
                 {
                     var targetParameterType = funcParams[i].ParameterType;
 
@@ -137,7 +190,7 @@
                             {
                                 nativeArgs[i] = Convert.ChangeType(obj, targetParameterType);
                             }
-                            catch(Exception)
+                            catch (Exception)
                             {
                                 //Something went wrong, use the default value.
                                 nativeArgs[i] = targetParameterType.GetDefaultValue();
@@ -163,7 +216,7 @@
                         return Context.Undefined.Handle.DangerousGetHandle();
                     }
                 }
-                catch(TargetInvocationException exceptionResult)
+                catch (TargetInvocationException exceptionResult)
                 {
                     var jsError = CreateError(exceptionResult.InnerException);
                     m_engine.JsSetException(jsError.Handle);
@@ -171,15 +224,64 @@
                 }
             };
 
-            var fnHandle = m_engine.JsCreateFunction(fnDelegate, IntPtr.Zero);
+            return fnDelegate;
+        }
 
-            //this is a special case where we cannot use our CreateValue<> method.
-            return m_valuePool.GetOrAdd(fnHandle, () =>
+        /// <summary>
+        /// Returns a delegate that attempts to convert supplied arguments into a BaristaDelegate and returns the result.
+        /// </summary>
+        /// <param name="functionDelegate"></param>
+        /// <returns></returns>
+        private JavaScriptNativeFunction CreateNativeFunctionForDelegate(BaristaFunctionDelegate functionDelegate)
+        {
+            JavaScriptNativeFunction fnDelegate = (IntPtr callee, bool isConstructCall, IntPtr[] arguments, ushort argumentCount, IntPtr callbackData) =>
             {
-                var jsNativeFunction = new JsNativeFunction(m_engine, Context, fnHandle, fnDelegate);
-                jsNativeFunction.BeforeCollect += JsValueBeforeCollectCallback;
-                return jsNativeFunction;
-            }) as JsNativeFunction;
+                //Convert each argument into a native object.
+                var nativeArgs = new object[argumentCount-1];
+                JsObject thisObj = null;
+                for (int i = 0; i < argumentCount; i++)
+                {
+                    var currentArgument = arguments[i];
+                    var argValueHandle = new JavaScriptValueSafeHandle(currentArgument);
+                    var jsValue = CreateValue(argValueHandle);
+                    if (i == 0)
+                    {
+                        thisObj = jsValue as JsObject;
+                    }
+                    else
+                    {
+                        if (Context.Converter.TryToObject(Context, jsValue, out object obj))
+                        {
+                            nativeArgs[i-1] = obj;
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException($"Unable to covert argument {i} into a value.");
+                        }
+                    }
+                }
+
+                try
+                {
+                    var nativeResult = functionDelegate.DynamicInvoke(isConstructCall, thisObj, nativeArgs);
+                    if (Context.Converter.TryFromObject(Context, nativeResult, out JsValue valueResult))
+                    {
+                        return valueResult.Handle.DangerousGetHandle();
+                    }
+                    else
+                    {
+                        return Context.Undefined.Handle.DangerousGetHandle();
+                    }
+                }
+                catch (TargetInvocationException exceptionResult)
+                {
+                    var jsError = CreateError(exceptionResult.InnerException);
+                    m_engine.JsSetException(jsError.Handle);
+                    return Context.Undefined.Handle.DangerousGetHandle();
+                }
+            };
+
+            return fnDelegate;
         }
 
         public JsNumber CreateNumber(double number)
@@ -279,6 +381,13 @@
 
             var symbolHandle = m_engine.JsCreateSymbol(descriptionHandle);
             return CreateValue<JsSymbol>(symbolHandle);
+        }
+
+        public JsError CreateTypeError(string message)
+        {
+            var messageHandle = CreateString(message);
+            var errorHandle = m_engine.JsCreateTypeError(messageHandle.Handle);
+            return CreateValue<JsError>(errorHandle);
         }
 
         /// <summary>
@@ -382,6 +491,12 @@
                 else if (typeof(JsNull).IsSameOrSubclass(targetType))
                 {
                     result = new JsNull(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsExternalObject).IsSameOrSubclass(targetType))
+                {
+                    //TODO: This isn't exactly true, we should set the ExternalData to the GCHandle.
+                    //Then we can new JsExternalObject(m_engine, Context, valueHandle, Engine.GetExternalData(valueHandle));
+                    throw new InvalidOperationException("External Objects must first be created by ...");
                 }
                 else
                 {

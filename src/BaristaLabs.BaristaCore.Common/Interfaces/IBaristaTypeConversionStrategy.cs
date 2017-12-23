@@ -7,6 +7,6 @@
     /// </summary>
     public interface IBaristaTypeConversionStrategy
     {
-        bool TryCreatePrototypeFunction(Type typeToConvert, out JsFunction value);
+        bool TryCreatePrototypeFunction(BaristaContext context, Type typeToConvert, out JsFunction value);
     }
 }

@@ -2156,10 +2156,15 @@ return arr;
             var myPointPtr2 = GetPtr(myPoint2);
 
             int calledCount = 0;
+            bool isFreed = false;
             JavaScriptObjectFinalizeCallback callback = (IntPtr ptr) =>
             {
                 calledCount++;
-                Marshal.FreeHGlobal(ptr);
+                if (!isFreed)
+                {
+                    Marshal.FreeHGlobal(ptr);
+                    isFreed = true;
+                }
             };
 
             using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
@@ -2181,6 +2186,98 @@ return arr;
             }
 
             Assert.Equal(2, calledCount);
+        }
+
+        [Fact]
+        public void JsCannotGetOrSetExternalDataOnJsObject()
+        {
+            var myPoint = new Point()
+            {
+                x = 123,
+                y = 456
+            };
+            
+            var myPointPtr = GetPtr(myPoint);
+
+            int calledCount = 0;
+            bool isFreed = false;
+            JavaScriptObjectFinalizeCallback callback = (IntPtr ptr) =>
+            {
+                calledCount++;
+                if (!isFreed)
+                {
+                    Marshal.FreeHGlobal(ptr);
+                    isFreed = true;
+                }
+            };
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    //Test on external object
+                    var objectHandle = Engine.JsCreateObject();
+
+                    Assert.Throws<JsUsageException>(() =>
+                    {
+                        Engine.JsSetExternalData(objectHandle, myPointPtr);
+                    });
+                    
+                    callback(myPointPtr); //Since we set it, I guess we're responsible for clearing it.
+
+                    Assert.Throws<JsUsageException>(() =>
+                    {
+                        IntPtr externalDataPtr = Engine.JsGetExternalData(objectHandle);
+                    });
+                    
+                    objectHandle.Dispose();
+                }
+            }
+
+            Assert.Equal(1, calledCount);
+        }
+
+        [Fact]
+        public void JsExternalObjectsReportTypeObject()
+        {
+            var myPoint = new Point()
+            {
+                x = 123,
+                y = 456
+            };
+
+            var myPointPtr = GetPtr(myPoint);
+
+            int calledCount = 0;
+            bool isFreed = false;
+            JavaScriptObjectFinalizeCallback callback = (IntPtr ptr) =>
+            {
+                calledCount++;
+                if (!isFreed)
+                {
+                    Marshal.FreeHGlobal(ptr);
+                    isFreed = true;
+                }
+            };
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            {
+                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                {
+                    Engine.JsSetCurrentContext(contextHandle);
+
+                    //Test on external object
+                    var objectHandle = Engine.JsCreateExternalObject(myPointPtr, callback);
+                    var type = Engine.JsGetValueType(objectHandle);
+                    Assert.Equal(JavaScriptValueType.Object, type);
+
+                    objectHandle.Dispose();
+                }
+            }
+
+            Assert.Equal(1, calledCount);
         }
 
         [Fact]

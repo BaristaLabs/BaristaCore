@@ -1,8 +1,7 @@
-﻿namespace BaristaLabs.BaristaCore
+﻿namespace BaristaLabs.BaristaCore.Tests
 {
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
-    using Newtonsoft.Json;
     using System;
     using System.Diagnostics.CodeAnalysis;
     using Xunit;
@@ -29,7 +28,7 @@
         [Fact]
         public void ConverterCanBeConstructedWithJsonConverter()
         {
-            var converter = new BaristaConversionStrategy(new MockJVert());
+            var converter = new BaristaConversionStrategy(new JsonNetConverter());
         }
 
         [Fact]
@@ -191,7 +190,7 @@
                     using (ctx.Scope())
                     {
 
-                        var converter = new BaristaConversionStrategy(new MockJVert());
+                        var converter = new BaristaConversionStrategy(new JsonNetConverter());
 
                         converter.TryFromObject(ctx, new MyStruct("bar", 42), out JsValue value);
                         var obj = value as JsObject;
@@ -204,20 +203,7 @@
             }
         }
 
-        class MockJVert : IJsonConverter
-        {
-            public object Parse(string json)
-            {
-                return JsonConvert.DeserializeObject(json);
-            }
-
-            public string Stringify(object obj)
-            {
-                return JsonConvert.SerializeObject(obj);
-            }
-        }
-
-        struct MyStruct
+        private struct MyStruct
         {
             public MyStruct(string foo, int bar)
             {

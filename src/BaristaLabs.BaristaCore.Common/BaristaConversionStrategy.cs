@@ -115,7 +115,7 @@
                         value = null;
                         return false;
                     }
-                    var result = m_typeConversionStrategy.TryCreatePrototypeFunction(typeValue, out JsFunction fnValue);
+                    var result = m_typeConversionStrategy.TryCreatePrototypeFunction(context, typeValue, out JsFunction fnValue);
                     value = fnValue;
                     return result;
             }
