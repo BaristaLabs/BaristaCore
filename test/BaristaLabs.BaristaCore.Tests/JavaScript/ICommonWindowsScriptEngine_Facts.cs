@@ -45,7 +45,7 @@
                     Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.Function);
+                    Assert.True(handleType == JsValueType.Function);
 
                     resultHandle.Dispose();
                 }
@@ -72,7 +72,7 @@
                     Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.Function);
+                    Assert.True(handleType == JsValueType.Function);
 
                     resultHandle.Dispose();
                 }
@@ -99,7 +99,7 @@
                     Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.Number);
+                    Assert.True(handleType == JsValueType.Number);
 
                     Assert.Equal(42, Engine.JsNumberToInt(resultHandle));
 
@@ -174,7 +174,7 @@
                     Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, fnHandle);
 
                     var handleType = Engine.JsGetValueType(fnHandle);
-                    Assert.True(handleType == JavaScriptValueType.Function);
+                    Assert.True(handleType == JsValueType.Function);
 
                     //Get the string representation of the function. This triggers the load callback.
                     var fnStringHandle = Engine.JsConvertValueToString(fnHandle);
@@ -238,7 +238,7 @@
                     Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, resultHandle);
 
                     var handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.Number);
+                    Assert.True(handleType == JsValueType.Number);
 
                     Assert.Equal(42, Engine.JsNumberToInt(resultHandle));
 
@@ -275,7 +275,7 @@
                     Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, fnHandle);
 
                     var handleType = Engine.JsGetValueType(fnHandle);
-                    Assert.True(handleType == JavaScriptValueType.Function);
+                    Assert.True(handleType == JsValueType.Function);
 
                     fnHandle.Dispose();
                 }
@@ -314,7 +314,7 @@
                     Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, resultHandle);
 
                     var handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.Number);
+                    Assert.True(handleType == JsValueType.Number);
 
                     Assert.Equal(42, Engine.JsNumberToInt(resultHandle));
                     resultHandle.Dispose();
@@ -430,7 +430,7 @@ return obj;
                     Assert.NotEqual(stringHandle, JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(stringHandle);
-                    Assert.True(handleType == JavaScriptValueType.String);
+                    Assert.True(handleType == JsValueType.String);
                     stringHandle.Dispose();
                 }
             }

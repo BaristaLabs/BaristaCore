@@ -175,9 +175,9 @@
             }
         }
 
-        public override JavaScriptValueType Type
+        public override JsValueType Type
         {
-            get { return JavaScriptValueType.Object; }
+            get { return JsValueType.Object; }
         }
 
         // <summary>

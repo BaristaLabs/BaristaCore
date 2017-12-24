@@ -84,7 +84,7 @@
         /// <summary>
         /// Gets the value type.
         /// </summary>
-        public abstract JavaScriptValueType Type
+        public abstract JsValueType Type
         {
             get;
         }

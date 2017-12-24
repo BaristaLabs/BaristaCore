@@ -322,6 +322,7 @@
                     {
                         Assert.NotNull(ctx.False);
                         Assert.False(ctx.False);
+                        Assert.Equal(JsValueType.Boolean, ctx.False.Type);
                     }
 
                     ctx.Dispose();
@@ -344,6 +345,7 @@
                     {
                         Assert.NotNull(ctx.True);
                         Assert.True(ctx.True);
+                        Assert.Equal(JsValueType.Boolean, ctx.True.Type);
                     }
 
                     ctx.Dispose();
@@ -365,6 +367,7 @@
                     using (ctx.Scope())
                     {
                         Assert.NotNull(ctx.Null);
+                        Assert.Equal(JsValueType.Null, ctx.Null.Type);
                     }
 
                     ctx.Dispose();
@@ -386,6 +389,7 @@
                     using (ctx.Scope())
                     {
                         Assert.NotNull(ctx.Undefined);
+                        Assert.Equal(JsValueType.Undefined, ctx.Undefined.Type);
                     }
 
                     ctx.Dispose();
@@ -407,6 +411,7 @@
                     using (ctx.Scope())
                     {
                         Assert.NotNull(ctx.GlobalObject);
+                        Assert.Equal(JsValueType.Object, ctx.GlobalObject.Type);
                     }
 
                     ctx.Dispose();

@@ -314,46 +314,45 @@
         {
             //Create a promise
             var promise = CreatePromise(out JsFunction resolve, out JsFunction reject);
-            task.ContinueWith((t) =>
-            {
-                if (t.IsCanceled || t.IsFaulted)
-                {
-                    if (Context.Converter.TryFromObject(Context, t.Exception, out JsValue rejectValue))
+
+            //Start the task.
+            Context.TaskFactory.StartNew(
+                () => {
+                    //Wait the task and continue with our logic so that we're assured that all is running from the same thread.
+                    Task.WaitAny(task);
+
+                    if (task.IsCanceled || task.IsFaulted)
                     {
-                        reject.Call(GetGlobalObject(), rejectValue);
+                        if (Context.Converter.TryFromObject(Context, task.Exception, out JsValue rejectValue))
+                        {
+                            reject.Call(GetGlobalObject(), rejectValue);
+                        }
+                        else
+                        {
+                            reject.Call(GetGlobalObject(), GetUndefinedValue());
+                        }
+                    }
+
+                    var taskType = task.GetType();
+                    if (taskType.IsGenericType == false || taskType.GetGenericTypeDefinition() != typeof(Task<>))
+                    {
+                        resolve.Call(GetGlobalObject(), GetUndefinedValue());
+                        return;
+                    }
+
+                    var resultProperty = taskType.GetProperty("Result");
+                    var result = resultProperty.GetValue(task);
+
+                    //If we got an object back attempt to convert it into a JsValue and call the resolve method with the value.
+                    if (Context.Converter.TryFromObject(Context, result, out JsValue resolveValue))
+                    {
+                        resolve.Call(GetGlobalObject(), resolveValue);
                     }
                     else
                     {
-                        reject.Call(GetGlobalObject(), GetUndefinedValue());
+                        resolve.Call(GetGlobalObject(), GetUndefinedValue());
                     }
-                }
-
-                var resultType = t.GetType();
-                var resultProperty = resultType.GetProperty("Result");
-                if (resultProperty == null)
-                {
-                    resolve.Call(GetGlobalObject(), GetNullValue());
-                    return;
-                }
-
-                var result = resultProperty.GetValue(t);
-
-                //If we got an object back attempt to convert it into a JsValue and call the resolve method with the value.
-                if (Context.Converter.TryFromObject(Context, result, out JsValue resolveValue))
-                {
-                    resolve.Call(GetGlobalObject(), resolveValue);
-                }
-                else
-                {
-                    resolve.Call(GetGlobalObject(), GetUndefinedValue());
-                }
-
-            }, Context.TaskFactory.Scheduler);
-
-            //Start the task.
-            
-            Context.TaskFactory.StartNew(
-                () => { return task; },
+                },
                 CancellationToken.None,
                 TaskCreationOptions.DenyChildAttach,
                 Context.TaskFactory.Scheduler);
@@ -397,7 +396,7 @@
         /// Use the valueType parameter carefully. If the resulting type does not match the handle type unexpected issues may occur.
         /// </remarks>
         /// <returns>The JavaScript Value that represents the handle</returns>
-        public JsValue CreateValue(JavaScriptValueSafeHandle valueHandle, JavaScriptValueType? valueType = null)
+        public JsValue CreateValue(JavaScriptValueSafeHandle valueHandle, JsValueType? valueType = null)
         {
             if (valueHandle == JavaScriptValueSafeHandle.Invalid)
                 return null;
@@ -412,43 +411,43 @@
                 JsValue result;
                 switch (valueType.Value)
                 {
-                    case JavaScriptValueType.Array:
+                    case JsValueType.Array:
                         result = new JsArray(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.ArrayBuffer:
+                    case JsValueType.ArrayBuffer:
                         result = new JsArrayBuffer(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Boolean:
+                    case JsValueType.Boolean:
                         result = new JsBoolean(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.DataView:
+                    case JsValueType.DataView:
                         result = new JsDataView(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Error:
+                    case JsValueType.Error:
                         result = new JsError(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Function:
+                    case JsValueType.Function:
                         result = new JsFunction(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Null:
+                    case JsValueType.Null:
                         result = new JsNull(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Number:
+                    case JsValueType.Number:
                         result = new JsNumber(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Object:
+                    case JsValueType.Object:
                         result = new JsObject(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.String:
+                    case JsValueType.String:
                         result = new JsString(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Symbol:
+                    case JsValueType.Symbol:
                         result = new JsSymbol(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.TypedArray:
+                    case JsValueType.TypedArray:
                         result = new JsTypedArray(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Undefined:
+                    case JsValueType.Undefined:
                         result = new JsUndefined(m_engine, Context, valueHandle);
                         break;
                     default:

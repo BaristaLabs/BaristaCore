@@ -34,7 +34,7 @@
                     Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(stringHandle);
-                    Assert.True(handleType == JavaScriptValueType.String);
+                    Assert.True(handleType == JsValueType.String);
 
                     stringHandle.Dispose();
                 }
@@ -57,7 +57,7 @@
                     Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(stringHandle);
-                    Assert.True(handleType == JavaScriptValueType.String);
+                    Assert.True(handleType == JsValueType.String);
 
                     stringHandle.Dispose();
                 }
@@ -233,7 +233,7 @@
                         Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
 
                         var handleType = Engine.JsGetValueType(resultHandle);
-                        Assert.True(handleType == JavaScriptValueType.Function);
+                        Assert.True(handleType == JsValueType.Function);
 
                         resultHandle.Dispose();
                         sourceUrlHandle.Dispose();
@@ -272,7 +272,7 @@
                         Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
 
                         var handleType = Engine.JsGetValueType(resultHandle);
-                        Assert.True(handleType == JavaScriptValueType.Number);
+                        Assert.True(handleType == JsValueType.Number);
 
                         var resultValue = Engine.JsNumberToInt(resultHandle);
                         Assert.True(resultValue == 42);
@@ -356,7 +356,7 @@
                         var bufferHandle = Engine.JsSerialize(scriptHandle, JavaScriptParseScriptAttributes.None);
 
                         var handleType = Engine.JsGetValueType(bufferHandle);
-                        Assert.True(handleType == JavaScriptValueType.ArrayBuffer);
+                        Assert.True(handleType == JsValueType.ArrayBuffer);
 
                         scriptHandle.Dispose();
                     }
@@ -399,7 +399,7 @@
                         Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
 
                         var handleType = Engine.JsGetValueType(resultHandle);
-                        Assert.True(handleType == JavaScriptValueType.Function);
+                        Assert.True(handleType == JsValueType.Function);
 
                         resultHandle.Dispose();
                         sourceUrlHandle.Dispose();
@@ -444,7 +444,7 @@
                         Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
 
                         var handleType = Engine.JsGetValueType(resultHandle);
-                        Assert.True(handleType == JavaScriptValueType.Number);
+                        Assert.True(handleType == JsValueType.Number);
 
                         var resultValue = Engine.JsNumberToInt(resultHandle);
 
@@ -585,11 +585,11 @@ export default function cube(x) {
 
                     //Result type of a module is always undefined per spec.
                     var evalResultType = Engine.JsGetValueType(evalResultHandle);
-                    Assert.True(evalResultType == JavaScriptValueType.Undefined);
+                    Assert.True(evalResultType == JsValueType.Undefined);
 
                     var resultHandle = Engine.GetGlobalVariable("$EXPORTS");
                     var handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.Number);
+                    Assert.True(handleType == JsValueType.Number);
 
                     var result = Engine.JsNumberToInt(resultHandle);
                     Assert.Equal(27, result);
@@ -704,7 +704,7 @@ export default function cube(x) {
                     var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
 
                     //Apparently the type is object for now.
-                    Assert.True(handleType == JavaScriptValueType.Object);
+                    Assert.True(handleType == JsValueType.Object);
 
                     Internal.LibChakraCore.JsGetSharedArrayBufferContent(sharedArrayBufferHandle, out IntPtr sharedContents);
                     Assert.True(sharedContents != IntPtr.Zero);
@@ -734,7 +734,7 @@ export default function cube(x) {
                     var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
 
                     //Apparently the type is object for now.
-                    Assert.True(handleType == JavaScriptValueType.Object);
+                    Assert.True(handleType == JsValueType.Object);
 
                     var sharedBufferContentHandle = Engine.JsGetSharedArrayBufferContent(sharedArrayBufferHandle);
                     Assert.True(sharedBufferContentHandle != IntPtr.Zero);
@@ -743,7 +743,7 @@ export default function cube(x) {
                     Assert.True(sharedArrayHandle != JavaScriptValueSafeHandle.Invalid);
 
                     handleType = Engine.JsGetValueType(sharedArrayHandle);
-                    Assert.True(handleType == JavaScriptValueType.Object);
+                    Assert.True(handleType == JsValueType.Object);
 
                     Internal.LibChakraCore.JsReleaseSharedArrayBufferContentHandle(sharedBufferContentHandle);
 
@@ -771,7 +771,7 @@ export default function cube(x) {
                     var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
 
                     //Apparently the type is object for now.
-                    Assert.True(handleType == JavaScriptValueType.Object);
+                    Assert.True(handleType == JsValueType.Object);
 
                     var sharedBufferContentHandle = Engine.JsGetSharedArrayBufferContent(sharedArrayBufferHandle);
                     Assert.True(sharedBufferContentHandle != IntPtr.Zero);
@@ -800,14 +800,14 @@ export default function cube(x) {
                     Assert.True(dataViewHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(dataViewHandle);
-                    Assert.True(handleType == JavaScriptValueType.DataView);
+                    Assert.True(handleType == JsValueType.DataView);
 
                     var dataViewInfoHandle = Engine.JsGetDataViewInfo(dataViewHandle, out uint byteOffset, out uint byteLength);
                     Assert.True(byteOffset == 0);
                     Assert.True(byteLength == 50);
                     Assert.True(dataViewInfoHandle != JavaScriptValueSafeHandle.Invalid);
                     handleType = Engine.JsGetValueType(dataViewInfoHandle);
-                    Assert.True(handleType == JavaScriptValueType.ArrayBuffer);
+                    Assert.True(handleType == JsValueType.ArrayBuffer);
 
                     dataViewInfoHandle.Dispose();
                     arrayBufferHandle.Dispose();

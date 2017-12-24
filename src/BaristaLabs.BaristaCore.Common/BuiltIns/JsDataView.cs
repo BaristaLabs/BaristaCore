@@ -10,9 +10,9 @@
         {
         }
 
-        public override JavaScriptValueType Type
+        public override JsValueType Type
         {
-            get { return JavaScriptValueType.DataView; }
+            get { return JsValueType.DataView; }
         }
 
         public byte[] GetDataViewStorage()

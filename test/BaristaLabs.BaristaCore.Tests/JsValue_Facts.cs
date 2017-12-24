@@ -1,7 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.Tests
 {
     using BaristaCore.Extensions;
-    using BaristaLabs.BaristaCore.JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -136,6 +135,7 @@
                         zip = result["zip"];
                     }
 
+                    Assert.Equal(JsValueType.Number, zip.Type);
                     Assert.True(zip.ToBoolean());
                     zip.Dispose();
                     Assert.Throws<ObjectDisposedException>(() =>
@@ -164,6 +164,7 @@
                         bar = result["bar"];
                     }
 
+                    Assert.Equal(JsValueType.String, bar.Type);
                     Assert.Equal(5678, bar.ToDouble());
 
                     using (ctx.Scope())
@@ -197,6 +198,7 @@
                         bar = result["bar"];
                     }
 
+                    Assert.Equal(JsValueType.String, bar.Type);
                     Assert.Equal(5678, bar.ToInt32());
 
                     using (ctx.Scope())
@@ -230,6 +232,7 @@
                         bar = result["bar"];
                     }
 
+                    Assert.Equal(JsValueType.Number, bar.Type);
                     Assert.Equal("5678", bar.ToString());
 
                     using (ctx.Scope())
@@ -288,7 +291,7 @@ export default int16;
                         Assert.IsType<JsTypedArray>(result);
 
                         var typedArray = result as JsTypedArray;
-                        Assert.Equal(JavaScriptTypedArrayType.Int16, typedArray.ArrayType);
+                        Assert.Equal(JsTypedArrayType.Int16, typedArray.ArrayType);
                     }
                 }
             }

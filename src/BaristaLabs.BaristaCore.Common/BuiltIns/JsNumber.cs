@@ -13,9 +13,9 @@
         {
         }
 
-        public override JavaScriptValueType Type
+        public override JsValueType Type
         {
-            get { return JavaScriptValueType.Number; }
+            get { return JsValueType.Number; }
         }
 
         /// <summary>

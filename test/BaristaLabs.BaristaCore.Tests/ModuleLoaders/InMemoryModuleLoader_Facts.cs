@@ -69,6 +69,31 @@
             });
         }
 
+        [Fact]
+        public void ModuleLoadersThatThrowThrowErrors()
+        {
+            var script = @"
+        import helloworld from 'hello_world';
+        export default helloworld;
+        ";
+
+            var fawltyModuleLoader = new FawltyModuleLoader();
+
+            var baristaRuntime = GetRuntimeFactory(fawltyModuleLoader);
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    Assert.Throws<JsScriptException>(() =>
+                    {
+                        var result = ctx.EvaluateModule(script);
+                    });
+                    
+                }
+            }
+        }
+
         [BaristaModule("hello_world", "Only the best module ever.")]
         private sealed class HelloWorldModule : IBaristaModule
         {
@@ -84,6 +109,14 @@
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>("Spooky.");
+            }
+        }
+
+        private sealed class FawltyModuleLoader : IBaristaModuleLoader
+        {
+            public IBaristaModule GetModule(string name)
+            {
+                throw new Exception("Derp!");
             }
         }
     }

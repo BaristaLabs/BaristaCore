@@ -4,6 +4,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using System.Threading.Tasks;
     using Xunit;
 
     [ExcludeFromCodeCoverage]
@@ -31,8 +32,9 @@
             var converter = new BaristaConversionStrategy(new JsonNetConverter());
         }
 
+        #region FromObject
         [Fact]
-        public void ConverterCanConvertNulls()
+        public void ConverterCanConvertFromNull()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -58,7 +60,7 @@
         }
 
         [Fact]
-        public void ConverterCanConvertUndefined()
+        public void ConverterCanConvertFromUndefined()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -74,7 +76,7 @@
         }
 
         [Fact]
-        public void ConverterCanConvertDouble()
+        public void ConverterCanConvertFromDouble()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -90,7 +92,7 @@
         }
 
         [Fact]
-        public void ConverterCanConvertUInt()
+        public void ConverterCanConvertFromUInt()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -106,7 +108,7 @@
         }
 
         [Fact]
-        public void ConverterCanConvertLong()
+        public void ConverterCanConvertFromLong()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -122,7 +124,7 @@
         }
 
         [Fact]
-        public void ConverterCanConvertBool()
+        public void ConverterCanConvertFromBool()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -141,7 +143,7 @@
         }
 
         [Fact]
-        public void ConverterCanConvertDelegate()
+        public void ConverterCanConvertFromDelegate()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -163,7 +165,30 @@
         }
 
         [Fact]
-        public void ConverterReturnsNullOnValueTypesWithoutJsonConverter()
+        public void ConverterCanConvertFromTask()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, ctx.TaskFactory.StartNew(async () => {
+                            await Task.Delay(500);
+                            return 42;
+                        }), out JsValue value);
+                        var promise = value as JsObject;
+                        Assert.NotNull(promise);
+
+                        var result = ctx.Promise.Wait(promise);
+                        Assert.Equal(42, result.ToInt32());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void ConverterConvertsFromValueTypes_NullWithoutJsonConverter()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -181,7 +206,7 @@
         }
 
         [Fact]
-        public void ConverterConvertsValueTypeWhenJsonConverterIsSpecified()
+        public void ConverterConvertsFromValueTypes_ObjectWithJsonConverter()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -202,6 +227,113 @@
                 }
             }
         }
+        #endregion
+
+        #region ToObject
+        [Fact]
+        public void ConverterConvertsToNull()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                BaristaContext myContext;
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryToObject(ctx, ctx.Null, out object value);
+                        Assert.Null(value);
+
+                        ctx.Converter.TryToObject(null, null, out object value1);
+                    }
+                    myContext = ctx;
+                }
+
+                Assert.Throws<ObjectDisposedException>(() => {
+                    myContext.Converter.TryToObject(myContext, null, out object value);
+                });
+            }
+        }
+
+        [Fact]
+        public void ConverterConvertsToUndefined()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                BaristaContext myContext;
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryToObject(ctx, ctx.Undefined, out object value);
+                        Assert.Equal(Undefined.Value, value);
+                    }
+                    myContext = ctx;
+                }
+            }
+        }
+
+        [Fact]
+        public void ConverterConvertsToBoolean()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                BaristaContext myContext;
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryToObject(ctx, ctx.True, out object value);
+                        Assert.True((bool)value);
+                    }
+                    myContext = ctx;
+                }
+            }
+        }
+
+        [Fact]
+        public void ConverterConvertsToArray()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                BaristaContext myContext;
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var myArray = ctx.ValueFactory.CreateArray(0);
+                        myArray.Push(ctx.ValueFactory.CreateString("Foo"));
+
+                        ctx.Converter.TryToObject(ctx, myArray, out object value);
+                        Assert.NotNull(value);
+                        var valueArr = value as Array;
+                        Assert.NotNull(valueArr);
+                        Assert.Single(valueArr);
+                    }
+                    myContext = ctx;
+                }
+            }
+        }
+
+        [Fact]
+        public void ConverterConvertsToException()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                BaristaContext myContext;
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryToObject(ctx, ctx.ValueFactory.CreateError("Err"), out object value);
+                        Assert.NotNull(value);
+                        Assert.IsType<JsScriptException>(value);
+                        Assert.Equal("Err", ((JsScriptException)value).m_message);
+                    }
+                    myContext = ctx;
+                }
+            }
+        }
+        #endregion
 
         private struct MyStruct
         {

@@ -77,7 +77,7 @@
             {
                 var handleValueType = jsrt.JsGetValueType(stringHandle);
 
-                if (handleValueType != JavaScriptValueType.String)
+                if (handleValueType != JsValueType.String)
                 {
                     var convertedToStringHandle = jsrt.JsConvertValueToString(stringHandle);
 

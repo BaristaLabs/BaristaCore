@@ -36,7 +36,7 @@
                     using (ctx.Scope())
                     {
                         Assert.NotNull(ctx.Promise);
-                        Assert.Equal(JavaScript.JavaScriptValueType.Object, ctx.Promise.Type);
+                        Assert.Equal(JsValueType.Object, ctx.Promise.Type);
                     }
                 }
             }

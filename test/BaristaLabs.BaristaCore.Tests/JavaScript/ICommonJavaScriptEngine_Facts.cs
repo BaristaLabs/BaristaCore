@@ -687,7 +687,7 @@
                     Assert.True(symbolHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(symbolHandle);
-                    Assert.True(handleType == JavaScriptValueType.Symbol);
+                    Assert.True(handleType == JsValueType.Symbol);
 
                     symbolHandle.Dispose();
                     propertyNameHandle.Dispose();
@@ -766,7 +766,7 @@ return obj;
                     Assert.True(propertySymbols != JavaScriptValueSafeHandle.Invalid);
 
                     var propertySymbolsType = Engine.JsGetValueType(propertySymbols);
-                    Assert.True(propertySymbolsType == JavaScriptValueType.Array);
+                    Assert.True(propertySymbolsType == JsValueType.Array);
 
                     propertySymbols.Dispose();
                     objHandle.Dispose();
@@ -789,7 +789,7 @@ return obj;
                     Assert.True(undefinedHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(undefinedHandle);
-                    Assert.True(handleType == JavaScriptValueType.Undefined);
+                    Assert.True(handleType == JsValueType.Undefined);
 
                     undefinedHandle.Dispose();
                 }
@@ -835,7 +835,7 @@ return obj;
                     Assert.True(nullHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(nullHandle);
-                    Assert.True(handleType == JavaScriptValueType.Null);
+                    Assert.True(handleType == JsValueType.Null);
 
                     nullHandle.Dispose();
                 }
@@ -856,7 +856,7 @@ return obj;
                     Assert.True(trueHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(trueHandle);
-                    Assert.True(handleType == JavaScriptValueType.Boolean);
+                    Assert.True(handleType == JsValueType.Boolean);
 
                     trueHandle.Dispose();
                 }
@@ -877,7 +877,7 @@ return obj;
                     Assert.True(falseHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(falseHandle);
-                    Assert.True(handleType == JavaScriptValueType.Boolean);
+                    Assert.True(handleType == JsValueType.Boolean);
 
                     falseHandle.Dispose();
                 }
@@ -940,7 +940,7 @@ return obj;
                     var boolHandle = Engine.JsConvertValueToBoolean(stringHandle);
 
                     var handleType = Engine.JsGetValueType(boolHandle);
-                    Assert.True(handleType == JavaScriptValueType.Boolean);
+                    Assert.True(handleType == JsValueType.Boolean);
 
                     var result = Engine.JsBooleanToBool(boolHandle);
                     Assert.True(result);
@@ -964,7 +964,7 @@ return obj;
                     var stringHandle = Engine.JsCreateString(stringValue, (ulong)stringValue.Length);
 
                     var handleType = Engine.JsGetValueType(stringHandle);
-                    Assert.True(handleType == JavaScriptValueType.String);
+                    Assert.True(handleType == JsValueType.String);
 
                     stringHandle.Dispose();
                 }
@@ -985,7 +985,7 @@ return obj;
                     Assert.True(doubleHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(doubleHandle);
-                    Assert.True(handleType == JavaScriptValueType.Number);
+                    Assert.True(handleType == JsValueType.Number);
 
                     doubleHandle.Dispose();
                 }
@@ -1006,7 +1006,7 @@ return obj;
                     Assert.True(intHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(intHandle);
-                    Assert.True(handleType == JavaScriptValueType.Number);
+                    Assert.True(handleType == JsValueType.Number);
 
                     intHandle.Dispose();
                 }
@@ -1066,7 +1066,7 @@ return obj;
                     var numberHandle = Engine.JsConvertValueToNumber(stringHandle);
 
                     var handleType = Engine.JsGetValueType(numberHandle);
-                    Assert.True(handleType == JavaScriptValueType.Number);
+                    Assert.True(handleType == JsValueType.Number);
 
                     var result = Engine.JsNumberToDouble(numberHandle);
                     Assert.True(result == 2.71828);
@@ -1112,7 +1112,7 @@ return obj;
                     Assert.True(stringHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(stringHandle);
-                    Assert.True(handleType == JavaScriptValueType.String);
+                    Assert.True(handleType == JsValueType.String);
 
                     //Get the size
                     var size = Engine.JsCopyString(stringHandle, null, 0);
@@ -1145,7 +1145,7 @@ return obj;
                     Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(objectHandle);
-                    Assert.True(handleType == JavaScriptValueType.Object);
+                    Assert.True(handleType == JsValueType.Object);
 
                     objectHandle.Dispose();
                 }
@@ -1166,7 +1166,7 @@ return obj;
                     Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(objectHandle);
-                    Assert.True(handleType == JavaScriptValueType.Object);
+                    Assert.True(handleType == JsValueType.Object);
 
                     objectHandle.Dispose();
                 }
@@ -1200,7 +1200,7 @@ return obj;
                     Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(objectHandle);
-                    Assert.True(handleType == JavaScriptValueType.Object);
+                    Assert.True(handleType == JsValueType.Object);
 
                     //The callback is executed during runtime release.
                     objectHandle.Dispose();
@@ -1231,7 +1231,7 @@ return obj;
                     Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(objectHandle);
-                    Assert.True(handleType == JavaScriptValueType.Object);
+                    Assert.True(handleType == JsValueType.Object);
 
                     objectHandle.Dispose();
                     numberHandle.Dispose();
@@ -1256,7 +1256,7 @@ return obj;
                     Assert.True(prototypeHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(prototypeHandle);
-                    Assert.True(handleType == JavaScriptValueType.Object);
+                    Assert.True(handleType == JsValueType.Object);
 
                     prototypeHandle.Dispose();
                     objectHandle.Dispose();
@@ -1297,7 +1297,7 @@ return obj;
                     var catIsMammalHandle = Engine.JsGetProperty(catHandle, isMammalPropertyHandle);
 
                     var handleType = Engine.JsGetValueType(catIsMammalHandle);
-                    Assert.True(handleType == JavaScriptValueType.Boolean);
+                    Assert.True(handleType == JsValueType.Boolean);
 
                     var catIsMammal = Engine.JsBooleanToBool(catIsMammalHandle);
                     Assert.True(catIsMammal);
@@ -1432,7 +1432,7 @@ return obj;
                     Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(propertyHandle);
-                    Assert.True(handleType == JavaScriptValueType.String);
+                    Assert.True(handleType == JsValueType.String);
 
                     propertyIdHandle.Dispose();
                     propertyHandle.Dispose();
@@ -1472,7 +1472,7 @@ return obj;
                     Assert.True(propertyDescriptorHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(propertyDescriptorHandle);
-                    Assert.True(handleType == JavaScriptValueType.Object);
+                    Assert.True(handleType == JsValueType.Object);
 
                     propertyIdHandle.Dispose();
                     propertyDescriptorHandle.Dispose();
@@ -1511,7 +1511,7 @@ return obj;
                     Assert.True(propertySymbols != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(propertySymbols);
-                    Assert.True(handleType == JavaScriptValueType.Array);
+                    Assert.True(handleType == JsValueType.Array);
 
                     propertySymbols.Dispose();
                     objHandle.Dispose();
@@ -1555,7 +1555,7 @@ return obj;
                     Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(propertyHandle);
-                    Assert.True(handleType == JavaScriptValueType.Number);
+                    Assert.True(handleType == JsValueType.Number);
 
                     propertyIdHandle.Dispose();
                     propertyHandle.Dispose();
@@ -1933,11 +1933,11 @@ return arr;
                         //Test on object
                         var objectHandle = Engine.JsCreateObject();
 
-                        Engine.JsSetIndexedPropertiesToExternalData(objectHandle, dataPtr, JavaScriptTypedArrayType.Int8, (uint)data.Length);
+                        Engine.JsSetIndexedPropertiesToExternalData(objectHandle, dataPtr, JsTypedArrayType.Int8, (uint)data.Length);
 
-                        IntPtr externalDataPtr = Engine.JsGetIndexedPropertiesExternalData(objectHandle, out JavaScriptTypedArrayType arrayType, out uint length);
+                        IntPtr externalDataPtr = Engine.JsGetIndexedPropertiesExternalData(objectHandle, out JsTypedArrayType arrayType, out uint length);
 
-                        Assert.Equal(JavaScriptTypedArrayType.Int8, arrayType);
+                        Assert.Equal(JsTypedArrayType.Int8, arrayType);
                         Assert.Equal((uint)data.Length, length);
                         Assert.Equal(externalDataPtr, dataPtr);
 
@@ -1975,7 +1975,7 @@ return arr;
                         //Test on object
                         var objectHandle = Engine.JsCreateObject();
 
-                        Engine.JsSetIndexedPropertiesToExternalData(objectHandle, dataPtr, JavaScriptTypedArrayType.Int8, (uint)data.Length);
+                        Engine.JsSetIndexedPropertiesToExternalData(objectHandle, dataPtr, JsTypedArrayType.Int8, (uint)data.Length);
                         var hasIndexedPropertiesExternalData = Engine.JsHasIndexedPropertiesExternalData(objectHandle);
                         Assert.True(hasIndexedPropertiesExternalData);
 
@@ -1984,7 +1984,7 @@ return arr;
                         Assert.True(propertyHandle != JavaScriptValueSafeHandle.Invalid);
 
                         var handleType = Engine.JsGetValueType(propertyHandle);
-                        Assert.True(handleType == JavaScriptValueType.Number);
+                        Assert.True(handleType == JsValueType.Number);
 
                         var value = Engine.JsNumberToInt(propertyHandle);
                         Assert.Equal(42 + 5, value);
@@ -2271,7 +2271,7 @@ return arr;
                     //Test on external object
                     var objectHandle = Engine.JsCreateExternalObject(myPointPtr, callback);
                     var type = Engine.JsGetValueType(objectHandle);
-                    Assert.Equal(JavaScriptValueType.Object, type);
+                    Assert.Equal(JsValueType.Object, type);
 
                     objectHandle.Dispose();
                 }
@@ -2294,7 +2294,7 @@ return arr;
                     Assert.True(arrayHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(arrayHandle);
-                    Assert.True(handleType == JavaScriptValueType.Array);
+                    Assert.True(handleType == JsValueType.Array);
 
                     arrayHandle.Dispose();
                 }
@@ -2314,7 +2314,7 @@ return arr;
                     Assert.True(arrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(arrayBufferHandle);
-                    Assert.True(handleType == JavaScriptValueType.ArrayBuffer);
+                    Assert.True(handleType == JsValueType.ArrayBuffer);
 
                     arrayBufferHandle.Dispose();
                 }
@@ -2340,7 +2340,7 @@ return arr;
                         Assert.True(externalArrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
 
                         var handleType = Engine.JsGetValueType(externalArrayBufferHandle);
-                        Assert.True(handleType == JavaScriptValueType.ArrayBuffer);
+                        Assert.True(handleType == JsValueType.ArrayBuffer);
 
                         externalArrayBufferHandle.Dispose();
                     }
@@ -2361,12 +2361,12 @@ return arr;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var typedArrayHandle = Engine.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50);
+                    var typedArrayHandle = Engine.JsCreateTypedArray(JsTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50);
 
                     Assert.True(typedArrayHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(typedArrayHandle);
-                    Assert.True(handleType == JavaScriptValueType.TypedArray);
+                    Assert.True(handleType == JsValueType.TypedArray);
 
                     typedArrayHandle.Dispose();
                 }
@@ -2388,7 +2388,7 @@ return arr;
                     Assert.True(dataViewHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(dataViewHandle);
-                    Assert.True(handleType == JavaScriptValueType.DataView);
+                    Assert.True(handleType == JsValueType.DataView);
 
                     arrayBufferHandle.Dispose();
                     dataViewHandle.Dispose();
@@ -2405,11 +2405,11 @@ return arr;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var typedArrayHandle = Engine.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50);
+                    var typedArrayHandle = Engine.JsCreateTypedArray(JsTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50);
 
                     var typedArrayType = Engine.JsGetTypedArrayInfo(typedArrayHandle, out JavaScriptValueSafeHandle arrayBufferHandle, out uint byteOffset, out uint byteLength);
 
-                    Assert.True(typedArrayType == JavaScriptTypedArrayType.Int8);
+                    Assert.True(typedArrayType == JsTypedArrayType.Int8);
                     Assert.True(arrayBufferHandle != JavaScriptValueSafeHandle.Invalid);
                     Assert.True(byteOffset == 0);
                     Assert.True(byteLength == 50);
@@ -2453,9 +2453,9 @@ return arr;
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    var typedArrayHandle = Engine.JsCreateTypedArray(JavaScriptTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50);
+                    var typedArrayHandle = Engine.JsCreateTypedArray(JsTypedArrayType.Int8, JavaScriptValueSafeHandle.Invalid, 0, 50);
 
-                    var ptrBuffer = Engine.JsGetTypedArrayStorage(typedArrayHandle, out uint bufferLength, out JavaScriptTypedArrayType typedArrayType, out int elementSize);
+                    var ptrBuffer = Engine.JsGetTypedArrayStorage(typedArrayHandle, out uint bufferLength, out JsTypedArrayType typedArrayType, out int elementSize);
 
                     //Normally, we'd create an appropriately typed buffer based on elementsize.
                     Assert.True(elementSize == 1); //byte
@@ -2465,7 +2465,7 @@ return arr;
 
                     Assert.True(bufferLength == 50);
                     Assert.True(buffer.Length == 50);
-                    Assert.True(typedArrayType == JavaScriptTypedArrayType.Int8);
+                    Assert.True(typedArrayType == JsTypedArrayType.Int8);
 
 
                     typedArrayHandle.Dispose();
@@ -2561,7 +2561,7 @@ new Promise(function(resolve, reject) {
                         calledCount++;
                         var task = new JavaScriptValueSafeHandle(taskHandle);
                         var valueType = Engine.JsGetValueType(task);
-                        Assert.Equal(JavaScriptValueType.Function, valueType);
+                        Assert.Equal(JsValueType.Function, valueType);
                         taskQueue.Push(task);
                     };
                     var callbackHandle = GCHandle.Alloc(promiseContinuationCallback);
@@ -2590,7 +2590,7 @@ new Promise(function(resolve, reject) {
                         try
                         {
                             var handleType = Engine.JsGetValueType(task);
-                            Assert.True(handleType == JavaScriptValueType.Function);
+                            Assert.True(handleType == JsValueType.Function);
                             var result = Engine.JsCallFunction(task, args, (ushort)args.Length);
                             result.Dispose();
                         }
@@ -2639,7 +2639,7 @@ new Promise(function(resolve, reject) {
                     Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.String);
+                    Assert.True(handleType == JsValueType.String);
 
                     var size = Engine.JsCopyString(resultHandle, null, 0);
                     if ((int)size > int.MaxValue)
@@ -2681,14 +2681,14 @@ return fn;
                     var nameHandle = Engine.JsCreateString(name, (ulong)name.Length);
 
                     var handleType = Engine.JsGetValueType(fnHandle);
-                    Assert.True(handleType == JavaScriptValueType.Function);
+                    Assert.True(handleType == JsValueType.Function);
 
                     var objectHandle = Engine.JsConstructObject(fnHandle, new IntPtr[] { fnHandle.DangerousGetHandle(), nameHandle.DangerousGetHandle() }, 2);
                     
                     Assert.True(objectHandle != JavaScriptValueSafeHandle.Invalid);
 
                     handleType = Engine.JsGetValueType(objectHandle);
-                    Assert.True(handleType == JavaScriptValueType.Object);
+                    Assert.True(handleType == JsValueType.Object);
 
                     var namePropertyName = "name";
                     var namePropertyIdHandle = Engine.JsCreatePropertyId(namePropertyName, (ulong)namePropertyName.Length);
@@ -2696,7 +2696,7 @@ return fn;
                     Assert.True(namePropertyHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var propertyHandleType = Engine.JsGetValueType(namePropertyHandle);
-                    Assert.True(propertyHandleType == JavaScriptValueType.String);
+                    Assert.True(propertyHandleType == JsValueType.String);
 
                     var resultStr = Engine.GetStringUtf8(namePropertyHandle);
                     Assert.True(resultStr == name);
@@ -2738,7 +2738,7 @@ return fn;
                         Assert.True(resultHandle != JavaScriptValueSafeHandle.Invalid);
 
                         var handleType = Engine.JsGetValueType(resultHandle);
-                        Assert.True(handleType == JavaScriptValueType.String);
+                        Assert.True(handleType == JsValueType.String);
 
                         var size = Engine.JsCopyString(resultHandle, null, 0);
                         if ((int)size > int.MaxValue)
@@ -2784,12 +2784,12 @@ return fn;
                     Assert.True(fnHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(fnHandle);
-                    Assert.True(handleType == JavaScriptValueType.Function);
+                    Assert.True(handleType == JsValueType.Function);
 
                     var resultHandle = Engine.JsCallFunction(fnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
 
                     handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.Undefined);
+                    Assert.True(handleType == JsValueType.Undefined);
                     Assert.True(called);
 
                     resultHandle.Dispose();
@@ -2819,12 +2819,12 @@ return fn;
                     Assert.True(fnHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(fnHandle);
-                    Assert.True(handleType == JavaScriptValueType.Function);
+                    Assert.True(handleType == JsValueType.Function);
 
                     var resultHandle = Engine.JsCallFunction(fnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
 
                     handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.String);
+                    Assert.True(handleType == JsValueType.String);
                     Assert.True(called);
 
                     var result = Engine.GetStringUtf8(resultHandle);
@@ -2861,12 +2861,12 @@ return fn;
                     Assert.True(fnHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(fnHandle);
-                    Assert.True(handleType == JavaScriptValueType.Function);
+                    Assert.True(handleType == JsValueType.Function);
 
                     var resultHandle = Engine.JsCallFunction(fnHandle, new IntPtr[] { fnHandle.DangerousGetHandle() }, 1);
 
                     handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JavaScriptValueType.Undefined);
+                    Assert.True(handleType == JsValueType.Undefined);
                     Assert.True(called);
 
                     var toStringFunctionPropertyIdHandle = Engine.JsCreatePropertyId(toStringPropertyName, (ulong)toStringPropertyName.Length);
@@ -2903,7 +2903,7 @@ return fn;
                     Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(errorHandle);
-                    Assert.True(handleType == JavaScriptValueType.Error);
+                    Assert.True(handleType == JsValueType.Error);
 
                     errorHandle.Dispose();
                     messageHandle.Dispose();
@@ -2928,7 +2928,7 @@ return fn;
                     Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(errorHandle);
-                    Assert.True(handleType == JavaScriptValueType.Error);
+                    Assert.True(handleType == JsValueType.Error);
 
                     errorHandle.Dispose();
                     messageHandle.Dispose();
@@ -2953,7 +2953,7 @@ return fn;
                     Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(errorHandle);
-                    Assert.True(handleType == JavaScriptValueType.Error);
+                    Assert.True(handleType == JsValueType.Error);
 
                     errorHandle.Dispose();
                     messageHandle.Dispose();
@@ -2978,7 +2978,7 @@ return fn;
                     Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(errorHandle);
-                    Assert.True(handleType == JavaScriptValueType.Error);
+                    Assert.True(handleType == JsValueType.Error);
 
                     errorHandle.Dispose();
                     messageHandle.Dispose();
@@ -3003,7 +3003,7 @@ return fn;
                     Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(errorHandle);
-                    Assert.True(handleType == JavaScriptValueType.Error);
+                    Assert.True(handleType == JsValueType.Error);
 
                     errorHandle.Dispose();
                     messageHandle.Dispose();
@@ -3028,7 +3028,7 @@ return fn;
                     Assert.True(errorHandle != JavaScriptValueSafeHandle.Invalid);
 
                     var handleType = Engine.JsGetValueType(errorHandle);
-                    Assert.True(handleType == JavaScriptValueType.Error);
+                    Assert.True(handleType == JsValueType.Error);
 
                     errorHandle.Dispose();
                     messageHandle.Dispose();

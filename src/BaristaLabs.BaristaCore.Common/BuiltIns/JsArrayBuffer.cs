@@ -10,9 +10,9 @@
         {
         }
 
-        public override JavaScriptValueType Type
+        public override JsValueType Type
         {
-            get { return JavaScriptValueType.ArrayBuffer; }
+            get { return JsValueType.ArrayBuffer; }
         }
 
         public byte[] GetArrayBufferStorage()

@@ -209,7 +209,9 @@
                     obj = null;
                     return false;
                 case JsExternalArrayBuffer jsExternalArrayBuffer:
-                    throw new NotImplementedException();
+                    //TODO: Add this implementation.
+                    obj = null;
+                    return false;
                 case JsArrayBuffer jsArrayBuffer:
                     obj = jsArrayBuffer.GetArrayBufferStorage();
                     return true;
@@ -228,8 +230,7 @@
                     obj = jsObject;
                     return true;
                 case JsExternalObject jsExternalObject:
-                    //Just pass it through.
-                    obj = jsExternalObject;
+                    obj = jsExternalObject.Target;
                     return true;
                 default:
                     obj = null;

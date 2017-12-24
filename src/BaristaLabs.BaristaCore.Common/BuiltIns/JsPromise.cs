@@ -77,7 +77,7 @@
         public JsValue Wait(JsObject promise)
         {
             Context.GlobalObject["$PROMISE"] = promise;
-            return Context.EvaluateModule("export default $PROMISE");
+            return Context.EvaluateModule("export default Promise.resolve($PROMISE)");
         }
 
         /// <summary>
@@ -89,7 +89,7 @@
             where T : JsValue
         {
             Context.GlobalObject["$PROMISE"] = promise;
-            return Context.EvaluateModule<T>("export default $PROMISE");
+            return Context.EvaluateModule<T>("export default Promise.resolve($PROMISE)");
         }
     }
 }

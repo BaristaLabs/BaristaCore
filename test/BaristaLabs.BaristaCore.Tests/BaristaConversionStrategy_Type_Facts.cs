@@ -158,7 +158,6 @@ export default (rect instanceof Rectangle);
                     using (ctx.Scope())
                     {
                         ctx.Converter.TryFromObject(ctx, typeof(Rectangle), out JsValue jsRectangle);
-                        var jsRectangleObj = jsRectangle as JsObject;
                         ctx.GlobalObject["Rectangle"] = jsRectangle;
 
                         var result = ctx.EvaluateModule<JsObject>(script);
@@ -185,8 +184,37 @@ export default (square instanceof Square);
                     using (ctx.Scope())
                     {
                         ctx.Converter.TryFromObject(ctx, typeof(Square), out JsValue jsSquare);
-                        var jsSquareObj = jsSquare as JsObject;
-                        ctx.GlobalObject["Square"] = jsSquareObj;
+                        ctx.GlobalObject["Square"] = jsSquare;
+
+                        var result = ctx.EvaluateModule<JsObject>(script);
+                        Assert.True(result.ToBoolean());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void ConverterExposesTypeHierarchiesInheritanceIsPreserved()
+        {
+            var script = @"
+var square = new Square();
+square.move(1, 1);
+square.width = 15;
+square.height = 15;
+export default (square instanceof Square) && (square instanceof Rectangle) && (square instanceof Shape);
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(Square), out JsValue jsSquare);
+                        ctx.Converter.TryFromObject(ctx, typeof(Rectangle), out JsValue jsRectangle);
+                        ctx.Converter.TryFromObject(ctx, typeof(Shape), out JsValue jsShape);
+                        ctx.GlobalObject["Square"] = jsSquare;
+                        ctx.GlobalObject["Rectangle"] = jsRectangle;
+                        ctx.GlobalObject["Shape"] = jsShape;
 
                         var result = ctx.EvaluateModule<JsObject>(script);
                         Assert.True(result.ToBoolean());

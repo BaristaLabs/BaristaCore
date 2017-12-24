@@ -497,9 +497,9 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return booleanValue;
         }
 
-        public JavaScriptValueType JsGetValueType(JavaScriptValueSafeHandle value)
+        public JsValueType JsGetValueType(JavaScriptValueSafeHandle value)
         {
-            Errors.ThrowIfError(LibChakraCore.JsGetValueType(value, out JavaScriptValueType type));
+            Errors.ThrowIfError(LibChakraCore.JsGetValueType(value, out JsValueType type));
             return type;
         }
 
@@ -736,13 +736,13 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return value;
         }
 
-        public IntPtr JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out JavaScriptTypedArrayType arrayType, out uint elementLength)
+        public IntPtr JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out JsTypedArrayType arrayType, out uint elementLength)
         {
             Errors.ThrowIfError(LibChakraCore.JsGetIndexedPropertiesExternalData(@object, out IntPtr data, out arrayType, out elementLength));
             return data;
         }
 
-        public void JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JavaScriptTypedArrayType arrayType, uint elementLength)
+        public void JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JsTypedArrayType arrayType, uint elementLength)
         {
             Errors.ThrowIfError(LibChakraCore.JsSetIndexedPropertiesToExternalData(@object, data, arrayType, elementLength));
         }
@@ -809,7 +809,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return result;
         }
 
-        public JavaScriptValueSafeHandle JsCreateTypedArray(JavaScriptTypedArrayType arrayType, JavaScriptValueSafeHandle baseArray, uint byteOffset, uint elementLength)
+        public JavaScriptValueSafeHandle JsCreateTypedArray(JsTypedArrayType arrayType, JavaScriptValueSafeHandle baseArray, uint byteOffset, uint elementLength)
         {
             Errors.ThrowIfError(LibChakraCore.JsCreateTypedArray(arrayType, baseArray, byteOffset, elementLength, out JavaScriptValueSafeHandle result));
             result.NativeFunctionSource = nameof(LibChakraCore.JsCreateTypedArray);
@@ -831,9 +831,9 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return result;
         }
 
-        public JavaScriptTypedArrayType JsGetTypedArrayInfo(JavaScriptValueSafeHandle typedArray, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength)
+        public JsTypedArrayType JsGetTypedArrayInfo(JavaScriptValueSafeHandle typedArray, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength)
         {
-            Errors.ThrowIfError(LibChakraCore.JsGetTypedArrayInfo(typedArray, out JavaScriptTypedArrayType arrayType, out arrayBuffer, out byteOffset, out byteLength));
+            Errors.ThrowIfError(LibChakraCore.JsGetTypedArrayInfo(typedArray, out JsTypedArrayType arrayType, out arrayBuffer, out byteOffset, out byteLength));
             arrayBuffer.NativeFunctionSource = nameof(LibChakraCore.JsGetTypedArrayInfo);
             if (arrayBuffer != JavaScriptValueSafeHandle.Invalid)
             {
@@ -848,7 +848,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return buffer;
         }
 
-        public IntPtr JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out uint bufferLength, out JavaScriptTypedArrayType arrayType, out int elementSize)
+        public IntPtr JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out uint bufferLength, out JsTypedArrayType arrayType, out int elementSize)
         {
             Errors.ThrowIfError(LibChakraCore.JsGetTypedArrayStorage(typedArray, out IntPtr buffer, out bufferLength, out arrayType, out elementSize));
             return buffer;

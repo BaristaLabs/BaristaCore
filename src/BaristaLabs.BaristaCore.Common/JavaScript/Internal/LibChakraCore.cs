@@ -1201,7 +1201,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetValueType", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JsErrorCode JsGetValueType(JavaScriptValueSafeHandle value, out JavaScriptValueType type);
+        public static extern JsErrorCode JsGetValueType(JavaScriptValueSafeHandle value, out JsValueType type);
 
         /// <summary>
         ///     Creates a number value from a double value.
@@ -1755,7 +1755,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetIndexedPropertiesExternalData", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JsErrorCode JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out IntPtr data, out JavaScriptTypedArrayType arrayType, out uint elementLength);
+        public static extern JsErrorCode JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out IntPtr data, out JsTypedArrayType arrayType, out uint elementLength);
 
         /// <summary>
         ///     Sets an object's indexed properties to external data. The external data will be used as back store for the object's indexed properties and accessed like a typed array.
@@ -1779,7 +1779,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsSetIndexedPropertiesToExternalData", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JsErrorCode JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JavaScriptTypedArrayType arrayType, uint elementLength);
+        public static extern JsErrorCode JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JsTypedArrayType arrayType, uint elementLength);
 
         /// <summary>
         ///     Compare two JavaScript values for equality.
@@ -1966,7 +1966,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsCreateTypedArray", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JsErrorCode JsCreateTypedArray(JavaScriptTypedArrayType arrayType, JavaScriptValueSafeHandle baseArray, uint byteOffset, uint elementLength, out JavaScriptValueSafeHandle result);
+        public static extern JsErrorCode JsCreateTypedArray(JsTypedArrayType arrayType, JavaScriptValueSafeHandle baseArray, uint byteOffset, uint elementLength, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Creates a Javascript DataView object.
@@ -2014,7 +2014,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetTypedArrayInfo", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JsErrorCode JsGetTypedArrayInfo(JavaScriptValueSafeHandle typedArray, out JavaScriptTypedArrayType arrayType, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength);
+        public static extern JsErrorCode JsGetTypedArrayInfo(JavaScriptValueSafeHandle typedArray, out JsTypedArrayType arrayType, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength);
 
         /// <summary>
         ///     Obtains the underlying memory storage used by an ArrayBuffer.
@@ -2060,7 +2060,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     The code JsNoError if the operation succeeded, a failure code otherwise.
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsGetTypedArrayStorage", CallingConvention = CallingConvention.Cdecl)]
-        public static extern JsErrorCode JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out IntPtr buffer, out uint bufferLength, out JavaScriptTypedArrayType arrayType, out int elementSize);
+        public static extern JsErrorCode JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out IntPtr buffer, out uint bufferLength, out JsTypedArrayType arrayType, out int elementSize);
 
         /// <summary>
         ///     Obtains the underlying memory storage used by a DataView.

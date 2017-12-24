@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.Attributes
+﻿namespace BaristaLabs.BaristaCore
 {
     using System;
 

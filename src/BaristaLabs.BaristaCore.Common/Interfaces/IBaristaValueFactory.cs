@@ -54,7 +54,7 @@
         /// <param name="valueHandle"></param>
         /// <param name="valueType"></param>
         /// <returns></returns>
-        JsValue CreateValue(JavaScriptValueSafeHandle valueHandle, JavaScriptValueType? valueType = null);
+        JsValue CreateValue(JavaScriptValueSafeHandle valueHandle, JsValueType? valueType = null);
 
         /// <summary>
         /// Returns a new JavaScriptValue for the specified handle using the supplied type information.
