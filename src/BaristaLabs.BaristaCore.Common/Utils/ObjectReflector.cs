@@ -39,14 +39,6 @@
             return m_typeInfo.DeclaredProperties.Where(p => (instance ? !(p.GetMethod?.IsStatic ?? p.SetMethod.IsStatic) : (p.GetMethod?.IsStatic ?? p.SetMethod.IsStatic)));
         }
 
-        public bool HasBaseType
-        {
-            get
-            {
-                return m_typeInfo.BaseType != null;
-            }
-        }
-
         public Type GetBaseType()
         {
             return m_typeInfo.BaseType;

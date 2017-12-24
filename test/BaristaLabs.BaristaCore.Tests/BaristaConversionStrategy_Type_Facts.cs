@@ -143,6 +143,59 @@ export default myFoo;
             }
         }
 
+        [Fact]
+        public void ConverterExposesTypeHierarchies()
+        {
+            var script = @"
+var rect = new Rectangle();
+rect.move(1, 1);
+export default (rect instanceof Rectangle);
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(Rectangle), out JsValue jsRectangle);
+                        var jsRectangleObj = jsRectangle as JsObject;
+                        ctx.GlobalObject["Rectangle"] = jsRectangle;
+
+                        var result = ctx.EvaluateModule<JsObject>(script);
+                        Assert.True(result.ToBoolean());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void ConverterExposesTypeHierarchiesDepth3()
+        {
+            var script = @"
+var square = new Square();
+square.move(1, 1);
+square.width = 15;
+square.height = 15;
+export default (square instanceof Square);
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(Square), out JsValue jsSquare);
+                        var jsSquareObj = jsSquare as JsObject;
+                        ctx.GlobalObject["Square"] = jsSquareObj;
+
+                        var result = ctx.EvaluateModule<JsObject>(script);
+                        Assert.True(result.ToBoolean());
+                    }
+                }
+            }
+        }
+
+        #region Test Classes
         private class Foo
         {
             public Foo()
@@ -171,5 +224,53 @@ export default myFoo;
                 MyProperty = value;
             }
         }
+
+        private class Shape
+        {
+            public Shape()
+            {
+                X = 0;
+                Y = 0;
+            }
+
+            public int X
+            {
+                get;
+                set;
+            }
+
+            public int Y
+            {
+                get;
+                set;
+            }
+
+            public void Move(int x, int y)
+            {
+                X += x;
+                Y += y;
+            }
+        }
+
+        private class Rectangle : Shape
+        {
+            public int Width
+            {
+                get;
+                set;
+            }
+
+            public int Height
+            {
+                get;
+                set;
+            }
+        }
+
+        private class Square : Rectangle
+        {
+
+        }
+        #endregion
     }
 }

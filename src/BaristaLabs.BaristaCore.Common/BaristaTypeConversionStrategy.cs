@@ -27,6 +27,14 @@
             }
 
             var reflector = new ObjectReflector(typeToConvert);
+
+            JsFunction superCtor = null;
+            var baseType = reflector.GetBaseType();
+            if (baseType != null && !baseType.IsSameOrSubclass(typeof(JsValue)) && TryCreatePrototypeFunction(context, baseType, out JsFunction fnSuper))
+            {
+                superCtor = fnSuper;
+            }
+
             var objectName = BaristaObjectAttribute.GetBaristaObjectNameFromType(typeToConvert);
             JsFunction fnCtor;
 
@@ -42,7 +50,8 @@
                     }
 
                     //Use Object.create to create an object bound to this prototype.
-                    var resultValue = context.Object.Create(thisObj);
+                    var jsObj = context.Object.Create(thisObj);
+
                     JsExternalObject externalObject = null;
                     if (args.Length == 1 && args[0] is JsExternalObject exObj)
                     {
@@ -56,11 +65,17 @@
                     }
 
                     //TODO: This might work better as a symbol and/or non-enumerable and sealed.
-                    resultValue.SetProperty(BaristaObjectPropertyName, externalObject);
-                    return resultValue;
+                    jsObj.SetProperty(BaristaObjectPropertyName, externalObject);
+                    return jsObj;
                 });
 
                 fnCtor = context.ValueFactory.CreateFunction(constructor, objectName);
+
+                if (superCtor != null && superCtor.Prototype != null)
+                {
+                    fnCtor.Prototype = context.Object.Create(superCtor.Prototype);
+                    fnCtor.Prototype.Constructor = fnCtor;
+                }
             }
             else
             {
@@ -170,7 +185,8 @@
 
                         try
                         {
-                            prop.SetValue(targetObj, args.ElementAtOrDefault(0));
+                            var value = Convert.ChangeType(args.ElementAtOrDefault(0), prop.SetMethod.GetParameters().First().ParameterType);
+                            prop.SetValue(targetObj, value);
                             return context.Undefined;
                         }
                         catch (Exception ex)
@@ -219,6 +235,23 @@
 
                     try
                     {
+                        var methodParams = method.GetParameters();
+
+                        //Convert the args into the native args of the method.
+                        for (int i = 0; i < args.Length; i++)
+                        {
+                            var param = methodParams.ElementAtOrDefault(i);
+                            try
+                            {
+                                args[i] = Convert.ChangeType(args[i], param.ParameterType);
+                            }
+                            catch (Exception)
+                            {
+                                //Something went wrong, use the default value.
+                                args[i] = param.ParameterType.GetDefaultValue();
+                            }
+                        }
+
                         var result = method.Invoke(targetObj, args);
                         if (context.Converter.TryFromObject(context, result, out JsValue resultValue))
                         {
