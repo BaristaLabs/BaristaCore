@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.Utils
 {
+    using BaristaLabs.BaristaCore.Extensions;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -8,48 +9,164 @@
     /// <summary>
     /// Utility method to help with obtaining member info of a type.
     /// </summary>
-    public sealed class ObjectReflector
+    internal sealed class ObjectReflector
     {
         private readonly Type m_type;
-        private readonly TypeInfo m_typeInfo;
 
         public ObjectReflector(Type t)
         {
             m_type = t ?? throw new ArgumentNullException(nameof(t));
-            m_typeInfo = m_type.GetTypeInfo();
         }
 
         public IEnumerable<ConstructorInfo> GetConstructors()
         {
-            return m_typeInfo.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+            return m_type.GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .Where(c => c.GetCustomAttribute<BaristaIgnoreAttribute>() == null);
         }
 
-        public IEnumerable<EventInfo> GetEvents(bool instance)
+        /// <summary>
+        /// Returns the best constructor given the specified arguments.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public ConstructorInfo GetConstructorBestMatch(object[] args)
         {
-            return m_typeInfo.DeclaredEvents.Where(e => (instance ? !e.AddMethod.IsStatic : e.AddMethod.IsStatic));
-        }
+            var argTypes = args.Select(arg => arg.GetType()).ToArray();
+            var bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+            var matchingConstructor = m_type.GetConstructor(bindingFlags, null, argTypes, null);
+            if (matchingConstructor != null && matchingConstructor.GetCustomAttribute<BaristaIgnoreAttribute>() == null)
+                return matchingConstructor;
 
-        public IEnumerable<MethodInfo> GetMethods(bool instance)
-        {
-            return m_typeInfo.DeclaredMethods.Where(m => (instance ? !m.IsStatic : m.IsStatic) && !m.Attributes.HasFlag(MethodAttributes.SpecialName));
+            var constructors = GetConstructors();
+            ConstructorInfo bestMatch = null;
+            var bestMatchMatchingArgs = 0;
+            foreach (var constructor in constructors)
+            {
+                var constructorParams = constructor.GetParameters();
+
+                //Default constructor, use it if another, better constructor hasn't already been set.
+                if (bestMatch == null && constructorParams.Length == 0)
+                {
+                    bestMatch = constructor;
+                    bestMatchMatchingArgs = 0;
+                    continue;
+                }
+
+                var currentMatchingArgs = GetMatchingParameterCount(constructorParams, argTypes, out bool isExact);
+                if (currentMatchingArgs > bestMatchMatchingArgs || (currentMatchingArgs == bestMatchMatchingArgs && isExact))
+                {
+                    bestMatch = constructor;
+                    bestMatchMatchingArgs = currentMatchingArgs;
+                    continue;
+                }
+            }
+
+            return bestMatch;
         }
 
         public IEnumerable<PropertyInfo> GetProperties(bool instance)
         {
-            return m_typeInfo.DeclaredProperties.Where(p => (instance ? !(p.GetMethod?.IsStatic ?? p.SetMethod.IsStatic) : (p.GetMethod?.IsStatic ?? p.SetMethod.IsStatic)));
+            PropertyInfo[] properties;
+            if (instance == false)
+                properties = m_type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
+            else
+                properties = m_type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+            return properties.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>() == null);
+        }
+
+        public IDictionary<string, IList<MethodInfo>> GetUniqueMethodsByName(bool instance)
+        {
+            MethodInfo[] methods;
+            if (instance == false)
+                methods = m_type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
+            else
+                methods = m_type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+            methods = methods.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>() == null).ToArray();
+
+            var methodTable = new Dictionary<string, IList<MethodInfo>>();
+            foreach(var methodInfo in methods)
+            {
+                var methodName = BaristaPropertyAttribute.GetMethodName(methodInfo);
+                if (methodTable.ContainsKey(methodName))
+                {
+                    methodTable[methodName].Add(methodInfo);
+                }
+                else
+                {
+                    methodTable.Add(methodName, new List<MethodInfo>() { methodInfo });
+                }
+            }
+
+            return methodTable;
+        }
+
+        public MethodInfo GetMethodBestMatch(IEnumerable<MethodInfo> methods, object[] args)
+        {
+            var argTypes = args.Select(arg => arg.GetType()).ToArray();
+            MethodInfo bestMatch = null;
+            var bestMatchMatchingArgs = 0;
+            foreach (var method in methods)
+            {
+                var methodParams = method.GetParameters();
+
+                var currentMatchingArgs = GetMatchingParameterCount(methodParams, argTypes, out bool isExact);
+                if (currentMatchingArgs > bestMatchMatchingArgs || (currentMatchingArgs == bestMatchMatchingArgs && isExact))
+                {
+                    bestMatch = method;
+                    bestMatchMatchingArgs = currentMatchingArgs;
+                    continue;
+                }
+            }
+
+            return bestMatch;
+        }
+
+        public IEnumerable<EventInfo> GetEvents(bool instance)
+        {
+            if (instance == false)
+                return m_type.GetEvents(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
+            else
+                return m_type.GetEvents(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
         }
 
         public Type GetBaseType()
         {
-            return m_typeInfo.BaseType;
+            return m_type.BaseType;
         }
 
-        public bool IsDelegateType
+        private int GetMatchingParameterCount(ParameterInfo[] parameters, Type[] argTypes, out bool isExact)
         {
-            get
+            var count = 0;
+            isExact = true;
+            for (int i = 0; i < parameters.Length; i++)
             {
-                return typeof(Delegate).IsAssignableFrom(m_type);
+                //If there are more parameters than arguments, we're no longer exact (and stop processing)
+                if (i >= argTypes.Length)
+                {
+                    isExact = false;
+                    break;
+                }
+
+                //If there is an exact type match, we're still exact.
+                if (parameters[i].ParameterType == argTypes[i])
+                {
+                    count++;
+                }
+                //We're checking numeric types, no longer exact.
+                else if (parameters[i].ParameterType.IsNumeric() && argTypes[i].IsNumeric())
+                {
+                    isExact = false;
+                    count++;
+                }
             }
+
+            //If we had no matches, but we did have parameters, we're not exact.
+            if (count == 0 && parameters.Length > 0)
+                isExact = false;
+
+            return count;
         }
     }
 }

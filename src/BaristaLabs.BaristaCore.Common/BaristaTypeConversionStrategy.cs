@@ -59,9 +59,42 @@
                     }
                     else
                     {
-                        //TODO: Find the best constructor.
-                        var newObj = publicConstructors.First().Invoke(new object[] { });
-                        externalObject = context.ValueFactory.CreateExternalObject(newObj);
+                        try
+                        {
+                            var bestConstructor = reflector.GetConstructorBestMatch(args);
+                            if (bestConstructor == null)
+                            {
+                                var ex = context.ValueFactory.CreateTypeError($"Failed to construct '{objectName}': Could not find a matching constructor for the provided arguments.");
+                                context.CurrentScope.SetException(ex);
+                                return context.Undefined;
+                            }
+
+                            //Convert the args into the native args of the constructor.
+                            var constructorParams = bestConstructor.GetParameters();
+                            var convertedArgs = new object[constructorParams.Length];
+                            for (int i = 0; i < constructorParams.Length; i++)
+                            {
+                                var currentParam = constructorParams[i];
+                                var arg = args.ElementAtOrDefault(i);
+                                try
+                                {
+                                    convertedArgs[i] = Convert.ChangeType(args[i], currentParam.ParameterType);
+                                }
+                                catch (Exception)
+                                {
+                                    //Something went wrong, use the default value.
+                                    convertedArgs[i] = currentParam.ParameterType.GetDefaultValue();
+                                }
+                            }
+
+                            var newObj = bestConstructor.Invoke(convertedArgs);
+                            externalObject = context.ValueFactory.CreateExternalObject(newObj);
+                        }
+                        catch (Exception ex)
+                        {
+                            context.CurrentScope.SetException(context.ValueFactory.CreateError(ex.Message));
+                            return context.Undefined;
+                        }
                     }
 
                     //TODO: This might work better as a symbol and/or non-enumerable and sealed.
@@ -70,23 +103,22 @@
                 });
 
                 fnCtor = context.ValueFactory.CreateFunction(constructor, objectName);
-
-                if (superCtor != null && superCtor.Prototype != null)
-                {
-                    fnCtor.Prototype = context.Object.Create(superCtor.Prototype);
-                    fnCtor.Prototype.Constructor = fnCtor;
-                }
             }
             else
             {
                 var constructor = new BaristaFunctionDelegate((isConstructCall, thisObj, args) => {
-                    if (!isConstructCall)
-                        return context.Undefined;
-
+                    var ex = context.ValueFactory.CreateTypeError($"Failed to construct '{objectName}': This object cannot be constructed.");
+                    context.CurrentScope.SetException(ex);
                     return context.Undefined;
                 });
 
                 fnCtor = context.ValueFactory.CreateFunction(constructor, typeToConvert.Name);
+            }
+
+            if (superCtor != null && superCtor.Prototype != null)
+            {
+                fnCtor.Prototype = context.Object.Create(superCtor.Prototype);
+                fnCtor.Prototype.Constructor = fnCtor;
             }
 
             var fnCtorPrototype = fnCtor.Prototype;
@@ -98,10 +130,10 @@
             ProjectProperties(context, fnCtorPrototype, reflector.GetProperties(true));
 
             //Project static methods onto the constructor.
-            ProjectMethods(context, fnCtor, reflector.GetMethods(false));
+            ProjectMethods(context, fnCtor, reflector, reflector.GetUniqueMethodsByName(false));
 
             //Project instance methods on to the constructor prototype;
-            ProjectMethods(context, fnCtorPrototype, reflector.GetMethods(true));
+            ProjectMethods(context, fnCtorPrototype, reflector, reflector.GetUniqueMethodsByName(true));
 
             m_prototypes.Add(typeToConvert, fnCtor);
 
@@ -113,13 +145,10 @@
         {
             foreach (var prop in properties)
             {
-                if (BaristaIgnoreAttribute.ShouldIgnore(prop))
-                    continue;
-
                 if (prop.GetIndexParameters().Length > 0)
                     throw new NotSupportedException("Index properties not supported for projecting CLR to JavaScript objects.");
 
-                var propertyName = prop.Name.Camelize();
+                var propertyName = BaristaPropertyAttribute.GetPropertyName(prop);
                 var propertyDescriptor = context.ValueFactory.CreateObject();
                 propertyDescriptor.SetProperty("enumerable", context.True);
 
@@ -203,22 +232,19 @@
             }
         }
 
-
-        private void ProjectMethods(BaristaContext context, JsObject targetObject, IEnumerable<MethodInfo> methods)
+        private void ProjectMethods(BaristaContext context, JsObject targetObject, ObjectReflector reflector, IDictionary<string, IList<MethodInfo>> methods)
         {
-            //TODO: Resolve arity issues.
             foreach(var method in methods)
             {
-                if (BaristaIgnoreAttribute.ShouldIgnore(method))
-                    continue;
+                var methodName = method.Key;
+                var methodInfos = method.Value;
 
-                var methodName = method.Name.Camelize();
                 var functionDescriptor = context.ValueFactory.CreateObject();
                 functionDescriptor.SetProperty("enumerable", context.True);
 
                 var fn = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((isConstructCall, thisObj, args) =>
                 {
-                    object targetObj = null;
+                    dynamic targetObj = null;
 
                     if (thisObj == null)
                     {
@@ -235,30 +261,40 @@
 
                     try
                     {
-                        var methodParams = method.GetParameters();
+                        var bestMethod = reflector.GetMethodBestMatch(methodInfos, args);
+                        if (bestMethod == null)
+                        {
+                            var ex = context.ValueFactory.CreateTypeError($"Failed to call function '{methodName}': Could not find a matching function for the provided arguments.");
+                            context.CurrentScope.SetException(ex);
+                            return context.Undefined;
+                        }
 
                         //Convert the args into the native args of the method.
-                        for (int i = 0; i < args.Length; i++)
+                        var methodParams = bestMethod.GetParameters();
+                        var convertedArgs = new object[methodParams.Length];
+                        for (int i = 0; i < methodParams.Length; i++)
                         {
-                            var param = methodParams.ElementAtOrDefault(i);
+                            var currentParam = methodParams[i];
+                            var arg = args.ElementAtOrDefault(i);
                             try
                             {
-                                args[i] = Convert.ChangeType(args[i], param.ParameterType);
+                                convertedArgs[i] = Convert.ChangeType(args[i], currentParam.ParameterType);
                             }
                             catch (Exception)
                             {
                                 //Something went wrong, use the default value.
-                                args[i] = param.ParameterType.GetDefaultValue();
+                                convertedArgs[i] = currentParam.ParameterType.GetDefaultValue();
                             }
                         }
 
-                        var result = method.Invoke(targetObj, args);
+                        var result = bestMethod.Invoke(targetObj, convertedArgs);
                         if (context.Converter.TryFromObject(context, result, out JsValue resultValue))
                         {
                             return resultValue;
                         }
                         else
                         {
+                            context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The call to '{methodName}' was successful, but the result could not be converted into a JavaScript object."));
                             return context.Undefined;
                         }
                     }
