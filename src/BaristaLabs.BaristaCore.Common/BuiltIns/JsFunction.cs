@@ -53,6 +53,9 @@
             if (thisObj == null)
                 thisObj = Context.GlobalObject;
 
+            if (args == null)
+                args = new JsValue[0] { };
+
             var argPtrs = args
                 .Select(a => a == null ? Context.Undefined.Handle.DangerousGetHandle() : a.Handle.DangerousGetHandle())
                 .Prepend(thisObj.Handle.DangerousGetHandle())

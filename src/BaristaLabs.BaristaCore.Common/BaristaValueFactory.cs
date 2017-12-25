@@ -184,7 +184,17 @@
 
                         var argValueHandle = new JavaScriptValueSafeHandle(currentArgument);
                         var jsValue = CreateValue(argValueHandle);
-                        if (Context.Converter.TryToObject(Context, jsValue, out object obj))
+                        //Keep the first argument as the this JsObject.
+                        if (i == 0)
+                        {
+                            nativeArgs[i] = jsValue as JsObject;
+                        }
+                        //If the target type is the same as the value type (The delegate expects a JsValue) don't convert.
+                        else if (targetParameterType == jsValue.GetType())
+                        {
+                            nativeArgs[i] = jsValue;
+                        }
+                        else if (Context.Converter.TryToObject(Context, jsValue, out object obj))
                         {
                             try
                             {

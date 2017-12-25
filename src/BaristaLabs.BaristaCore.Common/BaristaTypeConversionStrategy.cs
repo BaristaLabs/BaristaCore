@@ -5,11 +5,14 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Reflection;
 
     public sealed class BaristaTypeConversionStrategy : IBaristaTypeConversionStrategy
     {
         private const string BaristaObjectPropertyName = "__baristaObject";
+        private const string BaristaEventListenersPropertyName = "__baristaEventListeners";
+
         private IDictionary<Type, JsFunction> m_prototypes = new Dictionary<Type, JsFunction>();
 
         public bool TryCreatePrototypeFunction(BaristaContext context, Type typeToConvert, out JsFunction ctor)
@@ -83,8 +86,10 @@
                         }
                     }
 
-                    //TODO: This might work better as a symbol and/or non-enumerable and sealed.
-                    jsObj.SetProperty(BaristaObjectPropertyName, externalObject);
+                    //Set the baristaObject as a non-configurable, non-enumerable, non-writable property
+                    var baristaObjectPropertyDescriptor = context.ValueFactory.CreateObject();
+                    baristaObjectPropertyDescriptor.SetProperty("value", externalObject);
+                    context.Object.DefineProperty(jsObj, context.ValueFactory.CreateString(BaristaObjectPropertyName), baristaObjectPropertyDescriptor);
                     return jsObj;
                 });
 
@@ -121,6 +126,12 @@
             //Project instance methods on to the constructor prototype;
             ProjectMethods(context, fnCtorPrototype, reflector, reflector.GetUniqueMethodsByName(true));
 
+            //Project static events onto the constructor.
+            ProjectEvents(context, fnCtor, reflector, reflector.GetEventTable(false));
+
+            //Project instance events on to the constructor prototype;
+            ProjectEvents(context, fnCtorPrototype, reflector, reflector.GetEventTable(true));
+
             m_prototypes.Add(typeToConvert, fnCtor);
 
             ctor = fnCtor;
@@ -134,9 +145,14 @@
                 if (prop.GetIndexParameters().Length > 0)
                     throw new NotSupportedException("Index properties not supported for projecting CLR to JavaScript objects.");
 
-                var propertyName = BaristaPropertyAttribute.GetPropertyName(prop);
+                var propertyAttribute = BaristaPropertyAttribute.GetAttribute(prop);
+                var propertyName = propertyAttribute.Name;
                 var propertyDescriptor = context.ValueFactory.CreateObject();
-                propertyDescriptor.SetProperty("enumerable", context.True);
+
+                if (propertyAttribute.Configurable)
+                    propertyDescriptor.SetProperty("configurable", context.True);
+                if (propertyAttribute.Enumerable)
+                    propertyDescriptor.SetProperty("enumerable", context.True);
 
                 if (prop.GetMethod != null)
                 {
@@ -225,12 +241,9 @@
                 var methodName = method.Key;
                 var methodInfos = method.Value;
 
-                var functionDescriptor = context.ValueFactory.CreateObject();
-                functionDescriptor.SetProperty("enumerable", context.True);
-
                 var fn = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((isConstructCall, thisObj, args) =>
                 {
-                    dynamic targetObj = null;
+                    object targetObj = null;
 
                     if (thisObj == null)
                     {
@@ -278,9 +291,152 @@
 
                 }));
 
+                var functionDescriptor = context.ValueFactory.CreateObject();
+
+                if (methodInfos.All(mi => BaristaPropertyAttribute.GetAttribute(mi).Enumerable))
+                    functionDescriptor.SetProperty("configurable", context.True);
+                if (methodInfos.All(mi => BaristaPropertyAttribute.GetAttribute(mi).Enumerable))
+                    functionDescriptor.SetProperty("enumerable", context.True);
+                if (methodInfos.All(mi => BaristaPropertyAttribute.GetAttribute(mi).Enumerable))
+                    functionDescriptor.SetProperty("writable", context.True);
+
                 functionDescriptor.SetProperty("value", fn);
                 context.Object.DefineProperty(targetObject, context.ValueFactory.CreateString(methodName), functionDescriptor);
             }
+        }
+
+        private void ProjectEvents(BaristaContext context, JsObject targetObject, ObjectReflector reflector, IDictionary<string, EventInfo> eventsTable)
+        {
+            if (eventsTable.Count == 0)
+                return;
+
+            var fnAddListener = context.ValueFactory.CreateFunction(new Func<JsObject, string, JsFunction, JsValue>((thisObj, eventName, fnCallback) => {
+
+                if (String.IsNullOrWhiteSpace(eventName))
+                {
+                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The name of the event to register must be specified."));
+                    return context.Undefined;
+                }
+
+                object targetObj = null;
+
+                if (thisObj == null)
+                {
+                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not register event '{eventName}' because there was an invalid 'this' context."));
+                    return context.Undefined;
+                }
+
+                //If the property exists we're probably an instance -- though we should find a way to check this better.
+                if (thisObj.HasProperty(BaristaObjectPropertyName))
+                {
+                    var xoObj = thisObj.GetProperty<JsExternalObject>(BaristaObjectPropertyName);
+                    targetObj = xoObj.Target;
+                }
+
+                if (!eventsTable.TryGetValue(eventName, out EventInfo targetEvent))
+                    return context.False;
+
+                Action<object[]> invokeListener = (args) =>
+                {
+                    //TODO: Object conversion.
+                    fnCallback.Call(thisObj, null);
+                };
+
+                var targetEventMethod = targetEvent.EventHandlerType.GetMethod("Invoke");
+                var targetEventParameters = targetEventMethod.GetParameters().Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToArray();
+
+                var exprInvokeListener = Expression.Lambda(targetEvent.EventHandlerType, Expression.Block(
+                    Expression.Call(
+                        Expression.Constant(invokeListener.Target),
+                        invokeListener.Method,
+                        Expression.NewArrayInit(typeof(object), targetEventParameters))
+                ), targetEventParameters);
+
+                var invokeListenerDelegate = exprInvokeListener.Compile();
+
+                IDictionary<string, IList<Delegate>> eventListeners;
+                if (thisObj.HasProperty(BaristaEventListenersPropertyName))
+                {
+                    var xoListeners = thisObj.GetProperty<JsExternalObject>(BaristaEventListenersPropertyName);
+                    eventListeners = xoListeners.Target as IDictionary<string, IList<Delegate>>;
+                }
+                else
+                {
+                    eventListeners = new Dictionary<string, IList<Delegate>>();
+
+                    //Set the listeners as a non-configurable, non-enumerable, non-writable property
+                    var xoListeners = context.ValueFactory.CreateExternalObject(eventListeners);
+
+                    var baristaEventListenersPropertyDescriptor = context.ValueFactory.CreateObject();
+                    baristaEventListenersPropertyDescriptor.SetProperty("value", xoListeners);
+                    context.Object.DefineProperty(thisObj, context.ValueFactory.CreateString(BaristaEventListenersPropertyName), baristaEventListenersPropertyDescriptor);
+                }
+
+                if (eventListeners != null)
+                {
+                    if (eventListeners.ContainsKey(eventName))
+                        eventListeners[eventName].Add(invokeListenerDelegate);
+                    else
+                        eventListeners.Add(eventName, new List<Delegate>() { invokeListenerDelegate });
+                }
+                
+                targetEvent.AddMethod.Invoke(targetObj, new object[] { invokeListenerDelegate });
+
+                return context.True;
+            }), "on");
+
+            var fnRemoveAllListeners = context.ValueFactory.CreateFunction(new Func<JsObject, string, JsValue>((thisObj, eventName) => {
+
+                if (String.IsNullOrWhiteSpace(eventName))
+                {
+                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The name of the event to remove must be specified."));
+                    return context.Undefined;
+                }
+
+                object targetObj = null;
+
+                if (thisObj == null)
+                {
+                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not unregister event '{eventName}' because there was an invalid 'this' context."));
+                    return context.Undefined;
+                }
+
+                //If the property exists we're probably an instance -- though we should find a way to check this better.
+                if (thisObj.HasProperty(BaristaObjectPropertyName))
+                {
+                    var xoObj = thisObj.GetProperty<JsExternalObject>(BaristaObjectPropertyName);
+                    targetObj = xoObj.Target;
+                }
+
+                if (!eventsTable.TryGetValue(eventName, out EventInfo targetEvent))
+                    return context.Undefined;
+
+                //Get the event listeners.
+                IDictionary<string, IList<Delegate>> eventListeners = null;
+                if (thisObj.HasProperty(BaristaEventListenersPropertyName))
+                {
+                    var xoListeners = thisObj.GetProperty<JsExternalObject>(BaristaEventListenersPropertyName);
+                    eventListeners = xoListeners.Target as IDictionary<string, IList<Delegate>>;
+                }
+
+                if (eventListeners == null)
+                    return context.False;
+
+                if (eventListeners.ContainsKey(eventName))
+                {
+                    foreach(var listener in eventListeners[eventName])
+                    {
+                        targetEvent.RemoveMethod.Invoke(targetObj, new object[] { listener });
+                    }
+
+                    eventListeners.Remove(eventName);
+                }
+
+                return context.True;
+            }), "removeAllListeners");
+
+            targetObject.SetProperty("on", fnAddListener);
+            targetObject.SetProperty("removeAllListeners", fnRemoveAllListeners);
         }
 
         private object[] ConvertArgsToParamTypes(object[] args, ParameterInfo[] parameters)

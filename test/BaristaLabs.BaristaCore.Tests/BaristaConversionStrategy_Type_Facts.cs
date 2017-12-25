@@ -41,6 +41,8 @@
             }
         }
 
+        #region Constructor Tests
+
         [Fact]
         public void ConverterCanConvertTypesThatCanBeConstructed()
         {
@@ -235,7 +237,9 @@ export default myFoo;
                 }
             }
         }
+        #endregion
 
+        #region Property Tests
         [Fact]
         public void ConverterExposesStaticAndInstanceProperties()
         {
@@ -353,7 +357,9 @@ export default myFoo;
                 }
             }
         }
+        #endregion
 
+        #region Method Tests
         [Fact]
         public void ConverterExposesStaticAndInstanceMethods()
         {
@@ -518,6 +524,9 @@ export default myFoo;
                 }
             }
         }
+        #endregion
+
+        #region Hierarchy Tests
 
         [Fact]
         public void ConverterExposesTypeHierarchies()
@@ -598,6 +607,356 @@ export default (square instanceof Square) && (square instanceof Rectangle) && (s
                 }
             }
         }
+        #endregion
+
+        #region Event Tests
+        [Fact]
+        public void ConverterExposesStaticAndInstanceEvents()
+        {
+            var script = @"
+var count = 0;
+Foo.on('myStaticEvent', () => { count++; });
+var myFoo = new Foo();
+myFoo.on('myEvent', () => { count++; });
+myFoo.bonk();
+export default count;
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(HasEvents), out JsValue value);
+                        ctx.GlobalObject["Foo"] = value;
+
+                        var result = ctx.EvaluateModule<JsNumber>(script);
+                        Assert.Equal(2, result.ToInt32());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void EventsCanBeRemoved()
+        {
+            var script = @"
+var count = 0;
+var myFoo = new Foo();
+myFoo.on('myEvent', () => { count++; });
+myFoo.bonk();
+myFoo.removeAllListeners('myEvent');
+myFoo.removeAllListeners('myEvent');
+myFoo.bonk();
+myFoo.removeAllListeners('foo');
+export default count;
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(HasInstanceEvents), out JsValue value);
+                        ctx.GlobalObject["Foo"] = value;
+
+                        var result = ctx.EvaluateModule<JsNumber>(script);
+                        Assert.Equal(1, result.ToInt32());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void ConverterDoesNotIncludeIgnoredEvents()
+        {
+            var script = @"
+var count = 0;
+Foo.on('myStaticEvent', () => { count++; });
+var myFoo = new Foo();
+var result = myFoo.on('myEvent', () => { count++; });
+export default result;
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(HasIgnoredEvents), out JsValue value);
+                        ctx.GlobalObject["Foo"] = value;
+
+                        var result = ctx.EvaluateModule<JsBoolean>(script);
+                        Assert.False(result.ToBoolean());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void ConverterDoesNotAddEventMethodsIfNoEvents()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(HasEvents), out JsValue value);
+                        var jsObj = value as JsObject;
+                        Assert.True(jsObj.HasOwnProperty("on"));
+                        Assert.True(jsObj.HasOwnProperty("removeAllListeners"));
+
+                        ctx.Converter.TryFromObject(ctx, typeof(HasNoExposedEvents), out JsValue value1);
+                        var jsObj1 = value1 as JsObject;
+                        Assert.False(jsObj1.HasOwnProperty("on"));
+                        Assert.False(jsObj1.HasOwnProperty("removeAllListeners"));
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void ConverterUsesEventAttributesForNaming()
+        {
+            var script = @"
+var count = 0;
+var myFoo = new Foo();
+myFoo.on('mySuperEvent', () => { count++; });
+myFoo.bonk();
+myFoo.bonk();
+export default count;
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(HasNamedEvents), out JsValue value);
+                        ctx.GlobalObject["Foo"] = value;
+
+                        var result = ctx.EvaluateModule<JsNumber>(script);
+                        Assert.Equal(2, result.ToInt32());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void MustSpecifyANameToRegisterAndRemoveListeners()
+        {
+            var script = @"
+var count = 0;
+var myFoo = new Foo();
+myFoo.on('', () => { count++; });
+export default count;
+";
+            var script2 = @"
+var count = 0;
+var myFoo = new Foo();
+myFoo.on('foo', () => { count++; });
+myFoo.removeAllListeners('', () => { count++; });
+export default count;
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(HasInstanceEvents), out JsValue value);
+                        ctx.GlobalObject["Foo"] = value;
+
+                        Assert.Throws<JsScriptException>(() =>
+                        {
+                            var result = ctx.EvaluateModule<JsNumber>(script);
+                        });
+
+                        ctx.CurrentScope.GetAndClearException();
+
+                        Assert.Throws<JsScriptException>(() =>
+                        {
+                            var result = ctx.EvaluateModule<JsNumber>(script2);
+                        });
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void CanRegisterMultipleEvents()
+        {
+            var script = @"
+var count = 0;
+var dracula = 0;
+var myFoo = new Foo();
+myFoo.on('mySuperEvent', () => { count++; });
+myFoo.on('mySuperEvent', () => { dracula++; });
+myFoo.on('mySuperDuperEvent', () => { count++; });
+myFoo.bonk();
+myFoo.bonk();
+export default { count, dracula };
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(HasMultipleEvents), out JsValue value);
+                        ctx.GlobalObject["Foo"] = value;
+
+                        var result = ctx.EvaluateModule<JsObject>(script);
+                        Assert.Equal(4, result["count"].ToInt32());
+                        Assert.Equal(2, result["dracula"].ToInt32());
+                    }
+                }
+            }
+        }
+
+        #region Test Event Classes
+        private class HasEvents
+        {
+            public static event EventHandler<EventArgs> MyStaticEvent;
+            public event EventHandler<EventArgs> MyEvent;
+
+            public void Bonk()
+            {
+                OnMyEvent();
+                OnMyStaticEvent();
+            }
+
+            private void OnMyEvent()
+            {
+                MyEvent?.Invoke(this, new EventArgs());
+            }
+
+            private static void OnMyStaticEvent()
+            {
+                if (MyStaticEvent != null)
+                {
+                    lock(MyStaticEvent)
+                    {
+                        MyStaticEvent?.Invoke(null, new EventArgs());
+                    }
+                }
+            }
+        }
+
+        private class HasInstanceEvents
+        {
+            public event EventHandler<EventArgs> MyEvent;
+
+            public void Bonk()
+            {
+                OnMyEvent();
+            }
+
+            private void OnMyEvent()
+            {
+                MyEvent?.Invoke(this, new EventArgs());
+            }
+        }
+
+        private class HasIgnoredEvents
+        {
+            public static event EventHandler<EventArgs> MyStaticEvent;
+            [BaristaIgnore]
+            public event EventHandler<EventArgs> MyEvent;
+
+            public event EventHandler<EventArgs> MyOtherEvent;
+
+            public void Bonk()
+            {
+                OnMyEvent();
+                OnMyOtherEvent();
+                OnMyStaticEvent();
+            }
+
+            private void OnMyEvent()
+            {
+                MyEvent?.Invoke(this, new EventArgs());
+            }
+
+            private void OnMyOtherEvent()
+            {
+                MyOtherEvent?.Invoke(null, new EventArgs());
+            }
+
+            private static void OnMyStaticEvent()
+            {
+                MyStaticEvent?.Invoke(null, new EventArgs());
+            }
+        }
+
+        private class HasNoExposedEvents
+        {
+            [BaristaIgnore]
+            public static event EventHandler<EventArgs> MyStaticEvent;
+            [BaristaIgnore]
+            public event EventHandler<EventArgs> MyEvent;
+
+            public void Bonk()
+            {
+                OnMyEvent();
+                OnMyStaticEvent();
+            }
+
+            private void OnMyEvent()
+            {
+                MyEvent?.Invoke(this, new EventArgs());
+            }
+
+            private static void OnMyStaticEvent()
+            {
+                MyStaticEvent?.Invoke(null, new EventArgs());
+            }
+        }
+
+        private class HasNamedEvents
+        {
+            [BaristaProperty("mySuperEvent")]
+            public event EventHandler<EventArgs> MyEvent;
+
+            public void Bonk()
+            {
+                OnMyEvent();
+            }
+
+            private void OnMyEvent()
+            {
+                MyEvent?.Invoke(this, new EventArgs());
+            }
+        }
+
+        private class HasMultipleEvents
+        {
+            [BaristaProperty("mySuperEvent")]
+            public event EventHandler<EventArgs> MyEvent;
+
+            [BaristaProperty("mySuperDuperEvent")]
+            public event EventHandler<EventArgs> MyOtherEvent;
+
+            public void Bonk()
+            {
+                OnMyEvent();
+                OnMyOtherEvent();
+            }
+
+            private void OnMyEvent()
+            {
+                MyEvent?.Invoke(this, new EventArgs());
+            }
+
+            private void OnMyOtherEvent()
+            {
+                MyOtherEvent?.Invoke(this, new EventArgs());
+            }
+        }
+
+        #endregion
+        #endregion
 
         #region Test Classes
         private class Foo

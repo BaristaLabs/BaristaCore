@@ -88,7 +88,7 @@
             var methodTable = new Dictionary<string, IList<MethodInfo>>();
             foreach(var methodInfo in methods)
             {
-                var methodName = BaristaPropertyAttribute.GetMethodName(methodInfo);
+                var methodName = BaristaPropertyAttribute.GetMemberName(methodInfo);
                 if (methodTable.ContainsKey(methodName))
                 {
                     methodTable[methodName].Add(methodInfo);
@@ -123,12 +123,24 @@
             return bestMatch;
         }
 
-        public IEnumerable<EventInfo> GetEvents(bool instance)
+        public IDictionary<string, EventInfo> GetEventTable(bool instance)
         {
+            EventInfo[] events;
             if (instance == false)
-                return m_type.GetEvents(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
+                events = m_type.GetEvents(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
             else
-                return m_type.GetEvents(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                events = m_type.GetEvents(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+            events = events.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>() == null).ToArray();
+
+            var eventTable = new Dictionary<string, EventInfo>();
+            foreach (var eventInfo in events)
+            {
+                var eventName = BaristaPropertyAttribute.GetMemberName(eventInfo);
+                eventTable.Add(eventName, eventInfo);
+            }
+
+            return eventTable;
         }
 
         public Type GetBaseType()
