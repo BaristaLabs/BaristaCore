@@ -74,9 +74,6 @@
         {
             get
             {
-                if (IsDisposed)
-                    throw new ObjectDisposedException(nameof(JsValue));
-
                 return m_javaScriptReference;
             }
         }

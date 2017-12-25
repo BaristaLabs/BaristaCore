@@ -1,13 +1,12 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.Extensions;
+    using BaristaLabs.BaristaCore.JavaScript;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Dynamic;
     using System.Linq;
-    using System.Runtime.InteropServices;
-    using BaristaLabs.BaristaCore.Extensions;
-    using BaristaLabs.BaristaCore.JavaScript;
 
     public class JsObjectConstructor : JsObject
     {

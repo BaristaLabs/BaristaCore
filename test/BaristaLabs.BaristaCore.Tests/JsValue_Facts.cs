@@ -249,7 +249,7 @@
         }
 
         [Fact]
-        public void AccessingHandleAfterDisposeThrows()
+        public void AccessingHandleAfterDisposeDoesNotThrow()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -262,10 +262,8 @@
                         var value = result["foo"];
                         value.Dispose();
 
-                        Assert.Throws<ObjectDisposedException>(() =>
-                        {
-                            var hanDeeHugo = value.Handle;
-                        });
+                        var hanDeeHugo = value.Handle;
+                        Assert.Null(hanDeeHugo);
                     }
                 }
             }
