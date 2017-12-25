@@ -13,6 +13,7 @@
     /// Direct tests against the IChakraApi layer
     /// </summary>
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class ICommonJavaScriptEngine_Facts
     {
         #region Test Support

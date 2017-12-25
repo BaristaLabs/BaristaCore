@@ -7,11 +7,12 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class BaristaContext_Facts
     {
         private IServiceProvider m_provider;
 
-        public BaristaContext_Facts()
+        public BaristaContext_Facts(LoggingFixture loggingFixture)
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddBaristaCore();

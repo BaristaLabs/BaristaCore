@@ -8,6 +8,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class JsPromise_Facts
     {
         private readonly ServiceCollection ServiceCollection;

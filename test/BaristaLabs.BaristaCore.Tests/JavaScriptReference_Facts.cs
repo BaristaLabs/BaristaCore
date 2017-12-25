@@ -196,6 +196,7 @@
 
                     Assert.Equal(trueHandle, anotherTrueHandle);
                 }
+                Engine.JsCollectGarbage(runtimeHandle);
             }
 
             Assert.True(trueHandle.IsClosed);

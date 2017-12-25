@@ -8,6 +8,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class BaristaValueFactory_Facts
     {
         private readonly ServiceCollection ServiceCollection;

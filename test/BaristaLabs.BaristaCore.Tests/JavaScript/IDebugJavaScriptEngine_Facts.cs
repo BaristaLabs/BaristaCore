@@ -8,6 +8,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class IDebugJavaScriptEngine_Facts
     {
         private IJavaScriptEngine Engine;
@@ -274,103 +275,111 @@ fibonacci(50);
                         return true;
                     };
 
-                    using (var ss = new ScriptSource(Engine, fibonacci))
+                    var callbackHandle = GCHandle.Alloc(callback);
+                    try
                     {
-                        Engine.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero);
+                        using (var ss = new ScriptSource(Engine, fibonacci))
+                        {
+                            Engine.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero);
 
-                        var scripts = Engine.JsDiagGetScripts();
-                        Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, scripts);
+                            var scripts = Engine.JsDiagGetScripts();
+                            Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, scripts);
 
-                        var ix = Engine.JsIntToNumber(0);
-                        var objScriptHandle = Engine.JsGetIndexedProperty(scripts, ix);
+                            var ix = Engine.JsIntToNumber(0);
+                            var objScriptHandle = Engine.JsGetIndexedProperty(scripts, ix);
 
-                        var handleType = Engine.JsGetValueType(objScriptHandle);
-                        Assert.True(handleType == JsValueType.Object);
+                            var handleType = Engine.JsGetValueType(objScriptHandle);
+                            Assert.True(handleType == JsValueType.Object);
 
-                        //Not sure if the ScriptId varies independently of the ScriptContext cookie
-                        var scriptIdPropertyHandle = Engine.JsCreatePropertyId("scriptId", (ulong)"scriptId".Length);
-                        var scriptIdHandle = Engine.JsGetProperty(objScriptHandle, scriptIdPropertyHandle);
+                            //Not sure if the ScriptId varies independently of the ScriptContext cookie
+                            var scriptIdPropertyHandle = Engine.JsCreatePropertyId("scriptId", (ulong)"scriptId".Length);
+                            var scriptIdHandle = Engine.JsGetProperty(objScriptHandle, scriptIdPropertyHandle);
 
-                        var scriptId = Engine.JsNumberToInt(scriptIdHandle);
+                            var scriptId = Engine.JsNumberToInt(scriptIdHandle);
 
-                        //Assert that we can get the source for the script id.
-                        var objSourceHandle = Engine.JsDiagGetSource((uint)scriptId);
-                        var sourcePropertyHandle = Engine.JsCreatePropertyId("source", (ulong)"source".Length);
-                        var sourceHandle = Engine.JsGetProperty(objSourceHandle, sourcePropertyHandle);
+                            //Assert that we can get the source for the script id.
+                            var objSourceHandle = Engine.JsDiagGetSource((uint)scriptId);
+                            var sourcePropertyHandle = Engine.JsCreatePropertyId("source", (ulong)"source".Length);
+                            var sourceHandle = Engine.JsGetProperty(objSourceHandle, sourcePropertyHandle);
 
-                        handleType = Engine.JsGetValueType(sourceHandle);
-                        Assert.True(handleType == JsValueType.String);
-                        var sourceLength = Engine.JsGetStringLength(sourceHandle);
+                            handleType = Engine.JsGetValueType(sourceHandle);
+                            Assert.True(handleType == JsValueType.String);
+                            var sourceLength = Engine.JsGetStringLength(sourceHandle);
 
-                        byte[] buffer = new byte[sourceLength];
-                        var written = Engine.JsCopyString(sourceHandle, buffer, (ulong)sourceLength);
-                        var source = Encoding.UTF8.GetString(buffer);
-                        Assert.Equal(fibonacci, source);
+                            byte[] buffer = new byte[sourceLength];
+                            var written = Engine.JsCopyString(sourceHandle, buffer, (ulong)sourceLength);
+                            var source = Encoding.UTF8.GetString(buffer);
+                            Assert.Equal(fibonacci, source);
 
 
-                        //Set a breakpoint with a knkown position
-                        var breakPointHandle = Engine.JsDiagSetBreakpoint((uint)scriptId, 5, 0);
+                            //Set a breakpoint with a knkown position
+                            var breakPointHandle = Engine.JsDiagSetBreakpoint((uint)scriptId, 5, 0);
 
-                        //Assert that the breakpoint has been set
-                        var breakpointsHandle = Engine.JsDiagGetBreakpoints();
-                        var objBreakpointHandle = Engine.JsGetIndexedProperty(breakpointsHandle, ix);
-                        var breakpointIdPropertyHandle = Engine.JsCreatePropertyId("breakpointId", (ulong)"breakpointId".Length);
-                        var breakpointIdHandle = Engine.JsGetProperty(objBreakpointHandle, breakpointIdPropertyHandle);
-                        var linePropertyHandle = Engine.JsCreatePropertyId("line", (ulong)"line".Length);
-                        var lineHandle = Engine.JsGetProperty(objBreakpointHandle, linePropertyHandle);
+                            //Assert that the breakpoint has been set
+                            var breakpointsHandle = Engine.JsDiagGetBreakpoints();
+                            var objBreakpointHandle = Engine.JsGetIndexedProperty(breakpointsHandle, ix);
+                            var breakpointIdPropertyHandle = Engine.JsCreatePropertyId("breakpointId", (ulong)"breakpointId".Length);
+                            var breakpointIdHandle = Engine.JsGetProperty(objBreakpointHandle, breakpointIdPropertyHandle);
+                            var linePropertyHandle = Engine.JsCreatePropertyId("line", (ulong)"line".Length);
+                            var lineHandle = Engine.JsGetProperty(objBreakpointHandle, linePropertyHandle);
 
-                        var line = Engine.JsNumberToInt(lineHandle);
-                        var breakPointId = Engine.JsNumberToInt(breakpointIdHandle);
+                            var line = Engine.JsNumberToInt(lineHandle);
+                            var breakPointId = Engine.JsNumberToInt(breakpointIdHandle);
 
-                        Assert.Equal(5, line);
-                        Assert.Equal(1, breakPointId);
+                            Assert.Equal(5, line);
+                            Assert.Equal(1, breakPointId);
 
-                        //Get/set the break on exception setting.
-                        var breakOnExceptionSetting = Engine.JsDiagGetBreakOnException(runtimeHandle);
-                        Assert.True(breakOnExceptionSetting == JavaScriptDiagBreakOnExceptionAttributes.Uncaught);
+                            //Get/set the break on exception setting.
+                            var breakOnExceptionSetting = Engine.JsDiagGetBreakOnException(runtimeHandle);
+                            Assert.True(breakOnExceptionSetting == JavaScriptDiagBreakOnExceptionAttributes.Uncaught);
 
-                        Engine.JsDiagSetBreakOnException(runtimeHandle, JavaScriptDiagBreakOnExceptionAttributes.None);
-                        breakOnExceptionSetting = Engine.JsDiagGetBreakOnException(runtimeHandle);
-                        Assert.True(breakOnExceptionSetting == JavaScriptDiagBreakOnExceptionAttributes.None);
+                            Engine.JsDiagSetBreakOnException(runtimeHandle, JavaScriptDiagBreakOnExceptionAttributes.None);
+                            breakOnExceptionSetting = Engine.JsDiagGetBreakOnException(runtimeHandle);
+                            Assert.True(breakOnExceptionSetting == JavaScriptDiagBreakOnExceptionAttributes.None);
 
-                        //Get the function position
-                        var fibonacciFunctionPositionHandle = Engine.JsDiagGetFunctionPosition(ss.FunctionHandle);
+                            //Get the function position
+                            var fibonacciFunctionPositionHandle = Engine.JsDiagGetFunctionPosition(ss.FunctionHandle);
 
-                        //Stringify the function position.
-                        var stringifiedFibonacciHandle = Engine.JsCallFunction(fnStringifyHandle, new IntPtr[] { globalObjectHandle.DangerousGetHandle(), fibonacciFunctionPositionHandle.DangerousGetHandle() }, 2);
-                        var stringifiedFibonacciLength = Engine.JsGetStringLength(stringifiedFibonacciHandle);
+                            //Stringify the function position.
+                            var stringifiedFibonacciHandle = Engine.JsCallFunction(fnStringifyHandle, new IntPtr[] { globalObjectHandle.DangerousGetHandle(), fibonacciFunctionPositionHandle.DangerousGetHandle() }, 2);
+                            var stringifiedFibonacciLength = Engine.JsGetStringLength(stringifiedFibonacciHandle);
 
-                        byte[] serializedFibonacciBuffer = new byte[stringifiedFibonacciLength];
-                        var stringifiedFibonacciWritten = Engine.JsCopyString(stringifiedFibonacciHandle, serializedFibonacciBuffer, (ulong)stringifiedFibonacciLength);
-                        fibonacciFunctionPosition = Encoding.UTF8.GetString(serializedFibonacciBuffer);
+                            byte[] serializedFibonacciBuffer = new byte[stringifiedFibonacciLength];
+                            var stringifiedFibonacciWritten = Engine.JsCopyString(stringifiedFibonacciHandle, serializedFibonacciBuffer, (ulong)stringifiedFibonacciLength);
+                            fibonacciFunctionPosition = Encoding.UTF8.GetString(serializedFibonacciBuffer);
 
-                        //Break on the first line
-                        Engine.JsDiagRequestAsyncBreak(runtimeHandle);
+                            //Break on the first line
+                            Engine.JsDiagRequestAsyncBreak(runtimeHandle);
 
-                        var finalResult = Engine.JsCallFunction(ss.FunctionHandle, new IntPtr[] { ss.FunctionHandle.DangerousGetHandle() }, 1);
-                        handleType = Engine.JsGetValueType(finalResult);
+                            var finalResult = Engine.JsCallFunction(ss.FunctionHandle, new IntPtr[] { ss.FunctionHandle.DangerousGetHandle() }, 1);
+                            handleType = Engine.JsGetValueType(finalResult);
 
-                        //Fib = 51, first break = 1, step = 1. 51+1+1 = 53
-                        Assert.Equal(53, calledCount);
+                            //Fib = 51, first break = 1, step = 1. 51+1+1 = 53
+                            Assert.Equal(53, calledCount);
 
-                        //Remove our previous breakpoint
-                        Engine.JsDiagRemoveBreakpoint((uint)breakPointId);
+                            //Remove our previous breakpoint
+                            Engine.JsDiagRemoveBreakpoint((uint)breakPointId);
 
-                        //Assert the breakpoint has been removed.
-                        breakpointsHandle = Engine.JsDiagGetBreakpoints();
-                        objBreakpointHandle = Engine.JsGetIndexedProperty(breakpointsHandle, ix);
-                        handleType = Engine.JsGetValueType(objBreakpointHandle);
-                        Assert.True(handleType == JsValueType.Undefined);
+                            //Assert the breakpoint has been removed.
+                            breakpointsHandle = Engine.JsDiagGetBreakpoints();
+                            objBreakpointHandle = Engine.JsGetIndexedProperty(breakpointsHandle, ix);
+                            handleType = Engine.JsGetValueType(objBreakpointHandle);
+                            Assert.True(handleType == JsValueType.Undefined);
 
-                        Engine.JsDiagStopDebugging(runtimeHandle);
+                            Engine.JsDiagStopDebugging(runtimeHandle);
+                        }
+
+                        Assert.True(firstLineHit);
+                        Assert.False(string.IsNullOrWhiteSpace(fibonacciFunctionPosition));
+                        Assert.False(string.IsNullOrWhiteSpace(firstFrameProperties));
+                        Assert.False(string.IsNullOrWhiteSpace(firstFrameChildren));
+                        Assert.Equal("fibonacci", firstStackObjectName);
+                        Assert.True(numDecrementing.Count == 51);
                     }
-
-                    Assert.True(firstLineHit);
-                    Assert.False(string.IsNullOrWhiteSpace(fibonacciFunctionPosition));
-                    Assert.False(string.IsNullOrWhiteSpace(firstFrameProperties));
-                    Assert.False(string.IsNullOrWhiteSpace(firstFrameChildren));
-                    Assert.Equal("fibonacci", firstStackObjectName);
-                    Assert.True(numDecrementing.Count == 51);
+                    finally
+                    {
+                        callbackHandle.Free();
+                    }
                 }
             }
         }

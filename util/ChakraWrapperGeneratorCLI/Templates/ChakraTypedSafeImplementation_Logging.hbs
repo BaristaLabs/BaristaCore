@@ -1,0 +1,36 @@
+﻿namespace BaristaLabs.BaristaCore.JavaScript
+{
+    using BaristaLabs.BaristaCore.Logging;
+	using Internal;
+
+	using System;
+	using System.Runtime.InteropServices;
+
+    [System.Diagnostics.DebuggerNonUserCode]
+    {{AccessModifier}} class {{ClassName}} : {{Interfaces}}
+    {
+        private static readonly ILog Logger = LogProvider.For<{{ClassName}}>();
+
+        {{#each Externs}}
+        public {{InterfaceExtern.ReturnParameter.Type}} {{InterfaceExtern.Name}}({{InterfaceExtern.Signature}})
+        {
+            Logger.Info("Entering {methodName}", "{{InterfaceExtern.Name}}");
+            Errors.ThrowIfError(LibChakraCore.{{Name}}({{CallSignature}}));
+            {{#each OutValueSafeHandles}}
+            {{Name}}.NativeFunctionSource = nameof(LibChakraCore.{{../Name}});
+            {{#unless IsWeakSafeHandle }}
+            if ({{Name}} != {{Type}}.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef({{Name}}, out uint valueRefCount));
+			}
+            {{/unless}}
+            {{/each}}
+            Logger.Info("Leaving {methodName}", "{{InterfaceExtern.Name}}");
+            {{#unless InterfaceExtern.ReturnParameter.IsVoid}}
+            return {{InterfaceExtern.ReturnParameter.Name}};
+            {{/unless}}
+        }
+
+        {{/#each}}
+    }
+}

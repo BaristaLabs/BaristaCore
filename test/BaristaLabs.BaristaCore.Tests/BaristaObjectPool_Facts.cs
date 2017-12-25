@@ -8,6 +8,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class BaristaObjectPool_Facts
     {
         private ServiceCollection m_serviceCollection;

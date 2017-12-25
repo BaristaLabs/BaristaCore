@@ -10,6 +10,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class JsObject_Dynamic_Facts
     {
         private readonly ServiceCollection ServiceCollection;
