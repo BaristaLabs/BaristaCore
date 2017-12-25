@@ -71,21 +71,7 @@
 
                             //Convert the args into the native args of the constructor.
                             var constructorParams = bestConstructor.GetParameters();
-                            var convertedArgs = new object[constructorParams.Length];
-                            for (int i = 0; i < constructorParams.Length; i++)
-                            {
-                                var currentParam = constructorParams[i];
-                                var arg = args.ElementAtOrDefault(i);
-                                try
-                                {
-                                    convertedArgs[i] = Convert.ChangeType(args[i], currentParam.ParameterType);
-                                }
-                                catch (Exception)
-                                {
-                                    //Something went wrong, use the default value.
-                                    convertedArgs[i] = currentParam.ParameterType.GetDefaultValue();
-                                }
-                            }
+                            var convertedArgs = ConvertArgsToParamTypes(args, constructorParams);
 
                             var newObj = bestConstructor.Invoke(convertedArgs);
                             externalObject = context.ValueFactory.CreateExternalObject(newObj);
@@ -271,21 +257,7 @@
 
                         //Convert the args into the native args of the method.
                         var methodParams = bestMethod.GetParameters();
-                        var convertedArgs = new object[methodParams.Length];
-                        for (int i = 0; i < methodParams.Length; i++)
-                        {
-                            var currentParam = methodParams[i];
-                            var arg = args.ElementAtOrDefault(i);
-                            try
-                            {
-                                convertedArgs[i] = Convert.ChangeType(args[i], currentParam.ParameterType);
-                            }
-                            catch (Exception)
-                            {
-                                //Something went wrong, use the default value.
-                                convertedArgs[i] = currentParam.ParameterType.GetDefaultValue();
-                            }
-                        }
+                        var convertedArgs = ConvertArgsToParamTypes(args, methodParams);
 
                         var result = bestMethod.Invoke(targetObj, convertedArgs);
                         if (context.Converter.TryFromObject(context, result, out JsValue resultValue))
@@ -309,6 +281,26 @@
                 functionDescriptor.SetProperty("value", fn);
                 context.Object.DefineProperty(targetObject, context.ValueFactory.CreateString(methodName), functionDescriptor);
             }
+        }
+
+        private object[] ConvertArgsToParamTypes(object[] args, ParameterInfo[] parameters)
+        {
+            var convertedArgs = new object[parameters.Length];
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                var currentParam = parameters[i];
+                var arg = args.ElementAtOrDefault(i);
+                try
+                {
+                    convertedArgs[i] = Convert.ChangeType(args[i], currentParam.ParameterType);
+                }
+                catch (Exception)
+                {
+                    //Something went wrong, use the default value.
+                    convertedArgs[i] = currentParam.ParameterType.GetDefaultValue();
+                }
+            }
+            return convertedArgs;
         }
     }
 }
