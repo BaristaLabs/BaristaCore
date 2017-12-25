@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.Extensions
 {
+    using BaristaLabs.BaristaCore.ModuleLoaders;
     using JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System.Collections.Generic;
@@ -14,10 +15,10 @@
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static IServiceCollection AddBaristaCore(this IServiceCollection services, IBaristaModuleLoader moduleService = null)
+        public static IServiceCollection AddBaristaCore(this IServiceCollection services, IBaristaModuleLoader moduleLoader = null)
         {
-            if (moduleService == null)
-                moduleService = new InMemoryModuleLoader();
+            if (moduleLoader == null)
+                moduleLoader = new InMemoryModuleLoader();
 
             services.AddSingleton<IJavaScriptEngineFactory, ChakraCoreFactory>();
             services.AddSingleton((provider) =>
@@ -25,13 +26,14 @@
                 var jsEngineFactory = provider.GetRequiredService<IJavaScriptEngineFactory>();
                 return jsEngineFactory.CreateJavaScriptEngine();
             });
-            services.AddSingleton(moduleService);
+            services.AddSingleton(moduleLoader);
             services.AddSingleton<IBaristaValueFactoryBuilder, BaristaValueFactoryBuilder>();
             services.AddSingleton<IBaristaRuntimeFactory, BaristaRuntimeFactory>();
-            
+            services.AddSingleton<IBaristaConversionStrategy, BaristaConversionStrategy>();
+            services.AddSingleton<IBaristaTypeConversionStrategy, BaristaTypeConversionStrategy>();
+
             services.AddTransient<IBaristaContextFactory, BaristaContextFactory>();
             services.AddTransient<IBaristaModuleRecordFactory, BaristaModuleRecordFactory>();
-            services.AddTransient<IBaristaConversionStrategy, BaristaConversionStrategy>();
             services.AddTransient<IPromiseTaskQueue, PromiseTaskQueue>();
 
             return services;

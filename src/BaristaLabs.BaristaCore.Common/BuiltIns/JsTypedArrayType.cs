@@ -1,9 +1,9 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
     /// <summary>
     ///     The type of a typed JavaScript array.
     /// </summary>
-    public enum JavaScriptTypedArrayType
+    public enum JsTypedArrayType
     {
         /// <summary>
         ///     An int8 array.

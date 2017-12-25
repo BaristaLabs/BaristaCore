@@ -449,7 +449,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <returns>
         ///     The type of the value.
         /// </returns>
-        JavaScriptValueType JsGetValueType(JavaScriptValueSafeHandle value);
+        JsValueType JsGetValueType(JavaScriptValueSafeHandle value);
 
         /// <summary>
         ///   Creates a number value from a double value.
@@ -887,7 +887,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <returns>
         ///     The external data back store for the object's indexed properties.
         /// </returns>
-        IntPtr JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out JavaScriptTypedArrayType arrayType, out uint elementLength);
+        IntPtr JsGetIndexedPropertiesExternalData(JavaScriptValueSafeHandle @object, out JsTypedArrayType arrayType, out uint elementLength);
 
         /// <summary>
         ///   Sets an object's indexed properties to external data. The external data will be used as back store for the object's indexed properties and accessed like a typed array.
@@ -907,7 +907,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <param name="elementLength">
         ///     The number of array elements in external data.
         /// </param>
-        void JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JavaScriptTypedArrayType arrayType, uint elementLength);
+        void JsSetIndexedPropertiesToExternalData(JavaScriptValueSafeHandle @object, IntPtr data, JsTypedArrayType arrayType, uint elementLength);
 
         /// <summary>
         ///   Compare two JavaScript values for equality.
@@ -1058,7 +1058,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <returns>
         ///     The new typed array object.
         /// </returns>
-        JavaScriptValueSafeHandle JsCreateTypedArray(JavaScriptTypedArrayType arrayType, JavaScriptValueSafeHandle baseArray, uint byteOffset, uint elementLength);
+        JavaScriptValueSafeHandle JsCreateTypedArray(JsTypedArrayType arrayType, JavaScriptValueSafeHandle baseArray, uint byteOffset, uint elementLength);
 
         /// <summary>
         ///   Creates a Javascript DataView object.
@@ -1098,7 +1098,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <returns>
         ///     The type of the array.
         /// </returns>
-        JavaScriptTypedArrayType JsGetTypedArrayInfo(JavaScriptValueSafeHandle typedArray, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength);
+        JsTypedArrayType JsGetTypedArrayInfo(JavaScriptValueSafeHandle typedArray, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength);
 
         /// <summary>
         ///   Obtains the underlying memory storage used by an ArrayBuffer.
@@ -1136,7 +1136,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     the array. The buffer pointer does not count as a reference to the array for the purpose
         ///     of garbage collection.
         /// </returns>
-        IntPtr JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out uint bufferLength, out JavaScriptTypedArrayType arrayType, out int elementSize);
+        IntPtr JsGetTypedArrayStorage(JavaScriptValueSafeHandle typedArray, out uint bufferLength, out JsTypedArrayType arrayType, out int elementSize);
 
         /// <summary>
         ///   Obtains the underlying memory storage used by a DataView.

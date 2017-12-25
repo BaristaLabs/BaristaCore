@@ -9,9 +9,9 @@
         {
         }
 
-        public override JavaScriptValueType Type
+        public override JsValueType Type
         {
-            get { return JavaScriptValueType.Error; }
+            get { return JsValueType.Error; }
         }
 
         public string Message

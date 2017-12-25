@@ -86,14 +86,7 @@
             //Set the event that will be called prior to the engine collecting the context.
             JavaScriptObjectBeforeCollectCallback beforeCollectCallback = (IntPtr handle, IntPtr callbackState) =>
             {
-                try
-                {
-                    OnBeforeCollect(handle, callbackState);
-                }
-                catch
-                {
-                    // Do Nothing.
-                }
+                OnBeforeCollect(handle, callbackState);
             };
 
             m_beforeCollectCallbackDelegateHandle = GCHandle.Alloc(beforeCollectCallback);
@@ -443,6 +436,7 @@ let global = (new Function('return this;'))();
             {
                 //Unset the before collect callback.
                 Engine.JsSetObjectBeforeCollectCallback(Handle, IntPtr.Zero, null);
+                m_beforeCollectCallbackDelegateHandle.Free();
             }
 
             base.Dispose(disposing);

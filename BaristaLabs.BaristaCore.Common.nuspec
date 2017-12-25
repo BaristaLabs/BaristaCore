@@ -2,21 +2,22 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
     <id>BaristaLabs.BaristaCore.Common</id>
-    <version>1.0.0-beta4</version>
+    <version>1.0.0-beta5</version>
     <authors>Sean McLellan</authors>
     <owners>BaristaLabs, LLC</owners>
     <licenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/BaristaLabs/BaristaCore</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <developmentDependency>true</developmentDependency>
-    <description>Provides a high-level wrapper around Chakra, the JavaScript engine that powers Microsoft Edge, allowing for a fully managed and sandboxed JavaScript-based scripting environment.</description>
+    <description>Provides a high-level wrapper around Chakra, the JavaScript engine that powers Microsoft Edge, allowing for a fully managed and sandboxed JavaScript-based scripting environment.
+	For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application</description>
     <releaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</releaseNotes>
     <copyright>Copyright (c) 2017 BaristaLabs, LLC</copyright>
     <language>en-US</language>
     <tags>Barista,BaristaCore,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-		  <dependency id="BaristaLabs.BaristaCore.ChakraCore" version="1.7.5" />
+		  <dependency id="Microsoft.Extensions.DependencyInjection" version="2.0.0" />
 	  </group>
     </dependencies>
   </metadata>

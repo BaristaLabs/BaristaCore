@@ -8,22 +8,6 @@
     public interface IBaristaModule
     {
         /// <summary>
-        /// Gets the name of the module.
-        /// </summary>
-        string Name
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Gets the description of the module.
-        /// </summary>
-        string Description
-        {
-            get;
-        }
-
-        /// <summary>
         /// Gets the default export of the module given the specified scope and referencing module.
         /// </summary>
         /// <param name="context">The current BaristaContext</param>

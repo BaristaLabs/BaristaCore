@@ -47,11 +47,11 @@
             JsErrorCode innerError;
 
             //Get the error object type
-            innerError = LibChakraCore.JsGetValueType(error, out JavaScriptValueType errorType);
+            innerError = LibChakraCore.JsGetValueType(error, out JsValueType errorType);
 
             switch (errorType)
             {
-                case JavaScriptValueType.Error:
+                case JsValueType.Error:
                     //Get the message of the Script Error.            
                     innerError = LibChakraCore.JsCreatePropertyId(MessagePropertyName, (ulong)MessagePropertyName.Length, out JavaScriptPropertyIdSafeHandle messagePropertyHandle);
                     innerError = LibChakraCore.JsHasProperty(error, messagePropertyHandle, out bool hasMessageProperty);
@@ -62,7 +62,7 @@
                         m_message = Helpers.GetStringUtf8(messageValue, releaseHandle: true);
                     }
                     break;
-                case JavaScriptValueType.String:
+                case JsValueType.String:
                     m_message = Helpers.GetStringUtf8(error);
                     break;
             }

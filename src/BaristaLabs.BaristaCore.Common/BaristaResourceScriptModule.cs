@@ -8,34 +8,41 @@
     /// <summary>
     /// Represents a module that returns scripts from a resource file
     /// </summary>
-    public class BaristaResourceScriptModule : IBaristaScriptModule
+    [BaristaModule("ResourceScriptModule", "Built-in module that allows for specifying a script as coming from a resource.")]
+
+    public sealed class BaristaResourceScriptModule : IBaristaScriptModule
     {
         private readonly ResourceManager m_resourceManager;
+        private readonly string m_name;
+        private readonly string m_description;
 
-        public BaristaResourceScriptModule(ResourceManager resourceManager)
+        public BaristaResourceScriptModule(string name, ResourceManager resourceManager, string description = null)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name));
+
+            m_name = name;
             m_resourceManager = resourceManager ?? throw new ArgumentNullException(nameof(resourceManager));
+            m_description = description;
         }
 
         /// <summary>
-        /// Gets or sets the name of the script module.
+        /// Gets the name of the script module.
         /// </summary>
-        public virtual string Name
+        public string Name
         {
-            get;
-            set;
+            get { return m_name; }
         }
 
         /// <summary>
-        /// Gets or sets the description of the script module.
+        /// Gets the description of the script module.
         /// </summary>
-        public virtual string Description
+        public string Description
         {
-            get;
-            set;
+            get { return m_description; }
         }
 
-        public virtual ResourceManager ResourceManager
+        public ResourceManager ResourceManager
         {
             get { return m_resourceManager; }
         }
@@ -43,7 +50,7 @@
         /// <summary>
         /// Gets or sets the culture that the resource will be retrieved for.
         /// </summary>
-        public virtual CultureInfo ResourceCulture
+        public CultureInfo ResourceCulture
         {
             get;
             set;
@@ -52,7 +59,7 @@
         /// <summary>
         /// Gets or sets the name of the resource that will be used.
         /// </summary>
-        public virtual string ResourceName
+        public string ResourceName
         {
             get;
             set;

@@ -2,7 +2,6 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
-    using System.Diagnostics;
     using System.Dynamic;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -29,6 +28,11 @@
             m_context = context ?? throw new ArgumentNullException(nameof(context));
             m_javaScriptReference = valueHandle ?? throw new ArgumentNullException(nameof(valueHandle));
 
+            //Let's just make sure that we're the correct type.
+            var reportedType = engine.JsGetValueType(valueHandle);
+            //if (reportedType != Type)
+            //    throw new InvalidOperationException($"The underlying type ({reportedType}) does not match the type that is being created ({Type}). Ensure that correct value is being created.");
+
             //Set the event that will be called prior to the engine collecting the value.
             if ((this is JsNumber) == false)
             {
@@ -46,6 +50,7 @@
                 };
 
                 m_beforeCollectCallbackDelegateHandle = GCHandle.Alloc(beforeCollectCallback);
+                //An exception thrown here is usually due to trying to associate a callback to a JsNumber.
                 Engine.JsSetObjectBeforeCollectCallback(valueHandle, IntPtr.Zero, beforeCollectCallback);
             }
         }
@@ -74,9 +79,6 @@
         {
             get
             {
-                if (IsDisposed)
-                    throw new ObjectDisposedException(nameof(JsValue));
-
                 return m_javaScriptReference;
             }
         }
@@ -84,7 +86,7 @@
         /// <summary>
         /// Gets the value type.
         /// </summary>
-        public abstract JavaScriptValueType Type
+        public abstract JsValueType Type
         {
             get;
         }

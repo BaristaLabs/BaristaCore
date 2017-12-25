@@ -65,7 +65,7 @@ moose;
                         var evalResultHandle = Engine.JsDiagEvaluate(evalScript, 0, JavaScriptParseScriptAttributes.None, false);
                         
                         var handleType = Engine.JsGetValueType(evalResultHandle);
-                        Assert.Equal(JavaScriptValueType.Object, handleType);
+                        Assert.Equal(JsValueType.Object, handleType);
 
                         var valuePropertyHandle = CommonWindowsEngine.JsGetPropertyIdFromName("value");
                         var valueHandle = Engine.JsGetProperty(evalResultHandle, valuePropertyHandle);
@@ -94,7 +94,7 @@ moose;
 
                         var finalResult = Engine.JsCallFunction(ss.FunctionHandle, new IntPtr[] { ss.FunctionHandle.DangerousGetHandle() }, 1);
                         var handleType = Engine.JsGetValueType(finalResult);
-                        Assert.Equal(JavaScriptValueType.Number, handleType);
+                        Assert.Equal(JsValueType.Number, handleType);
                         
                         Engine.JsDiagStopDebugging(runtimeHandle);
                     }

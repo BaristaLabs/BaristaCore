@@ -37,7 +37,7 @@
                     {
                         var obj = ctx.ValueFactory.CreateObject();
                         Assert.True(obj != null);
-                        Assert.Equal(JavaScript.JavaScriptValueType.Object, obj.Type);
+                        Assert.Equal(JsValueType.Object, obj.Type);
                     }
                 }
             }

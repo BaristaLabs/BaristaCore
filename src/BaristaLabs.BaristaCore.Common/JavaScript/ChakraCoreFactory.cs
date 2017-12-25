@@ -1,7 +1,9 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
+    [ExcludeFromCodeCoverage]
     public class ChakraCoreFactory : IJavaScriptEngineFactory
     {
         public IJavaScriptEngine CreateJavaScriptEngine()

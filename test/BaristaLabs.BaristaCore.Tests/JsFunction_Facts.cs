@@ -39,7 +39,7 @@ export default () => 'hello, world';
                     {
                         var result = ctx.EvaluateModule<JsFunction>(script);
                         Assert.NotNull(result);
-                        Assert.Equal(JavaScript.JavaScriptValueType.Function, result.Type);
+                        Assert.Equal(JsValueType.Function, result.Type);
                         Assert.True(result.ToString() == "() => 'hello, world'");
                     }
                 }

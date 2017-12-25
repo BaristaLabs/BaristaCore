@@ -1,5 +1,6 @@
-﻿namespace BaristaLabs.BaristaCore
+﻿namespace BaristaLabs.BaristaCore.ModuleLoaders
 {
+    using BaristaLabs.BaristaCore.Extensions;
     using System;
     using System.Collections.Generic;
 
@@ -12,13 +13,18 @@
 
         public void RegisterModule(IBaristaModule module)
         {
-            if (string.IsNullOrWhiteSpace(module.Name))
+            if (module == null)
+                throw new ArgumentNullException(nameof(module));
+
+            var name = module.GetModuleName();
+
+            if (string.IsNullOrWhiteSpace(name))
                 throw new InvalidOperationException("The specfied module must indicate a name.");
 
-            if (m_modules.ContainsKey(module.Name))
-                throw new InvalidOperationException("A module with the specified name has already been registered.");
+            if (m_modules.ContainsKey(name))
+                throw new InvalidOperationException($"A module with the specified name ({name}) has already been registered.");
 
-            m_modules.Add(module.Name, module);
+            m_modules.Add(name, module);
         }
 
         public IBaristaModule GetModule(string name)

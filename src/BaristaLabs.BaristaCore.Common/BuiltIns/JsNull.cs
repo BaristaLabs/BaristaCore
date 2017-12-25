@@ -12,9 +12,9 @@
         {
         }
 
-        public override JavaScriptValueType Type
+        public override JsValueType Type
         {
-            get { return JavaScriptValueType.Null; }
+            get { return JsValueType.Null; }
         }
     }
 }

@@ -95,6 +95,16 @@
             }
         }
 
+
+        /// <summary>
+        /// Sets the runtime of the current context to an exception state.
+        /// </summary>
+        /// <param name="error"></param>
+        public void SetException(JsError error)
+        {
+            m_context.Engine.JsSetException(error.Handle);
+        }
+
         private void PromiseContinuationCallback(IntPtr taskHandle, IntPtr callbackState)
         {
             if (m_promiseTaskQueue == null)

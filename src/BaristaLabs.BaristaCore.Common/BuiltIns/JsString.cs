@@ -9,9 +9,9 @@
         {
         }
 
-        public override JavaScriptValueType Type
+        public override JsValueType Type
         {
-            get { return JavaScriptValueType.String; }
+            get { return JsValueType.String; }
         }
     }
 }

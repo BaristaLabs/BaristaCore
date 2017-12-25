@@ -4,11 +4,10 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
     using System.Linq;
-    using System.Diagnostics;
-    using System.Runtime.InteropServices;
     using System.Reflection;
-    using System.Threading.Tasks;
+    using System.Runtime.InteropServices;
     using System.Threading;
+    using System.Threading.Tasks;
 
     public sealed class BaristaValueFactory : IBaristaValueFactory
     {
@@ -103,18 +102,72 @@
             return CreateValue<JsError>(errorHandle);
         }
 
-        public JsFunction CreateFunction(Delegate func)
+        public JsExternalObject CreateExternalObject(object obj)
+        {
+            //TODO: Set the Callback to a static method and remove it from the value.
+            GCHandle objHandle = GCHandle.Alloc(obj);
+            var xoHandle = m_engine.JsCreateExternalObject(GCHandle.ToIntPtr(objHandle), null);
+
+            //this is a special case where we cannot use our CreateValue<> method.
+            return m_valuePool.GetOrAdd(xoHandle, () =>
+            {
+                var jsExternalObject = new JsExternalObject(m_engine, Context, xoHandle, objHandle);
+                jsExternalObject.BeforeCollect += JsValueBeforeCollectCallback;
+                return jsExternalObject;
+            }) as JsExternalObject;
+        }
+
+        public JsFunction CreateFunction(Delegate func, string name = null)
         {
             if (func == null)
                 throw new ArgumentNullException(nameof(func));
 
+            JavaScriptNativeFunction fnDelegate;
+            switch(func)
+            {
+                case BaristaFunctionDelegate fnBaristaFunctionDelegate:
+                    fnDelegate = CreateNativeFunctionForDelegate(fnBaristaFunctionDelegate);
+                    break;
+                default:
+                    fnDelegate = CreateNativeFunctionForDelegate(func);
+                    break;
+            }
+
+            JavaScriptValueSafeHandle fnHandle;
+            if (String.IsNullOrWhiteSpace(name))
+            {
+                fnHandle = m_engine.JsCreateFunction(fnDelegate, IntPtr.Zero);
+            }
+            else
+            {
+                var nameValue = CreateString(name);
+                fnHandle = m_engine.JsCreateNamedFunction(nameValue.Handle, fnDelegate, IntPtr.Zero);
+            }
+            
+
+            //this is a special case where we cannot use our CreateValue<> method.
+            return m_valuePool.GetOrAdd(fnHandle, () =>
+            {
+                var jsNativeFunction = new JsNativeFunction(m_engine, Context, fnHandle, fnDelegate);
+                jsNativeFunction.BeforeCollect += JsValueBeforeCollectCallback;
+                return jsNativeFunction;
+            }) as JsNativeFunction;
+        }
+
+        /// <summary>
+        /// Returns a delegate that will attempt to coerce supplied arguments into the specified delegate and return the result.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        private JavaScriptNativeFunction CreateNativeFunctionForDelegate(Delegate func)
+        {
             //This is crazy fun.
             var funcParams = func.Method.GetParameters();
             JavaScriptNativeFunction fnDelegate = (IntPtr callee, bool isConstructCall, IntPtr[] arguments, ushort argumentCount, IntPtr callbackData) =>
             {
                 //Make sure that we have argument values for each parameter.
                 var nativeArgs = new object[funcParams.Length];
-                for(int i = 0; i < funcParams.Length; i++)
+                for (int i = 0; i < funcParams.Length; i++)
                 {
                     var targetParameterType = funcParams[i].ParameterType;
 
@@ -131,13 +184,23 @@
 
                         var argValueHandle = new JavaScriptValueSafeHandle(currentArgument);
                         var jsValue = CreateValue(argValueHandle);
-                        if (Context.Converter.TryToObject(Context, jsValue, out object obj))
+                        //Keep the first argument as the this JsObject.
+                        if (i == 0)
+                        {
+                            nativeArgs[i] = jsValue as JsObject;
+                        }
+                        //If the target type is the same as the value type (The delegate expects a JsValue) don't convert.
+                        else if (targetParameterType == jsValue.GetType())
+                        {
+                            nativeArgs[i] = jsValue;
+                        }
+                        else if (Context.Converter.TryToObject(Context, jsValue, out object obj))
                         {
                             try
                             {
                                 nativeArgs[i] = Convert.ChangeType(obj, targetParameterType);
                             }
-                            catch(Exception)
+                            catch (Exception)
                             {
                                 //Something went wrong, use the default value.
                                 nativeArgs[i] = targetParameterType.GetDefaultValue();
@@ -163,7 +226,7 @@
                         return Context.Undefined.Handle.DangerousGetHandle();
                     }
                 }
-                catch(TargetInvocationException exceptionResult)
+                catch (TargetInvocationException exceptionResult)
                 {
                     var jsError = CreateError(exceptionResult.InnerException);
                     m_engine.JsSetException(jsError.Handle);
@@ -171,15 +234,64 @@
                 }
             };
 
-            var fnHandle = m_engine.JsCreateFunction(fnDelegate, IntPtr.Zero);
+            return fnDelegate;
+        }
 
-            //this is a special case where we cannot use our CreateValue<> method.
-            return m_valuePool.GetOrAdd(fnHandle, () =>
+        /// <summary>
+        /// Returns a delegate that attempts to convert supplied arguments into a BaristaDelegate and returns the result.
+        /// </summary>
+        /// <param name="functionDelegate"></param>
+        /// <returns></returns>
+        private JavaScriptNativeFunction CreateNativeFunctionForDelegate(BaristaFunctionDelegate functionDelegate)
+        {
+            JavaScriptNativeFunction fnDelegate = (IntPtr callee, bool isConstructCall, IntPtr[] arguments, ushort argumentCount, IntPtr callbackData) =>
             {
-                var jsNativeFunction = new JsNativeFunction(m_engine, Context, fnHandle, fnDelegate);
-                jsNativeFunction.BeforeCollect += JsValueBeforeCollectCallback;
-                return jsNativeFunction;
-            }) as JsNativeFunction;
+                //Convert each argument into a native object.
+                var nativeArgs = new object[argumentCount-1];
+                JsObject thisObj = null;
+                for (int i = 0; i < argumentCount; i++)
+                {
+                    var currentArgument = arguments[i];
+                    var argValueHandle = new JavaScriptValueSafeHandle(currentArgument);
+                    var jsValue = CreateValue(argValueHandle);
+                    if (i == 0)
+                    {
+                        thisObj = jsValue as JsObject;
+                    }
+                    else
+                    {
+                        if (Context.Converter.TryToObject(Context, jsValue, out object obj))
+                        {
+                            nativeArgs[i-1] = obj;
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException($"Unable to covert argument {i} into a value.");
+                        }
+                    }
+                }
+
+                try
+                {
+                    var nativeResult = functionDelegate.DynamicInvoke(isConstructCall, thisObj, nativeArgs);
+                    if (Context.Converter.TryFromObject(Context, nativeResult, out JsValue valueResult))
+                    {
+                        return valueResult.Handle.DangerousGetHandle();
+                    }
+                    else
+                    {
+                        return Context.Undefined.Handle.DangerousGetHandle();
+                    }
+                }
+                catch (TargetInvocationException exceptionResult)
+                {
+                    var jsError = CreateError(exceptionResult.InnerException);
+                    m_engine.JsSetException(jsError.Handle);
+                    return Context.Undefined.Handle.DangerousGetHandle();
+                }
+            };
+
+            return fnDelegate;
         }
 
         public JsNumber CreateNumber(double number)
@@ -212,46 +324,45 @@
         {
             //Create a promise
             var promise = CreatePromise(out JsFunction resolve, out JsFunction reject);
-            task.ContinueWith((t) =>
-            {
-                if (t.IsCanceled || t.IsFaulted)
-                {
-                    if (Context.Converter.TryFromObject(Context, t.Exception, out JsValue rejectValue))
+
+            //Start the task.
+            Context.TaskFactory.StartNew(
+                () => {
+                    //Wait the task and continue with our logic so that we're assured that all is running from the same thread.
+                    Task.WaitAny(task);
+
+                    if (task.IsCanceled || task.IsFaulted)
                     {
-                        reject.Call(GetGlobalObject(), rejectValue);
+                        if (Context.Converter.TryFromObject(Context, task.Exception, out JsValue rejectValue))
+                        {
+                            reject.Call(GetGlobalObject(), rejectValue);
+                        }
+                        else
+                        {
+                            reject.Call(GetGlobalObject(), GetUndefinedValue());
+                        }
+                    }
+
+                    var taskType = task.GetType();
+                    if (taskType.IsGenericType == false || taskType.GetGenericTypeDefinition() != typeof(Task<>))
+                    {
+                        resolve.Call(GetGlobalObject(), GetUndefinedValue());
+                        return;
+                    }
+
+                    var resultProperty = taskType.GetProperty("Result");
+                    var result = resultProperty.GetValue(task);
+
+                    //If we got an object back attempt to convert it into a JsValue and call the resolve method with the value.
+                    if (Context.Converter.TryFromObject(Context, result, out JsValue resolveValue))
+                    {
+                        resolve.Call(GetGlobalObject(), resolveValue);
                     }
                     else
                     {
-                        reject.Call(GetGlobalObject(), GetUndefinedValue());
+                        resolve.Call(GetGlobalObject(), GetUndefinedValue());
                     }
-                }
-
-                var resultType = t.GetType();
-                var resultProperty = resultType.GetProperty("Result");
-                if (resultProperty == null)
-                {
-                    resolve.Call(GetGlobalObject(), GetNullValue());
-                    return;
-                }
-
-                var result = resultProperty.GetValue(t);
-
-                //If we got an object back attempt to convert it into a JsValue and call the resolve method with the value.
-                if (Context.Converter.TryFromObject(Context, result, out JsValue resolveValue))
-                {
-                    resolve.Call(GetGlobalObject(), resolveValue);
-                }
-                else
-                {
-                    resolve.Call(GetGlobalObject(), GetUndefinedValue());
-                }
-
-            }, Context.TaskFactory.Scheduler);
-
-            //Start the task.
-            
-            Context.TaskFactory.StartNew(
-                () => { return task; },
+                },
                 CancellationToken.None,
                 TaskCreationOptions.DenyChildAttach,
                 Context.TaskFactory.Scheduler);
@@ -281,6 +392,13 @@
             return CreateValue<JsSymbol>(symbolHandle);
         }
 
+        public JsError CreateTypeError(string message)
+        {
+            var messageHandle = CreateString(message);
+            var errorHandle = m_engine.JsCreateTypeError(messageHandle.Handle);
+            return CreateValue<JsError>(errorHandle);
+        }
+
         /// <summary>
         /// Returns a new JavaScriptValue for the specified handle querying for the handle's value type.
         /// </summary>
@@ -288,7 +406,7 @@
         /// Use the valueType parameter carefully. If the resulting type does not match the handle type unexpected issues may occur.
         /// </remarks>
         /// <returns>The JavaScript Value that represents the handle</returns>
-        public JsValue CreateValue(JavaScriptValueSafeHandle valueHandle, JavaScriptValueType? valueType = null)
+        public JsValue CreateValue(JavaScriptValueSafeHandle valueHandle, JsValueType? valueType = null)
         {
             if (valueHandle == JavaScriptValueSafeHandle.Invalid)
                 return null;
@@ -303,43 +421,43 @@
                 JsValue result;
                 switch (valueType.Value)
                 {
-                    case JavaScriptValueType.Array:
+                    case JsValueType.Array:
                         result = new JsArray(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.ArrayBuffer:
+                    case JsValueType.ArrayBuffer:
                         result = new JsArrayBuffer(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Boolean:
+                    case JsValueType.Boolean:
                         result = new JsBoolean(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.DataView:
+                    case JsValueType.DataView:
                         result = new JsDataView(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Error:
+                    case JsValueType.Error:
                         result = new JsError(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Function:
+                    case JsValueType.Function:
                         result = new JsFunction(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Null:
+                    case JsValueType.Null:
                         result = new JsNull(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Number:
+                    case JsValueType.Number:
                         result = new JsNumber(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Object:
+                    case JsValueType.Object:
                         result = new JsObject(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.String:
+                    case JsValueType.String:
                         result = new JsString(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Symbol:
+                    case JsValueType.Symbol:
                         result = new JsSymbol(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.TypedArray:
+                    case JsValueType.TypedArray:
                         result = new JsTypedArray(m_engine, Context, valueHandle);
                         break;
-                    case JavaScriptValueType.Undefined:
+                    case JsValueType.Undefined:
                         result = new JsUndefined(m_engine, Context, valueHandle);
                         break;
                     default:
@@ -382,6 +500,12 @@
                 else if (typeof(JsNull).IsSameOrSubclass(targetType))
                 {
                     result = new JsNull(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsExternalObject).IsSameOrSubclass(targetType))
+                {
+                    //TODO: This isn't exactly true, we should set the ExternalData to the GCHandle.
+                    //Then we can new JsExternalObject(m_engine, Context, valueHandle, Engine.GetExternalData(valueHandle));
+                    throw new InvalidOperationException("External Objects must first be created by ...");
                 }
                 else
                 {

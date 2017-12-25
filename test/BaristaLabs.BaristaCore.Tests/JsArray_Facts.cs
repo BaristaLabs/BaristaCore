@@ -39,7 +39,7 @@
                     {
                         var arr = ctx.ValueFactory.CreateArray(50);
                         Assert.True(arr != null);
-                        Assert.Equal(JavaScript.JavaScriptValueType.Array, arr.Type);
+                        Assert.Equal(JsValueType.Array, arr.Type);
                     }
                 }
             }

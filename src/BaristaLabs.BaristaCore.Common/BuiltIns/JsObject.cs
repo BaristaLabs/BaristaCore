@@ -1,12 +1,12 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
+    using BaristaLabs.BaristaCore.Extensions;
+    using BaristaLabs.BaristaCore.JavaScript;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Dynamic;
     using System.Linq;
-    using BaristaLabs.BaristaCore.Extensions;
-    using BaristaLabs.BaristaCore.JavaScript;
 
     public class JsObjectConstructor : JsObject
     {
@@ -22,6 +22,37 @@
                 var result = GetProperty<JsNumber>("length");
                 return result.ToInt32();
             }
+        }
+
+        /// <summary>
+        /// Returns a new object with the specified prototype object and properties.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create"/>
+        /// </remarks>
+        /// <param name="proto">The object which should be the prototype of the newly-created object.</param>
+        /// <param name="propertiesObject">Optional. If specified and not undefined, an object whose enumerable own properties (that is, those properties defined upon itself and not enumerable properties along its prototype chain) specify property descriptors to be added to the newly-created object, with the corresponding property names. These properties correspond to the second argument of Object.defineProperties().</param>
+        /// <returns>A new object with the specified prototype object and properties.</returns>
+        public JsObject Create(JsObject proto, JsObject propertiesObject = null)
+        {
+            var result = GetProperty<JsFunction>("create");
+            return result.Call<JsObject>(this, proto, propertiesObject);
+        }
+
+        /// <summary>
+        /// Defines a new property directly on an object, or modifies an existing property on an object, and returns the object.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty"/>
+        /// </remarks>
+        /// <param name="obj">The object on which to define the property.</param>
+        /// <param name="prop">The name of the property to be defined or modified.</param>
+        /// <param name="descriptor">The descriptor for the property being defined or modified.</param>
+        /// <returns></returns>
+        public JsObject DefineProperty(JsObject obj, JsString prop, JsObject descriptor)
+        {
+            var result = GetProperty<JsFunction>("defineProperty");
+            return result.Call<JsObject>(this, obj, prop, descriptor);
         }
 
         /// <summary>
@@ -94,6 +125,21 @@
         #endregion
 
         #region Properties
+        /// <summary>
+        /// Gets or sets the function that creates an object's prototype.
+        /// </summary>
+        public JsFunction Constructor
+        {
+            get
+            {
+                return GetProperty<JsFunction>("constructor");
+            }
+            set
+            {
+                SetProperty("constructor", value);
+            }
+        }
+
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public JsArray Keys
         {
@@ -113,9 +159,24 @@
             }
         }
 
-        public override JavaScriptValueType Type
+        /// <summary>
+        /// Gets or sets the object's prototype object.
+        /// </summary>
+        public JsObject Prototype
         {
-            get { return JavaScriptValueType.Object; }
+            get
+            {
+                return GetProperty<JsObject>("prototype");
+            }
+            set
+            {
+                SetProperty("prototype", value);
+            }
+        }
+
+        public override JsValueType Type
+        {
+            get { return JsValueType.Object; }
         }
 
         // <summary>

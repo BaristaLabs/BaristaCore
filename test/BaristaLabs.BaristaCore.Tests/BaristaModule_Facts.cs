@@ -2,7 +2,8 @@
 {
     using BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.JavaScript;
-    using BaristaLabs.BaristaCore.JavaScript.Extensions;
+    using BaristaLabs.BaristaCore.ModuleLoaders;
+    using BaristaLabs.BaristaCore.Tests.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -55,7 +56,7 @@
                         {
                             Assert.Throws<ArgumentNullException>(() =>
                             {
-                                var mod = new BaristaModuleRecord(null, null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
+                                var mod = new BaristaModuleRecord(null, specifier.Handle, null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
                             });
                         }
                         finally
@@ -90,7 +91,7 @@
                         {
                             Assert.Throws<ArgumentNullException>(() =>
                             {
-                                var mod = new BaristaModuleRecord("", null, rt.Engine, null, moduleRecordFactory, moduleLoader, moduleHandle);
+                                var mod = new BaristaModuleRecord("", null, null, rt.Engine, null, moduleRecordFactory, moduleLoader, moduleHandle);
                             });
                         }
                         finally
@@ -125,7 +126,7 @@
                         {
                             Assert.Throws<ArgumentNullException>(() =>
                             {
-                                var mod = new BaristaModuleRecord("", null, rt.Engine, ctx, null, moduleLoader, moduleHandle);
+                                var mod = new BaristaModuleRecord("", specifier.Handle, null, rt.Engine, ctx, null, moduleLoader, moduleHandle);
                             });
                         }
                         finally
@@ -158,7 +159,7 @@
 
                         try
                         {
-                            var mod = new BaristaModuleRecord("", null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
+                            var mod = new BaristaModuleRecord("", specifier.Handle, null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
                             mod.ParseModuleSource("export default 'hello, world!'");
                             Assert.True(mod.IsReady);
                         }
@@ -192,7 +193,7 @@
 
                         try
                         {
-                            var mod = new BaristaModuleRecord("foo", null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
+                            var mod = new BaristaModuleRecord("foo", specifier.Handle, null, rt.Engine, ctx, moduleRecordFactory, moduleLoader, moduleHandle);
                             mod.ParseModuleSource("import foo from 'foo'; export default 'hello, world!'");
                             Assert.True(mod.IsReady);
                         }
@@ -369,9 +370,8 @@ export default soAmazing;
 import banana from 'banana';
 export default 'hello, world! ' + banana;
 ";
-            var bananaModule = new BaristaScriptModule
+            var bananaModule = new BaristaScriptModule("banana")
             {
-                Name = "banana",
                 Script = @"
 export default 'banana';
 "
@@ -400,9 +400,8 @@ export default 'banana';
 import banana from 'banana';
 export default 'hello, world! ' + banana;
 ";
-            var bananaModule = new BaristaResourceScriptModule(Properties.Resources.ResourceManager)
+            var bananaModule = new BaristaResourceScriptModule("banana", Properties.Resources.ResourceManager)
             {
-                Name = "banana",
                 ResourceName = "String1"
             };
 
@@ -429,9 +428,8 @@ export default 'hello, world! ' + banana;
 import banana from 'banana';
 export default 'hello, world! ' + banana;
 ";
-            var bananaModule = new BaristaScriptModule
+            var bananaModule = new BaristaScriptModule("banana")
             {
-                Name = "banana",
                 Script = null
             };
 
@@ -458,9 +456,8 @@ export default 'hello, world! ' + banana;
 import banana from 'banana';
 export default 'hello, world! ' + banana;
 ";
-            var bananaModule = new BaristaScriptModule
+            var bananaModule = new BaristaScriptModule("banana")
             {
-                Name = "banana",
                 Script = @"
 import banana from 'banana'
 export default 'banana' + ' ' + banana;
@@ -491,9 +488,8 @@ export default 'banana' + ' ' + banana;
 import banana from 'badbanana';
 export default 'hello, world! ' + banana;
 ";
-            var bananaModule = new BaristaScriptModule
+            var bananaModule = new BaristaScriptModule("badbanana")
             {
-                Name = "badbanana",
                 Script = @"
 export default asdf@11;
 "
@@ -517,7 +513,7 @@ export default asdf@11;
         }
 
         [Fact]
-        public void JsModulesCanReturnJsValues()
+        public void BaristaModulesCanReturnJsValues()
         {
             var script = @"
         import helloworld from 'hello_world';
@@ -538,7 +534,7 @@ export default asdf@11;
         }
 
         [Fact]
-        public void JsModulesCanReturnSafeHandles()
+        public void BaristaModulesCanReturnSafeHandles()
         {
             var script = @"
         import reverse from 'reverse';
@@ -562,7 +558,7 @@ export default asdf@11;
 
 
         [Fact]
-        public void JsModulesCanReturnNativeObjects()
+        public void BaristaModulesCanReturnNativeObjects()
         {
             var script = @"
         import fourtytwo from 'FourtyTwo';
@@ -584,7 +580,7 @@ export default asdf@11;
         }
 
         [Fact]
-        public void JsFawltyModulesWillThrow()
+        public void BaristaFawltyModulesWillThrow()
         {
             var script = @"
         import derp from 'Fawlty';
@@ -606,7 +602,17 @@ export default asdf@11;
         }
 
         [Fact]
-        public void JsModulesWithUnconvertableDefaultExportsWillThrow()
+        public void BaristaModulesThatDoNotProvideAnAttributeWillThrow()
+        {
+            var noAttributeModule = new NoBaristaModuleAttributeModule();
+            Assert.Throws<BaristaModuleMissingAttributeException>(() =>
+            {
+                ModuleLoader.RegisterModule(noAttributeModule);
+            });
+        }
+
+        [Fact]
+        public void BaristaModulesWithUnconvertableDefaultExportsWillThrow()
         {
             var script = @"
         import derp from 'TooSmart';
@@ -657,9 +663,8 @@ export default asdf@11;
 import banana from 'level2';
 export default 'hello, world! ' + banana;
 ";
-            var bananaModule = new BaristaScriptModule
+            var bananaModule = new BaristaScriptModule("level2")
             {
-                Name = "level2",
                 Script = @"
 import requestorName from 'depedendent';
 export default 'Requested By: ' + requestorName;
@@ -683,25 +688,51 @@ export default 'Requested By: ' + requestorName;
             }
         }
 
+        [Fact]
+        public void JsModulesCanExposeNativeObjects()
+        {
+            var script = @"
+import carlyRae from 'native-object';
+carlyRae.name = 'New Name';
+for(var i = 0; i < 10; i++)
+{
+    carlyRae.callMeMaybe();
+}
+export default carlyRae;
+";
+            var nomModule = new NativeObjectModule();
+            ModuleLoader.RegisterModule(nomModule);
+
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var result = ctx.EvaluateModule(script) as JsObject;
+                        Assert.NotNull(result);
+
+                        Assert.Equal(10, result["calls"].ToInt32());
+                        Assert.Equal("New Name", result["name"].ToString());
+                    }
+                }
+            }
+        }
+
+        #region Module Types
+        [BaristaModule("hello_world", "Only the best module ever.")]
         private sealed class HelloWorldModule : IBaristaModule
         {
-            public string Name => "hello_world";
-
-            public string Description => "Only the best module ever.";
-
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>(context.ValueFactory.CreateString("Hello, World!"));
             }
         }
 
+        [BaristaModule("reverse", "reverses the string passed in.")]
         private sealed class ReverseModule : IBaristaModule, IDisposable
         {
             private GCHandle m_reverseDelegateHandle;
-
-            public string Name => "reverse";
-
-            public string Description => "reverses the string passed in.";
 
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
@@ -755,52 +786,86 @@ export default 'Requested By: ' + requestorName;
             #endregion
         }
 
+        [BaristaModule("FourtyTwo", "The answer is...")]
         private sealed class FourtyTwoModule : IBaristaModule
         {
-            public string Name => "FourtyTwo";
-
-            public string Description => "The answer...";
-
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>(42);
             }
         }
 
+        [BaristaModule("Fawlty", "Derp!")]
         private sealed class FawltyModule : IBaristaModule
         {
-            public string Name => "Fawlty";
-
-            public string Description => "Derp!";
-
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 throw new Exception("Derp!");
             }
         }
 
+        [BaristaModule("TooSmart", "So complicated!")]
         private sealed class TooSmartModule : IBaristaModule
         {
-            public string Name => "TooSmart";
-
-            public string Description => "So complicated!";
-
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>(new StringBuilder());
             }
         }
 
+        [BaristaModule("depedendent", "Returns the name of the requesting module.")]
         private sealed class ReturnDependentNameModule : IBaristaModule
         {
-            public string Name => "depedendent";
-
-            public string Description => "Returns the name of the requesting module.";
-
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 return Task.FromResult<object>(referencingModule.Name);
             }
         }
+
+        private sealed class NoBaristaModuleAttributeModule : IBaristaModule
+        {
+            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            {
+                return Task.FromResult<object>("You'll not see me.");
+            }
+        }
+
+        [BaristaModule("native-object", "Returns a native .net object that can be used within scripts.")]
+        private sealed class NativeObjectModule : IBaristaModule
+        {
+            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            {
+                var foo = new CarlyRae() { Name = "Kilroy" };
+
+                return Task.FromResult<object>(foo);
+            }
+
+            private class CarlyRae
+            {
+                private int m_calls = -1;
+
+                public CarlyRae()
+                {
+                    m_calls = 0;
+                }
+
+                public string Name
+                {
+                    get;
+                    set;
+                }
+
+                public int Calls
+                {
+                    get { return m_calls; }
+                }
+
+                public void CallMeMaybe()
+                {
+                    m_calls++;
+                }
+            }
+        }
+        #endregion
     }
 }

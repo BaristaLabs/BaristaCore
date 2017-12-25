@@ -285,7 +285,7 @@ fibonacci(50);
                         var objScriptHandle = Engine.JsGetIndexedProperty(scripts, ix);
 
                         var handleType = Engine.JsGetValueType(objScriptHandle);
-                        Assert.True(handleType == JavaScriptValueType.Object);
+                        Assert.True(handleType == JsValueType.Object);
 
                         //Not sure if the ScriptId varies independently of the ScriptContext cookie
                         var scriptIdPropertyHandle = Engine.JsCreatePropertyId("scriptId", (ulong)"scriptId".Length);
@@ -299,7 +299,7 @@ fibonacci(50);
                         var sourceHandle = Engine.JsGetProperty(objSourceHandle, sourcePropertyHandle);
 
                         handleType = Engine.JsGetValueType(sourceHandle);
-                        Assert.True(handleType == JavaScriptValueType.String);
+                        Assert.True(handleType == JsValueType.String);
                         var sourceLength = Engine.JsGetStringLength(sourceHandle);
 
                         byte[] buffer = new byte[sourceLength];
@@ -360,7 +360,7 @@ fibonacci(50);
                         breakpointsHandle = Engine.JsDiagGetBreakpoints();
                         objBreakpointHandle = Engine.JsGetIndexedProperty(breakpointsHandle, ix);
                         handleType = Engine.JsGetValueType(objBreakpointHandle);
-                        Assert.True(handleType == JavaScriptValueType.Undefined);
+                        Assert.True(handleType == JsValueType.Undefined);
 
                         Engine.JsDiagStopDebugging(runtimeHandle);
                     }

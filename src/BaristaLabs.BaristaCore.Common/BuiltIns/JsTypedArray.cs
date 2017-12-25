@@ -55,7 +55,7 @@
             }
         }
 
-        public JavaScriptTypedArrayType ArrayType
+        public JsTypedArrayType ArrayType
         {
             get
             {
@@ -66,7 +66,7 @@
 
         public byte[] GetTypedArrayStorage()
         {
-            var ptrBuffer = Engine.JsGetTypedArrayStorage(Handle, out uint bufferLength, out JavaScriptTypedArrayType typedArrayType, out int elementSize);
+            var ptrBuffer = Engine.JsGetTypedArrayStorage(Handle, out uint bufferLength, out JsTypedArrayType typedArrayType, out int elementSize);
             byte[] buffer = new byte[bufferLength * elementSize];
             Marshal.Copy(ptrBuffer, buffer, 0, (int)bufferLength);
 
@@ -107,7 +107,7 @@
                 set;
             }
 
-            public JavaScriptTypedArrayType Type
+            public JsTypedArrayType Type
             {
                 get;
                 set;

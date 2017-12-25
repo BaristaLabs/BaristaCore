@@ -35,7 +35,7 @@
                     using (ctx.Scope())
                     {
                         Assert.NotNull(ctx.JSON);
-                        Assert.Equal(JavaScript.JavaScriptValueType.Object, ctx.JSON.Type);
+                        Assert.Equal(JsValueType.Object, ctx.JSON.Type);
                     }
                 }
             }

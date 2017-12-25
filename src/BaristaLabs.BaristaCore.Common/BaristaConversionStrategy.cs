@@ -9,14 +9,26 @@
     public sealed class BaristaConversionStrategy : IBaristaConversionStrategy
     {
         private readonly IJsonConverter m_jsonConverter;
+        private readonly IBaristaTypeConversionStrategy m_typeConversionStrategy;
 
         public BaristaConversionStrategy()
+            : this(null, null)
         {
         }
 
         public BaristaConversionStrategy(IJsonConverter jsonConverter)
+            : this(null, jsonConverter)
         {
-            //JsonConverter is not required.
+        }
+
+        public BaristaConversionStrategy(IBaristaTypeConversionStrategy typeConversionStrategy)
+            : this(typeConversionStrategy, null)
+        {
+        }
+
+        public BaristaConversionStrategy(IBaristaTypeConversionStrategy typeConversionStrategy, IJsonConverter jsonConverter)
+        {
+            m_typeConversionStrategy = typeConversionStrategy;
             m_jsonConverter = jsonConverter;
         }
 
@@ -92,14 +104,20 @@
                     value = valueFactory.CreateFunction(delegateValue);
                     return true;
                 case Exception exValue:
-                    //Create an error.
-                    var error = valueFactory.CreateError(exValue.Message);
-                    //TODO: Potentially populate error properties.
-                    value = error;
+                    value = valueFactory.CreateError(exValue.Message);
                     return true;
                 case Task taskValue:
                     value = valueFactory.CreatePromise(taskValue);
                     return true;
+                case Type typeValue:
+                    if (m_typeConversionStrategy == null)
+                    {
+                        value = null;
+                        return false;
+                    }
+                    var result = m_typeConversionStrategy.TryCreatePrototypeFunction(context, typeValue, out JsFunction fnValue);
+                    value = fnValue;
+                    return result;
             }
 
             var objType = obj.GetType();
@@ -108,7 +126,6 @@
             {
                 if (m_jsonConverter == null)
                 {
-                    //throw new ArgumentException("Non-primitive value types require that a json converter func be specified.");
                     value = null;
                     return false;
                 }
@@ -119,11 +136,28 @@
             }
 
             //We've run out of options, convert the non-primitive object.
-            return TryConvertFromNonPrimitiveObject(valueFactory, obj, out value);
+            return TryConvertFromNonPrimitiveObject(context, valueFactory, obj, out value);
         }
 
-        private bool TryConvertFromNonPrimitiveObject(IBaristaValueFactory valueFactory, object obj, out JsValue value)
+        private bool TryConvertFromNonPrimitiveObject(BaristaContext context, IBaristaValueFactory valueFactory, object obj, out JsValue value)
         {
+            if (m_typeConversionStrategy == null)
+            {
+                //TODO: think about cheating with a JsonConversion
+                value = null;
+                return false;
+            }
+                
+            Type typeToConvert = obj.GetType();
+            if (m_typeConversionStrategy.TryCreatePrototypeFunction(context, typeToConvert, out JsFunction fnCtor))
+            {
+                var exObj = context.ValueFactory.CreateExternalObject(obj);
+                var resultValue = fnCtor.Construct(null, exObj);
+                
+                value = resultValue;
+                return true;
+            }
+            
             value = null;
             return false;
         }
@@ -175,7 +209,9 @@
                     obj = null;
                     return false;
                 case JsExternalArrayBuffer jsExternalArrayBuffer:
-                    throw new NotImplementedException();
+                    //TODO: Add this implementation.
+                    obj = null;
+                    return false;
                 case JsArrayBuffer jsArrayBuffer:
                     obj = jsArrayBuffer.GetArrayBufferStorage();
                     return true;
@@ -192,6 +228,9 @@
                     //TODO: we can cheat a bit here with Json converter
                     //Also, figure out how to convert other types, like the date built-in.
                     obj = jsObject;
+                    return true;
+                case JsExternalObject jsExternalObject:
+                    obj = jsExternalObject.Target;
                     return true;
                 default:
                     obj = null;

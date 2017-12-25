@@ -10,9 +10,9 @@
         {
         }
 
-        public override JavaScriptValueType Type
+        public override JsValueType Type
         {
-            get { return JavaScriptValueType.Boolean; }
+            get { return JsValueType.Boolean; }
         }
 
         public override bool ToBoolean()

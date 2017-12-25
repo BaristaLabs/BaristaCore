@@ -17,11 +17,7 @@
         where TBaristaObject : class, IBaristaObject<TJavaScriptReference>
         where TJavaScriptReference : JavaScriptReference<TJavaScriptReference>
     {
-        private ConcurrentDictionary<TJavaScriptReference, WeakReference<TBaristaObject>> m_javaScriptReferencePool = new ConcurrentDictionary<TJavaScriptReference, WeakReference<TBaristaObject>>();
-
-        public BaristaObjectPool()
-        {
-        }
+        private ConcurrentDictionary<TJavaScriptReference, TBaristaObject> m_javaScriptReferencePool = new ConcurrentDictionary<TJavaScriptReference, TBaristaObject>();
 
         /// <summary>
         /// Gets the number of objects in the pool.
@@ -44,11 +40,11 @@
             if (obj == null || obj.Handle == null || obj.Handle.IsInvalid)
                 throw new ArgumentNullException(nameof(obj));
 
-            return m_javaScriptReferencePool.TryAdd(obj.Handle, new WeakReference<TBaristaObject>(obj));
+            return m_javaScriptReferencePool.TryAdd(obj.Handle, obj);
         }
 
         /// <summary>
-        /// Attems to get the specified flyweight from the pool directly
+        /// Attempts to get the specified flyweight from the pool directly
         /// </summary>
         /// <param name="jsRef"></param>
         /// <returns></returns>
@@ -57,9 +53,9 @@
             if (jsRef == default(TJavaScriptReference) || jsRef.IsInvalid)
                 throw new ArgumentNullException(nameof(jsRef));
 
-            if (m_javaScriptReferencePool.TryGetValue(jsRef, out WeakReference<TBaristaObject> weakObj))
+            if (m_javaScriptReferencePool.TryGetValue(jsRef, out obj))
             {
-                return weakObj.TryGetTarget(out obj);
+                return true;
             }
 
             obj = null;
@@ -77,28 +73,10 @@
                 throw new ArgumentNullException(nameof(jsRef));
 
             //For the specified handle, attempt to get or add a flyweight.
-            var weakReferenceToTarget = m_javaScriptReferencePool.GetOrAdd(jsRef, (ptr) =>
+            return m_javaScriptReferencePool.GetOrAdd(jsRef, (ptr) =>
             {
-                TBaristaObject flyweight = flyweightFactory();
-                return new WeakReference<TBaristaObject>(flyweight);
+                return flyweightFactory();
             });
-
-            if (weakReferenceToTarget.TryGetTarget(out TBaristaObject target))
-            {
-                //We have an existing target, dispose of the temporary one.
-                if (!ReferenceEquals(jsRef, target.Handle))
-                {
-                    jsRef.Dispose();
-                }
-                return target;
-            }
-
-            //The existing flyweight has been disposed, create and add a new flyweight.
-            TBaristaObject newValue = flyweightFactory();
-            if (!m_javaScriptReferencePool.TryUpdate(jsRef, new WeakReference<TBaristaObject>(newValue), weakReferenceToTarget))
-                throw new InvalidOperationException("Unable to get or add the JavaScript Reference.");
-
-            return newValue;
         }
 
         /// <summary>
@@ -107,15 +85,9 @@
         /// <param name="handle"></param>
         public void RemoveHandle(TJavaScriptReference handle)
         {
-            if (m_javaScriptReferencePool.TryRemove(handle, out WeakReference<TBaristaObject> value))
+            if (m_javaScriptReferencePool.TryRemove(handle, out TBaristaObject jsRef))
             {
-                if (value.TryGetTarget(out TBaristaObject jsRef))
-                {
-                    if (jsRef != null && !jsRef.IsDisposed)
-                    {
-                        jsRef.Dispose();
-                    }
-                }
+                jsRef.Dispose();
             }
         }
 

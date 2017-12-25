@@ -2,7 +2,7 @@ version: 1.0.{build}
 image: Visual Studio 2017
 configuration:
   - Release
-platform: x64
+platform: Any CPU
 environment:
   FRAMEWORK: netcoreapp2.0
   DOTNET_CLI_TELEMETRY_OPTOUT: 1

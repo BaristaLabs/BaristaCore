@@ -1,9 +1,9 @@
-﻿namespace BaristaLabs.BaristaCore.JavaScript
+﻿namespace BaristaLabs.BaristaCore
 {
     /// <summary>
     ///     The JavaScript type of a JsValueRef.
     /// </summary>
-    public enum JavaScriptValueType
+    public enum JsValueType
     {
         /// <summary>
         ///     The value is the <c>undefined</c> value.
