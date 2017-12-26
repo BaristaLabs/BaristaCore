@@ -7,6 +7,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class JsFunction_Facts
     {
         private readonly ServiceCollection ServiceCollection;

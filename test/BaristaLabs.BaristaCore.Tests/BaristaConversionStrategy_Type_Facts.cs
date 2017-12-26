@@ -7,6 +7,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class BaristaConversionStrategy_Type_Facts
     {
         private readonly ServiceCollection ServiceCollection;

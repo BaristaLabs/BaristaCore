@@ -10,6 +10,7 @@
     using System.Collections;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class JsArray_Facts
     {
         private readonly ServiceCollection ServiceCollection;

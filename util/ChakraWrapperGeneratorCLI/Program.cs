@@ -33,8 +33,8 @@
 
                 { "JsRuntimeAttributes", "JavaScriptRuntimeAttributes"},
                 { "JsParseScriptAttributes", "JavaScriptParseScriptAttributes"},
-                { "JsValueType", "JavaScriptValueType"},
-                { "JsTypedArrayType", "JavaScriptTypedArrayType"},
+                { "JsValueType", "JsValueType"},
+                { "JsTypedArrayType", "JsTypedArrayType"},
                 { "JsDiagBreakOnExceptionAttributes", "JavaScriptDiagBreakOnExceptionAttributes"},
                 { "JsDiagStepType", "JavaScriptDiagStepType"},
 

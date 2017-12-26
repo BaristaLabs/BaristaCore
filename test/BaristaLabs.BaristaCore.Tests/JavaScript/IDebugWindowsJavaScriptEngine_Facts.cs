@@ -2,10 +2,12 @@
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using System.Runtime.InteropServices;
     using System.Text;
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class IDebugWindowsJavaScriptEngine_Facts
     {
         private IJavaScriptEngine Engine;
@@ -74,32 +76,40 @@ moose;
                         return true;
                     };
 
-                    using (var ss = new ScriptSource(Engine, iterate))
+                    var callbackHandle = GCHandle.Alloc(callback);
+                    try
                     {
-                        Engine.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero);
+                        using (var ss = new ScriptSource(Engine, iterate))
+                        {
+                            Engine.JsDiagStartDebugging(runtimeHandle, callback, IntPtr.Zero);
 
-                        var scripts = Engine.JsDiagGetScripts();
-                        Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, scripts);
+                            var scripts = Engine.JsDiagGetScripts();
+                            Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, scripts);
 
-                        var ix = Engine.JsIntToNumber(0);
-                        var objScriptHandle = Engine.JsGetIndexedProperty(scripts, ix);
-                        var scriptIdPropertyHandle = CommonWindowsEngine.JsGetPropertyIdFromName("scriptId");
-                        var scriptIdHandle = Engine.JsGetProperty(objScriptHandle, scriptIdPropertyHandle);
+                            var ix = Engine.JsIntToNumber(0);
+                            var objScriptHandle = Engine.JsGetIndexedProperty(scripts, ix);
+                            var scriptIdPropertyHandle = CommonWindowsEngine.JsGetPropertyIdFromName("scriptId");
+                            var scriptIdHandle = Engine.JsGetProperty(objScriptHandle, scriptIdPropertyHandle);
 
-                        var scriptId = Engine.JsNumberToInt(scriptIdHandle);
+                            var scriptId = Engine.JsNumberToInt(scriptIdHandle);
 
-                        //Set a breakpoint with a knkown position
-                        var breakPointHandle = Engine.JsDiagSetBreakpoint((uint)scriptId, 4, 0);
-                        Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, breakPointHandle);
+                            //Set a breakpoint with a knkown position
+                            var breakPointHandle = Engine.JsDiagSetBreakpoint((uint)scriptId, 4, 0);
+                            Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, breakPointHandle);
 
-                        var finalResult = Engine.JsCallFunction(ss.FunctionHandle, new IntPtr[] { ss.FunctionHandle.DangerousGetHandle() }, 1);
-                        var handleType = Engine.JsGetValueType(finalResult);
-                        Assert.Equal(JsValueType.Number, handleType);
-                        
-                        Engine.JsDiagStopDebugging(runtimeHandle);
+                            var finalResult = Engine.JsCallFunction(ss.FunctionHandle, new IntPtr[] { ss.FunctionHandle.DangerousGetHandle() }, 1);
+                            var handleType = Engine.JsGetValueType(finalResult);
+                            Assert.Equal(JsValueType.Number, handleType);
+
+                            Engine.JsDiagStopDebugging(runtimeHandle);
+                        }
+
+                        Assert.Equal(49, iPod);
                     }
-
-                    Assert.Equal(49, iPod);
+                    finally
+                    {
+                        callbackHandle.Free();
+                    }
                 }
             }
         }

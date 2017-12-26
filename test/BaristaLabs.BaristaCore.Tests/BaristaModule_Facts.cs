@@ -13,6 +13,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class BaristaModule_Facts
     {
         private readonly ServiceCollection ServiceCollection;

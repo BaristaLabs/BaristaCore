@@ -8,6 +8,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class ICoreJavaScriptEngine_Facts
     {
         private IJavaScriptEngine Engine;

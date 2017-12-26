@@ -7,6 +7,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class ICommonWindowsScriptEngine_Facts
     {
         private IJavaScriptEngine Engine;
@@ -199,56 +200,66 @@
                 return;
 
             var script = @"
-    var moose = function() {
+    var moose1 = function() {
         //Trigger script loading
         var str = arguments.callee.toString();
         return 6*7;
     };
-    moose();
+    moose1();
 ";
             string sourceUrl = "[eval code]";
 
             bool loaded = false;
             bool unloaded = false;
 
-            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            JavaScriptSerializedScriptLoadSourceCallback loadCallback = (JavaScriptSourceContext sourceContext, out StringBuilder scriptBuffer) =>
             {
-                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+                loaded = true;
+                scriptBuffer = new StringBuilder(script);
+                return true;
+            };
+
+            JavaScriptSerializedScriptUnloadCallback unloadCallback = (JavaScriptSourceContext sourceContext) =>
+            {
+                unloaded = true;
+            };
+
+            var loadCallbackHandle = GCHandle.Alloc(loadCallback);
+            var unloadCallbackHandle = GCHandle.Alloc(unloadCallback);
+            try
+            {
+                using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
                 {
-                    Engine.JsSetCurrentContext(contextHandle);
-
-                    byte[] buffer = new byte[1024];
-                    uint bufferSize = (uint)buffer.Length;
-
-                    CommonWindowsEngine.JsSerializeScript(script, buffer, ref bufferSize);
-
-                    JavaScriptSerializedScriptLoadSourceCallback loadCallback = (JavaScriptSourceContext sourceContext, out StringBuilder scriptBuffer) =>
+                    using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
                     {
-                        loaded = true;
-                        scriptBuffer = new StringBuilder(script);
-                        return true;
-                    };
+                        Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptSerializedScriptUnloadCallback unloadCallback = (JavaScriptSourceContext sourceContext) =>
-                    {
-                        unloaded = true;
-                    };
+                        byte[] buffer = new byte[1024];
+                        uint bufferSize = (uint)buffer.Length;
 
-                    var resultHandle = CommonWindowsEngine.JsRunSerializedScriptWithCallback(loadCallback, unloadCallback, buffer, JavaScriptSourceContext.GetNextSourceContext(), sourceUrl);
-                    Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, resultHandle);
+                        CommonWindowsEngine.JsSerializeScript(script, buffer, ref bufferSize);
 
-                    var handleType = Engine.JsGetValueType(resultHandle);
-                    Assert.True(handleType == JsValueType.Number);
+                        var resultHandle = CommonWindowsEngine.JsRunSerializedScriptWithCallback(loadCallback, unloadCallback, buffer, JavaScriptSourceContext.GetNextSourceContext(), sourceUrl);
+                        Assert.NotEqual(JavaScriptValueSafeHandle.Invalid, resultHandle);
 
-                    Assert.Equal(42, Engine.JsNumberToInt(resultHandle));
+                        var handleType = Engine.JsGetValueType(resultHandle);
+                        Assert.True(handleType == JsValueType.Number);
 
-                    resultHandle.Dispose();
+                        Assert.Equal(42, Engine.JsNumberToInt(resultHandle));
+
+                        resultHandle.Dispose();
+                    }
+                    Engine.JsCollectGarbage(runtimeHandle);
                 }
-                Engine.JsCollectGarbage(runtimeHandle);
-            }
 
-            Assert.True(loaded);
-            Assert.True(unloaded);
+                Assert.True(loaded);
+                Assert.True(unloaded);
+            }
+            finally
+            {
+                loadCallbackHandle.Free();
+                unloadCallbackHandle.Free();
+            }
         }
 
         [Fact]
