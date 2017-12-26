@@ -7,6 +7,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class AssembliesInPathModuleLoader_Facts
     {
         public AssembliesInPathModuleLoader_Facts()

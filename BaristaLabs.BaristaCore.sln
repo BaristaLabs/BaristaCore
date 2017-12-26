@@ -36,6 +36,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Mod
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.MyTestModule", "test\BaristaLabs.BaristaCore.MyTestModule\BaristaLabs.BaristaCore.MyTestModule.csproj", "{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaristaLabs.BaristaCore.Modules.Fetch.Tests", "test\BaristaLabs.BaristaCore.Modules.Fetch.Tests\BaristaLabs.BaristaCore.Modules.Fetch.Tests.csproj", "{0489A9E0-8836-4B03-8172-AD92469B2001}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,10 @@ Global
 		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0489A9E0-8836-4B03-8172-AD92469B2001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0489A9E0-8836-4B03-8172-AD92469B2001}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0489A9E0-8836-4B03-8172-AD92469B2001}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0489A9E0-8836-4B03-8172-AD92469B2001}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,6 +94,7 @@ Global
 		{CD7F41BC-D1C2-466C-9E6E-081E8C85DB0A} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
 		{9C4BBB8C-46E4-4168-88A7-E687D58468B1} = {CD7F41BC-D1C2-466C-9E6E-081E8C85DB0A}
 		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3} = {BF7A5A92-FCD0-4CA4-9234-B96B543F2488}
+		{0489A9E0-8836-4B03-8172-AD92469B2001} = {BF7A5A92-FCD0-4CA4-9234-B96B543F2488}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {43910680-2459-4C25-9FC4-821E302DAE91}

@@ -9,6 +9,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class AggregateModuleLoader_Facts
     {
         public AggregateModuleLoader_Facts()

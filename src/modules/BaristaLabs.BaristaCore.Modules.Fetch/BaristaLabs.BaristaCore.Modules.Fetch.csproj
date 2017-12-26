@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="RestSharp" Version="106.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.csproj" />
   </ItemGroup>
 

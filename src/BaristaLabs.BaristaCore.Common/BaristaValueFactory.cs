@@ -190,7 +190,7 @@
                             nativeArgs[i] = jsValue as JsObject;
                         }
                         //If the target type is the same as the value type (The delegate expects a JsValue) don't convert.
-                        else if (targetParameterType == jsValue.GetType())
+                        else if (targetParameterType.IsSameOrSubclass(jsValue.GetType()))
                         {
                             nativeArgs[i] = jsValue;
                         }

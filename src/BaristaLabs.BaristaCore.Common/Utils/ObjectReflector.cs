@@ -21,7 +21,7 @@
         public IEnumerable<ConstructorInfo> GetConstructors()
         {
             return m_type.GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                .Where(c => c.GetCustomAttribute<BaristaIgnoreAttribute>() == null);
+                .Where(c => c.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null);
         }
 
         /// <summary>
@@ -34,7 +34,7 @@
             var argTypes = args.Select(arg => arg.GetType()).ToArray();
             var bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
             var matchingConstructor = m_type.GetConstructor(bindingFlags, null, argTypes, null);
-            if (matchingConstructor != null && matchingConstructor.GetCustomAttribute<BaristaIgnoreAttribute>() == null)
+            if (matchingConstructor != null && matchingConstructor.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null)
                 return matchingConstructor;
 
             var constructors = GetConstructors();
@@ -72,7 +72,7 @@
             else
                 properties = m_type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-            return properties.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>() == null);
+            return properties.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null);
         }
 
         public IDictionary<string, IList<MethodInfo>> GetUniqueMethodsByName(bool instance)
@@ -83,7 +83,7 @@
             else
                 methods = m_type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-            methods = methods.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>() == null).ToArray();
+            methods = methods.Where(m => !m.IsSpecialName && m.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null).ToArray();
 
             var methodTable = new Dictionary<string, IList<MethodInfo>>();
             foreach(var methodInfo in methods)
@@ -131,7 +131,7 @@
             else
                 events = m_type.GetEvents(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-            events = events.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>() == null).ToArray();
+            events = events.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null).ToArray();
 
             var eventTable = new Dictionary<string, EventInfo>();
             foreach (var eventInfo in events)

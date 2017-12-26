@@ -56,9 +56,11 @@
                     var jsObj = context.Object.Create(thisObj);
 
                     JsExternalObject externalObject = null;
-                    if (args.Length == 1 && args[0] is JsExternalObject exObj)
+                    //!!Special condition -- if there's exactly one argument, and if it matches the enclosing type,
+                    //don't invoke the type's constructor, rather, just wrap the object with the JsObject.
+                    if (args.Length == 1 && args[0].GetType() == typeToConvert)
                     {
-                        externalObject = exObj;
+                        externalObject = context.ValueFactory.CreateExternalObject(args[0]);
                     }
                     else
                     {

@@ -9,6 +9,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
+    [Collection("BaristaCore Tests")]
     public class InMemoryModuleLoader_Facts
     {
         public InMemoryModuleLoader_Facts()
