@@ -77,12 +77,13 @@
                     {
                         var jsString = ctx.ValueFactory.CreateArrayBuffer("Hello, world!");
                         Assert.NotNull(jsString);
+                        Assert.Equal(13, jsString.GetArrayBufferStorage().Length);
                         jsString.Dispose();
 
-                        Assert.Throws<ArgumentNullException>(() =>
-                        {
-                            ctx.ValueFactory.CreateArrayBuffer(null);
-                        });
+                        jsString = ctx.ValueFactory.CreateArrayBuffer((string)null);
+                        Assert.NotNull(jsString);
+                        Assert.Empty(jsString.GetArrayBufferStorage());
+                        jsString.Dispose();
                     }
                 }
             }

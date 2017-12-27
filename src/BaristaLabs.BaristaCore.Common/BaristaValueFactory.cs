@@ -54,7 +54,7 @@
         public JsArrayBuffer CreateArrayBuffer(string data)
         {
             if (data == null)
-                throw new ArgumentNullException(nameof(data));
+                data = String.Empty;
 
             JavaScriptValueSafeHandle externalArrayHandle;
             IntPtr ptrData = Marshal.StringToHGlobalAnsi(data);
@@ -75,6 +75,46 @@
                 var flyweight = new JsManagedExternalArrayBuffer(m_engine, Context, externalArrayHandle, ptrData, (ptr) =>
                 {
                     Marshal.ZeroFreeGlobalAllocAnsi(ptr);
+                });
+
+                return flyweight;
+            });
+
+            var resultArrayBuffer = result as JsArrayBuffer;
+            if (resultArrayBuffer == null)
+                throw new InvalidOperationException($"Expected the result object to be a JsArrayBuffer, however the value was {result.GetType()}");
+
+            return (JsArrayBuffer)result;
+        }
+
+        public JsArrayBuffer CreateArrayBuffer(byte[] data)
+        {
+            if (data == null)
+                data = new byte[0] { };
+
+            JavaScriptValueSafeHandle externalArrayHandle;
+            int size = Marshal.SizeOf(data[0]) * data.Length;
+            IntPtr ptrData = Marshal.AllocHGlobal(size);
+            try
+            {
+                // Copy the array to unmanaged memory.
+                Marshal.Copy(data, 0, ptrData, data.Length);
+
+                externalArrayHandle = m_engine.JsCreateExternalArrayBuffer(ptrData, (uint)data.Length, null, IntPtr.Zero);
+            }
+            catch (Exception)
+            {
+                //If anything goes wrong, free the unmanaged memory.
+                //This is not a finally as if success, the memory will be freed automagially.
+                Marshal.FreeHGlobal(ptrData);
+                throw;
+            }
+
+            var result = m_valuePool.GetOrAdd(externalArrayHandle, () =>
+            {
+                var flyweight = new JsManagedExternalArrayBuffer(m_engine, Context, externalArrayHandle, ptrData, (ptr) =>
+                {
+                    Marshal.FreeHGlobal(ptr);
                 });
 
                 return flyweight;
@@ -247,6 +287,8 @@
             JavaScriptNativeFunction fnDelegate = (IntPtr callee, bool isConstructCall, IntPtr[] arguments, ushort argumentCount, IntPtr callbackData) =>
             {
                 //Convert each argument into a native object.
+                var calleeObj = CreateValue(new JavaScriptValueSafeHandle(callee)) as JsObject;
+
                 var nativeArgs = new object[argumentCount-1];
                 JsObject thisObj = null;
                 for (int i = 0; i < argumentCount; i++)
@@ -273,7 +315,7 @@
 
                 try
                 {
-                    var nativeResult = functionDelegate.DynamicInvoke(isConstructCall, thisObj, nativeArgs);
+                    var nativeResult = functionDelegate.DynamicInvoke(calleeObj, isConstructCall, thisObj, nativeArgs);
                     if (Context.Converter.TryFromObject(Context, nativeResult, out JsValue valueResult))
                     {
                         return valueResult.Handle.DangerousGetHandle();

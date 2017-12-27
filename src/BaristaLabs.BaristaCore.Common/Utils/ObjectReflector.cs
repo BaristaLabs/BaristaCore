@@ -52,12 +52,19 @@
                     continue;
                 }
 
+                //One parameter constructor that is a BaristaContext - treat it as a default constructor.
+                if (bestMatch == null && constructorParams.Length == 1 && constructorParams[0].ParameterType == typeof(BaristaContext))
+                {
+                    bestMatch = constructor;
+                    bestMatchMatchingArgs = 0;
+                    continue;
+                }
+
                 var currentMatchingArgs = GetMatchingParameterCount(constructorParams, argTypes, out bool isExact);
                 if (currentMatchingArgs > bestMatchMatchingArgs || (currentMatchingArgs == bestMatchMatchingArgs && isExact))
                 {
                     bestMatch = constructor;
                     bestMatchMatchingArgs = currentMatchingArgs;
-                    continue;
                 }
             }
 
@@ -163,6 +170,11 @@
 
                 //If there is an exact type match, we're still exact.
                 if (parameters[i].ParameterType == argTypes[i])
+                {
+                    count++;
+                }
+                //If there is an injectable BaristaContext parameter, we're still exact.
+                else if (parameters[i].ParameterType == typeof(BaristaContext))
                 {
                     count++;
                 }

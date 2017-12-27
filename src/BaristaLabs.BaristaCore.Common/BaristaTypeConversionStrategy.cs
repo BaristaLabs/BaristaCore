@@ -44,7 +44,7 @@
             var publicConstructors = reflector.GetConstructors();
             if (publicConstructors.Any())
             {
-                var constructor = new BaristaFunctionDelegate((isConstructCall, thisObj, args) => {
+                var constructor = new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) => {
                     if (!isConstructCall)
                     {
                         var ex = context.ValueFactory.CreateTypeError($"Failed to construct '{objectName}': Please use the 'new' operator, this object constructor cannot be called as a function.");
@@ -53,7 +53,7 @@
                     }
 
                     //Use Object.create to create an object bound to this prototype.
-                    var jsObj = context.Object.Create(thisObj);
+                    //var jsObj = context.Object.Create(thisObj);
 
                     JsExternalObject externalObject = null;
                     //!!Special condition -- if there's exactly one argument, and if it matches the enclosing type,
@@ -76,7 +76,7 @@
 
                             //Convert the args into the native args of the constructor.
                             var constructorParams = bestConstructor.GetParameters();
-                            var convertedArgs = ConvertArgsToParamTypes(args, constructorParams);
+                            var convertedArgs = ConvertArgsToParamTypes(context, args, constructorParams);
 
                             var newObj = bestConstructor.Invoke(convertedArgs);
                             externalObject = context.ValueFactory.CreateExternalObject(newObj);
@@ -88,18 +88,24 @@
                         }
                     }
 
+                    var jsObj = context.Object.Create(thisObj);
                     //Set the baristaObject as a non-configurable, non-enumerable, non-writable property
                     var baristaObjectPropertyDescriptor = context.ValueFactory.CreateObject();
                     baristaObjectPropertyDescriptor.SetProperty("value", externalObject);
                     context.Object.DefineProperty(jsObj, context.ValueFactory.CreateString(BaristaObjectPropertyName), baristaObjectPropertyDescriptor);
                     return jsObj;
+
+                    //var jsObjProperties = context.ValueFactory.CreateObject();
+                    //jsObjProperties.SetProperty(context.ValueFactory.CreateString(BaristaObjectPropertyName), baristaObjectPropertyDescriptor);
+
+                    //return context.Object.Create(calleeObj, jsObjProperties);
                 });
 
                 fnCtor = context.ValueFactory.CreateFunction(constructor, objectName);
             }
             else
             {
-                var constructor = new BaristaFunctionDelegate((isConstructCall, thisObj, args) => {
+                var constructor = new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) => {
                     var ex = context.ValueFactory.CreateTypeError($"Failed to construct '{objectName}': This object cannot be constructed.");
                     context.CurrentScope.SetException(ex);
                     return context.Undefined;
@@ -114,25 +120,23 @@
                 fnCtor.Prototype.Constructor = fnCtor;
             }
 
-            var fnCtorPrototype = fnCtor.Prototype;
-
             //Project static properties onto the constructor.
             ProjectProperties(context, fnCtor, reflector.GetProperties(false));
 
-            //Project static properties onto the constructor.
-            ProjectProperties(context, fnCtorPrototype, reflector.GetProperties(true));
+            //Project instance properties onto the constructor.
+            ProjectProperties(context, fnCtor.Prototype, reflector.GetProperties(true));
 
             //Project static methods onto the constructor.
             ProjectMethods(context, fnCtor, reflector, reflector.GetUniqueMethodsByName(false));
 
             //Project instance methods on to the constructor prototype;
-            ProjectMethods(context, fnCtorPrototype, reflector, reflector.GetUniqueMethodsByName(true));
+            ProjectMethods(context, fnCtor.Prototype, reflector, reflector.GetUniqueMethodsByName(true));
 
             //Project static events onto the constructor.
             ProjectEvents(context, fnCtor, reflector, reflector.GetEventTable(false));
 
             //Project instance events on to the constructor prototype;
-            ProjectEvents(context, fnCtorPrototype, reflector, reflector.GetEventTable(true));
+            ProjectEvents(context, fnCtor.Prototype, reflector, reflector.GetEventTable(true));
 
             m_prototypes.Add(typeToConvert, fnCtor);
 
@@ -158,7 +162,7 @@
 
                 if (prop.GetMethod != null)
                 {
-                    var jsGet = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((isConstructCall, thisObj, args) =>
+                    var jsGet = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
                     {
                         object targetObj = null;
 
@@ -167,6 +171,12 @@
                             context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not retrieve property '{propertyName}' because there was an invalid 'this' context."));
                             return context.Undefined;
                         }
+
+                        //TODO: Migrate to this
+                        //if (thisObj is JsExternalObject xoObj)
+                        //{
+                        //    targetObj = xoObj.Target;
+                        //}
 
                         //If the property exists we're probably an instance -- though we should find a way to check this better.
                         if (thisObj.HasProperty(BaristaObjectPropertyName))
@@ -199,7 +209,7 @@
 
                 if (prop.SetMethod != null)
                 {
-                    var jsSet = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((isConstructCall, thisObj, args) =>
+                    var jsSet = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
                     {
                         object targetObj = null;
 
@@ -208,6 +218,12 @@
                             context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not set property '{propertyName}' because there was an invalid 'this' context."));
                             return context.Undefined;
                         }
+
+                        //TODO: Migrate to this.
+                        //if (thisObj is JsExternalObject xoObj)
+                        //{
+                        //    targetObj = xoObj.Target;
+                        //}
 
                         //If the property exists we're probably an instance -- though we should find a way to check this better.
                         if (thisObj.HasProperty(BaristaObjectPropertyName))
@@ -243,7 +259,7 @@
                 var methodName = method.Key;
                 var methodInfos = method.Value;
 
-                var fn = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((isConstructCall, thisObj, args) =>
+                var fn = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
                 {
                     object targetObj = null;
 
@@ -272,7 +288,7 @@
 
                         //Convert the args into the native args of the method.
                         var methodParams = bestMethod.GetParameters();
-                        var convertedArgs = ConvertArgsToParamTypes(args, methodParams);
+                        var convertedArgs = ConvertArgsToParamTypes(context, args, methodParams);
 
                         var result = bestMethod.Invoke(targetObj, convertedArgs);
                         if (context.Converter.TryFromObject(context, result, out JsValue resultValue))
@@ -295,11 +311,11 @@
 
                 var functionDescriptor = context.ValueFactory.CreateObject();
 
-                if (methodInfos.All(mi => BaristaPropertyAttribute.GetAttribute(mi).Enumerable))
+                if (methodInfos.All(mi => BaristaPropertyAttribute.GetAttribute(mi).Configurable))
                     functionDescriptor.SetProperty("configurable", context.True);
                 if (methodInfos.All(mi => BaristaPropertyAttribute.GetAttribute(mi).Enumerable))
                     functionDescriptor.SetProperty("enumerable", context.True);
-                if (methodInfos.All(mi => BaristaPropertyAttribute.GetAttribute(mi).Enumerable))
+                if (methodInfos.All(mi => BaristaPropertyAttribute.GetAttribute(mi).Writable))
                     functionDescriptor.SetProperty("writable", context.True);
 
                 functionDescriptor.SetProperty("value", fn);
@@ -441,21 +457,28 @@
             targetObject.SetProperty("removeAllListeners", fnRemoveAllListeners);
         }
 
-        private object[] ConvertArgsToParamTypes(object[] args, ParameterInfo[] parameters)
+        private object[] ConvertArgsToParamTypes(BaristaContext context, object[] args, ParameterInfo[] parameters)
         {
             var convertedArgs = new object[parameters.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
                 var currentParam = parameters[i];
-                var arg = args.ElementAtOrDefault(i);
-                try
+                if (currentParam.ParameterType == typeof(BaristaContext))
                 {
-                    convertedArgs[i] = Convert.ChangeType(args[i], currentParam.ParameterType);
+                    convertedArgs[i] = context;
                 }
-                catch (Exception)
+                else
                 {
-                    //Something went wrong, use the default value.
-                    convertedArgs[i] = currentParam.ParameterType.GetDefaultValue();
+                    var arg = args.ElementAtOrDefault(i);
+                    try
+                    {
+                        convertedArgs[i] = Convert.ChangeType(args[i], currentParam.ParameterType);
+                    }
+                    catch (Exception)
+                    {
+                        //Something went wrong, use the default value.
+                        convertedArgs[i] = currentParam.ParameterType.GetDefaultValue();
+                    }
                 }
             }
             return convertedArgs;

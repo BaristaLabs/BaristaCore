@@ -2,6 +2,7 @@
 {
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
+    using Newtonsoft.Json;
     using System;
     using System.Diagnostics.CodeAnalysis;
     using Xunit;
@@ -259,10 +260,18 @@ export default myFoo;
                         Foo.MyStaticProperty = null;
                         ctx.Converter.TryFromObject(ctx, typeof(Foo), out JsValue value);
                         ctx.GlobalObject["Foo"] = value;
+                        var fnFoo = (value as JsFunction);
+                        Assert.Equal(2, fnFoo.Keys.Length); //myStaticProperty, myStaticMethod.
 
                         var result = ctx.EvaluateModule<JsObject>(script);
                         Assert.Equal("test123", Foo.MyStaticProperty);
                         Assert.Equal("123Test", result["myProperty"].ToString());
+
+                        //Assert.Equal(2, ctx.Object.Keys(result).Length);
+                        var stringified = ctx.JSON.Stringify(result);
+                        dynamic json = JsonConvert.DeserializeObject(stringified);
+                        //Assert.Equal("123Test", (string)json.myProperty);
+
                     }
                 }
             }

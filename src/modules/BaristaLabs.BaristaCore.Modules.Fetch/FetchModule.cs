@@ -10,9 +10,16 @@
         {
             var fnFetch = context.ValueFactory.CreateFunction(new Func<JsObject, JsObject, JsObject, object>((thisObj, input, init) =>
             {
-                //TODO: If input is JsObject
+                Request request;
+                if (input is JsExternalObject exObj && exObj.Target is Request inputRequest)
+                {
+                    request = new Request(inputRequest);
+                }
+                else
+                {
+                    request = new Request(input.ToString(), init);
+                }
 
-                var request = new Request(input.ToString(), init);
                 return request.Execute(context);
             }));
 

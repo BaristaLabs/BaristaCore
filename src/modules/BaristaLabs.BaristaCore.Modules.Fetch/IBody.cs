@@ -9,14 +9,19 @@
             get;
         }
 
+        [BaristaProperty(Configurable = false, Writable = false)]
         Task<JsArrayBuffer> ArrayBuffer();
 
+        [BaristaProperty(Configurable = false, Writable = false)]
         Task<JsObject> Blob();
 
+        [BaristaProperty(Configurable = false, Writable = false)]
         Task<JsObject> FormData();
 
-        Task<JsObject> Json();
+        [BaristaProperty(Configurable = false, Writable = false)]
+        Task<JsValue> Json();
 
+        [BaristaProperty(Configurable = false, Writable = false)]
         Task<JsString> Text();
     }
 }

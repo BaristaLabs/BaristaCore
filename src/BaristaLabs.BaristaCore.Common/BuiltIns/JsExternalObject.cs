@@ -4,7 +4,7 @@
     using System;
     using System.Runtime.InteropServices;
 
-    public class JsExternalObject : JsValue
+    public class JsExternalObject : JsObject
     {
         private readonly GCHandle m_objHandle;
 
@@ -17,11 +17,6 @@
         public object Target
         {
             get { return m_objHandle.Target; }
-        }
-
-        public override JsValueType Type
-        {
-            get { return JsValueType.Object; }
         }
 
         /// <summary>

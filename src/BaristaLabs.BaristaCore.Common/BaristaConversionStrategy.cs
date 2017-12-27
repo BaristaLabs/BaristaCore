@@ -224,13 +224,13 @@
                 case JsError jsError:
                     obj = new JsScriptException(JsErrorCode.ScriptException, jsError.Handle);
                     return true;
+                case JsExternalObject jsExternalObject:
+                    obj = jsExternalObject.Target;
+                    return true;
                 case JsObject jsObject:
                     //TODO: we can cheat a bit here with Json converter
                     //Also, figure out how to convert other types, like the date built-in.
                     obj = jsObject;
-                    return true;
-                case JsExternalObject jsExternalObject:
-                    obj = jsExternalObject.Target;
                     return true;
                 default:
                     obj = null;

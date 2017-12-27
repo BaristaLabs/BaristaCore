@@ -1,4 +1,4 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
-    delegate JsValue BaristaFunctionDelegate(bool isConstructCall, JsObject thisObj, object[] nativeArgs);
+    delegate JsValue BaristaFunctionDelegate(JsObject calleeObj, bool isConstructCall, JsObject thisObj, object[] nativeArgs);
 }

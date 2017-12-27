@@ -10,6 +10,8 @@
 
         JsArrayBuffer CreateArrayBuffer(string data);
 
+        JsArrayBuffer CreateArrayBuffer(byte[] data);
+
         JsError CreateError(string message);
 
         JsExternalObject CreateExternalObject(object obj);
