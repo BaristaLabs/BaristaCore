@@ -202,7 +202,7 @@ export default fn;
                         Assert.NotNull(response);
                         var jsonData = response.ToString();
                         Assert.True(jsonData.Length > 0);
-                        //dynamic data = JsonConvert.DeserializeObject(jsonData);
+                        dynamic data = JsonConvert.DeserializeObject(jsonData);
                         //Assert.Equal("wild-caught-fish", (string)data.headers["X-Pure-and-natural"]);
                     }
                 }

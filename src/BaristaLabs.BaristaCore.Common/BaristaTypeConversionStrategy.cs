@@ -39,23 +39,42 @@
             }
 
             var objectName = BaristaObjectAttribute.GetBaristaObjectNameFromType(typeToConvert);
-            JsFunction fnCtor;
+            
+            //Get all the property descriptors for the specified type.
+            var staticPropertyDescriptors = context.ValueFactory.CreateObject();
+            var instancePropertyDescriptors = context.ValueFactory.CreateObject();
 
+            //Get static and instance properties.
+            ProjectProperties(context, staticPropertyDescriptors, reflector.GetProperties(false));
+            ProjectProperties(context, instancePropertyDescriptors, reflector.GetProperties(true));
+
+            //Get static and instance methods.
+            ProjectMethods(context, staticPropertyDescriptors, reflector, reflector.GetUniqueMethodsByName(false));
+            ProjectMethods(context, instancePropertyDescriptors, reflector, reflector.GetUniqueMethodsByName(true));
+
+            //Get static and instance events.
+            ProjectEvents(context, staticPropertyDescriptors, reflector, reflector.GetEventTable(false));
+            ProjectEvents(context, instancePropertyDescriptors, reflector, reflector.GetEventTable(true));
+
+            JsFunction fnCtor;
             var publicConstructors = reflector.GetConstructors();
             if (publicConstructors.Any())
             {
-                var constructor = new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) => {
-                    if (!isConstructCall)
+                fnCtor = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
+                {
+                    if (superCtor != null)
                     {
-                        var ex = context.ValueFactory.CreateTypeError($"Failed to construct '{objectName}': Please use the 'new' operator, this object constructor cannot be called as a function.");
-                        context.CurrentScope.SetException(ex);
-                        return context.Undefined;
+                        superCtor.Call(thisObj);
                     }
 
-                    //Use Object.create to create an object bound to this prototype.
-                    //var jsObj = context.Object.Create(thisObj);
+                    context.Object.DefineProperties(thisObj, instancePropertyDescriptors);
 
+                    if (!isConstructCall)
+                        return null;
+
+                    //Set our native object.
                     JsExternalObject externalObject = null;
+
                     //!!Special condition -- if there's exactly one argument, and if it matches the enclosing type,
                     //don't invoke the type's constructor, rather, just wrap the object with the JsObject.
                     if (args.Length == 1 && args[0].GetType() == typeToConvert)
@@ -88,58 +107,30 @@
                         }
                     }
 
-                    var jsObj = context.Object.Create(thisObj);
                     //Set the baristaObject as a non-configurable, non-enumerable, non-writable property
                     var baristaObjectPropertyDescriptor = context.ValueFactory.CreateObject();
                     baristaObjectPropertyDescriptor.SetProperty("value", externalObject);
-                    context.Object.DefineProperty(jsObj, context.ValueFactory.CreateString(BaristaObjectPropertyName), baristaObjectPropertyDescriptor);
-                    return jsObj;
+                    context.Object.DefineProperty(thisObj, context.ValueFactory.CreateString(BaristaObjectPropertyName), baristaObjectPropertyDescriptor);
 
-                    //var jsObjProperties = context.ValueFactory.CreateObject();
-                    //jsObjProperties.SetProperty(context.ValueFactory.CreateString(BaristaObjectPropertyName), baristaObjectPropertyDescriptor);
-
-                    //return context.Object.Create(calleeObj, jsObjProperties);
-                });
-
-                fnCtor = context.ValueFactory.CreateFunction(constructor, objectName);
+                    return null;
+                }), objectName);
             }
             else
             {
-                var constructor = new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) => {
+                fnCtor = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
+                {
                     var ex = context.ValueFactory.CreateTypeError($"Failed to construct '{objectName}': This object cannot be constructed.");
                     context.CurrentScope.SetException(ex);
                     return context.Undefined;
-                });
-
-                fnCtor = context.ValueFactory.CreateFunction(constructor, typeToConvert.Name);
+                }), objectName);
             }
 
-            if (superCtor != null && superCtor.Prototype != null)
-            {
-                fnCtor.Prototype = context.Object.Create(superCtor.Prototype);
-                fnCtor.Prototype.Constructor = fnCtor;
-            }
+            //We've got everything we need.
+            fnCtor.Prototype = context.Object.Create(superCtor == null ? context.Object.Prototype : superCtor.Prototype);
 
-            //Project static properties onto the constructor.
-            ProjectProperties(context, fnCtor, reflector.GetProperties(false));
-
-            //Project instance properties onto the constructor.
-            ProjectProperties(context, fnCtor.Prototype, reflector.GetProperties(true));
-
-            //Project static methods onto the constructor.
-            ProjectMethods(context, fnCtor, reflector, reflector.GetUniqueMethodsByName(false));
-
-            //Project instance methods on to the constructor prototype;
-            ProjectMethods(context, fnCtor.Prototype, reflector, reflector.GetUniqueMethodsByName(true));
-
-            //Project static events onto the constructor.
-            ProjectEvents(context, fnCtor, reflector, reflector.GetEventTable(false));
-
-            //Project instance events on to the constructor prototype;
-            ProjectEvents(context, fnCtor.Prototype, reflector, reflector.GetEventTable(true));
+            context.Object.DefineProperties(fnCtor, staticPropertyDescriptors);
 
             m_prototypes.Add(typeToConvert, fnCtor);
-
             ctor = fnCtor;
             return true;
         }
@@ -172,8 +163,8 @@
                             return context.Undefined;
                         }
 
-                        //TODO: Migrate to this
-                        //if (thisObj is JsExternalObject xoObj)
+                        //TODO: Migrate to this.
+                        //if (thisObj.Prototype is JsExternalObject xoObj)
                         //{
                         //    targetObj = xoObj.Target;
                         //}
@@ -220,7 +211,7 @@
                         }
 
                         //TODO: Migrate to this.
-                        //if (thisObj is JsExternalObject xoObj)
+                        //if (thisObj.Prototype is JsExternalObject xoObj)
                         //{
                         //    targetObj = xoObj.Target;
                         //}
@@ -248,7 +239,8 @@
                     propertyDescriptor.SetProperty("set", jsSet);
                 }
 
-                context.Object.DefineProperty(targetObject, context.ValueFactory.CreateString(propertyName), propertyDescriptor);
+                //context.Object.DefineProperty(targetObject, context.ValueFactory.CreateString(propertyName), propertyDescriptor);
+                targetObject.SetProperty(context.ValueFactory.CreateString(propertyName), propertyDescriptor);
             }
         }
 
@@ -319,7 +311,9 @@
                     functionDescriptor.SetProperty("writable", context.True);
 
                 functionDescriptor.SetProperty("value", fn);
-                context.Object.DefineProperty(targetObject, context.ValueFactory.CreateString(methodName), functionDescriptor);
+
+                //context.Object.DefineProperty(targetObject, context.ValueFactory.CreateString(methodName), functionDescriptor);
+                targetObject.SetProperty(context.ValueFactory.CreateString(methodName), functionDescriptor);
             }
         }
 
@@ -453,8 +447,15 @@
                 return context.True;
             }), "removeAllListeners");
 
-            targetObject.SetProperty("on", fnAddListener);
-            targetObject.SetProperty("removeAllListeners", fnRemoveAllListeners);
+            var onFunctionDescriptor = context.ValueFactory.CreateObject();
+            onFunctionDescriptor.SetProperty("enumerable", context.True);
+            onFunctionDescriptor.SetProperty("value", fnAddListener);
+            targetObject.SetProperty(context.ValueFactory.CreateString("on"), onFunctionDescriptor);
+
+            var offFunctionDescriptor = context.ValueFactory.CreateObject();
+            offFunctionDescriptor.SetProperty("enumerable", context.True);
+            offFunctionDescriptor.SetProperty("value", fnRemoveAllListeners);
+            targetObject.SetProperty(context.ValueFactory.CreateString("removeAllListeners"), offFunctionDescriptor);
         }
 
         private object[] ConvertArgsToParamTypes(BaristaContext context, object[] args, ParameterInfo[] parameters)

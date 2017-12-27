@@ -19,8 +19,8 @@
         {
             get
             {
-                var result = GetProperty<JsNumber>("length");
-                return result.ToInt32();
+                var pLength = GetProperty<JsNumber>("length");
+                return pLength.ToInt32();
             }
         }
 
@@ -35,8 +35,8 @@
         /// <returns>A new object with the specified prototype object and properties.</returns>
         public JsObject Create(JsObject proto, JsObject propertiesObject = null)
         {
-            var result = GetProperty<JsFunction>("create");
-            return result.Call<JsObject>(this, proto, propertiesObject);
+            var fnCreate = GetProperty<JsFunction>("create");
+            return fnCreate.Call<JsObject>(this, proto, propertiesObject);
         }
 
         /// <summary>
@@ -49,10 +49,70 @@
         /// <param name="prop">The name of the property to be defined or modified.</param>
         /// <param name="descriptor">The descriptor for the property being defined or modified.</param>
         /// <returns></returns>
-        public JsObject DefineProperty(JsObject obj, JsString prop, JsObject descriptor)
+        public JsObject DefineProperty(JsObject obj, JsValue prop, JsObject descriptor)
         {
-            var result = GetProperty<JsFunction>("defineProperty");
-            return result.Call<JsObject>(this, obj, prop, descriptor);
+            var fnDefineProperty = GetProperty<JsFunction>("defineProperty");
+            return fnDefineProperty.Call<JsObject>(this, obj, prop, descriptor);
+        }
+
+        /// <summary>
+        /// Defines new or modifies existing properties directly on an object, returning the object.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperties"/>
+        /// </remarks>
+        /// <param name="obj">The object on which to define or modify properties.</param>
+        /// <param name="props">An object whose own enumerable properties constitute descriptors for the properties to be defined or modified.</param>
+        /// <returns>The object that was passed to the function.</returns>
+        public JsObject DefineProperties(JsObject obj, JsObject props)
+        {
+            var fnDefineProperties = GetProperty<JsFunction>("defineProperties");
+            return fnDefineProperties.Call<JsObject>(this, obj, props);
+        }
+
+        /// <summary>
+        /// Returns all own property descriptors of a given object.
+        /// <remarks>
+        /// <see cref="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptors"/>
+        /// </remarks>
+        /// </summary>
+        /// <param name="obj">The object for which to get all own property descriptors.</param>
+        /// <returns>An object containing all own property descriptors of an object. Might be an empty object, if there are no properties.</returns>
+        public JsObject GetOwnPropertyDescriptors(JsObject obj)
+        {
+            var fnGetOwnPropertyDescriptors = GetProperty<JsFunction>("getOwnPropertyDescriptors");
+            return fnGetOwnPropertyDescriptors.Call<JsObject>(this, obj);
+        }
+
+        /// <summary>
+        /// Gets the prototype of an object.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public JsObject GetPrototypeOf(JsObject obj)
+        {
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj));
+
+            var protoHandle = Engine.JsGetPrototype(obj.Handle);
+            return ValueFactory.CreateValue<JsObject>(protoHandle);
+        }
+
+        /// <summary>
+        /// Sets the prototype of an object.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="prototype"></param>
+        public void SetPrototypeOf(JsObject obj, JsObject prototype)
+        {
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj));
+
+            var prototypeHandle = JavaScriptValueSafeHandle.Invalid;
+            if (prototype != null)
+                prototypeHandle = prototype.Handle;
+
+            Engine.JsSetPrototype(obj.Handle, prototypeHandle);
         }
 
         /// <summary>
@@ -62,8 +122,8 @@
         /// <returns></returns>
         public JsObject Freeze(JsObject obj)
         {
-            var result = GetProperty<JsFunction>("freeze");
-            return result.Call<JsObject>(this, obj);
+            var fnFreeze = GetProperty<JsFunction>("freeze");
+            return fnFreeze.Call<JsObject>(this, obj);
         }
     }
 

@@ -259,19 +259,21 @@ export default myFoo;
                     {
                         Foo.MyStaticProperty = null;
                         ctx.Converter.TryFromObject(ctx, typeof(Foo), out JsValue value);
-                        ctx.GlobalObject["Foo"] = value;
+                        ctx.GlobalObject["Foo"] = (value as JsFunction);
                         var fnFoo = (value as JsFunction);
                         Assert.Equal(2, fnFoo.Keys.Length); //myStaticProperty, myStaticMethod.
 
                         var result = ctx.EvaluateModule<JsObject>(script);
                         Assert.Equal("test123", Foo.MyStaticProperty);
+                        Assert.True(ctx.InstanceOf(result, fnFoo));
                         Assert.Equal("123Test", result["myProperty"].ToString());
 
-                        //Assert.Equal(2, ctx.Object.Keys(result).Length);
+                        Assert.Equal(2, result.Keys.Length);
+                        Assert.Equal("myProperty", result.Keys[0].ToString());
+                        Assert.Equal("myMethod", result.Keys[1].ToString());
                         var stringified = ctx.JSON.Stringify(result);
                         dynamic json = JsonConvert.DeserializeObject(stringified);
-                        //Assert.Equal("123Test", (string)json.myProperty);
-
+                        Assert.Equal("123Test", (string)json.myProperty);
                     }
                 }
             }

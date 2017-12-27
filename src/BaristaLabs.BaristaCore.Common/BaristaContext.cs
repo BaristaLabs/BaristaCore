@@ -387,6 +387,17 @@ let global = (new Function('return this;'))();
         }
 
         /// <summary>
+        /// Tests whether the prototype property of a constructor appears anywhere in the prototype chain of an object.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="constructor"></param>
+        /// <returns></returns>
+        public bool InstanceOf(JsObject obj, JsFunction constructor)
+        {
+            return Engine.JsInstanceOf(obj.Handle, constructor.Handle);
+        }
+
+        /// <summary>
         /// Returns a new JavaScript Execution Scope to perform work in.
         /// </summary>
         /// <returns></returns>

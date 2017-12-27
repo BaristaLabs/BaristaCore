@@ -172,5 +172,68 @@ export default () => { throw new Error('That is quite illogical, captain.'); };
                 }
             }
         }
+
+        [Fact]
+        public void JsPrototypesCanBeCreated()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var User = ctx.ValueFactory.CreateFunction(new Action<JsObject>((thisObj) => {
+                            thisObj["foo"] = ctx.ValueFactory.CreateString("bar");
+                        }));
+
+                        var fnTestMe = ctx.ValueFactory.CreateFunction(new Func<JsObject>(() => {
+                            return ctx.ValueFactory.CreateString("moose");
+                        }));
+
+                        var propsDeclObj = ctx.ValueFactory.CreateObject();
+                        var testMeFnDecl = ctx.ValueFactory.CreateObject();
+                        testMeFnDecl["value"] = fnTestMe;
+                        testMeFnDecl["enumerable"] = ctx.True;
+                        propsDeclObj["testMe"] = testMeFnDecl;
+
+                        //Create a new user.
+                        var newUser = ctx.Object.Create(User.Prototype, propsDeclObj);
+                        
+                        //Check that everything is all-ok.
+                        Assert.NotNull(newUser);
+                        User.Call(newUser);
+                        var isInstance = ctx.InstanceOf(newUser, User);
+                        Assert.Equal(2, newUser.Keys.Length);
+                        Assert.Equal("testMe", newUser.Keys[0].ToString());
+                        Assert.Equal("foo", newUser.Keys[1].ToString());
+
+                        Assert.True(newUser["testMe"] is JsFunction);
+                        Assert.True(newUser["foo"] is JsValue);
+                        Assert.Equal("bar", newUser["foo"].ToString());
+
+                        Assert.Equal("moose", (newUser["testMe"] as JsFunction).Call(newUser).ToString());
+
+                        var newUserPrototype = ctx.Object.GetPrototypeOf(newUser);
+                        Assert.Same(newUserPrototype, User.Prototype);
+
+                        //Now create a constructor for users.
+                        var fnUserCtor = ctx.ValueFactory.CreateFunction(new Func<JsObject, JsObject>((thisObj) => {
+                            var daUser = ctx.Object.Create(User.Prototype, propsDeclObj);
+                            User.Call(daUser);
+                            return daUser;
+                        }));
+
+                        ctx.GlobalObject["User"] = fnUserCtor;
+                        var result = ctx.EvaluateModule<JsObject>("let user = new User(); export default user;");
+                        Assert.True(ctx.InstanceOf(result, User));
+                        Assert.Equal(2, result.Keys.Length);
+                        Assert.Equal("testMe", result.Keys[0].ToString());
+                        Assert.Equal("foo", result.Keys[1].ToString());
+                        var resultJson = ctx.JSON.Stringify(result);
+                        Assert.False(String.IsNullOrWhiteSpace(resultJson.ToString()));
+                    }
+                }
+            }
+        }
     }
 }

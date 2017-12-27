@@ -162,8 +162,8 @@
             if (func == null)
                 throw new ArgumentNullException(nameof(func));
 
-            JavaScriptNativeFunction fnDelegate;
-            switch(func)
+            JavaScriptNativeFunction fnDelegate = null;
+            switch (func)
             {
                 case BaristaFunctionDelegate fnBaristaFunctionDelegate:
                     fnDelegate = CreateNativeFunctionForDelegate(fnBaristaFunctionDelegate);
