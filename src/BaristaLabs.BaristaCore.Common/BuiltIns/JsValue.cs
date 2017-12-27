@@ -318,7 +318,7 @@
         public static explicit operator int (JsValue value)
         {
             if (value == null)
-                return default;
+                return default(int);
 
             return value.ToInt32();
         }
@@ -326,7 +326,7 @@
         public static explicit operator double (JsValue value)
         {
             if (value == null)
-                return default;
+                return default(double);
 
             return value.ToDouble();
         }
@@ -334,7 +334,7 @@
         public static explicit operator string(JsValue value)
         {
             if (value == null)
-                return default;
+                return default(string);
 
             return value.ToString();
         }
