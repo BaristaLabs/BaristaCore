@@ -7,22 +7,26 @@
     <owners>BaristaLabs, LLC</owners>
     <licenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/BaristaLabs/BaristaCore</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <developmentDependency>true</developmentDependency>
-    <description>Common base library that provides the base types and high-level wrapper around Chakra, the JavaScript engine that powers Microsoft Edge.
-	For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application</description>
+    <developmentDependency>false</developmentDependency>
+    <summary>Common base library that provides the base types and high-level wrapper around Chakra</summary>
+    <description>
+      Common base library that provides the base types and high-level wrapper around Chakra, the JavaScript engine that powers Microsoft Edge.
+      For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application
+    </description>
     <releaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</releaseNotes>
     <copyright>Copyright (c) 2017 BaristaLabs, LLC</copyright>
     <language>en-US</language>
     <tags>Barista,BaristaCore,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-		  <dependency id="Microsoft.Extensions.DependencyInjection" version="2.0.0" />
-	  </group>
+        <dependency id="Microsoft.Extensions.DependencyInjection" version="2.0.0" />
+      </group>
     </dependencies>
   </metadata>
   <files>
-	<file src=".\src\BaristaLabs.BaristaCore.Common\bin\x64\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Common.dll" target="lib\netstandard2.0\"/>
+    <file src=".\src\BaristaLabs.BaristaCore.Common\bin\x64\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Common.dll" target="lib\netstandard2.0\"/>
     <file src=".\src\BaristaLabs.BaristaCore.Common\bin\x64\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Common.pdb" target="lib\netstandard2.0\"/>
   </files>
 </package>

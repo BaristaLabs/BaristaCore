@@ -8,7 +8,7 @@
     <licenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/BaristaLabs/BaristaCore</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <developmentDependency>true</developmentDependency>
+    <developmentDependency>false</developmentDependency>
     <description>This package includes the Microsoft ChakraCore native library in support of BaristaCore.</description>
     <releaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</releaseNotes>
     <copyright>Copyright (c) 2017 BaristaLabs, LLC</copyright>
@@ -16,10 +16,10 @@
     <tags>Barista,BaristaCore,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-		  <dependency id="BaristaLabs.BaristaCore.ChakraCore.win-x64" version="1.7.5" />
-		  <dependency id="BaristaLabs.BaristaCore.ChakraCore.osx-x64" version="1.7.5" />
-		  <dependency id="BaristaLabs.BaristaCore.ChakraCore.linux-x64" version="1.7.5" />
-	  </group>
+        <dependency id="BaristaLabs.BaristaCore.ChakraCore.win-x64" version="1.7.5" />
+        <dependency id="BaristaLabs.BaristaCore.ChakraCore.osx-x64" version="1.7.5" />
+        <dependency id="BaristaLabs.BaristaCore.ChakraCore.linux-x64" version="1.7.5" />
+      </group>
     </dependencies>
   </metadata>
   <files>

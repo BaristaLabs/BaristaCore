@@ -6,8 +6,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1E189DA3-80D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E6B87984-3E9A-476A-AEAA-8B9CECB79BB8}"
 	ProjectSection(SolutionItems) = preProject
+		BaristaCore.nuspec = BaristaCore.nuspec
+		BaristaLabs.BaristaCore.Common.nuspec = BaristaLabs.BaristaCore.Common.nuspec
 		ChakraExternDefinitions.xml = ChakraExternDefinitions.xml
 		LICENSE = LICENSE
+		Logo.png = Logo.png
 		README.md = README.md
 	EndProjectSection
 EndProject

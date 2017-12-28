@@ -8,7 +8,7 @@
     <licenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/BaristaLabs/BaristaCore</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <developmentDependency>true</developmentDependency>
+    <developmentDependency>false</developmentDependency>
     <description>This package includes the Microsoft ChakraCore native library in support of BaristaCore.</description>
     <releaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</releaseNotes>
     <copyright>Copyright (c) 2017 BaristaLabs, LLC</copyright>
