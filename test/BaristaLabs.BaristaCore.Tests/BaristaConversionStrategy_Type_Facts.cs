@@ -627,9 +627,9 @@ export default (square instanceof Square) && (square instanceof Rectangle) && (s
         {
             var script = @"
 var count = 0;
-Foo.on('myStaticEvent', () => { count++; });
+Foo.addEventListener('myStaticEvent', () => { count++; });
 var myFoo = new Foo();
-myFoo.on('myEvent', () => { count++; });
+myFoo.addEventListener('myEvent', () => { count++; });
 myFoo.bonk();
 export default count;
 ";
@@ -655,12 +655,12 @@ export default count;
             var script = @"
 var count = 0;
 var myFoo = new Foo();
-myFoo.on('myEvent', () => { count++; });
+myFoo.addEventListener('myEvent', () => { count++; });
 myFoo.bonk();
-myFoo.removeAllListeners('myEvent');
-myFoo.removeAllListeners('myEvent');
+myFoo.removeAllEventListeners('myEvent');
+myFoo.removeAllEventListeners('myEvent');
 myFoo.bonk();
-myFoo.removeAllListeners('foo');
+myFoo.removeAllEventListeners('foo');
 export default count;
 ";
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
@@ -684,9 +684,9 @@ export default count;
         {
             var script = @"
 var count = 0;
-Foo.on('myStaticEvent', () => { count++; });
+Foo.addEventListener('myStaticEvent', () => { count++; });
 var myFoo = new Foo();
-var result = myFoo.on('myEvent', () => { count++; });
+var result = myFoo.addEventListener('myEvent', () => { count++; });
 export default result;
 ";
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
@@ -716,13 +716,15 @@ export default result;
                     {
                         ctx.Converter.TryFromObject(ctx, typeof(HasEvents), out JsValue value);
                         var jsObj = value as JsObject;
-                        Assert.True(jsObj.HasOwnProperty("on"));
-                        Assert.True(jsObj.HasOwnProperty("removeAllListeners"));
+                        Assert.True(jsObj.HasOwnProperty("addEventListener"));
+                        Assert.True(jsObj.HasOwnProperty("removeEventListener"));
+                        Assert.True(jsObj.HasOwnProperty("removeAllEventListeners"));
 
                         ctx.Converter.TryFromObject(ctx, typeof(HasNoExposedEvents), out JsValue value1);
                         var jsObj1 = value1 as JsObject;
-                        Assert.False(jsObj1.HasOwnProperty("on"));
-                        Assert.False(jsObj1.HasOwnProperty("removeAllListeners"));
+                        Assert.False(jsObj1.HasOwnProperty("addEventListener"));
+                        Assert.False(jsObj1.HasOwnProperty("removeEventListener"));
+                        Assert.False(jsObj1.HasOwnProperty("removeAllEventListeners"));
                     }
                 }
             }
@@ -734,7 +736,7 @@ export default result;
             var script = @"
 var count = 0;
 var myFoo = new Foo();
-myFoo.on('mySuperEvent', () => { count++; });
+myFoo.addEventListener('mySuperEvent', () => { count++; });
 myFoo.bonk();
 myFoo.bonk();
 export default count;
@@ -803,9 +805,9 @@ export default count;
 var count = 0;
 var dracula = 0;
 var myFoo = new Foo();
-myFoo.on('mySuperEvent', () => { count++; });
-myFoo.on('mySuperEvent', () => { dracula++; });
-myFoo.on('mySuperDuperEvent', () => { count++; });
+myFoo.addEventListener('mySuperEvent', () => { count++; });
+myFoo.addEventListener('mySuperEvent', () => { dracula++; });
+myFoo.addEventListener('mySuperDuperEvent', () => { count++; });
 myFoo.bonk();
 myFoo.bonk();
 export default { count, dracula };

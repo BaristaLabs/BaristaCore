@@ -307,11 +307,11 @@
             if (eventsTable.Count == 0)
                 return;
 
-            var fnAddListener = context.ValueFactory.CreateFunction(new Func<JsObject, string, JsFunction, JsValue>((thisObj, eventName, fnCallback) => {
+            var fnAddEventListener = context.ValueFactory.CreateFunction(new Func<JsObject, string, JsFunction, JsValue>((thisObj, eventName, fnCallback) => {
 
                 if (String.IsNullOrWhiteSpace(eventName))
                 {
-                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The name of the event to register must be specified."));
+                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The name of the event listener to register must be specified."));
                     return context.Undefined;
                 }
 
@@ -319,7 +319,7 @@
 
                 if (thisObj == null)
                 {
-                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not register event '{eventName}' because there was an invalid 'this' context."));
+                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not register event listener '{eventName}' because there was an invalid 'this' context."));
                     return context.Undefined;
                 }
 
@@ -349,15 +349,15 @@
 
                 var invokeListenerDelegate = exprInvokeListener.Compile();
 
-                IDictionary<string, IList<Delegate>> eventListeners;
+                IDictionary<string, IList<Tuple<JsFunction, Delegate>>> eventListeners;
                 if (thisObj.HasProperty(BaristaEventListenersPropertyName))
                 {
                     var xoListeners = thisObj.GetProperty<JsExternalObject>(BaristaEventListenersPropertyName);
-                    eventListeners = xoListeners.Target as IDictionary<string, IList<Delegate>>;
+                    eventListeners = xoListeners.Target as IDictionary<string, IList<Tuple<JsFunction, Delegate>>>;
                 }
                 else
                 {
-                    eventListeners = new Dictionary<string, IList<Delegate>>();
+                    eventListeners = new Dictionary<string, IList<Tuple<JsFunction, Delegate>>>();
 
                     //Set the listeners as a non-configurable, non-enumerable, non-writable property
                     var xoListeners = context.ValueFactory.CreateExternalObject(eventListeners);
@@ -370,21 +370,27 @@
                 if (eventListeners != null)
                 {
                     if (eventListeners.ContainsKey(eventName))
-                        eventListeners[eventName].Add(invokeListenerDelegate);
+                        eventListeners[eventName].Add(new Tuple<JsFunction, Delegate>(fnCallback, invokeListenerDelegate));
                     else
-                        eventListeners.Add(eventName, new List<Delegate>() { invokeListenerDelegate });
+                        eventListeners.Add(eventName, new List<Tuple<JsFunction, Delegate>>() { new Tuple<JsFunction, Delegate>(fnCallback, invokeListenerDelegate) });
                 }
                 
                 targetEvent.AddMethod.Invoke(targetObj, new object[] { invokeListenerDelegate });
 
                 return context.True;
-            }), "on");
+            }), "addEventListener");
 
-            var fnRemoveAllListeners = context.ValueFactory.CreateFunction(new Func<JsObject, string, JsValue>((thisObj, eventName) => {
-
+            var fnRemoveEventListener = context.ValueFactory.CreateFunction(new Func<JsObject, string, JsFunction, JsValue>((thisObj, eventName, eventListener) =>
+            {
                 if (String.IsNullOrWhiteSpace(eventName))
                 {
-                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The name of the event to remove must be specified."));
+                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The name of the event listener to remove must be specified."));
+                    return context.Undefined;
+                }
+
+                if (eventListener == null)
+                {
+                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The event listener to remove must be specified."));
                     return context.Undefined;
                 }
 
@@ -392,7 +398,7 @@
 
                 if (thisObj == null)
                 {
-                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not unregister event '{eventName}' because there was an invalid 'this' context."));
+                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not unregister event listener '{eventName}' because there was an invalid 'this' context."));
                     return context.Undefined;
                 }
 
@@ -402,14 +408,70 @@
                 }
 
                 if (!eventsTable.TryGetValue(eventName, out EventInfo targetEvent))
-                    return context.Undefined;
+                    return context.False;
 
                 //Get the event listeners.
-                IDictionary<string, IList<Delegate>> eventListeners = null;
+                IDictionary<string, IList<Tuple<JsFunction, Delegate>>> eventListeners = null;
                 if (thisObj.HasProperty(BaristaEventListenersPropertyName))
                 {
                     var xoListeners = thisObj.GetProperty<JsExternalObject>(BaristaEventListenersPropertyName);
-                    eventListeners = xoListeners.Target as IDictionary<string, IList<Delegate>>;
+                    eventListeners = xoListeners.Target as IDictionary<string, IList<Tuple<JsFunction, Delegate>>>;
+                }
+
+                if (eventListeners == null)
+                    return context.False;
+
+                var hasRemoved = false;
+                if (eventListeners.ContainsKey(eventName))
+                {
+                    var listeners = eventListeners[eventName];
+                    var toRemove = new List<Tuple<JsFunction, Delegate>>();
+                    foreach (var listener in listeners)
+                    {
+                        if (listener.Item1 == eventListener)
+                        {
+                            targetEvent.RemoveMethod.Invoke(targetObj, new object[] { listener.Item2 });
+                            toRemove.Add(listener);
+                            hasRemoved = true;
+                        }
+                    }
+
+                    eventListeners[eventName] = listeners.Where(l => toRemove.Any(tl => tl == l)).ToList();
+                }
+
+                return hasRemoved ? context.True : context.False;
+            }), "removeEventListener");
+
+            var fnRemoveAllEventListeners = context.ValueFactory.CreateFunction(new Func<JsObject, string, JsValue>((thisObj, eventName) => {
+
+                if (String.IsNullOrWhiteSpace(eventName))
+                {
+                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The name of the event listener to remove must be specified."));
+                    return context.Undefined;
+                }
+
+                object targetObj = null;
+
+                if (thisObj == null)
+                {
+                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not unregister event listener '{eventName}' because there was an invalid 'this' context."));
+                    return context.Undefined;
+                }
+
+                if (thisObj.TryGetBean(out JsExternalObject xoObj))
+                {
+                    targetObj = xoObj.Target;
+                }
+
+                if (!eventsTable.TryGetValue(eventName, out EventInfo targetEvent))
+                    return context.False;
+
+                //Get the event listeners.
+                IDictionary<string, IList<Tuple<JsFunction, Delegate>>> eventListeners = null;
+                if (thisObj.HasProperty(BaristaEventListenersPropertyName))
+                {
+                    var xoListeners = thisObj.GetProperty<JsExternalObject>(BaristaEventListenersPropertyName);
+                    eventListeners = xoListeners.Target as IDictionary<string, IList<Tuple<JsFunction, Delegate>>>;
                 }
 
                 if (eventListeners == null)
@@ -419,24 +481,29 @@
                 {
                     foreach(var listener in eventListeners[eventName])
                     {
-                        targetEvent.RemoveMethod.Invoke(targetObj, new object[] { listener });
+                        targetEvent.RemoveMethod.Invoke(targetObj, new object[] { listener.Item2 });
                     }
 
                     eventListeners.Remove(eventName);
                 }
 
                 return context.True;
-            }), "removeAllListeners");
+            }), "removeAllEventListeners");
 
-            var onFunctionDescriptor = context.ValueFactory.CreateObject();
-            onFunctionDescriptor.SetProperty("enumerable", context.True);
-            onFunctionDescriptor.SetProperty("value", fnAddListener);
-            targetObject.SetProperty(context.ValueFactory.CreateString("on"), onFunctionDescriptor);
+            var addEventListenerFunctionDescriptor = context.ValueFactory.CreateObject();
+            addEventListenerFunctionDescriptor.SetProperty("enumerable", context.True);
+            addEventListenerFunctionDescriptor.SetProperty("value", fnAddEventListener);
+            targetObject.SetProperty(context.ValueFactory.CreateString("addEventListener"), addEventListenerFunctionDescriptor);
 
-            var offFunctionDescriptor = context.ValueFactory.CreateObject();
-            offFunctionDescriptor.SetProperty("enumerable", context.True);
-            offFunctionDescriptor.SetProperty("value", fnRemoveAllListeners);
-            targetObject.SetProperty(context.ValueFactory.CreateString("removeAllListeners"), offFunctionDescriptor);
+            var removeEventListenerFunctionDescriptor = context.ValueFactory.CreateObject();
+            removeEventListenerFunctionDescriptor.SetProperty("enumerable", context.True);
+            removeEventListenerFunctionDescriptor.SetProperty("value", fnRemoveEventListener);
+            targetObject.SetProperty(context.ValueFactory.CreateString("removeEventListener"), removeEventListenerFunctionDescriptor);
+
+            var removeAllEventListenersFunctionDescriptor = context.ValueFactory.CreateObject();
+            removeAllEventListenersFunctionDescriptor.SetProperty("enumerable", context.True);
+            removeAllEventListenersFunctionDescriptor.SetProperty("value", fnRemoveAllEventListeners);
+            targetObject.SetProperty(context.ValueFactory.CreateString("removeAllEventListeners"), removeAllEventListenersFunctionDescriptor);
         }
 
         private object[] ConvertArgsToParamTypes(BaristaContext context, object[] args, ParameterInfo[] parameters)
