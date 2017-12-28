@@ -3,6 +3,7 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using BaristaLabs.BaristaCore.Tasks;
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.InteropServices;
     using System.Threading;
@@ -29,6 +30,7 @@
         private readonly IBaristaConversionStrategy m_conversionStrategy;
         private readonly IPromiseTaskQueue m_promiseTaskQueue;
         private readonly IBaristaModuleRecordFactory m_moduleRecordFactory;
+        private IDictionary<string, JsSymbol> m_registeredSymbols;
 
         private readonly TaskFactory m_taskFactory;
         private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
@@ -82,6 +84,7 @@
 
             m_promiseTaskQueue = taskQueue;
             m_moduleRecordFactory = moduleRecordFactory ?? throw new ArgumentNullException(nameof(moduleRecordFactory));
+            m_registeredSymbols = new Dictionary<string, JsSymbol>();
 
             //Set the event that will be called prior to the engine collecting the context.
             JavaScriptObjectBeforeCollectCallback beforeCollectCallback = (IntPtr handle, IntPtr callbackState) =>
@@ -373,7 +376,7 @@ let global = (new Function('return this;'))();
 
                 if (m_promiseTaskQueue != null && GlobalObject.HasOwnProperty("$ERROR"))
                 {
-                    var errorValue = GlobalObject.GetProperty<JsObject>("$ERROR");
+                    var errorValue = GlobalObject.GetProperty("$ERROR");
                     throw new JsScriptException(JsErrorCode.ScriptException, errorValue.Handle);
                 }
 
@@ -394,7 +397,31 @@ let global = (new Function('return this;'))();
         /// <returns></returns>
         public bool InstanceOf(JsObject obj, JsFunction constructor)
         {
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(BaristaContext));
+
             return Engine.JsInstanceOf(obj.Handle, constructor.Handle);
+        }
+
+        /// <summary>
+        /// Returns a JsSymbol with the specified description unique to this context.
+        /// </summary>
+        /// <param name="symbolDescription"></param>
+        /// <returns></returns>
+        public JsSymbol GetSymbol(string symbolDescription)
+        {
+            if (String.IsNullOrWhiteSpace(symbolDescription))
+                throw new ArgumentNullException(symbolDescription);
+
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(BaristaContext));
+
+            if (m_registeredSymbols.ContainsKey(symbolDescription))
+                return m_registeredSymbols[symbolDescription];
+
+            var newSymbol = ValueFactory.CreateSymbol(symbolDescription);
+            m_registeredSymbols.Add(symbolDescription, newSymbol);
+            return newSymbol;
         }
 
         /// <summary>
@@ -431,6 +458,9 @@ let global = (new Function('return this;'))();
                 BaristaExecutionScope scope = null;
                 if (!HasCurrentScope)
                     scope = Scope();
+
+                m_registeredSymbols = null;
+
                 try
                 {
                     m_valueFactory.Dispose();

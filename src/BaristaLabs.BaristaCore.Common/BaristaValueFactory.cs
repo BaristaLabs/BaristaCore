@@ -517,7 +517,7 @@
             if (targetType == null)
                 throw new ArgumentNullException(nameof(targetType));
 
-            if (typeof(JsValue).IsSameOrSubclass(targetType) == false)
+            if (targetType.IsSubclassOf(typeof(JsValue)) == false)
                 throw new ArgumentOutOfRangeException(nameof(targetType));
 
             if (valueHandle == JavaScriptValueSafeHandle.Invalid)
@@ -531,23 +531,35 @@
                 {
                     result = Activator.CreateInstance(targetType, new object[] { m_engine, Context, valueHandle }) as JsValue;
                 }
-                else if (typeof(JsSymbol).IsSameOrSubclass(targetType))
-                {
-                    result = new JsSymbol(m_engine, Context, valueHandle);
-                }
-                else if (typeof(JsUndefined).IsSameOrSubclass(targetType))
-                {
-                    result = new JsUndefined(m_engine, Context, valueHandle);
-                }
-                else if (typeof(JsNull).IsSameOrSubclass(targetType))
-                {
-                    result = new JsNull(m_engine, Context, valueHandle);
-                }
                 else if (typeof(JsExternalObject).IsSameOrSubclass(targetType))
                 {
                     //TODO: This isn't exactly true, we should set the ExternalData to the GCHandle.
                     //Then we can new JsExternalObject(m_engine, Context, valueHandle, Engine.GetExternalData(valueHandle));
                     throw new InvalidOperationException("External Objects must first be created by ...");
+                }
+                else if (typeof(JsBoolean) == targetType)
+                {
+                    result = new JsBoolean(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsNumber) == targetType)
+                {
+                    result = new JsNumber(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsString) == targetType)
+                {
+                    result = new JsString(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsSymbol) == targetType)
+                {
+                    result = new JsSymbol(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsUndefined) == targetType)
+                {
+                    result = new JsUndefined(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsNull) == targetType)
+                {
+                    result = new JsNull(m_engine, Context, valueHandle);
                 }
                 else
                 {

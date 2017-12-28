@@ -557,7 +557,7 @@ export default (rect instanceof Rectangle);
                         ctx.Converter.TryFromObject(ctx, typeof(Rectangle), out JsValue jsRectangle);
                         ctx.GlobalObject["Rectangle"] = jsRectangle;
 
-                        var result = ctx.EvaluateModule<JsObject>(script);
+                        var result = ctx.EvaluateModule<JsBoolean>(script);
                         Assert.True(result.ToBoolean());
                     }
                 }
@@ -583,7 +583,7 @@ export default (square instanceof Square);
                         ctx.Converter.TryFromObject(ctx, typeof(Square), out JsValue jsSquare);
                         ctx.GlobalObject["Square"] = jsSquare;
 
-                        var result = ctx.EvaluateModule<JsObject>(script);
+                        var result = ctx.EvaluateModule<JsBoolean>(script);
                         Assert.True(result.ToBoolean());
                     }
                 }
@@ -613,7 +613,7 @@ export default (square instanceof Square) && (square instanceof Rectangle) && (s
                         ctx.GlobalObject["Rectangle"] = jsRectangle;
                         ctx.GlobalObject["Shape"] = jsShape;
 
-                        var result = ctx.EvaluateModule<JsObject>(script);
+                        var result = ctx.EvaluateModule<JsBoolean>(script);
                         Assert.True(result.ToBoolean());
                     }
                 }

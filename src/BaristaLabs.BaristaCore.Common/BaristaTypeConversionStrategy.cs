@@ -62,6 +62,13 @@
             {
                 fnCtor = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
                 {
+                    if (thisObj == null)
+                    {
+                        var ex = context.ValueFactory.CreateTypeError($"Failed to construct '{objectName}': 'this' must be specified.");
+                        context.CurrentScope.SetException(ex);
+                        return context.Undefined;
+                    }
+
                     if (superCtor != null)
                     {
                         superCtor.Call(thisObj);
@@ -69,8 +76,9 @@
 
                     context.Object.DefineProperties(thisObj, instancePropertyDescriptors);
 
+                    //If this isn't a construct call, don't attempt to set the bean
                     if (!isConstructCall)
-                        return null;
+                        return thisObj;
 
                     //Set our native object.
                     JsExternalObject externalObject = null;
@@ -107,12 +115,9 @@
                         }
                     }
 
-                    //Set the baristaObject as a non-configurable, non-enumerable, non-writable property
-                    var baristaObjectPropertyDescriptor = context.ValueFactory.CreateObject();
-                    baristaObjectPropertyDescriptor.SetProperty("value", externalObject);
-                    context.Object.DefineProperty(thisObj, context.ValueFactory.CreateString(BaristaObjectPropertyName), baristaObjectPropertyDescriptor);
-
-                    return null;
+                    thisObj.SetBean(externalObject);
+                    
+                    return thisObj;
                 }), objectName);
             }
             else
@@ -163,16 +168,8 @@
                             return context.Undefined;
                         }
 
-                        //TODO: Migrate to this.
-                        //if (thisObj.Prototype is JsExternalObject xoObj)
-                        //{
-                        //    targetObj = xoObj.Target;
-                        //}
-
-                        //If the property exists we're probably an instance -- though we should find a way to check this better.
-                        if (thisObj.HasProperty(BaristaObjectPropertyName))
+                        if (thisObj.TryGetBean(out JsExternalObject xoObj))
                         {
-                            var xoObj = thisObj.GetProperty<JsExternalObject>(BaristaObjectPropertyName);
                             targetObj = xoObj.Target;
                         }
 
@@ -210,16 +207,8 @@
                             return context.Undefined;
                         }
 
-                        //TODO: Migrate to this.
-                        //if (thisObj.Prototype is JsExternalObject xoObj)
-                        //{
-                        //    targetObj = xoObj.Target;
-                        //}
-
-                        //If the property exists we're probably an instance -- though we should find a way to check this better.
-                        if (thisObj.HasProperty(BaristaObjectPropertyName))
+                        if (thisObj.TryGetBean(out JsExternalObject xoObj))
                         {
-                            var xoObj = thisObj.GetProperty<JsExternalObject>(BaristaObjectPropertyName);
                             targetObj = xoObj.Target;
                         }
 
@@ -239,7 +228,6 @@
                     propertyDescriptor.SetProperty("set", jsSet);
                 }
 
-                //context.Object.DefineProperty(targetObject, context.ValueFactory.CreateString(propertyName), propertyDescriptor);
                 targetObject.SetProperty(context.ValueFactory.CreateString(propertyName), propertyDescriptor);
             }
         }
@@ -261,10 +249,8 @@
                         return context.Undefined;
                     }
 
-                    //If the property exists we're probably an instance -- though we should find a way to check this better.
-                    if (thisObj.HasProperty(BaristaObjectPropertyName))
+                    if (thisObj.TryGetBean(out JsExternalObject xoObj))
                     {
-                        var xoObj = thisObj.GetProperty<JsExternalObject>(BaristaObjectPropertyName);
                         targetObj = xoObj.Target;
                     }
 
@@ -312,7 +298,6 @@
 
                 functionDescriptor.SetProperty("value", fn);
 
-                //context.Object.DefineProperty(targetObject, context.ValueFactory.CreateString(methodName), functionDescriptor);
                 targetObject.SetProperty(context.ValueFactory.CreateString(methodName), functionDescriptor);
             }
         }
@@ -338,10 +323,8 @@
                     return context.Undefined;
                 }
 
-                //If the property exists we're probably an instance -- though we should find a way to check this better.
-                if (thisObj.HasProperty(BaristaObjectPropertyName))
+                if (thisObj.TryGetBean(out JsExternalObject xoObj))
                 {
-                    var xoObj = thisObj.GetProperty<JsExternalObject>(BaristaObjectPropertyName);
                     targetObj = xoObj.Target;
                 }
 
@@ -413,10 +396,8 @@
                     return context.Undefined;
                 }
 
-                //If the property exists we're probably an instance -- though we should find a way to check this better.
-                if (thisObj.HasProperty(BaristaObjectPropertyName))
+                if (thisObj.TryGetBean(out JsExternalObject xoObj))
                 {
-                    var xoObj = thisObj.GetProperty<JsExternalObject>(BaristaObjectPropertyName);
                     targetObj = xoObj.Target;
                 }
 

@@ -392,7 +392,7 @@
                 using (var ctx = rt.CreateContext())
                 {
                     JsObject result;
-                    JsObject qixValue;
+                    JsValue qixValue;
                     using (ctx.Scope())
                     {
                         var script = "export default { 'foo': 'bar'};";

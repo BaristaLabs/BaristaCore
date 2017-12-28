@@ -200,7 +200,7 @@
                         {
                             try
                             {
-                                ctx.Promise.Wait<JsString>(rejectPromise);
+                                ctx.Promise.Wait<JsObject>(rejectPromise);
                             }
                             catch(JsScriptException ex)
                             {

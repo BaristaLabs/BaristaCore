@@ -55,6 +55,14 @@
             return fnDefineProperty.Call<JsObject>(this, obj, prop, descriptor);
         }
 
+        public bool DefineProperty(JsObject obj, JsSymbol symbol, JsObject descriptor)
+        {
+            using (var propertyIdHandle = Engine.JsGetPropertyIdFromSymbol(symbol.Handle))
+            {
+                return Engine.JsDefineProperty(obj.Handle, propertyIdHandle, descriptor.Handle);
+            }                
+        }
+
         /// <summary>
         /// Defines new or modifies existing properties directly on an object, returning the object.
         /// </summary>
@@ -449,9 +457,25 @@
             }
         }
 
+        public bool HasProperty(JsSymbol propertySymbol)
+        {
+            using (var propertyIdHandle = Engine.JsGetPropertyIdFromSymbol(propertySymbol.Handle))
+            {
+                return Engine.JsHasProperty(Handle, propertyIdHandle);
+            }
+        }
+
         public bool HasOwnProperty(string propertyName)
         {
             using (var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length))
+            {
+                return Engine.JsHasOwnProperty(Handle, propertyIdHandle);
+            }
+        }
+
+        public bool HasOwnProperty(JsSymbol propertySymbol)
+        {
+            using (var propertyIdHandle = Engine.JsGetPropertyIdFromSymbol(propertySymbol.Handle))
             {
                 return Engine.JsHasOwnProperty(Handle, propertyIdHandle);
             }
@@ -695,6 +719,56 @@
                 return true;
             }
             return base.TrySetMember(binder, value);
+        }
+        #endregion
+
+        #region Bean Methods
+        private const string BaristaBeanName = "__BaristaBean__";
+
+        /// <summary>
+        /// Gets a value that indicates if the object contains a bean.
+        /// </summary>
+        public bool HasBean
+        {
+            get
+            {
+                return HasOwnProperty(Context.GetSymbol(BaristaBeanName));
+            }
+        }
+
+        /// <summary>
+        /// Attempts to get the bean object from the value.
+        /// </summary>
+        /// <param name="bean"></param>
+        /// <returns></returns>
+        public bool TryGetBean(out JsExternalObject bean)
+        {
+            if (!HasBean)
+            {
+                bean = null;
+                return false;
+            }
+
+            bean = GetProperty<JsExternalObject>(Context.GetSymbol(BaristaBeanName));
+            return true;
+        }
+
+        /// <summary>
+        /// Set the bean to the specified value.
+        /// </summary>
+        /// <param name="exObj"></param>
+        /// <returns></returns>
+        public bool SetBean(JsExternalObject exObj)
+        {
+            if (exObj == null)
+                throw new ArgumentNullException(nameof(exObj));
+
+            if (HasBean)
+                throw new InvalidOperationException("A bean has already been set for this object. Once set, beans are immutable.");
+
+            var descriptor = ValueFactory.CreateObject();
+            descriptor.SetProperty("value", exObj);
+            return Context.Object.DefineProperty(this, Context.GetSymbol(BaristaBeanName), descriptor);
         }
         #endregion
     }

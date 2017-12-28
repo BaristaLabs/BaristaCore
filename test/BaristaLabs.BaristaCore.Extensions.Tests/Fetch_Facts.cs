@@ -203,7 +203,7 @@ export default fn;
                         var jsonData = response.ToString();
                         Assert.True(jsonData.Length > 0);
                         dynamic data = JsonConvert.DeserializeObject(jsonData);
-                        //Assert.Equal("wild-caught-fish", (string)data.headers["X-Pure-and-natural"]);
+                        Assert.Equal("wild-caught-fish", (string)data.headers["X-Pure-And-Natural"]); //Auto-Pascal-Casing is a thing, apparently, but confirmed that it's coming from httpbin
                     }
                 }
             }

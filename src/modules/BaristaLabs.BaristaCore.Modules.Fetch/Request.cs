@@ -24,10 +24,14 @@
 
         public Request(JsObject jsObject)
         {
-            if (jsObject is JsExternalObject exObj && exObj.Target is Request request)
+            if (jsObject.TryGetBean(out JsExternalObject exObj) && exObj.Target is Request request)
             {
                 m_inputUri = request.m_inputUri;
                 m_initObject = request.m_initObject;
+            }
+            else
+            {
+                throw new InvalidOperationException("The specified object must be a request object.");
             }
         }
 
@@ -69,7 +73,7 @@
             return new Response(context, restResponse);
         }
 
-        private void ProcessInitObject(JsObject init, RestClient client, RestRequest request)
+        private void ProcessInitObject(JsObject init, RestClient client, IRestRequest request)
         {
             if (init == null)
                 return;
@@ -83,12 +87,12 @@
                 }
             }
 
-            if (init.HasProperty("headers"))
+            if (init.HasProperty("headers") && init["headers"] is JsObject headersValue)
             {
-                var headersValue = init["headers"];
+                //var headersValue = init["headers"];
                 IDictionary<string, IList<string>> headers = null;
                 //If it's an instance of the Headers object, sweet.
-                if (headersValue is JsExternalObject exObj && exObj.Target is Headers exHeaders)
+                if (headersValue.TryGetBean(out JsExternalObject bean) && bean.Target is Headers exHeaders)
                 {
                     headers = exHeaders.AllHeaders;
                 }
@@ -108,7 +112,7 @@
                 {
                     foreach(var header in headers)
                     {
-                        request.AddHeader(header.Key, String.Join(", ", header.Value));
+                        request = request.AddHeader(header.Key, String.Join(", ", header.Value));
                     }
                 }
             }
@@ -120,11 +124,11 @@
                 {
                     case JsArrayBuffer arrayBuffer:
                         var buffer = arrayBuffer.GetArrayBufferStorage();
-                        request.AddParameter("application/octet-stream", buffer, ParameterType.RequestBody);
+                        request = request.AddParameter("application/octet-stream", buffer, ParameterType.RequestBody);
                         break;
                     //TODO: Blob, FormData...
                     default:
-                        request.AddParameter("text/plain", bodyValue.ToString(), ParameterType.RequestBody);
+                        request = request.AddParameter("text/plain", bodyValue.ToString(), ParameterType.RequestBody);
                         break;
                 }
             }
@@ -222,7 +226,7 @@
                         case "client":
                             break;
                         default:
-                            request.AddHeader("Referer", referrerValue);
+                            request = request.AddHeader("Referer", referrerValue);
                             break;
                     }
                 }
@@ -242,7 +246,7 @@
                     foreach (var keyValue in cookiesValue.Keys)
                     {
                         var key = keyValue.ToString();
-                        request.AddCookie(key, cookiesValue[keyValue].ToString());
+                        request = request.AddCookie(key, cookiesValue[keyValue].ToString());
                     }
                 }
             }

@@ -186,7 +186,7 @@ export default () => { throw new Error('That is quite illogical, captain.'); };
                             thisObj["foo"] = ctx.ValueFactory.CreateString("bar");
                         }));
 
-                        var fnTestMe = ctx.ValueFactory.CreateFunction(new Func<JsObject>(() => {
+                        var fnTestMe = ctx.ValueFactory.CreateFunction(new Func<JsValue>(() => {
                             return ctx.ValueFactory.CreateString("moose");
                         }));
 
