@@ -174,6 +174,62 @@ export default () => { throw new Error('That is quite illogical, captain.'); };
         }
 
         [Fact]
+        public void JsFunctionsReturningThisAreUndefined()
+        {
+            //This is an interesting scenario when attempting to use node modules in modules.
+            //Apparently in node, this returns the global object, while browsers return undefined.
+            //Note the lack of parenthesis.
+            var script = @"
+export default (function() { return this; }());
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var result = ctx.EvaluateModule(script);
+                        Assert.NotNull(result);
+                        Assert.Equal(ctx.Undefined, result);
+
+                        //If we're just running the script, the global is returned.
+                        var runResultHandle = Extensions.IJavaScriptEngineExtensions.JsRunScript(rt.Engine, "(function() { return this; }())");
+                        var runResult = ctx.ValueFactory.CreateValue(runResultHandle);
+                        Assert.Same(ctx.GlobalObject, runResult);
+
+                        //Thus, in order to wrap this, it must be
+                        result = ctx.EvaluateModule("export default (function() { return this; }).call(Function('return this')());");
+                        Assert.Same(ctx.GlobalObject, result);
+
+                        result = ctx.EvaluateModule("export default (function() { return (function (root) { return root; })(this); }).call(Function('return this')());");
+                        Assert.Same(ctx.GlobalObject, result);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void JsFunctionsEvalingThisReturnGlobal()
+        {
+            //Corollary to the above, if it's effectively an eval, the global is returned.
+            var script = @"
+export default (Function('return this')());
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var result = ctx.EvaluateModule(script);
+                        Assert.NotNull(result);
+                        Assert.Same(ctx.GlobalObject, result);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void JsPrototypesCanBeCreated()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())

@@ -183,23 +183,42 @@
                 {
                     var newModuleRecord = m_moduleRecordFactory.CreateBaristaModuleRecord(Context, specifier, this, false);
                     m_importedModules.Add(moduleName, newModuleRecord);
-                    
+                    dependentModule = newModuleRecord.Handle.DangerousGetHandle();
+
                     switch (module)
                     {
+                        //For the built-in NodeModule type, parse the string returned by ExportDefault, but place it in a closure that
+                        //contains module, module.exports, exports and global which correspond to node module conventions.
+                        case INodeModule nodeModule:
+                            var nodeScript = (nodeModule.ExportDefault(Context, newModuleRecord)).GetAwaiter().GetResult() as string;
+                            if (nodeScript == null)
+                                nodeScript = "export default null";
+
+                            nodeScript = $@"'use strict';
+var global = Function('return this')();
+var window = global;
+var module = {{
+    exports: {{}}
+}};
+var exports = module.exports;
+(function() {{
+{nodeScript}
+}}).call(global);
+export default module.exports";
+
+                            newModuleRecord.ParseModuleSource(nodeScript);
+                            return false;
                         //For the built-in Script Module type, parse the string returned by ExportDefault and install it as a module.
                         case IBaristaScriptModule scriptModule:
                             var script = (scriptModule.ExportDefault(Context, newModuleRecord)).GetAwaiter().GetResult() as string;
                             if (script == null)
                                 script = "export default null";
 
-                            dependentModule = newModuleRecord.Handle.DangerousGetHandle();
                             newModuleRecord.ParseModuleSource(script);
                             return false;
                         //Otherwise, install the module.
                         default:
                             var result = InstallModule(newModuleRecord, referencingModuleRecord, module, specifier);
-
-                            dependentModule = newModuleRecord.Handle.DangerousGetHandle();
                             return result;
                     }
                 }

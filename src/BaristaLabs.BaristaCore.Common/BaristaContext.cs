@@ -366,9 +366,8 @@ let global = (new Function('return this;'))();
 
                 //Now Parse the user-provided script.
                 subModule.ParseModuleSource(script);
-
+                
                 //Now we're ready, evaluate the main module.
-
                 Engine.JsModuleEvaluation(mainModule.Handle);
                 
                 //Evaluate any pending promises.

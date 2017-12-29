@@ -28,13 +28,13 @@ BaristaCore.Common is utilized within the Barista Functions-as-a-Service platfor
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <LangVersion>latest</LangVersion>
     <DefineConstants>TRACE;RELEASE;NETSTANDARD2_0;LIBLOG_PUBLIC</DefineConstants>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <LangVersion>latest</LangVersion>
     <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0;LIBLOG_PUBLIC</DefineConstants>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>

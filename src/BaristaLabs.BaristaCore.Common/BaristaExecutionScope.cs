@@ -83,6 +83,10 @@
             while (m_promiseTaskQueue.Count > 0)
             {
                 var promise = m_promiseTaskQueue.Dequeue();
+                if (promise == null || promise.IsDisposed)
+                {
+                    continue;
+                }
                 try
                 {
                     //All results from this are undefined.
@@ -90,6 +94,7 @@
                 }
                 finally
                 {
+                    m_context.Engine.JsRelease(promise.Handle);
                     promise.Dispose();
                 }
             }
@@ -111,8 +116,9 @@
             {
                 return;
             }
-
             var task = new JavaScriptValueSafeHandle(taskHandle);
+            //Ensure that the object doesn't get disposed as we're processing items in the queue.
+            m_context.Engine.JsAddRef(task);
             var promise = m_context.ValueFactory.CreateValue<JsFunction>(task);
             m_promiseTaskQueue.Enqueue(promise);
         }
