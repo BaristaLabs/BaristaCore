@@ -115,7 +115,7 @@
 
         private sealed class FawltyModuleLoader : IBaristaModuleLoader
         {
-            public IBaristaModule GetModule(string name)
+            public Task<IBaristaModule> GetModule(string name)
             {
                 throw new Exception("Derp!");
             }

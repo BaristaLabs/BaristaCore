@@ -3,17 +3,18 @@
     using System;
     using System.Collections.Generic;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a module loader that consolidates multiple module loaders into a single module loader using a module name prefix as a specifier. 
     /// </summary>
     public class AggregateModuleLoader : IBaristaModuleLoader
     {
-        private readonly Dictionary<string, Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, IBaristaModule>>> m_moduleLoaders;
+        private readonly Dictionary<string, Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, Task<IBaristaModule>>>> m_moduleLoaders;
 
         public AggregateModuleLoader()
         {
-            m_moduleLoaders = new Dictionary<string, Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, IBaristaModule>>>();
+            m_moduleLoaders = new Dictionary<string, Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, Task<IBaristaModule>>>>();
             FallbackModuleLoader = null;
             PrefixSeperator = "!";
         }
@@ -52,7 +53,7 @@
         /// <param name="prefix"></param>
         /// <param name="moduleLoader"></param>
         /// <param name="moduleInitializer"></param>
-        public void RegisterModuleLoader(string prefix, IBaristaModuleLoader moduleLoader, Func<string, string, IBaristaModuleLoader, IBaristaModule> moduleLoaderFactory = null)
+        public void RegisterModuleLoader(string prefix, IBaristaModuleLoader moduleLoader, Func<string, string, IBaristaModuleLoader, Task<IBaristaModule>> moduleLoaderFactory = null)
         {
             if (string.IsNullOrWhiteSpace(prefix))
                 throw new ArgumentNullException(nameof(prefix));
@@ -66,7 +67,7 @@
             if (moduleLoaderFactory == null)
                 moduleLoaderFactory = InitializeAndReturnModule;
 
-            m_moduleLoaders.Add(prefix, new Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, IBaristaModule>>(moduleLoader, moduleLoaderFactory));
+            m_moduleLoaders.Add(prefix, new Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, Task<IBaristaModule>>>(moduleLoader, moduleLoaderFactory));
         }
 
         /// <summary>
@@ -79,7 +80,7 @@
             return m_moduleLoaders.Remove(prefix);
         }
 
-        public IBaristaModule GetModule(string name)
+        public Task<IBaristaModule> GetModule(string name)
         {
             var moduleNameRegex = new Regex($"^((?<Prefix>.+?){Regex.Escape(PrefixSeperator)})(?<Name>.+)$", RegexOptions.Compiled);
             var moduleName = name;
@@ -125,7 +126,7 @@
         /// <param name="moduleName"></param>
         /// <param name="moduleLoader"></param>
         /// <returns></returns>
-        private IBaristaModule InitializeAndReturnModule(string modulePrefix, string moduleName, IBaristaModuleLoader moduleLoader)
+        private Task<IBaristaModule> InitializeAndReturnModule(string modulePrefix, string moduleName, IBaristaModuleLoader moduleLoader)
         {
             return moduleLoader.GetModule(moduleName);
         }

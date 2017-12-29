@@ -6,6 +6,7 @@
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a JavaScript Module
@@ -168,19 +169,34 @@
             }
             else if (m_moduleLoader != null)
             {
-                IBaristaModule module = null;
+                Task<IBaristaModule> moduleLoaderTask = null;
                 try
                 {
-                    module = m_moduleLoader.GetModule(moduleName);
+                    moduleLoaderTask = m_moduleLoader.GetModule(moduleName);
                 }
                 catch (Exception ex)
                 {
                     var error = Context.ValueFactory.CreateError($"An error occurred while attempting to load a module named {moduleName}: {ex.Message}");
                     Engine.JsSetException(error.Handle);
+                    dependentModule = jsReferencingModuleRecord.DangerousGetHandle();
+                    return true;
                 }
 
-                if (module != null)
+                if (moduleLoaderTask != null)
                 {
+                    IBaristaModule module;
+                    try
+                    {
+                        module = moduleLoaderTask.GetAwaiter().GetResult();
+                    }
+                    catch (Exception ex)
+                    {
+                        var error = Context.ValueFactory.CreateError($"An error occurred while attempting to load a module named {moduleName}: {ex.Message}");
+                        Engine.JsSetException(error.Handle);
+                        dependentModule = jsReferencingModuleRecord.DangerousGetHandle();
+                        return true;
+                    }
+
                     var newModuleRecord = m_moduleRecordFactory.CreateBaristaModuleRecord(Context, specifier, this, false);
                     m_importedModules.Add(moduleName, newModuleRecord);
                     dependentModule = newModuleRecord.Handle.DangerousGetHandle();
@@ -190,13 +206,15 @@
                         //For the built-in NodeModule type, parse the string returned by ExportDefault, but place it in a closure that
                         //contains module, module.exports, exports and global which correspond to node module conventions.
                         case INodeModule nodeModule:
-                            var nodeScript = (nodeModule.ExportDefault(Context, newModuleRecord)).GetAwaiter().GetResult() as string;
-                            if (nodeScript == null)
+                            var nodeScriptTask = nodeModule.ExportDefault(Context, newModuleRecord);
+                            string nodeScript;
+                            if (nodeScriptTask == null)
                             {
                                 nodeScript = "export default null";
                             }
                             else
                             {
+                                nodeScript = nodeScriptTask.GetAwaiter().GetResult() as string;
                                 nodeScript = $@"'use strict';
 var global = Function('return this')();
 var window = global;
@@ -213,11 +231,19 @@ export default module.exports";
                             return false;
                         //For the built-in Script Module type, parse the string returned by ExportDefault and install it as a module.
                         case IBaristaScriptModule scriptModule:
-                            var script = (scriptModule.ExportDefault(Context, newModuleRecord)).GetAwaiter().GetResult() as string;
-                            if (script == null)
+                            var scriptTask = scriptModule.ExportDefault(Context, newModuleRecord);
+                            string script;
+                            if (scriptTask == null)
+                            {
                                 script = "export default null";
+                            }
+                            else {
+                                script = scriptTask.GetAwaiter().GetResult() as string;
+                                if (script == null)
+                                    script = "export default null";
 
-                            newModuleRecord.ParseModuleSource(script);
+                                newModuleRecord.ParseModuleSource(script);
+                            }
                             return false;
                         //Otherwise, install the module.
                         default:

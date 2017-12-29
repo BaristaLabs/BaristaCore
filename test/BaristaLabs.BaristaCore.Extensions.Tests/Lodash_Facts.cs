@@ -8,12 +8,12 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
-    public class React_Facts
+    public class Lodash_Facts
     {
         public IBaristaRuntimeFactory GetRuntimeFactory()
         {
             var myMemoryModuleLoader = new InMemoryModuleLoader();
-            myMemoryModuleLoader.RegisterModule(new ReactModule());
+            myMemoryModuleLoader.RegisterModule(new LodashModule());
 
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddBaristaCore(moduleLoader: myMemoryModuleLoader);
@@ -23,19 +23,12 @@
         }
 
         [Fact]
-        public void CanUseReactComponent()
+        public void CanUseLodashMethods()
         {
             var script = @"
-import React from 'react';
-
-class MyComponent extends React.Component {
-  render() {
-    return 'foo';
-  }
-}
-
-export default MyComponent;
-        ";
+import _ from 'lodash';
+export default _.capitalize('FRED');
+";
 
             var baristaRuntime = GetRuntimeFactory();
 
@@ -47,7 +40,8 @@ export default MyComponent;
                     {
                         var response = ctx.EvaluateModule(script);
                         Assert.NotNull(response);
-                        Assert.IsType<JsFunction>(response);
+                        Assert.IsType<JsString>(response);
+                        Assert.Equal("Fred", response.ToString());
                     }
                 }
             }

@@ -8,12 +8,12 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
-    public class React_Facts
+    public class Uuid_Facts
     {
         public IBaristaRuntimeFactory GetRuntimeFactory()
         {
             var myMemoryModuleLoader = new InMemoryModuleLoader();
-            myMemoryModuleLoader.RegisterModule(new ReactModule());
+            myMemoryModuleLoader.RegisterModule(new UuidModule());
 
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddBaristaCore(moduleLoader: myMemoryModuleLoader);
@@ -23,19 +23,12 @@
         }
 
         [Fact]
-        public void CanUseReactComponent()
+        public void CanGenerateUuids()
         {
             var script = @"
-import React from 'react';
-
-class MyComponent extends React.Component {
-  render() {
-    return 'foo';
-  }
-}
-
-export default MyComponent;
-        ";
+import uuid from 'uuid';
+export default uuid();
+";
 
             var baristaRuntime = GetRuntimeFactory();
 
@@ -47,7 +40,8 @@ export default MyComponent;
                     {
                         var response = ctx.EvaluateModule(script);
                         Assert.NotNull(response);
-                        Assert.IsType<JsFunction>(response);
+                        Assert.IsType<JsString>(response);
+                        Assert.True(System.Guid.TryParseExact(response.ToString(), "D", out System.Guid uuid));
                     }
                 }
             }

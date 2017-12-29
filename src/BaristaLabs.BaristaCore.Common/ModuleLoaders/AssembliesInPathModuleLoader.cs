@@ -6,6 +6,7 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a module loader that scans assemblies in a specified folder for all IBaristaModule implementations.
@@ -30,12 +31,12 @@
             m_serviceCollection = new ServiceCollection();
         }
 
-        public IBaristaModule GetModule(string name)
+        public Task<IBaristaModule> GetModule(string name)
         {
             //Look for any already loaded modules
             if (TryGetModuleByName(name, out IBaristaModule baristaModule))
             {
-                return baristaModule;
+                return Task.FromResult(baristaModule);
             }
 
             //If not found scan the configured folder.
@@ -44,7 +45,7 @@
             //Try locating it again.
             if (TryGetModuleByName(name, out IBaristaModule newBaristaModule))
             {
-                return newBaristaModule;
+                return Task.FromResult(newBaristaModule);
             }
 
             //Couldn't find one? Get outta Dodge.

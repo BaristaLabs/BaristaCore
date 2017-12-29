@@ -4,8 +4,6 @@
     using BaristaLabs.BaristaCore.ModuleLoaders;
     using BaristaLabs.BaristaCore.Modules;
     using Microsoft.Extensions.DependencyInjection;
-    using Newtonsoft.Json;
-    using System;
     using System.Diagnostics.CodeAnalysis;
     using Xunit;
 

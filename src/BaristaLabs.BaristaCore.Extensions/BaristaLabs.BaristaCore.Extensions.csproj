@@ -24,14 +24,20 @@
 
   <ItemGroup>
     <None Remove="Scripts\handlebars.min.js" />
+    <None Remove="Scripts\lodash.min.js" />
+    <None Remove="Scripts\moment.min.js" />
     <None Remove="Scripts\react.production.min.js" />
     <None Remove="Scripts\typescript.min.js" />
+    <None Remove="Scripts\uuid.min.js" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Scripts\handlebars.min.js" />
+    <EmbeddedResource Include="Scripts\lodash.min.js" />
+    <EmbeddedResource Include="Scripts\moment.min.js" />
     <EmbeddedResource Include="Scripts\react.production.min.js" />
     <EmbeddedResource Include="Scripts\typescript.min.js" />
+    <EmbeddedResource Include="Scripts\uuid.min.js" />
   </ItemGroup>
 
   <ItemGroup>
