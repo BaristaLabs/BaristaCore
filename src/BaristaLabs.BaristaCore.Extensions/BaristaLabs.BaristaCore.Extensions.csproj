@@ -17,11 +17,25 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.csproj" />
+    <Compile Remove="Modules\Console\**" />
+    <EmbeddedResource Remove="Modules\Console\**" />
+    <None Remove="Modules\Console\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Modules\Console\" />
+    <None Remove="Scripts\handlebars.min.js" />
+    <None Remove="Scripts\react.production.min.js" />
+    <None Remove="Scripts\typescript.min.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\handlebars.min.js" />
+    <EmbeddedResource Include="Scripts\react.production.min.js" />
+    <EmbeddedResource Include="Scripts\typescript.min.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,18 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>

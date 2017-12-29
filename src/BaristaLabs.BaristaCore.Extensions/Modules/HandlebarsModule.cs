@@ -6,9 +6,9 @@
     [BaristaModule("handlebars", "Handlebars provides the power necessary to let you build semantic templates effectively with no frustration", Version = "4.0.11")]
     public class HandlebarsModule : INodeModule
     {
-        public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+        public async Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            return Task.FromResult<object>(Properties.Resources.handlebars_min);
+            return await EmbeddedResourceHelper.LoadResource(this, "BaristaLabs.BaristaCore.Scripts.handlebars.min.js");
         }
     }
 }

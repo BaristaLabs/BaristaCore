@@ -192,9 +192,12 @@
                         case INodeModule nodeModule:
                             var nodeScript = (nodeModule.ExportDefault(Context, newModuleRecord)).GetAwaiter().GetResult() as string;
                             if (nodeScript == null)
+                            {
                                 nodeScript = "export default null";
-
-                            nodeScript = $@"'use strict';
+                            }
+                            else
+                            {
+                                nodeScript = $@"'use strict';
 var global = Function('return this')();
 var window = global;
 var module = {{
@@ -205,7 +208,7 @@ var exports = module.exports;
 {nodeScript}
 }}).call(global);
 export default module.exports";
-
+                            }
                             newModuleRecord.ParseModuleSource(nodeScript);
                             return false;
                         //For the built-in Script Module type, parse the string returned by ExportDefault and install it as a module.

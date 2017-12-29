@@ -25,13 +25,24 @@
         }
 
         [Fact]
-        public void CanUseReactComponent()
+        public void CanUseTypeScript()
         {
             var script = @"
 import ts from 'typescript';
 
+var code = '<MyCounter count={3 + 5} />;';
 
-export default 'foo';
+let transpiled = ts.transpileModule(code, {
+    compilerOptions: {
+        target: ts.ScriptTarget.Latest,
+        module: ts.ModuleKind.ESNext,
+        jsx: ts.JsxEmit.React,
+        importHelpers: true
+    },
+    fileName: 'test.tsx'
+});
+
+export default transpiled.outputText;
         ";
 
             var baristaRuntime = GetRuntimeFactory();
@@ -44,6 +55,9 @@ export default 'foo';
                     {
                         var response = ctx.EvaluateModule(script);
                         Assert.NotNull(response);
+                        Assert.IsType<JsString>(response);
+                        //See http://www.typescriptlang.org/docs/handbook/jsx.html
+                        Assert.Equal("React.createElement(MyCounter, { count: 3 + 5 });\r\n", response.ToString());
                     }
                 }
             }

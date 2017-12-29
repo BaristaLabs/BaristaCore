@@ -5,9 +5,9 @@
     [BaristaModule("react", "Allows for server-side rendering in Barista via React", Version = "16.2")]
     public class ReactModule : INodeModule
     {
-        public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+        public async Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            return Task.FromResult<object>(Properties.Resources.react_production_min);
+            return await EmbeddedResourceHelper.LoadResource(this, "BaristaLabs.BaristaCore.Scripts.react.production.min.js");
         }
     }
 }
