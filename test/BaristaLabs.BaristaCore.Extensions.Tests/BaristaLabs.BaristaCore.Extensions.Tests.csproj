@@ -8,10 +8,12 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,7 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.csproj" />
-    <ProjectReference Include="..\..\src\modules\BaristaLabs.BaristaCore.Modules.Fetch\BaristaLabs.BaristaCore.Modules.Fetch.csproj" />
+    <ProjectReference Include="..\..\src\BaristaLabs.BaristaCore.Extensions\BaristaLabs.BaristaCore.Extensions.csproj" />
   </ItemGroup>
 
 </Project>
