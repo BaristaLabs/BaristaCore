@@ -41,8 +41,8 @@
             var objectName = BaristaObjectAttribute.GetBaristaObjectNameFromType(typeToConvert);
             
             //Get all the property descriptors for the specified type.
-            var staticPropertyDescriptors = context.ValueFactory.CreateObject();
-            var instancePropertyDescriptors = context.ValueFactory.CreateObject();
+            var staticPropertyDescriptors = context.CreateObject();
+            var instancePropertyDescriptors = context.CreateObject();
 
             //Get static and instance properties.
             ProjectProperties(context, staticPropertyDescriptors, reflector.GetProperties(false));
@@ -60,11 +60,11 @@
             var publicConstructors = reflector.GetConstructors();
             if (publicConstructors.Any())
             {
-                fnCtor = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
+                fnCtor = context.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
                 {
                     if (thisObj == null)
                     {
-                        var ex = context.ValueFactory.CreateTypeError($"Failed to construct '{objectName}': 'this' must be specified.");
+                        var ex = context.CreateTypeError($"Failed to construct '{objectName}': 'this' must be specified.");
                         context.CurrentScope.SetException(ex);
                         return context.Undefined;
                     }
@@ -87,7 +87,7 @@
                     //don't invoke the type's constructor, rather, just wrap the object with the JsObject.
                     if (args.Length == 1 && args[0].GetType() == typeToConvert)
                     {
-                        externalObject = context.ValueFactory.CreateExternalObject(args[0]);
+                        externalObject = context.CreateExternalObject(args[0]);
                     }
                     else
                     {
@@ -96,7 +96,7 @@
                             var bestConstructor = reflector.GetConstructorBestMatch(args);
                             if (bestConstructor == null)
                             {
-                                var ex = context.ValueFactory.CreateTypeError($"Failed to construct '{objectName}': Could not find a matching constructor for the provided arguments.");
+                                var ex = context.CreateTypeError($"Failed to construct '{objectName}': Could not find a matching constructor for the provided arguments.");
                                 context.CurrentScope.SetException(ex);
                                 return context.Undefined;
                             }
@@ -106,11 +106,11 @@
                             var convertedArgs = ConvertArgsToParamTypes(context, args, constructorParams);
 
                             var newObj = bestConstructor.Invoke(convertedArgs);
-                            externalObject = context.ValueFactory.CreateExternalObject(newObj);
+                            externalObject = context.CreateExternalObject(newObj);
                         }
                         catch (Exception ex)
                         {
-                            context.CurrentScope.SetException(context.ValueFactory.CreateError(ex.Message));
+                            context.CurrentScope.SetException(context.CreateError(ex.Message));
                             return context.Undefined;
                         }
                     }
@@ -122,9 +122,9 @@
             }
             else
             {
-                fnCtor = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
+                fnCtor = context.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
                 {
-                    var ex = context.ValueFactory.CreateTypeError($"Failed to construct '{objectName}': This object cannot be constructed.");
+                    var ex = context.CreateTypeError($"Failed to construct '{objectName}': This object cannot be constructed.");
                     context.CurrentScope.SetException(ex);
                     return context.Undefined;
                 }), objectName);
@@ -149,7 +149,7 @@
 
                 var propertyAttribute = BaristaPropertyAttribute.GetAttribute(prop);
                 var propertyName = propertyAttribute.Name;
-                var propertyDescriptor = context.ValueFactory.CreateObject();
+                var propertyDescriptor = context.CreateObject();
 
                 if (propertyAttribute.Configurable)
                     propertyDescriptor.SetProperty("configurable", context.True);
@@ -158,13 +158,13 @@
 
                 if (prop.GetMethod != null)
                 {
-                    var jsGet = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
+                    var jsGet = context.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
                     {
                         object targetObj = null;
 
                         if (thisObj == null)
                         {
-                            context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not retrieve property '{propertyName}' because there was an invalid 'this' context."));
+                            context.CurrentScope.SetException(context.CreateTypeError($"Could not retrieve property '{propertyName}' because there was an invalid 'this' context."));
                             return context.Undefined;
                         }
 
@@ -187,7 +187,7 @@
                         }
                         catch (Exception ex)
                         {
-                            context.CurrentScope.SetException(context.ValueFactory.CreateError(ex.Message));
+                            context.CurrentScope.SetException(context.CreateError(ex.Message));
                             return context.Undefined;
                         }
                     }));
@@ -197,13 +197,13 @@
 
                 if (prop.SetMethod != null)
                 {
-                    var jsSet = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
+                    var jsSet = context.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
                     {
                         object targetObj = null;
 
                         if (thisObj == null)
                         {
-                            context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not set property '{propertyName}' because there was an invalid 'this' context."));
+                            context.CurrentScope.SetException(context.CreateTypeError($"Could not set property '{propertyName}' because there was an invalid 'this' context."));
                             return context.Undefined;
                         }
 
@@ -220,7 +220,7 @@
                         }
                         catch (Exception ex)
                         {
-                            context.CurrentScope.SetException(context.ValueFactory.CreateError(ex.Message));
+                            context.CurrentScope.SetException(context.CreateError(ex.Message));
                             return context.Undefined;
                         }
                     }));
@@ -228,7 +228,7 @@
                     propertyDescriptor.SetProperty("set", jsSet);
                 }
 
-                targetObject.SetProperty(context.ValueFactory.CreateString(propertyName), propertyDescriptor);
+                targetObject.SetProperty(context.CreateString(propertyName), propertyDescriptor);
             }
         }
 
@@ -239,13 +239,13 @@
                 var methodName = method.Key;
                 var methodInfos = method.Value;
 
-                var fn = context.ValueFactory.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
+                var fn = context.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
                 {
                     object targetObj = null;
 
                     if (thisObj == null)
                     {
-                        context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not call function '{methodName}' because there was an invalid 'this' context."));
+                        context.CurrentScope.SetException(context.CreateTypeError($"Could not call function '{methodName}' because there was an invalid 'this' context."));
                         return context.Undefined;
                     }
 
@@ -259,7 +259,7 @@
                         var bestMethod = reflector.GetMethodBestMatch(methodInfos, args);
                         if (bestMethod == null)
                         {
-                            var ex = context.ValueFactory.CreateTypeError($"Failed to call function '{methodName}': Could not find a matching function for the provided arguments.");
+                            var ex = context.CreateTypeError($"Failed to call function '{methodName}': Could not find a matching function for the provided arguments.");
                             context.CurrentScope.SetException(ex);
                             return context.Undefined;
                         }
@@ -275,19 +275,19 @@
                         }
                         else
                         {
-                            context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The call to '{methodName}' was successful, but the result could not be converted into a JavaScript object."));
+                            context.CurrentScope.SetException(context.CreateTypeError($"The call to '{methodName}' was successful, but the result could not be converted into a JavaScript object."));
                             return context.Undefined;
                         }
                     }
                     catch (Exception ex)
                     {
-                        context.CurrentScope.SetException(context.ValueFactory.CreateError(ex.Message));
+                        context.CurrentScope.SetException(context.CreateError(ex.Message));
                         return context.Undefined;
                     }
 
                 }));
 
-                var functionDescriptor = context.ValueFactory.CreateObject();
+                var functionDescriptor = context.CreateObject();
 
                 if (methodInfos.All(mi => BaristaPropertyAttribute.GetAttribute(mi).Configurable))
                     functionDescriptor.SetProperty("configurable", context.True);
@@ -298,7 +298,7 @@
 
                 functionDescriptor.SetProperty("value", fn);
 
-                targetObject.SetProperty(context.ValueFactory.CreateString(methodName), functionDescriptor);
+                targetObject.SetProperty(context.CreateString(methodName), functionDescriptor);
             }
         }
 
@@ -307,11 +307,11 @@
             if (eventsTable.Count == 0)
                 return;
 
-            var fnAddEventListener = context.ValueFactory.CreateFunction(new Func<JsObject, string, JsFunction, JsValue>((thisObj, eventName, fnCallback) => {
+            var fnAddEventListener = context.CreateFunction(new Func<JsObject, string, JsFunction, JsValue>((thisObj, eventName, fnCallback) => {
 
                 if (String.IsNullOrWhiteSpace(eventName))
                 {
-                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The name of the event listener to register must be specified."));
+                    context.CurrentScope.SetException(context.CreateTypeError($"The name of the event listener to register must be specified."));
                     return context.Undefined;
                 }
 
@@ -319,7 +319,7 @@
 
                 if (thisObj == null)
                 {
-                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not register event listener '{eventName}' because there was an invalid 'this' context."));
+                    context.CurrentScope.SetException(context.CreateTypeError($"Could not register event listener '{eventName}' because there was an invalid 'this' context."));
                     return context.Undefined;
                 }
 
@@ -360,11 +360,11 @@
                     eventListeners = new Dictionary<string, IList<Tuple<JsFunction, Delegate>>>();
 
                     //Set the listeners as a non-configurable, non-enumerable, non-writable property
-                    var xoListeners = context.ValueFactory.CreateExternalObject(eventListeners);
+                    var xoListeners = context.CreateExternalObject(eventListeners);
 
-                    var baristaEventListenersPropertyDescriptor = context.ValueFactory.CreateObject();
+                    var baristaEventListenersPropertyDescriptor = context.CreateObject();
                     baristaEventListenersPropertyDescriptor.SetProperty("value", xoListeners);
-                    context.Object.DefineProperty(thisObj, context.ValueFactory.CreateString(BaristaEventListenersPropertyName), baristaEventListenersPropertyDescriptor);
+                    context.Object.DefineProperty(thisObj, context.CreateString(BaristaEventListenersPropertyName), baristaEventListenersPropertyDescriptor);
                 }
 
                 if (eventListeners != null)
@@ -380,17 +380,17 @@
                 return context.True;
             }), "addEventListener");
 
-            var fnRemoveEventListener = context.ValueFactory.CreateFunction(new Func<JsObject, string, JsFunction, JsValue>((thisObj, eventName, eventListener) =>
+            var fnRemoveEventListener = context.CreateFunction(new Func<JsObject, string, JsFunction, JsValue>((thisObj, eventName, eventListener) =>
             {
                 if (String.IsNullOrWhiteSpace(eventName))
                 {
-                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The name of the event listener to remove must be specified."));
+                    context.CurrentScope.SetException(context.CreateTypeError($"The name of the event listener to remove must be specified."));
                     return context.Undefined;
                 }
 
                 if (eventListener == null)
                 {
-                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The event listener to remove must be specified."));
+                    context.CurrentScope.SetException(context.CreateTypeError($"The event listener to remove must be specified."));
                     return context.Undefined;
                 }
 
@@ -398,7 +398,7 @@
 
                 if (thisObj == null)
                 {
-                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not unregister event listener '{eventName}' because there was an invalid 'this' context."));
+                    context.CurrentScope.SetException(context.CreateTypeError($"Could not unregister event listener '{eventName}' because there was an invalid 'this' context."));
                     return context.Undefined;
                 }
 
@@ -442,11 +442,11 @@
                 return hasRemoved ? context.True : context.False;
             }), "removeEventListener");
 
-            var fnRemoveAllEventListeners = context.ValueFactory.CreateFunction(new Func<JsObject, string, JsValue>((thisObj, eventName) => {
+            var fnRemoveAllEventListeners = context.CreateFunction(new Func<JsObject, string, JsValue>((thisObj, eventName) => {
 
                 if (String.IsNullOrWhiteSpace(eventName))
                 {
-                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"The name of the event listener to remove must be specified."));
+                    context.CurrentScope.SetException(context.CreateTypeError($"The name of the event listener to remove must be specified."));
                     return context.Undefined;
                 }
 
@@ -454,7 +454,7 @@
 
                 if (thisObj == null)
                 {
-                    context.CurrentScope.SetException(context.ValueFactory.CreateTypeError($"Could not unregister event listener '{eventName}' because there was an invalid 'this' context."));
+                    context.CurrentScope.SetException(context.CreateTypeError($"Could not unregister event listener '{eventName}' because there was an invalid 'this' context."));
                     return context.Undefined;
                 }
 
@@ -490,20 +490,20 @@
                 return context.True;
             }), "removeAllEventListeners");
 
-            var addEventListenerFunctionDescriptor = context.ValueFactory.CreateObject();
+            var addEventListenerFunctionDescriptor = context.CreateObject();
             addEventListenerFunctionDescriptor.SetProperty("enumerable", context.True);
             addEventListenerFunctionDescriptor.SetProperty("value", fnAddEventListener);
-            targetObject.SetProperty(context.ValueFactory.CreateString("addEventListener"), addEventListenerFunctionDescriptor);
+            targetObject.SetProperty(context.CreateString("addEventListener"), addEventListenerFunctionDescriptor);
 
-            var removeEventListenerFunctionDescriptor = context.ValueFactory.CreateObject();
+            var removeEventListenerFunctionDescriptor = context.CreateObject();
             removeEventListenerFunctionDescriptor.SetProperty("enumerable", context.True);
             removeEventListenerFunctionDescriptor.SetProperty("value", fnRemoveEventListener);
-            targetObject.SetProperty(context.ValueFactory.CreateString("removeEventListener"), removeEventListenerFunctionDescriptor);
+            targetObject.SetProperty(context.CreateString("removeEventListener"), removeEventListenerFunctionDescriptor);
 
-            var removeAllEventListenersFunctionDescriptor = context.ValueFactory.CreateObject();
+            var removeAllEventListenersFunctionDescriptor = context.CreateObject();
             removeAllEventListenersFunctionDescriptor.SetProperty("enumerable", context.True);
             removeAllEventListenersFunctionDescriptor.SetProperty("value", fnRemoveAllEventListeners);
-            targetObject.SetProperty(context.ValueFactory.CreateString("removeAllEventListeners"), removeAllEventListenersFunctionDescriptor);
+            targetObject.SetProperty(context.CreateString("removeAllEventListeners"), removeAllEventListenersFunctionDescriptor);
         }
 
         private object[] ConvertArgsToParamTypes(BaristaContext context, object[] args, ParameterInfo[] parameters)

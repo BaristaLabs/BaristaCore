@@ -44,7 +44,7 @@
                 {
                     using (ctx.Scope())
                     {
-                        myValue = ctx.ValueFactory.CreateString("Hello, World");
+                        myValue = ctx.CreateString("Hello, World");
                     }
                 }
 

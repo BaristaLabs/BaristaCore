@@ -45,6 +45,51 @@
             get { return m_valuePool.Count; }
         }
 
+        public JsObject GlobalObject
+        {
+            get
+            {
+                var globalValueHandle = m_engine.JsGetGlobalObject();
+                return CreateValue<JsObject>(globalValueHandle);
+            }
+        }
+
+        public JsBoolean False
+        {
+            get
+            {
+                var falseValueHandle = m_engine.JsGetFalseValue();
+                return CreateValue<JsBoolean>(falseValueHandle);
+            }
+        }
+
+        public JsNull Null
+        {
+            get
+            {
+                var nullValueHandle = m_engine.JsGetNullValue();
+                return CreateValue<JsNull>(nullValueHandle);
+            }
+        }
+
+        public JsBoolean True
+        {
+            get
+            {
+                var trueValueHandle = m_engine.JsGetTrueValue();
+                return CreateValue<JsBoolean>(trueValueHandle);
+            }
+        }
+
+        public JsUndefined Undefined
+        {
+            get
+            {
+                var undefinedValueHandle = m_engine.JsGetUndefinedValue();
+                return CreateValue<JsUndefined>(undefinedValueHandle);
+            }
+        }
+
         public JsArray CreateArray(uint length)
         {
             var arrayHandle = m_engine.JsCreateArray(length);
@@ -377,18 +422,18 @@
                     {
                         if (Context.Converter.TryFromObject(Context, task.Exception, out JsValue rejectValue))
                         {
-                            reject.Call(GetGlobalObject(), rejectValue);
+                            reject.Call(GlobalObject, rejectValue);
                         }
                         else
                         {
-                            reject.Call(GetGlobalObject(), GetUndefinedValue());
+                            reject.Call(GlobalObject, Undefined);
                         }
                     }
 
                     var taskType = task.GetType();
                     if (taskType.IsGenericType == false || taskType.GetGenericTypeDefinition() != typeof(Task<>))
                     {
-                        resolve.Call(GetGlobalObject(), GetUndefinedValue());
+                        resolve.Call(GlobalObject, Undefined);
                         return;
                     }
 
@@ -398,11 +443,11 @@
                     //If we got an object back attempt to convert it into a JsValue and call the resolve method with the value.
                     if (Context.Converter.TryFromObject(Context, result, out JsValue resolveValue))
                     {
-                        resolve.Call(GetGlobalObject(), resolveValue);
+                        resolve.Call(GlobalObject, resolveValue);
                     }
                     else
                     {
-                        resolve.Call(GetGlobalObject(), GetUndefinedValue());
+                        resolve.Call(GlobalObject, Undefined);
                     }
                 },
                 CancellationToken.None,
@@ -579,36 +624,6 @@
         {
             var targetType = typeof(T);
             return CreateValue(targetType, valueHandle) as T;
-        }
-
-        public JsObject GetGlobalObject()
-        {
-            var globalValueHandle = m_engine.JsGetGlobalObject();
-            return CreateValue<JsObject>(globalValueHandle);
-        }
-
-        public JsBoolean GetFalseValue()
-        {
-            var falseValueHandle = m_engine.JsGetFalseValue();
-            return CreateValue<JsBoolean>(falseValueHandle);
-        }
-
-        public JsNull GetNullValue()
-        {
-            var nullValueHandle = m_engine.JsGetNullValue();
-            return CreateValue<JsNull>(nullValueHandle);
-        }
-
-        public JsBoolean GetTrueValue()
-        {
-            var trueValueHandle = m_engine.JsGetTrueValue();
-            return CreateValue<JsBoolean>(trueValueHandle);
-        }
-
-        public JsUndefined GetUndefinedValue()
-        {
-            var undefinedValueHandle = m_engine.JsGetUndefinedValue();
-            return CreateValue<JsUndefined>(undefinedValueHandle);
         }
 
         /// <summary>

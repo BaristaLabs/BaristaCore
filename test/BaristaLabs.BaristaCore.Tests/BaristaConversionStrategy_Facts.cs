@@ -157,7 +157,7 @@
                         var fn = value as JsFunction;
                         Assert.NotNull(fn);
 
-                        fn.Call(null, ctx.ValueFactory.CreateString("bananas"));
+                        fn.Call(null, ctx.CreateString("bananas"));
 
                         Assert.Equal("bananas", thingy);
                     }
@@ -244,7 +244,7 @@
                         ctx.Converter.TryToObject(ctx, ctx.Null, out object value);
                         Assert.Null(value);
 
-                        ctx.Converter.TryToObject(null, null, out object value1);
+                        ctx.Converter.TryToObject(ctx, null, out object value1);
                     }
                     myContext = ctx;
                 }
@@ -301,8 +301,8 @@
                 {
                     using (ctx.Scope())
                     {
-                        var myArray = ctx.ValueFactory.CreateArray(0);
-                        myArray.Push(ctx.ValueFactory.CreateString("Foo"));
+                        var myArray = ctx.CreateArray(0);
+                        myArray.Push(ctx.CreateString("Foo"));
 
                         ctx.Converter.TryToObject(ctx, myArray, out object value);
                         Assert.NotNull(value);
@@ -325,7 +325,7 @@
                 {
                     using (ctx.Scope())
                     {
-                        ctx.Converter.TryToObject(ctx, ctx.ValueFactory.CreateError("Err"), out object value);
+                        ctx.Converter.TryToObject(ctx, ctx.CreateError("Err"), out object value);
                         Assert.NotNull(value);
                         Assert.IsType<JsScriptException>(value);
                         Assert.Equal("Err", ((JsScriptException)value).m_message);

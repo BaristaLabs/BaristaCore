@@ -38,7 +38,7 @@
                 {
                     using (ctx.Scope())
                     {
-                        var arr = ctx.ValueFactory.CreateArray(50);
+                        var arr = ctx.CreateArray(50);
                         Assert.True(arr != null);
                         Assert.Equal(JsValueType.Array, arr.Type);
                     }
@@ -55,7 +55,7 @@
                 {
                     using (ctx.Scope())
                     {
-                        var arr = ctx.ValueFactory.CreateArray(50);
+                        var arr = ctx.CreateArray(50);
                         Assert.Equal(50, arr.Length);
                     }
                 }
@@ -96,7 +96,7 @@
                         var arr = ctx.EvaluateModule<JsArray>(script);
                         Assert.Equal(3, arr.Length);
 
-                        arr.Push(ctx.ValueFactory.CreateString("d"));
+                        arr.Push(ctx.CreateString("d"));
 
                         var values = arr.ToArray();
                         Assert.Equal(4, values.Length);
@@ -143,7 +143,7 @@
                         var arr = ctx.EvaluateModule<JsArray>(script);
                         Assert.Equal(3, arr.Length);
 
-                        arr[0] = ctx.ValueFactory.CreateString("c");
+                        arr[0] = ctx.CreateString("c");
 
                         var values = arr.ToArray();
                         Assert.Equal(3, values.Length);
@@ -168,7 +168,7 @@
                         var arr = ctx.EvaluateModule<JsArray>(script);
 
                         var values = arr.ToArray();
-                        var cVal = ctx.ValueFactory.CreateString("c");
+                        var cVal = ctx.CreateString("c");
                         Assert.Equal(values[2].Handle, cVal.Handle);
                         var ix = arr.IndexOf(cVal);
                         Assert.Equal(2, ix);
@@ -190,7 +190,7 @@
                         var arr = ctx.EvaluateModule<JsArray>(script);
 
                         var values = arr.ToArray();
-                        var cVal = ctx.ValueFactory.CreateString("c");
+                        var cVal = ctx.CreateString("c");
                         Assert.Equal(values[0].Handle, cVal.Handle);
                         Assert.Equal(values[3].Handle, cVal.Handle);
                         var ix = arr.IndexOf(cVal, 1);

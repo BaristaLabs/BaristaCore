@@ -3,7 +3,6 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics;
 
     /// <summary>
     /// Represents a factory that creates Barista Contexts.

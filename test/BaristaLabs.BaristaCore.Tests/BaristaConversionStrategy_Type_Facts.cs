@@ -265,7 +265,7 @@ export default myFoo;
 
                         var result = ctx.EvaluateModule<JsObject>(script);
                         Assert.Equal("test123", Foo.MyStaticProperty);
-                        Assert.True(ctx.InstanceOf(result, fnFoo));
+                        Assert.True(ctx.Object.InstanceOf(result, fnFoo));
                         Assert.Equal("123Test", result["myProperty"].ToString());
 
                         Assert.Equal(2, result.Keys.Length);

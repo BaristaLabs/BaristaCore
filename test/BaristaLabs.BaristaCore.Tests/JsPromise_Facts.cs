@@ -60,7 +60,7 @@
                             return "foo";
                         });
 
-                        var jsPromise = ctx.ValueFactory.CreatePromise(myTask);
+                        var jsPromise = ctx.CreatePromise(myTask);
                         var result = ctx.Promise.Wait(jsPromise);
                         Assert.True(iRan);
                         Assert.Equal("foo", result.ToString());
@@ -83,7 +83,7 @@
                             throw new InvalidOperationException("Boom");
                         });
 
-                        var jsPromise = ctx.ValueFactory.CreatePromise(myTask);
+                        var jsPromise = ctx.CreatePromise(myTask);
                         Assert.Throws<JsScriptException>(() =>
                         {
                             var result = ctx.Promise.Wait(jsPromise);
@@ -120,8 +120,8 @@
                         });
 
 
-                        var p1 = ctx.ValueFactory.CreatePromise(t1);
-                        var p2 = ctx.ValueFactory.CreatePromise(t2);
+                        var p1 = ctx.CreatePromise(t1);
+                        var p2 = ctx.CreatePromise(t2);
                         var allResultArray = ctx.Promise.All(p1, p2);
                         Assert.NotNull(allResultArray);
                         Assert.True(iRan1);
@@ -167,8 +167,8 @@
                         });
 
 
-                        var p1 = ctx.ValueFactory.CreatePromise(t1);
-                        var p2 = ctx.ValueFactory.CreatePromise(t2);
+                        var p1 = ctx.CreatePromise(t1);
+                        var p2 = ctx.CreatePromise(t2);
                         var racePromise = ctx.Promise.Race(p1, p2);
                         Assert.NotNull(racePromise);
                         Assert.True(iRan1);
@@ -195,7 +195,7 @@
                 {
                     using (ctx.Scope())
                     {
-                        var rejectPromise = ctx.Promise.Reject(ctx.ValueFactory.CreateString("foo"));
+                        var rejectPromise = ctx.Promise.Reject(ctx.CreateString("foo"));
                         Assert.Throws<JsScriptException>(() =>
                         {
                             try
@@ -227,7 +227,7 @@
                 {
                     using (ctx.Scope())
                     {
-                        var resolvePromise = ctx.Promise.Resolve(ctx.ValueFactory.CreateString("foo"));
+                        var resolvePromise = ctx.Promise.Resolve(ctx.CreateString("foo"));
                         var result = ctx.Promise.Wait<JsString>(resolvePromise);
                         Assert.Equal("foo", result.ToString());
 

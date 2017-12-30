@@ -71,7 +71,7 @@
                 {
                     if (Engine.JsHasException() == false)
                     {
-                        Engine.JsSetException(Context.ValueFactory.CreateError(ex.Message).Handle);
+                        Engine.JsSetException(Context.CreateError(ex.Message).Handle);
                     }
 
                     dependentModule = referencingModule;
@@ -145,12 +145,12 @@
         {
             var scriptBuffer = Encoding.UTF8.GetBytes(script);
             var parseResultHandle = Engine.JsParseModuleSource(Handle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
-            return Context.ValueFactory.CreateValue<JsError>(parseResultHandle);
+            return Context.CreateValue<JsError>(parseResultHandle);
         }
 
         private bool FetchImportedModule(JavaScriptModuleRecord jsReferencingModuleRecord, JavaScriptValueSafeHandle specifier, out IntPtr dependentModule)
         {
-            var moduleName = Context.ValueFactory.CreateValue(specifier).ToString();
+            var moduleName = Context.CreateValue(specifier).ToString();
             var referencingModuleRecord = m_moduleRecordFactory.GetBaristaModuleRecord(jsReferencingModuleRecord);
 
             //If the current module name is equal to the fetching module name, return this value.
@@ -176,7 +176,7 @@
                 }
                 catch (Exception ex)
                 {
-                    var error = Context.ValueFactory.CreateError($"An error occurred while attempting to load a module named {moduleName}: {ex.Message}");
+                    var error = Context.CreateError($"An error occurred while attempting to load a module named {moduleName}: {ex.Message}");
                     Engine.JsSetException(error.Handle);
                     dependentModule = jsReferencingModuleRecord.DangerousGetHandle();
                     return true;
@@ -191,7 +191,7 @@
                     }
                     catch (Exception ex)
                     {
-                        var error = Context.ValueFactory.CreateError($"An error occurred while attempting to load a module named {moduleName}: {ex.Message}");
+                        var error = Context.CreateError($"An error occurred while attempting to load a module named {moduleName}: {ex.Message}");
                         Engine.JsSetException(error.Handle);
                         dependentModule = jsReferencingModuleRecord.DangerousGetHandle();
                         return true;
@@ -266,7 +266,7 @@ export default module.exports";
             }
             catch (Exception ex)
             {
-                var error = Context.ValueFactory.CreateError($"An error occurred while obtaining the default export of the native module named {newModuleRecord.Name}: {ex.Message}");
+                var error = Context.CreateError($"An error occurred while obtaining the default export of the native module named {newModuleRecord.Name}: {ex.Message}");
                 Engine.JsSetException(error.Handle);
                 return true;
             }
@@ -277,7 +277,7 @@ export default module.exports";
             }
             else
             {
-                var error = Context.ValueFactory.CreateError($"Unable to install module {newModuleRecord.Name}: the default exported value could not be converted into a JavaScript object.");
+                var error = Context.CreateError($"Unable to install module {newModuleRecord.Name}: the default exported value could not be converted into a JavaScript object.");
                 Engine.JsSetException(error.Handle);
                 return true;
             }

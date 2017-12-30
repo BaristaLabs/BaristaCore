@@ -54,7 +54,7 @@
         public JsValue GetAndClearException()
         {
             var valueHandle = m_context.Engine.JsGetAndClearException();
-            return m_context.ValueFactory.CreateValue(valueHandle);
+            return m_context.CreateValue(valueHandle);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@
         public JsValue GetAndClearExceptionWithMetadata()
         {
             var valueHandle = m_context.Engine.JsGetAndClearExceptionWithMetadata();
-            return m_context.ValueFactory.CreateValue(valueHandle);
+            return m_context.CreateValue(valueHandle);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@
             var task = new JavaScriptValueSafeHandle(taskHandle);
             //Ensure that the object doesn't get disposed as we're processing items in the queue.
             m_context.Engine.JsAddRef(task);
-            var promise = m_context.ValueFactory.CreateValue<JsFunction>(task);
+            var promise = m_context.CreateValue<JsFunction>(task);
             m_promiseTaskQueue.Enqueue(promise);
         }
 

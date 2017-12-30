@@ -55,6 +55,13 @@
             return fnDefineProperty.Call<JsObject>(this, obj, prop, descriptor);
         }
 
+        public JsObject DefineProperty(JsObject obj, string prop, JsPropertyDescriptor descriptor)
+        {
+            var objDescriptor = descriptor.GetDescriptorObject(Context);
+            var objProp = Context.CreateString(prop);
+            return DefineProperty(obj, objProp, objDescriptor);
+        }
+
         public bool DefineProperty(JsObject obj, JsSymbol symbol, JsObject descriptor)
         {
             using (var propertyIdHandle = Engine.JsGetPropertyIdFromSymbol(symbol.Handle))
@@ -76,6 +83,17 @@
         {
             var fnDefineProperties = GetProperty<JsFunction>("defineProperties");
             return fnDefineProperties.Call<JsObject>(this, obj, props);
+        }
+
+        /// <summary>
+        /// Returns the specified object in a frozen state.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public JsObject Freeze(JsObject obj)
+        {
+            var fnFreeze = GetProperty<JsFunction>("freeze");
+            return fnFreeze.Call<JsObject>(this, obj);
         }
 
         /// <summary>
@@ -107,6 +125,20 @@
         }
 
         /// <summary>
+        /// Tests whether the prototype property of a constructor appears anywhere in the prototype chain of an object.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="constructor"></param>
+        /// <returns></returns>
+        public bool InstanceOf(JsObject obj, JsFunction constructor)
+        {
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(BaristaContext));
+
+            return Engine.JsInstanceOf(obj.Handle, constructor.Handle);
+        }
+
+        /// <summary>
         /// Sets the prototype of an object.
         /// </summary>
         /// <param name="obj"></param>
@@ -121,17 +153,6 @@
                 prototypeHandle = prototype.Handle;
 
             Engine.JsSetPrototype(obj.Handle, prototypeHandle);
-        }
-
-        /// <summary>
-        /// Returns the specified object in a frozen state.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public JsObject Freeze(JsObject obj)
-        {
-            var fnFreeze = GetProperty<JsFunction>("freeze");
-            return fnFreeze.Call<JsObject>(this, obj);
         }
     }
 
@@ -252,7 +273,7 @@
         // </summary>
         protected IBaristaValueFactory ValueFactory
         {
-            get { return Context.ValueFactory; }
+            get { return Context; }
         }
         #endregion
 

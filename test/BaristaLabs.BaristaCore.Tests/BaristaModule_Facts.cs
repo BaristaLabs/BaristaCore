@@ -50,7 +50,7 @@
 
                     using (ctx.Scope())
                     {
-                        var specifier = ctx.ValueFactory.CreateString("");
+                        var specifier = ctx.CreateString("");
                         var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
 
                         try
@@ -85,7 +85,7 @@
 
                     using (ctx.Scope())
                     {
-                        var specifier = ctx.ValueFactory.CreateString("");
+                        var specifier = ctx.CreateString("");
                         var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
 
                         try
@@ -120,7 +120,7 @@
 
                     using (ctx.Scope())
                     {
-                        var specifier = ctx.ValueFactory.CreateString("");
+                        var specifier = ctx.CreateString("");
                         var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
 
                         try
@@ -155,7 +155,7 @@
 
                     using (ctx.Scope())
                     {
-                        var specifier = ctx.ValueFactory.CreateString("");
+                        var specifier = ctx.CreateString("");
                         var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
 
                         try
@@ -189,7 +189,7 @@
 
                     using (ctx.Scope())
                     {
-                        var specifier = ctx.ValueFactory.CreateString("");
+                        var specifier = ctx.CreateString("");
                         var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
 
                         try
@@ -726,7 +726,7 @@ export default carlyRae;
         {
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                return Task.FromResult<object>(context.ValueFactory.CreateString("Hello, World!"));
+                return Task.FromResult<object>(context.CreateString("Hello, World!"));
             }
         }
 

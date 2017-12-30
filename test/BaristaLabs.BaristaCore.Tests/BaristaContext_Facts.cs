@@ -177,14 +177,10 @@
                 {
                     using (ctx.Scope())
                     {
-                        Assert.NotNull(ctx.ValueFactory);
+                        Assert.NotNull(ctx as IBaristaValueFactory);
                     }
 
                     ctx.Dispose();
-                    Assert.Throws<ObjectDisposedException>(() =>
-                    {
-                        var foo = ctx.ValueFactory;
-                    });
                 }
             }
         }

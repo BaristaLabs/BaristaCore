@@ -8,7 +8,7 @@
     {
         public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            var fnFetch = context.ValueFactory.CreateFunction(new Func<JsObject, JsValue, JsObject, object>((thisObj, input, init) =>
+            var fnFetch = context.CreateFunction(new Func<JsObject, JsValue, JsObject, object>((thisObj, input, init) =>
             {
                 Request request;
                 if (input is JsObject inputObj && inputObj.TryGetBean(out JsExternalObject exObj) && exObj.Target is Request inputRequest)

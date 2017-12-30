@@ -29,7 +29,7 @@
                 return Task.FromResult<JsArrayBuffer>(null);
             }
 
-            var result = m_context.ValueFactory.CreateArrayBuffer(m_response.RawBytes);
+            var result = m_context.CreateArrayBuffer(m_response.RawBytes);
             m_bodyUsed = true;
 
             return Task.FromResult(result);
@@ -62,7 +62,7 @@
                 return Task.FromResult<JsValue>(null);
             }
 
-            var result = m_context.JSON.Parse(m_context.ValueFactory.CreateString(m_response.Content));
+            var result = m_context.JSON.Parse(m_context.CreateString(m_response.Content));
             m_bodyUsed = true;
 
             return Task.FromResult(result);
@@ -75,7 +75,7 @@
                 return Task.FromResult<JsString>(null);
             }
 
-            var result = m_context.ValueFactory.CreateString(m_response.Content);
+            var result = m_context.CreateString(m_response.Content);
             m_bodyUsed = true;
 
             return Task.FromResult(result);
@@ -89,7 +89,7 @@
         {
             if (m_bodyUsed)
             {
-                var err = m_context.ValueFactory.CreateTypeError("The body object has already been read.");
+                var err = m_context.CreateTypeError("The body object has already been read.");
                 m_context.CurrentScope.SetException(err);
                 return true;
             }

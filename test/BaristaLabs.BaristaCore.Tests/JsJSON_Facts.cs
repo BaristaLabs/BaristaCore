@@ -51,7 +51,7 @@
                 {
                     using (ctx.Scope())
                     {
-                        var str = ctx.ValueFactory.CreateString("{ \"foo\": \"bar\" }");
+                        var str = ctx.CreateString("{ \"foo\": \"bar\" }");
 
                         var jsObject = ctx.JSON.Parse(str) as JsObject;
                         Assert.NotNull(jsObject);

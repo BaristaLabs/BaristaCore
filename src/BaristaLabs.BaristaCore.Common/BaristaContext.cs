@@ -4,7 +4,6 @@
     using BaristaLabs.BaristaCore.Tasks;
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
@@ -15,7 +14,7 @@
     /// <remarks>
     ///     Each script context has its own global object that is isolated from all other script contexts.
     /// </remarks>
-    public sealed class BaristaContext : BaristaObject<JavaScriptContextSafeHandle>
+    public sealed class BaristaContext : BaristaObject<JavaScriptContextSafeHandle>, IBaristaValueFactory
     {
         private readonly Lazy<JsUndefined> m_undefinedValue;
         private readonly Lazy<JsNull> m_nullValue;
@@ -60,11 +59,11 @@
 
             m_valueFactory = valueFactoryBuilder.CreateValueFactory(this);
 
-            m_undefinedValue = new Lazy<JsUndefined>(() => m_valueFactory.GetUndefinedValue());
-            m_nullValue = new Lazy<JsNull>(() => m_valueFactory.GetNullValue());
-            m_trueValue = new Lazy<JsBoolean>(() => m_valueFactory.GetTrueValue());
-            m_falseValue = new Lazy<JsBoolean>(() => m_valueFactory.GetFalseValue());
-            m_globalValue = new Lazy<JsObject>(() => m_valueFactory.GetGlobalObject());
+            m_undefinedValue = new Lazy<JsUndefined>(() => m_valueFactory.Undefined);
+            m_nullValue = new Lazy<JsNull>(() => m_valueFactory.Null);
+            m_trueValue = new Lazy<JsBoolean>(() => m_valueFactory.True);
+            m_falseValue = new Lazy<JsBoolean>(() => m_valueFactory.False);
+            m_globalValue = new Lazy<JsObject>(() => m_valueFactory.GlobalObject);
             m_jsonValue = new Lazy<JsJSON>(() =>
             {
                 var global = m_globalValue.Value;
@@ -80,7 +79,6 @@
                 var global = m_globalValue.Value;
                 return global.GetProperty<JsPromise>("Promise");
             });
-
 
             m_promiseTaskQueue = taskQueue;
             m_moduleRecordFactory = moduleRecordFactory ?? throw new ArgumentNullException(nameof(moduleRecordFactory));
@@ -255,7 +253,7 @@
         /// <summary>
         /// Gets the value factory associated with the context.
         /// </summary>
-        public IBaristaValueFactory ValueFactory
+        private IBaristaValueFactory ValueFactory
         {
             get
             {
@@ -280,6 +278,91 @@
             }
         }
         #endregion
+
+        public JsArray CreateArray(uint length)
+        {
+            return ValueFactory.CreateArray(length);
+        }
+
+        public JsArrayBuffer CreateArrayBuffer(string data)
+        {
+            return ValueFactory.CreateArrayBuffer(data);
+        }
+
+        public JsArrayBuffer CreateArrayBuffer(byte[] data)
+        {
+            return ValueFactory.CreateArrayBuffer(data);
+        }
+
+        public JsError CreateError(string message)
+        {
+            return ValueFactory.CreateError(message);
+        }
+
+        public JsExternalObject CreateExternalObject(object obj)
+        {
+            return ValueFactory.CreateExternalObject(obj);
+        }
+
+        public JsFunction CreateFunction(Delegate func, string name = null)
+        {
+            return ValueFactory.CreateFunction(func, name);
+        }
+
+        public JsNumber CreateNumber(double number)
+        {
+            return ValueFactory.CreateNumber(number);
+        }
+
+        public JsNumber CreateNumber(int number)
+        {
+            return ValueFactory.CreateNumber(number);
+        }
+
+        public JsObject CreateObject()
+        {
+            return ValueFactory.CreateObject();
+        }
+
+        public JsObject CreatePromise(out JsFunction resolve, out JsFunction reject)
+        {
+            return ValueFactory.CreatePromise(out resolve, out reject);
+        }
+
+        public JsObject CreatePromise(Task task)
+        {
+            return ValueFactory.CreatePromise(task);
+        }
+
+        public JsString CreateString(string str)
+        {
+            return ValueFactory.CreateString(str);
+        }
+
+        public JsSymbol CreateSymbol(string description)
+        {
+            return ValueFactory.CreateSymbol(description);
+        }
+
+        public JsError CreateTypeError(string message)
+        {
+            return ValueFactory.CreateTypeError(message);
+        }
+
+        public JsValue CreateValue(JavaScriptValueSafeHandle valueHandle, JsValueType? valueType = null)
+        {
+            return ValueFactory.CreateValue(valueHandle, valueType);
+        }
+
+        public JsValue CreateValue(Type targetType, JavaScriptValueSafeHandle valueHandle)
+        {
+            return ValueFactory.CreateValue(targetType, valueHandle);
+        }
+
+        public T CreateValue<T>(JavaScriptValueSafeHandle valueHandle) where T : JsValue
+        {
+            return ValueFactory.CreateValue<T>(valueHandle);
+        }
 
         /// <summary>
         /// Evaluates the specified script as a module, the default export will be the returned value.
@@ -386,20 +469,6 @@ let global = (new Function('return this;'))();
             {
                 mainModule.Dispose();
             }
-        }
-
-        /// <summary>
-        /// Tests whether the prototype property of a constructor appears anywhere in the prototype chain of an object.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="constructor"></param>
-        /// <returns></returns>
-        public bool InstanceOf(JsObject obj, JsFunction constructor)
-        {
-            if (IsDisposed)
-                throw new ObjectDisposedException(nameof(BaristaContext));
-
-            return Engine.JsInstanceOf(obj.Handle, constructor.Handle);
         }
 
         /// <summary>
