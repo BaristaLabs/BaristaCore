@@ -73,7 +73,15 @@
                 return attr;
             }
 
-            return new BaristaPropertyAttribute(member.Name.Camelize());
+            var memberName = member.Name.Camelize();
+
+            //If the member is a indexer, name it XxxxAt
+            if (member is PropertyInfo propertyInfo && propertyInfo.GetIndexParameters().Length > 0)
+            {
+                memberName = member.Name + "At";
+            }
+
+            return new BaristaPropertyAttribute(memberName);
         }
     }
 }

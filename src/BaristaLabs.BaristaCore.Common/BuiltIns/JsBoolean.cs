@@ -3,7 +3,7 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
 
-    public sealed class JsBoolean : JsValue
+    public sealed class JsBoolean : JsObject
     {
         public JsBoolean(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
             : base(engine, context, valueHandle)

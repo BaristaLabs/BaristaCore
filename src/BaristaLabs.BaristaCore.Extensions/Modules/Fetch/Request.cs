@@ -87,7 +87,7 @@
                 }
             }
 
-            if (init.HasProperty("headers") && init["headers"] is JsObject headersValue)
+            if (init.HasProperty("headers") && init["headers"] is JsObject headersValue && headersValue.Type == JsValueType.Object)
             {
                 //var headersValue = init["headers"];
                 IDictionary<string, IList<string>> headers = null;
@@ -96,7 +96,7 @@
                 {
                     headers = exHeaders.AllHeaders;
                 }
-                else if (headersValue is JsObject jsObj)
+                else if (headersValue is JsObject jsObj && headersValue.Type == JsValueType.Object)
                 {
                     //iterate through the keys and set the headers.
                     headers = new Dictionary<string, IList<string>>();
@@ -241,7 +241,7 @@
 
             if (init.HasProperty("cookies"))
             {
-                if (init["cookies"] is JsObject cookiesValue)
+                if (init["cookies"] is JsObject cookiesValue && cookiesValue.Type == JsValueType.Object)
                 {
                     foreach (var keyValue in cookiesValue.Keys)
                     {

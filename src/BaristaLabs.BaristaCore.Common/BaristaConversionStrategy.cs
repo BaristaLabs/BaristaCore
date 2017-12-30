@@ -83,10 +83,9 @@
                 case bool boolValue:
                     value = boolValue ? valueFactory.True : valueFactory.False;
                     return true;
-                case IEnumerable enumerableValue:
-                    var arrayValue = enumerableValue.OfType<object>().ToArray();
+                case Array arrayValue:
                     var arr = valueFactory.CreateArray((uint)arrayValue.LongLength);
-                    for(int i = 0; i < arrayValue.Length; i++)
+                    for (int i = 0; i < arrayValue.Length; i++)
                     {
                         if (TryFromObject(context, arrayValue.GetValue(i), out JsValue currentValue))
                         {
@@ -99,6 +98,9 @@
                         }
                     }
                     value = arr;
+                    return true;
+                case IEnumerator enumeratorValue:
+                    value = valueFactory.CreateIterator(enumeratorValue);
                     return true;
                 case Delegate delegateValue:
                     value = valueFactory.CreateFunction(delegateValue);

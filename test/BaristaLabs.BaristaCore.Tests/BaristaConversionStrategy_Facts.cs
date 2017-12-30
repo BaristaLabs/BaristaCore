@@ -3,6 +3,7 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Xunit;
@@ -224,6 +225,49 @@
 
                         Assert.Equal("bar", obj["Foo"].ToString());
                         Assert.Equal(42, obj["Bar"].ToDouble());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void ConverterCanConvertIEnumerators()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var froot = new List<string>() { "apple", "banana", "cherry" };
+                        ctx.Converter.TryFromObject(ctx, froot.GetEnumerator(), out JsValue value);
+                        var iterator = value as JsObject;
+                        Assert.NotNull(iterator);
+
+                        var fnNext = iterator["next"] as JsFunction;
+                        Assert.NotNull(fnNext);
+
+                        var currentValue = fnNext.Call(null) as JsObject;
+                        Assert.False(currentValue["done"].ToBoolean());
+                        Assert.Equal("apple", currentValue["value"].ToString());
+
+                        currentValue = fnNext.Call(null) as JsObject;
+                        Assert.False(currentValue["done"].ToBoolean());
+                        Assert.Equal("banana", currentValue["value"].ToString());
+
+                        currentValue = fnNext.Call(null) as JsObject;
+                        Assert.False(currentValue["done"].ToBoolean());
+                        Assert.Equal("cherry", currentValue["value"].ToString());
+
+                        //We're done.
+                        currentValue = fnNext.Call(null) as JsObject;
+                        Assert.True(currentValue["done"].ToBoolean());
+                        Assert.Same(ctx.Undefined, currentValue["value"]);
+
+                        //Still done.
+                        currentValue = fnNext.Call(null) as JsObject;
+                        Assert.True(currentValue["done"].ToBoolean());
+                        Assert.Same(ctx.Undefined, currentValue["value"]);
                     }
                 }
             }

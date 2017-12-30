@@ -46,7 +46,7 @@
 
                 bool toObject = false;
                 bool omitRootObject = false;
-                if (options != null && options is JsObject jsOptions)
+                if (options != null && options is JsObject jsOptions && jsOptions.Type == JsValueType.Object)
                 {
                     if (jsOptions.HasProperty("object") && jsOptions["object"].ToBoolean() == true)
                         toObject = true;

@@ -18,6 +18,14 @@
             m_type = t ?? throw new ArgumentNullException(nameof(t));
         }
 
+        /// <summary>
+        /// Gets the type associated with the reflector
+        /// </summary>
+        public Type Type
+        {
+            get { return m_type;  }
+        }
+
         public IEnumerable<ConstructorInfo> GetConstructors()
         {
             return m_type.GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
@@ -71,6 +79,11 @@
             return bestMatch;
         }
 
+        /// <summary>
+        /// Returns all non-indexer properties on the type not marked as ignored.
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <returns></returns>
         public IEnumerable<PropertyInfo> GetProperties(bool instance)
         {
             PropertyInfo[] properties;
@@ -79,7 +92,23 @@
             else
                 properties = m_type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-            return properties.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null);
+            return properties.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null && p.GetIndexParameters().Length <= 0);
+        }
+
+        /// <summary>
+        /// Returns all indexer properties on the type not marked as ignored -- in C#, there's only one, but in other languages this may not be the case.
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <returns></returns>
+        public IEnumerable<PropertyInfo> GetIndexerProperties(bool instance)
+        {
+            PropertyInfo[] properties;
+            if (instance == false)
+                properties = m_type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
+            else
+                properties = m_type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+            return properties.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null && p.GetIndexParameters().Length > 0);
         }
 
         public IDictionary<string, IList<MethodInfo>> GetUniqueMethodsByName(bool instance)

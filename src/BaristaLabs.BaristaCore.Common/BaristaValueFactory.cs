@@ -3,6 +3,7 @@
     using BaristaLabs.BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.Collections;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.InteropServices;
@@ -237,6 +238,20 @@
                 jsNativeFunction.BeforeCollect += JsValueBeforeCollectCallback;
                 return jsNativeFunction;
             }) as JsNativeFunction;
+        }
+
+        public JsIterator CreateIterator(IEnumerator enumerator)
+        {
+            if (enumerator == null)
+                enumerator = Enumerable.Empty<object>().GetEnumerator();
+
+            var objectHandle = m_engine.JsCreateObject();
+
+            //this is a special case where we cannot use our CreateValue<> method.
+            return m_valuePool.GetOrAdd(objectHandle, () =>
+            {
+                return new JsIterator(m_engine, Context, objectHandle, enumerator);
+            }) as JsIterator;
         }
 
         /// <summary>

@@ -11,7 +11,7 @@
             var fnFetch = context.CreateFunction(new Func<JsObject, JsValue, JsObject, object>((thisObj, input, init) =>
             {
                 Request request;
-                if (input is JsObject inputObj && inputObj.TryGetBean(out JsExternalObject exObj) && exObj.Target is Request inputRequest)
+                if (input is JsObject inputObj && inputObj.Type == JsValueType.Object && inputObj.TryGetBean(out JsExternalObject exObj) && exObj.Target is Request inputRequest)
                 {
                     request = new Request(inputRequest);
                 }

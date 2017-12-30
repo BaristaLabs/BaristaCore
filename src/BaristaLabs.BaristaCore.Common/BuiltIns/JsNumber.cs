@@ -6,7 +6,7 @@
     /// <summary>
     /// Represents a JavaScript Numeric Value
     /// </summary>
-    public sealed class JsNumber : JsValue
+    public sealed class JsNumber : JsObject
     {
         public JsNumber(IJavaScriptEngine engine, BaristaContext context,JavaScriptValueSafeHandle valueHandle)
             : base(engine, context, valueHandle)

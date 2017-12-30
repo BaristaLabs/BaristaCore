@@ -3,6 +3,7 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using BaristaLabs.BaristaCore.Tasks;
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
     using System.Threading;
@@ -14,7 +15,7 @@
     /// <remarks>
     ///     Each script context has its own global object that is isolated from all other script contexts.
     /// </remarks>
-    public sealed class BaristaContext : BaristaObject<JavaScriptContextSafeHandle>, IBaristaValueFactory
+    public sealed partial class BaristaContext : BaristaObject<JavaScriptContextSafeHandle>, IBaristaValueFactory
     {
         private readonly Lazy<JsUndefined> m_undefinedValue;
         private readonly Lazy<JsNull> m_nullValue;
@@ -23,13 +24,13 @@
         private readonly Lazy<JsJSON> m_jsonValue;
         private readonly Lazy<JsObject> m_globalValue;
         private readonly Lazy<JsObjectConstructor> m_objectValue;
-        private readonly Lazy<JsPromise> m_promiseValue;
+        private readonly Lazy<JsPromiseConstructor> m_promiseValue;
+        private readonly Lazy<JsSymbolConstructor> m_symbolValue;
 
         private readonly IBaristaValueFactory m_valueFactory;
         private readonly IBaristaConversionStrategy m_conversionStrategy;
         private readonly IPromiseTaskQueue m_promiseTaskQueue;
         private readonly IBaristaModuleRecordFactory m_moduleRecordFactory;
-        private IDictionary<string, JsSymbol> m_registeredSymbols;
 
         private readonly TaskFactory m_taskFactory;
         private readonly GCHandle m_beforeCollectCallbackDelegateHandle;
@@ -74,15 +75,19 @@
                 var global = m_globalValue.Value;
                 return global.GetProperty<JsObjectConstructor>("Object");
             });
-            m_promiseValue = new Lazy<JsPromise>(() =>
+            m_promiseValue = new Lazy<JsPromiseConstructor>(() =>
             {
                 var global = m_globalValue.Value;
-                return global.GetProperty<JsPromise>("Promise");
+                return global.GetProperty<JsPromiseConstructor>("Promise");
+            });
+            m_symbolValue = new Lazy<JsSymbolConstructor>(() =>
+            {
+                var global = m_globalValue.Value;
+                return global.GetProperty<JsSymbolConstructor>("Symbol");
             });
 
             m_promiseTaskQueue = taskQueue;
             m_moduleRecordFactory = moduleRecordFactory ?? throw new ArgumentNullException(nameof(moduleRecordFactory));
-            m_registeredSymbols = new Dictionary<string, JsSymbol>();
 
             //Set the event that will be called prior to the engine collecting the context.
             JavaScriptObjectBeforeCollectCallback beforeCollectCallback = (IntPtr handle, IntPtr callbackState) =>
@@ -211,7 +216,7 @@
         /// <summary>
         /// Gets the global Promise built-in.
         /// </summary>
-        public JsPromise Promise
+        public JsPromiseConstructor Promise
         {
             get
             {
@@ -219,6 +224,20 @@
                     throw new ObjectDisposedException(nameof(BaristaContext));
 
                 return m_promiseValue.Value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the global Symbol built-in.
+        /// </summary>
+        public JsSymbolConstructor Symbol
+        {
+            get
+            {
+                if (IsDisposed)
+                    throw new ObjectDisposedException(nameof(BaristaContext));
+
+                return m_symbolValue.Value;
             }
         }
 
@@ -307,6 +326,11 @@
         public JsFunction CreateFunction(Delegate func, string name = null)
         {
             return ValueFactory.CreateFunction(func, name);
+        }
+
+        public JsIterator CreateIterator(IEnumerator enumerator)
+        {
+            return ValueFactory.CreateIterator(enumerator);
         }
 
         public JsNumber CreateNumber(double number)
@@ -472,27 +496,6 @@ let global = (new Function('return this;'))();
         }
 
         /// <summary>
-        /// Returns a JsSymbol with the specified description unique to this context.
-        /// </summary>
-        /// <param name="symbolDescription"></param>
-        /// <returns></returns>
-        public JsSymbol GetSymbol(string symbolDescription)
-        {
-            if (String.IsNullOrWhiteSpace(symbolDescription))
-                throw new ArgumentNullException(symbolDescription);
-
-            if (IsDisposed)
-                throw new ObjectDisposedException(nameof(BaristaContext));
-
-            if (m_registeredSymbols.ContainsKey(symbolDescription))
-                return m_registeredSymbols[symbolDescription];
-
-            var newSymbol = ValueFactory.CreateSymbol(symbolDescription);
-            m_registeredSymbols.Add(symbolDescription, newSymbol);
-            return newSymbol;
-        }
-
-        /// <summary>
         /// Returns a new JavaScript Execution Scope to perform work in.
         /// </summary>
         /// <returns></returns>
@@ -526,8 +529,6 @@ let global = (new Function('return this;'))();
                 BaristaExecutionScope scope = null;
                 if (!HasCurrentScope)
                     scope = Scope();
-
-                m_registeredSymbols = null;
 
                 try
                 {

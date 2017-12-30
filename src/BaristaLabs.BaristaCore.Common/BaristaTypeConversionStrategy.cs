@@ -3,6 +3,7 @@
     using BaristaLabs.BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.Utils;
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -48,6 +49,10 @@
             ProjectProperties(context, staticPropertyDescriptors, reflector.GetProperties(false));
             ProjectProperties(context, instancePropertyDescriptors, reflector.GetProperties(true));
 
+            //Get static and instance indexer properties.
+            ProjectIndexerProperties(context, staticPropertyDescriptors, reflector.GetIndexerProperties(false));
+            ProjectIndexerProperties(context, instancePropertyDescriptors, reflector.GetIndexerProperties(true));
+
             //Get static and instance methods.
             ProjectMethods(context, staticPropertyDescriptors, reflector, reflector.GetUniqueMethodsByName(false));
             ProjectMethods(context, instancePropertyDescriptors, reflector, reflector.GetUniqueMethodsByName(true));
@@ -55,6 +60,9 @@
             //Get static and instance events.
             ProjectEvents(context, staticPropertyDescriptors, reflector, reflector.GetEventTable(false));
             ProjectEvents(context, instancePropertyDescriptors, reflector, reflector.GetEventTable(true));
+
+            //Get the [[iterator]] property.
+            ProjectIEnumerable(context, instancePropertyDescriptors, reflector);
 
             JsFunction fnCtor;
             var publicConstructors = reflector.GetConstructors();
@@ -144,9 +152,6 @@
         {
             foreach (var prop in properties)
             {
-                if (prop.GetIndexParameters().Length > 0)
-                    throw new NotSupportedException("Index properties not supported for projecting CLR to JavaScript objects.");
-
                 var propertyAttribute = BaristaPropertyAttribute.GetAttribute(prop);
                 var propertyName = propertyAttribute.Name;
                 var propertyDescriptor = context.CreateObject();
@@ -160,36 +165,7 @@
                 {
                     var jsGet = context.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
                     {
-                        object targetObj = null;
-
-                        if (thisObj == null)
-                        {
-                            context.CurrentScope.SetException(context.CreateTypeError($"Could not retrieve property '{propertyName}' because there was an invalid 'this' context."));
-                            return context.Undefined;
-                        }
-
-                        if (thisObj.TryGetBean(out JsExternalObject xoObj))
-                        {
-                            targetObj = xoObj.Target;
-                        }
-
-                        try
-                        {
-                            var result = prop.GetValue(targetObj);
-                            if (context.Converter.TryFromObject(context, result, out JsValue resultValue))
-                            {
-                                return resultValue;
-                            }
-                            else
-                            {
-                                return context.Undefined;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            context.CurrentScope.SetException(context.CreateError(ex.Message));
-                            return context.Undefined;
-                        }
+                        return GetPropertyValue(context, prop, propertyName, thisObj);
                     }));
 
                     propertyDescriptor.SetProperty("get", jsGet);
@@ -199,36 +175,63 @@
                 {
                     var jsSet = context.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
                     {
-                        object targetObj = null;
-
-                        if (thisObj == null)
-                        {
-                            context.CurrentScope.SetException(context.CreateTypeError($"Could not set property '{propertyName}' because there was an invalid 'this' context."));
-                            return context.Undefined;
-                        }
-
-                        if (thisObj.TryGetBean(out JsExternalObject xoObj))
-                        {
-                            targetObj = xoObj.Target;
-                        }
-
-                        try
-                        {
-                            var value = Convert.ChangeType(args.ElementAtOrDefault(0), prop.SetMethod.GetParameters().First().ParameterType);
-                            prop.SetValue(targetObj, value);
-                            return context.Undefined;
-                        }
-                        catch (Exception ex)
-                        {
-                            context.CurrentScope.SetException(context.CreateError(ex.Message));
-                            return context.Undefined;
-                        }
+                        return SetPropertyValue(context, prop, propertyName, thisObj, args);
                     }));
 
                     propertyDescriptor.SetProperty("set", jsSet);
                 }
 
                 targetObject.SetProperty(context.CreateString(propertyName), propertyDescriptor);
+            }
+        }
+
+        private void ProjectIndexerProperties(BaristaContext context, JsObject targetObject, IEnumerable<PropertyInfo> indexerProperties)
+        {
+            foreach (var indexerProp in indexerProperties)
+            {
+                var propertyAttribute = BaristaPropertyAttribute.GetAttribute(indexerProp);
+
+                if (indexerProp.GetMethod != null)
+                {
+                    var propertyName = propertyAttribute.Name;
+                    var propertyDescriptor = context.CreateObject();
+
+                    if (propertyAttribute.Configurable)
+                        propertyDescriptor.SetProperty("configurable", context.True);
+                    if (propertyAttribute.Enumerable)
+                        propertyDescriptor.SetProperty("enumerable", context.True);
+                    if (propertyAttribute.Writable)
+                        propertyDescriptor.SetProperty("writable", context.True);
+
+                    var jsGetItemAt = context.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
+                    {
+                        return GetIndexerPropertyValue(context, indexerProp, propertyName, thisObj, args);
+                    }));
+
+                    propertyDescriptor.SetProperty("value", jsGetItemAt);
+                    targetObject.SetProperty(context.CreateString("get" + propertyName), propertyDescriptor);
+                }
+
+                if (indexerProp.SetMethod != null)
+                {
+                    var propertyName = propertyAttribute.Name;
+                    var propertyDescriptor = context.CreateObject();
+
+                    if (propertyAttribute.Configurable)
+                        propertyDescriptor.SetProperty("configurable", context.True);
+                    if (propertyAttribute.Enumerable)
+                        propertyDescriptor.SetProperty("enumerable", context.True);
+                    if (propertyAttribute.Writable)
+                        propertyDescriptor.SetProperty("writable", context.True);
+
+                    var jsGetItemAt = context.CreateFunction(new BaristaFunctionDelegate((calleeObj, isConstructCall, thisObj, args) =>
+                    {
+                        return SetIndexerPropertyValue(context, indexerProp, propertyName, thisObj, args);
+                    }));
+
+                    propertyDescriptor.SetProperty("value", jsGetItemAt);
+                    targetObject.SetProperty(context.CreateString("set" + propertyName), propertyDescriptor);
+                }
             }
         }
 
@@ -245,7 +248,7 @@
 
                     if (thisObj == null)
                     {
-                        context.CurrentScope.SetException(context.CreateTypeError($"Could not call function '{methodName}' because there was an invalid 'this' context."));
+                        context.CurrentScope.SetException(context.CreateTypeError($"Could not call function '{methodName}': Invalid 'this' context."));
                         return context.Undefined;
                     }
 
@@ -319,7 +322,7 @@
 
                 if (thisObj == null)
                 {
-                    context.CurrentScope.SetException(context.CreateTypeError($"Could not register event listener '{eventName}' because there was an invalid 'this' context."));
+                    context.CurrentScope.SetException(context.CreateTypeError($"Could not register event listener '{eventName}': Invalid 'this' context."));
                     return context.Undefined;
                 }
 
@@ -398,7 +401,7 @@
 
                 if (thisObj == null)
                 {
-                    context.CurrentScope.SetException(context.CreateTypeError($"Could not unregister event listener '{eventName}' because there was an invalid 'this' context."));
+                    context.CurrentScope.SetException(context.CreateTypeError($"Could not unregister event listener '{eventName}': Invalid 'this' context."));
                     return context.Undefined;
                 }
 
@@ -454,7 +457,7 @@
 
                 if (thisObj == null)
                 {
-                    context.CurrentScope.SetException(context.CreateTypeError($"Could not unregister event listener '{eventName}' because there was an invalid 'this' context."));
+                    context.CurrentScope.SetException(context.CreateTypeError($"Could not unregister event listener '{eventName}': Invalid 'this' context."));
                     return context.Undefined;
                 }
 
@@ -504,6 +507,190 @@
             removeAllEventListenersFunctionDescriptor.SetProperty("enumerable", context.True);
             removeAllEventListenersFunctionDescriptor.SetProperty("value", fnRemoveAllEventListeners);
             targetObject.SetProperty(context.CreateString("removeAllEventListeners"), removeAllEventListenersFunctionDescriptor);
+        }
+
+        /// <summary>
+        /// Projects the [[iterator]] protocol on IEnumerable objects.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="targetObject"></param>
+        /// <param name="reflector"></param>
+        private void ProjectIEnumerable(BaristaContext context, JsObject targetObject, ObjectReflector reflector)
+        {
+            if (typeof(IEnumerable).IsAssignableFrom(reflector.Type))
+            {
+                var fnIterator = context.CreateFunction(new Func<JsObject, JsValue>((thisObj) => {
+                    IEnumerable targetObj = null;
+
+                    if (thisObj == null)
+                    {
+                        context.CurrentScope.SetException(context.CreateTypeError($"Could not retrieve iterator on object {targetObject.ToString()}: Invalid 'this' context."));
+                        return context.Undefined;
+                    }
+
+                    if (thisObj.TryGetBean(out JsExternalObject xoObj))
+                    {
+                        targetObj = xoObj.Target as IEnumerable;
+                    }
+
+                    return context.CreateIterator(targetObj.GetEnumerator());
+                }));
+
+                var iteratorDescriptor = context.CreateObject();
+                iteratorDescriptor.SetProperty("value", fnIterator);
+                targetObject.SetProperty(context.Symbol.Iterator, iteratorDescriptor);
+            }
+        }
+
+        private JsValue GetPropertyValue(BaristaContext context, PropertyInfo prop, string propertyName, JsObject thisObj)
+        {
+            object targetObj = null;
+
+            if (thisObj == null)
+            {
+                context.CurrentScope.SetException(context.CreateTypeError($"Could not retrieve property '{propertyName}': Invalid 'this' context."));
+                return context.Undefined;
+            }
+
+            if (thisObj.TryGetBean(out JsExternalObject xoObj))
+            {
+                targetObj = xoObj.Target;
+            }
+
+            try
+            {
+                var result = prop.GetValue(targetObj);
+                if (context.Converter.TryFromObject(context, result, out JsValue resultValue))
+                {
+                    return resultValue;
+                }
+                else
+                {
+                    return context.Undefined;
+                }
+            }
+            catch (Exception ex)
+            {
+                context.CurrentScope.SetException(context.CreateError(ex.Message));
+                return context.Undefined;
+            }
+        }
+
+        private JsValue SetPropertyValue(BaristaContext context, PropertyInfo prop, string propertyName, JsObject thisObj, object[] args)
+        {
+            object targetObj = null;
+
+            if (thisObj == null)
+            {
+                context.CurrentScope.SetException(context.CreateTypeError($"Could not set property '{propertyName}': Invalid 'this' context."));
+                return context.Undefined;
+            }
+
+            if (thisObj.TryGetBean(out JsExternalObject xoObj))
+            {
+                targetObj = xoObj.Target;
+            }
+
+            try
+            {
+                var value = Convert.ChangeType(args.ElementAtOrDefault(0), prop.SetMethod.GetParameters().First().ParameterType);
+                prop.SetValue(targetObj, value);
+                return context.Undefined;
+            }
+            catch (Exception ex)
+            {
+                context.CurrentScope.SetException(context.CreateError(ex.Message));
+                return context.Undefined;
+            }
+        }
+
+        private JsValue GetIndexerPropertyValue(BaristaContext context, PropertyInfo indexerProp, string propertyName, JsObject thisObj, object[] args)
+        {
+            object targetObj = null;
+
+            if (thisObj == null)
+            {
+                context.CurrentScope.SetException(context.CreateTypeError($"Could not get indexer property '{propertyName}': Invalid 'this' context."));
+                return context.Undefined;
+            }
+
+            if (args == null || args.Length < 1)
+            {
+                context.CurrentScope.SetException(context.CreateTypeError($"Could not get indexer property '{propertyName}': At least one index must be specified."));
+                return context.Undefined;
+            }
+
+            if (thisObj.TryGetBean(out JsExternalObject xoObj))
+            {
+                targetObj = xoObj.Target;
+            }
+
+            try
+            {
+                var indexParameters = indexerProp.GetIndexParameters();
+                var indexArgs = new object[indexParameters.Length];
+                for(int i = 0; i < indexParameters.Length; i++)
+                {
+                    indexArgs[i] = Convert.ChangeType(args.ElementAtOrDefault(i), indexParameters[i].ParameterType);
+                }
+
+                var result = indexerProp.GetValue(targetObj, indexArgs);
+                if (context.Converter.TryFromObject(context, result, out JsValue resultValue))
+                {
+                    return resultValue;
+                }
+                else
+                {
+                    return context.Undefined;
+                }
+            }
+            catch (Exception ex)
+            {
+                context.CurrentScope.SetException(context.CreateError(ex.Message));
+                return context.Undefined;
+            }
+        }
+
+        private JsValue SetIndexerPropertyValue(BaristaContext context, PropertyInfo indexerProp, string propertyName, JsObject thisObj, object[] args)
+        {
+            object targetObj = null;
+
+            if (thisObj == null)
+            {
+                context.CurrentScope.SetException(context.CreateTypeError($"Could not set indexer property '{propertyName}': Invalid 'this' context."));
+                return context.Undefined;
+            }
+
+            if (args == null || args.Length < 2)
+            {
+                context.CurrentScope.SetException(context.CreateTypeError($"Could not set indexer property '{propertyName}': At least one index and a value be specified."));
+                return context.Undefined;
+            }
+
+            if (thisObj.TryGetBean(out JsExternalObject xoObj))
+            {
+                targetObj = xoObj.Target;
+            }
+
+            try
+            {
+                var value = args.LastOrDefault();
+                var nativeArgs = args.Take(args.Length - 1).ToArray();
+                var indexParameters = indexerProp.GetIndexParameters();
+                var indexArgs = new object[indexParameters.Length];
+                for (int i = 0; i < indexParameters.Length; i++)
+                {
+                    indexArgs[i] = Convert.ChangeType(nativeArgs.ElementAtOrDefault(i), indexParameters[i].ParameterType);
+                }
+
+                indexerProp.SetValue(targetObj, value, indexArgs);
+                return context.Undefined;
+            }
+            catch (Exception ex)
+            {
+                context.CurrentScope.SetException(context.CreateError(ex.Message));
+                return context.Undefined;
+            }
         }
 
         private object[] ConvertArgsToParamTypes(BaristaContext context, object[] args, ParameterInfo[] parameters)

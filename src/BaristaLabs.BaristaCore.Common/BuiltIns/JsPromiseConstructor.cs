@@ -6,15 +6,15 @@
     /// <summary>
     /// Represents the built-in Promise Object.
     /// </summary>
-    public class JsPromise : JsObject
+    public class JsPromiseConstructor : JsObject
     {
-        public JsPromise(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
+        public JsPromiseConstructor(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
             : base(engine, context, valueHandle)
         {
 
         }
 
-        public JsPromise All(params JsValue[] values)
+        public JsPromiseConstructor All(params JsValue[] values)
         {
             if(values == null)
                 throw new ArgumentNullException(nameof(values));
@@ -26,12 +26,12 @@
             }
 
             var fnAll = GetProperty<JsFunction>("all");
-            var result = fnAll.Call<JsPromise>(this, arr);
+            var result = fnAll.Call<JsPromiseConstructor>(this, arr);
             Context.CurrentScope.ResolvePendingPromises();
             return result;
         }
 
-        public JsPromise Race(params JsValue[] values)
+        public JsPromiseConstructor Race(params JsValue[] values)
         {
             if (values == null)
                 throw new ArgumentNullException(nameof(values));
@@ -42,29 +42,29 @@
                 arr.Push(val);
             }
             var fnRace = GetProperty<JsFunction>("race");
-            var result = fnRace.Call<JsPromise>(this, arr);
+            var result = fnRace.Call<JsPromiseConstructor>(this, arr);
             Context.CurrentScope.ResolvePendingPromises();
             return result;
         }
 
-        public JsPromise Reject(JsValue reason)
+        public JsPromiseConstructor Reject(JsValue reason)
         {
             if (reason == null)
                 throw new ArgumentNullException(nameof(reason));
 
             var fnReject = GetProperty<JsFunction>("reject");
-            var result = fnReject.Call<JsPromise>(this, reason);
+            var result = fnReject.Call<JsPromiseConstructor>(this, reason);
             Context.CurrentScope.ResolvePendingPromises();
             return result;
         }
 
-        public JsPromise Resolve(JsValue value)
+        public JsPromiseConstructor Resolve(JsValue value)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
             var fnResolve = GetProperty<JsFunction>("resolve");
-            var result = fnResolve.Call<JsPromise>(this, value);
+            var result = fnResolve.Call<JsPromiseConstructor>(this, value);
             Context.CurrentScope.ResolvePendingPromises();
             return result;
         }

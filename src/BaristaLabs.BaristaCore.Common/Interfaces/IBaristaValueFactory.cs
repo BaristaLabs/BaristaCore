@@ -2,6 +2,7 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.Collections;
     using System.Threading.Tasks;
 
     public interface IBaristaValueFactory : IDisposable
@@ -65,6 +66,8 @@
         JsExternalObject CreateExternalObject(object obj);
 
         JsFunction CreateFunction(Delegate func, string name = null);
+
+        JsIterator CreateIterator(IEnumerator enumerator);
 
         JsNumber CreateNumber(double number);
 

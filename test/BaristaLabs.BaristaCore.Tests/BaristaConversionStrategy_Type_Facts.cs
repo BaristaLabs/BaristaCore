@@ -4,6 +4,8 @@
     using Microsoft.Extensions.DependencyInjection;
     using Newtonsoft.Json;
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
@@ -274,6 +276,44 @@ export default myFoo;
                         var stringified = ctx.JSON.Stringify(result);
                         dynamic json = JsonConvert.DeserializeObject(stringified);
                         Assert.Equal("123Test", (string)json.myProperty);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void ConverterExposesIndexerPropertiesAsMethods()
+        {
+            var script = @"
+var myFoo = new Foo();
+var thing = myFoo.getItemAt(1);
+myFoo.setItemAt(2, 'cantaloupe');
+thing = myFoo.getItemAt(2);
+export default myFoo;
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(HasIndexerProperty), out JsValue value);
+                        ctx.GlobalObject["Foo"] = (value as JsObject);
+
+                        var objFoo = ctx.EvaluateModule<JsObject>(script);
+                        Assert.Equal(2, objFoo.Keys.Length);
+                        Assert.Equal("getItemAt", objFoo.Keys[0].ToString());
+                        Assert.Equal("setItemAt", objFoo.Keys[1].ToString());
+
+                        if (objFoo.TryGetBean(out JsExternalObject bean))
+                        {
+                            var obj = bean.Target as HasIndexerProperty;
+                            Assert.Equal("cantaloupe", obj[2]);
+                        }
+                        else
+                        {
+                            Assert.True(false, "Should be able to retrieve the bean.");
+                        }
                     }
                 }
             }
@@ -972,6 +1012,99 @@ export default { count, dracula };
         #endregion
         #endregion
 
+        #region IEnumerableTests
+
+        [Fact]
+        public void ConverterProvidesIteratorPropertyWhenTypeIsIEnumerable()
+        {
+            var script = @"
+var myFoo = new Foo();
+var stuff = [];
+for(const foo of myFoo) {
+  stuff.push(foo);
+}
+export default stuff;
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(ImplementsIEnumerable), out JsValue value);
+                        ctx.GlobalObject["Foo"] = value;
+
+                        var result = ctx.EvaluateModule<JsArray>(script);
+                        Assert.NotNull(result);
+                        Assert.Equal(3, result.Length);
+                        Assert.Equal("apple", result[0].ToString());
+                        Assert.Equal("banana", result[1].ToString());
+                        Assert.Equal("cherry", result[2].ToString());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void ConverterIteratesOverMethodsThatReturnIEnumerable()
+        {
+            var script = @"
+var myFoo = new Foo();
+var stuff = [];
+for(const foo of myFoo.getFroot()) {
+  stuff.push(foo);
+}
+export default stuff;
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(HasIEnumerableMethod), out JsValue value);
+                        ctx.GlobalObject["Foo"] = value;
+
+                        var result = ctx.EvaluateModule<JsArray>(script);
+                        Assert.NotNull(result);
+                        Assert.Equal(3, result.Length);
+                        Assert.Equal("apple", result[0].ToString());
+                        Assert.Equal("banana", result[1].ToString());
+                        Assert.Equal("cherry", result[2].ToString());
+                    }
+                }
+            }
+        }
+
+        #region Test Classes
+        private class ImplementsIEnumerable : IEnumerable<string>
+        {
+            private IList<string> froot = new List<string>() { "apple", "banana", "cherry" };
+
+            public IEnumerator<string> GetEnumerator()
+            {
+                return froot.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return this.GetEnumerator();
+            }
+        }
+
+        private class HasIEnumerableMethod
+        {
+            private IList<string> froot = new List<string>() { "apple", "banana", "cherry" };
+
+            public IEnumerable<string> GetFroot()
+            {
+                return froot;
+            }
+        }
+        #endregion
+
+        #endregion
+
         #region Test Classes
         private class Foo
         {
@@ -1213,6 +1346,23 @@ export default { count, dracula };
             [BaristaProperty("mySuperMethod")]
             public void MyMethod(string value)
             {
+            }
+        }
+
+        private class HasIndexerProperty
+        {
+            private List<string> m_froot = new List<string>() { "apple", "banana", "cherry" };
+
+            public string this[int ix]
+            {
+                get
+                {
+                    return m_froot[ix];
+                }
+                set
+                {
+                    m_froot[ix] = value;
+                }
             }
         }
 

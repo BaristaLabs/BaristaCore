@@ -810,7 +810,7 @@ export default carlyRae;
         {
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                return Task.FromResult<object>(new StringBuilder());
+                return Task.FromResult<object>(' ');
             }
         }
 
