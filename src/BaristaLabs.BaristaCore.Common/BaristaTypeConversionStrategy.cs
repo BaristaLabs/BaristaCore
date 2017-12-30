@@ -614,7 +614,7 @@
                 return context.Undefined;
             }
 
-            if (args == null || args.Length < 1)
+            if (args.Length < 1)
             {
                 context.CurrentScope.SetException(context.CreateTypeError($"Could not get indexer property '{propertyName}': At least one index must be specified."));
                 return context.Undefined;
@@ -661,7 +661,7 @@
                 return context.Undefined;
             }
 
-            if (args == null || args.Length < 2)
+            if (args.Length < 2)
             {
                 context.CurrentScope.SetException(context.CreateTypeError($"Could not set indexer property '{propertyName}': At least one index and a value be specified."));
                 return context.Undefined;
