@@ -30,4 +30,10 @@
     <ProjectReference Include="..\..\src\BaristaLabs.BaristaCore.Extensions\BaristaLabs.BaristaCore.Extensions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

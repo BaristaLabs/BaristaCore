@@ -3,6 +3,7 @@
     using BaristaLabs.BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.ModuleLoaders;
     using BaristaLabs.BaristaCore.Modules;
+    using BaristaLabs.BaristaCore.Tasks;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Threading;
@@ -60,7 +61,7 @@ export default transpiled.outputText;
             options,
             CancellationToken.None,
             TaskCreationOptions.DenyChildAttach,
-            TaskScheduler.Default);
+            new ThreadPerTaskScheduler());
         }
 
         private string PerformTranspilation(TypeScriptTranspilerOptions options)
