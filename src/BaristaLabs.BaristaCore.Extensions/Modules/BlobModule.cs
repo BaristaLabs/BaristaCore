@@ -1,6 +1,5 @@
-﻿namespace BaristaLabs.BaristaCore.Modules.Blob
+﻿namespace BaristaLabs.BaristaCore.Modules
 {
-    using System;
     using System.Threading.Tasks;
 
     [BaristaModule("barista-blob", "Provides a Blob implementation")]
@@ -8,7 +7,7 @@
     {
         public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<object>(typeof(Blob));
         }
     }
 }

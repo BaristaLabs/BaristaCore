@@ -695,20 +695,22 @@
 
         private object[] ConvertArgsToParamTypes(BaristaContext context, object[] args, ParameterInfo[] parameters)
         {
+            //TODO: BaristaValueFactory.CreateNativeFunctionForDelegate has very similar code. Consolidate if possible.
+
             var convertedArgs = new object[parameters.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
                 var currentParam = parameters[i];
+                var currentArg = args.ElementAtOrDefault(i);
                 if (currentParam.ParameterType == typeof(BaristaContext))
                 {
                     convertedArgs[i] = context;
                 }
                 else
                 {
-                    var arg = args.ElementAtOrDefault(i);
                     try
                     {
-                        convertedArgs[i] = Convert.ChangeType(args[i], currentParam.ParameterType);
+                        convertedArgs[i] = Convert.ChangeType(currentArg, currentParam.ParameterType);
                     }
                     catch (Exception)
                     {

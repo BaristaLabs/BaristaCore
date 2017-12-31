@@ -83,17 +83,17 @@
             return new Response(this);
         }
 
-        public Task<JsArrayBuffer> ArrayBuffer()
+        public Task<JsValue> ArrayBuffer()
         {
             return m_body.ArrayBuffer();
         }
 
-        public Task<JsObject> Blob()
+        public Task<JsValue> Blob()
         {
             return m_body.Blob();
         }
 
-        public Task<JsObject> FormData()
+        public Task<JsValue> FormData()
         {
             return m_body.FormData();
         }
@@ -103,7 +103,7 @@
             return m_body.Json();
         }
 
-        public Task<JsString> Text()
+        public Task<JsValue> Text()
         {
             return m_body.Text();
         }

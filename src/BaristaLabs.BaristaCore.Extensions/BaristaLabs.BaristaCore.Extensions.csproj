@@ -50,6 +50,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Modules\Blob\" />
     <Folder Include="Properties\" />
   </ItemGroup>
 

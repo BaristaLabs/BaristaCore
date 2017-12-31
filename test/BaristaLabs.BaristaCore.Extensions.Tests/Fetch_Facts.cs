@@ -2,7 +2,7 @@ namespace BaristaLabs.BaristaCore.Extensions.Tests
 {
     using BaristaLabs.BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.ModuleLoaders;
-    using BaristaLabs.BaristaCore.Modules.Fetch;
+    using BaristaLabs.BaristaCore.Modules;
     using Microsoft.Extensions.DependencyInjection;
     using Newtonsoft.Json;
     using System;
