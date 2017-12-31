@@ -1,6 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore.Modules
 {
-    using BaristaLabs.BaristaCore.Modules.Fetch;
     using System;
     using System.Threading.Tasks;
 

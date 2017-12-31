@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.Modules.Fetch
+﻿namespace BaristaLabs.BaristaCore
 {
     using RestSharp;
     using RestSharp.Authenticators;

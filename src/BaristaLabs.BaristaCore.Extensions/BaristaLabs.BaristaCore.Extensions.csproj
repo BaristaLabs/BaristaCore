@@ -26,6 +26,7 @@
     <None Remove="Scripts\handlebars.min.js" />
     <None Remove="Scripts\lodash.min.js" />
     <None Remove="Scripts\moment.min.js" />
+    <None Remove="Scripts\react-dom-server.browser.production.min.js" />
     <None Remove="Scripts\react.production.min.js" />
     <None Remove="Scripts\typescript.min.js" />
     <None Remove="Scripts\uuid.min.js" />
@@ -35,6 +36,7 @@
     <EmbeddedResource Include="Scripts\handlebars.min.js" />
     <EmbeddedResource Include="Scripts\lodash.min.js" />
     <EmbeddedResource Include="Scripts\moment.min.js" />
+    <EmbeddedResource Include="Scripts\react-dom-server.browser.production.min.js" />
     <EmbeddedResource Include="Scripts\react.production.min.js" />
     <EmbeddedResource Include="Scripts\typescript.min.js" />
     <EmbeddedResource Include="Scripts\uuid.min.js" />
@@ -50,7 +52,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Modules\Blob\" />
     <Folder Include="Properties\" />
   </ItemGroup>
 

@@ -48,6 +48,32 @@ export default xml2js.toXml(JSON.stringify(json));
         }
 
         [Fact]
+        public void JsonToXmlNullArgumentThrows()
+        {
+            var script = @"
+import xml2js from 'xml2js';
+var json = { foo: 'bar' };
+export default xml2js.toXml(null);
+";
+
+            var baristaRuntime = GetRuntimeFactory();
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.Throws<JsScriptException>(() =>
+                        {
+                            var response = ctx.EvaluateModule(script);
+                        });
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void CanConvertXmlToJson()
         {
             var script = @"
@@ -68,6 +94,32 @@ export default JSON.stringify(xml2js.toJson(xml, { object: true }));
                         Assert.NotNull(response);
                         Assert.IsType<JsString>(response);
                         Assert.Equal("{\"?xml\":{\"@version\":\"1.0\",\"@encoding\":\"utf-16\"},\"foo\":\"bar\"}", response.ToString());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void XmlToJsonNullArgumentThrows()
+        {
+            var script = @"
+import xml2js from 'xml2js';
+var json = { foo: 'bar' };
+export default xml2js.toJson(null, { object: true });
+";
+
+            var baristaRuntime = GetRuntimeFactory();
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        Assert.Throws<JsScriptException>(() =>
+                        {
+                            var response = ctx.EvaluateModule(script);
+                        });
                     }
                 }
             }

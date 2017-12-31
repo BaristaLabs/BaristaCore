@@ -51,16 +51,47 @@
 
             switch (errorType)
             {
+                case JsValueType.Object:
+                    if (TryGetErrorProperty(error, ColumnNumberPropertyName, out int metadataColumnValue))
+                    {
+                        ColumnNumber = metadataColumnValue;
+                    }
+
+                    if (TryGetErrorProperty(error, LineNumberPropertyName, out int metadataLineValue))
+                    {
+                        LineNumber = metadataLineValue;
+                    }
+                    if (TryGetErrorProperty(error, "source", out string metadataScriptSourceValue))
+                    {
+                        ScriptSource = metadataScriptSourceValue;
+                    }
+                    if (TryGetErrorProperty(error, "url", out string metadataUrlValue))
+                    {
+                        Name = metadataUrlValue;
+                    }
+                    break;
                 case JsValueType.Error:
                     //Get the message of the Script Error.            
-                    innerError = LibChakraCore.JsCreatePropertyId(MessagePropertyName, (ulong)MessagePropertyName.Length, out JavaScriptPropertyIdSafeHandle messagePropertyHandle);
-                    innerError = LibChakraCore.JsHasProperty(error, messagePropertyHandle, out bool hasMessageProperty);
-
-                    if (hasMessageProperty == true)
+                    if (TryGetErrorProperty(error, MessagePropertyName, out string errrorMessageValue))
                     {
-                        innerError = LibChakraCore.JsGetProperty(error, messagePropertyHandle, out JavaScriptValueSafeHandle messageValue);
-                        m_message = Helpers.GetStringUtf8(messageValue, releaseHandle: true);
+                        m_message = errrorMessageValue;
                     }
+
+                    if (TryGetErrorProperty(error, ColumnNumberPropertyName, out int errorColumnValue))
+                    {
+                        ColumnNumber = errorColumnValue;
+                    }
+
+                    if (TryGetErrorProperty(error, LineNumberPropertyName, out int errorLineValue))
+                    {
+                        LineNumber = errorLineValue;
+                    }
+
+                    if (TryGetErrorProperty(error, NamePropertyName, out string errorNameValue))
+                    {
+                        Name = errorNameValue;
+                    }
+
                     break;
                 case JsValueType.String:
                     m_message = Helpers.GetStringUtf8(error);
@@ -78,6 +109,37 @@
         {
         }
 
+        private bool TryGetErrorProperty<T>(JavaScriptValueSafeHandle error, string propertyName, out T value)
+        {
+            JsErrorCode innerError;
+            innerError = LibChakraCore.JsCreatePropertyId(propertyName, (ulong)propertyName.Length, out JavaScriptPropertyIdSafeHandle propertyHandle);
+            innerError = LibChakraCore.JsHasProperty(error, propertyHandle, out bool hasProperty);
+
+            if (hasProperty == true)
+            {
+                innerError = LibChakraCore.JsGetProperty(error, propertyHandle, out JavaScriptValueSafeHandle propertyValue);
+                innerError = LibChakraCore.JsGetValueType(propertyValue, out JsValueType propertyType);
+                switch(propertyType)
+                {
+                    case JsValueType.Number:
+                        innerError = LibChakraCore.JsNumberToDouble(propertyValue, out double doubleValue);
+                        value = (T)Convert.ChangeType(doubleValue, typeof(T));
+                        return true;
+                    case JsValueType.String:
+                        var strValue = Helpers.GetStringUtf8(propertyValue, releaseHandle: true);
+                        value = (T)Convert.ChangeType(strValue, typeof(T));
+                        return true;
+                    default:
+                        value = default(T);
+                        return false;
+                }
+
+                
+            }
+
+            value = default(T);
+            return false;
+        }
         /// <summary>
         ///     Gets a JavaScript object representing the script error.
         /// </summary>
