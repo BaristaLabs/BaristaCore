@@ -5,6 +5,7 @@
     using BaristaLabs.BaristaCore.Modules;
     using Microsoft.Extensions.DependencyInjection;
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -55,7 +56,11 @@ export default transpiled.outputText;
             return await Task.Factory.StartNew(new Func<object, string>((transpilerOptions) =>
             {
                 return PerformTranspilation(transpilerOptions as TypeScriptTranspilerOptions);
-            }), options);
+            }),
+            options,
+            CancellationToken.None,
+            TaskCreationOptions.DenyChildAttach,
+            TaskScheduler.Default);
         }
 
         private string PerformTranspilation(TypeScriptTranspilerOptions options)
