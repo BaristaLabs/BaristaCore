@@ -154,14 +154,13 @@
             var referencingModuleRecord = m_moduleRecordFactory.GetBaristaModuleRecord(jsReferencingModuleRecord);
 
             //If the current module name is equal to the fetching module name, return this value.
-            if (Name == moduleName)
+            if (Name == moduleName || referencingModuleRecord != null && referencingModuleRecord.Name == moduleName)
             {
                 //Top-level self-referencing module. Reference itself.
                 dependentModule = jsReferencingModuleRecord.DangerousGetHandle();
                 return false;
             }
-
-            if (m_importedModules.ContainsKey(moduleName))
+            else if (m_importedModules.ContainsKey(moduleName))
             {
                 //The module has already been imported, return the existing JavaScriptModuleRecord
                 dependentModule = m_importedModules[moduleName].Handle.DangerousGetHandle();
@@ -216,12 +215,11 @@
                             {
                                 nodeScript = nodeScriptTask.GetAwaiter().GetResult() as string;
                                 nodeScript = $@"'use strict';
-var global = Function('return this')();
-var window = global;
-var module = {{
+const window = global;
+const module = {{
     exports: {{}}
 }};
-var exports = module.exports;
+let exports = module.exports;
 (function() {{
 {nodeScript}
 }}).call(global);
@@ -294,13 +292,13 @@ export default module.exports";
         private bool CreateSingleValueModule(BaristaModuleRecord moduleRecord, JavaScriptValueSafeHandle specifier, JsValue defaultExportedValue)
         {
             var globalId = Guid.NewGuid();
+            var exportSymbol = Context.Symbol.For($"$DEFAULTEXPORT_{globalId.ToString()}");
             var exposeNativeValueScript = $@"
-let global = (new Function('return this;'))();
-let defaultExport = global['$DEFAULTEXPORT_{globalId.ToString()}'];
+const defaultExport = global[Symbol.for('$DEFAULTEXPORT_{globalId.ToString()}')];
 export default defaultExport;
 ";
+            Context.Object.DefineProperty(Context.GlobalObject, exportSymbol, new JsPropertyDescriptor() { Configurable = false, Enumerable = false, Writable = false, Value = defaultExportedValue });
 
-            Context.GlobalObject.SetProperty($"$DEFAULTEXPORT_{globalId.ToString()}", defaultExportedValue);
             moduleRecord.ParseModuleSource(exposeNativeValueScript);
             return false;
         }

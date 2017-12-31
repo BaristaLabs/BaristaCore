@@ -73,6 +73,14 @@
             return fnDefineProperty.Call<JsObject>(this, obj, prop, descriptor);
         }
 
+        public bool DefineProperty(JsObject obj, JsSymbol symbol, JsObject descriptor)
+        {
+            using (var propertyIdHandle = Engine.JsGetPropertyIdFromSymbol(symbol.Handle))
+            {
+                return Engine.JsDefineProperty(obj.Handle, propertyIdHandle, descriptor.Handle);
+            }
+        }
+
         public JsObject DefineProperty(JsObject obj, string prop, JsPropertyDescriptor descriptor)
         {
             var objDescriptor = descriptor.GetDescriptorObject(Context);
@@ -80,12 +88,10 @@
             return DefineProperty(obj, objProp, objDescriptor);
         }
 
-        public bool DefineProperty(JsObject obj, JsSymbol symbol, JsObject descriptor)
+        public bool DefineProperty(JsObject obj, JsSymbol symbol, JsPropertyDescriptor descriptor)
         {
-            using (var propertyIdHandle = Engine.JsGetPropertyIdFromSymbol(symbol.Handle))
-            {
-                return Engine.JsDefineProperty(obj.Handle, propertyIdHandle, descriptor.Handle);
-            }
+            var objDescriptor = descriptor.GetDescriptorObject(Context);
+            return DefineProperty(obj, symbol, objDescriptor);
         }
 
         /// <summary>

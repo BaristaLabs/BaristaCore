@@ -1,6 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
     using BaristaLabs.BaristaCore.Extensions;
+    using BaristaLabs.BaristaCore.JavaScript;
     using BaristaLabs.BaristaCore.ModuleLoaders;
     using BaristaLabs.BaristaCore.Modules;
     using BaristaLabs.BaristaCore.Tasks;
@@ -15,10 +16,9 @@
     public sealed class TypeScriptTranspiler
     {
         private readonly IServiceProvider m_provider;
+        private readonly IBaristaRuntimeFactory m_runtimeFactory;
         const string TranspileScript = @"
 import ts from 'typescript';
-
-const global = (new Function('return this;'))();
 
 let transpiled = ts.transpileModule(global.scriptToTranspile, {
     compilerOptions: {
@@ -42,6 +42,7 @@ export default transpiled.outputText;
             serviceCollection.AddBaristaCore(moduleLoader: myMemoryModuleLoader);
 
             m_provider = serviceCollection.BuildServiceProvider();
+            m_runtimeFactory = m_provider.GetRequiredService<IBaristaRuntimeFactory>();
         }
 
         public Task<string> Transpile(string scriptToTranspile, string fileName = "main.ts")
@@ -66,21 +67,17 @@ export default transpiled.outputText;
 
         private string PerformTranspilation(TypeScriptTranspilerOptions options)
         {
-            var runtimeFactory = m_provider.GetRequiredService<IBaristaRuntimeFactory>();
-
-            using(var rt = runtimeFactory.CreateRuntime())
+            using (var rt = m_runtimeFactory.CreateRuntime(JavaScriptRuntimeAttributes.DisableBackgroundWork | JavaScriptRuntimeAttributes.DisableEval))
             using (var ctx = rt.CreateContext())
+            using (ctx.Scope())
             {
-                using (ctx.Scope())
-                {
-                    var jsScriptToTranspile = ctx.CreateString(options.ScriptToTranspile);
-                    var jsFilename = ctx.CreateString(options.Filename);
-                    ctx.GlobalObject["scriptToTranspile"] = jsScriptToTranspile;
-                    ctx.GlobalObject["filename"] = jsFilename;
+                var jsScriptToTranspile = ctx.CreateString(options.ScriptToTranspile);
+                var jsFilename = ctx.CreateString(options.Filename);
+                ctx.GlobalObject["scriptToTranspile"] = jsScriptToTranspile;
+                ctx.GlobalObject["filename"] = jsFilename;
 
-                    var text = ctx.EvaluateModule<JsString>(TranspileScript);
-                    return text.ToString();
-                }
+                var text = ctx.EvaluateModule<JsString>(TranspileScript);
+                return text.ToString();
             }
         }
 

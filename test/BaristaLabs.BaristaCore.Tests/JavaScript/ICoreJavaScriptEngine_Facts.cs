@@ -469,7 +469,7 @@
             var mainModuleName = "";
             var mainModuleSource = @"
 import cube from 'foo';
-let global = (new Function('return this;'))();
+const global = (new Function('return this;'))();
 global.$EXPORTS = cube(3);
 ";
 

@@ -442,13 +442,15 @@
             var subModuleName = subModuleId.ToString();
 
             //Define a shim script that will set a global to the result of the script run as a module.
+            //This is because JsModuleEvaluation always returns undefined, and there is no other way
+            //To obtain access to variables defined in the module's namespace.
+
             //If there is a promise task queue defined, have the script auto-resolve any promises.
             string mainModuleScript;
             if (m_promiseTaskQueue == null)
             {
                 mainModuleScript = $@"
 import child from '{subModuleName}';
-let global = (new Function('return this;'))();
 global.$EXPORTS = child;
 ";
             }
@@ -456,13 +458,15 @@ global.$EXPORTS = child;
             {
                 mainModuleScript = $@"
 import child from '{subModuleName}';
-let global = (new Function('return this;'))();
 (async () => await child)().then((result) => {{ global.$EXPORTS = result; }}, (reject) => {{ global.$ERROR = reject }});
 ";
             }
 
             var mainModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, "", null, true);
             var subModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, subModuleName, mainModule);
+            
+            //Set the global value.
+            Object.DefineProperty(GlobalObject, "global", new JsPropertyDescriptor() { Configurable = false, Enumerable = false, Writable = false, Value = GlobalObject });
 
             //Now start the parsing.
             try
@@ -472,7 +476,7 @@ let global = (new Function('return this;'))();
 
                 //Now Parse the user-provided script.
                 subModule.ParseModuleSource(script);
-                
+
                 //Now we're ready, evaluate the main module.
                 Engine.JsModuleEvaluation(mainModule.Handle);
                 
