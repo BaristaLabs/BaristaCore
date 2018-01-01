@@ -142,6 +142,8 @@
 
         protected override void Dispose(bool disposing)
         {
+            bool shouldCallAfterDispose = false;
+
             if (disposing && !IsDisposed)
             {
                 if (m_contextFactory != null)
@@ -149,6 +151,8 @@
                     m_contextFactory.Dispose();
                     m_contextFactory = null;
                 }
+
+                shouldCallAfterDispose = true;
             }
 
             if (!IsDisposed)
@@ -164,7 +168,10 @@
 
             base.Dispose(disposing);
 
-            OnAfterDispose();
+            if (shouldCallAfterDispose)
+            {
+                OnAfterDispose();
+            }
         }
     }
 }
