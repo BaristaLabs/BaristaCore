@@ -7,7 +7,7 @@
     using Xunit;
 
     [ExcludeFromCodeCoverage]
-    public class Xml_Facts
+    public class Xml2Js_Facts
     {
         public IBaristaRuntimeFactory GetRuntimeFactory()
         {
@@ -56,6 +56,12 @@ var json = { foo: 'bar' };
 export default xml2js.toXml(null);
 ";
 
+            var script1 = @"
+import xml2js from 'xml2js';
+var json = { foo: 'bar' };
+export default xml2js.toXml(undefined);
+";
+
             var baristaRuntime = GetRuntimeFactory();
 
             using (var rt = baristaRuntime.CreateRuntime())
@@ -67,6 +73,13 @@ export default xml2js.toXml(null);
                         Assert.Throws<JsScriptException>(() =>
                         {
                             var response = ctx.EvaluateModule(script);
+                        });
+
+                        ctx.CurrentScope.GetAndClearException();
+
+                        Assert.Throws<JsScriptException>(() =>
+                        {
+                            var response = ctx.EvaluateModule(script1);
                         });
                     }
                 }
@@ -107,6 +120,11 @@ import xml2js from 'xml2js';
 var json = { foo: 'bar' };
 export default xml2js.toJson(null, { object: true });
 ";
+            var script1 = @"
+import xml2js from 'xml2js';
+var json = { foo: 'bar' };
+export default xml2js.toJson(undefined, { object: true });
+";
 
             var baristaRuntime = GetRuntimeFactory();
 
@@ -120,6 +138,65 @@ export default xml2js.toJson(null, { object: true });
                         {
                             var response = ctx.EvaluateModule(script);
                         });
+
+                        ctx.CurrentScope.GetAndClearException();
+
+                        Assert.Throws<JsScriptException>(() =>
+                        {
+                            var response = ctx.EvaluateModule(script1);
+                        });
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void CanConvertXmlToJsonString()
+        {
+            var script = @"
+import xml2js from 'xml2js';
+var xml = '<?xml version=""1.0"" encoding=""utf-16""?><foo>bar</foo>';
+export default xml2js.toJson(xml);
+";
+
+            var baristaRuntime = GetRuntimeFactory();
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var response = ctx.EvaluateModule(script);
+                        Assert.NotNull(response);
+                        Assert.IsType<JsString>(response);
+                        Assert.Equal("{\"?xml\":{\"@version\":\"1.0\",\"@encoding\":\"utf-16\"},\"foo\":\"bar\"}", response.ToString());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void CanConvertXmlToJsonOmittingRootObject()
+        {
+            var script = @"
+import xml2js from 'xml2js';
+var xml = '<?xml version=""1.0"" encoding=""utf-16""?><doc><user>James Bond</user></doc>';
+export default xml2js.toJson(xml, { omitRootObject: true, formatting: 'None' });
+";
+
+            var baristaRuntime = GetRuntimeFactory();
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var response = ctx.EvaluateModule(script);
+                        Assert.NotNull(response);
+                        Assert.IsType<JsString>(response);
+                        Assert.Equal("\"?xml\":{\"@version\":\"1.0\",\"@encoding\":\"utf-16\"}{\"user\":\"James Bond\"}", response.ToString());
                     }
                 }
             }

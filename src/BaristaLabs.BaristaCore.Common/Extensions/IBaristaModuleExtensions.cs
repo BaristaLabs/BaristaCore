@@ -1,5 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore.Extensions
 {
+    using BaristaLabs.BaristaCore.Modules;
+
     public static class IBaristaModuleExtensions
     {
         public static string GetModuleName(this IBaristaModule module)

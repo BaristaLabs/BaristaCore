@@ -1,28 +1,29 @@
-﻿namespace BaristaLabs.BaristaCore
+﻿namespace BaristaLabs.BaristaCore.Modules
 {
     using System;
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Represents a module that returns a script that will be parsed when imported.
+    /// Module that returns a blob as its default export.
     /// </summary>
-    [BaristaModule("ScriptModule", "Built-in module that allows for specifing the script as a string.")]
-    public sealed class BaristaScriptModule : IBaristaScriptModule
+    public class RawBlobModule : IBaristaModule
     {
         private readonly string m_name;
         private readonly string m_description;
+        private readonly Blob m_blob;
 
-        public BaristaScriptModule(string name, string description = null)
+        public RawBlobModule(string name, string description, Blob blob)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name));
 
             m_name = name;
             m_description = description;
+            m_blob = blob ?? throw new ArgumentNullException(nameof(blob));
         }
 
         /// <summary>
-        /// Gets or sets the name of the script module.
+        /// Gets the name of the raw blob module.
         /// </summary>
         public string Name
         {
@@ -30,7 +31,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the description of the script module.
+        /// Gets the description of the raw blob module.
         /// </summary>
         public string Description
         {
@@ -38,17 +39,16 @@
         }
 
         /// <summary>
-        /// Gets or sets the script that will be executed.
+        /// Gets the blob associated with the module.
         /// </summary>
-        public string Script
+        public Blob Blob
         {
-            get;
-            set;
+            get { return m_blob; }
         }
 
         public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            return Task.FromResult<object>(Script);
+            return Task.FromResult<object>(m_blob);
         }
     }
 }

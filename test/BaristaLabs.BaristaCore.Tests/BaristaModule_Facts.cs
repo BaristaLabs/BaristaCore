@@ -3,12 +3,12 @@
     using BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.JavaScript;
     using BaristaLabs.BaristaCore.ModuleLoaders;
+    using BaristaLabs.BaristaCore.Modules;
     using BaristaLabs.BaristaCore.Tests.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
-    using System.Text;
     using System.Threading.Tasks;
     using Xunit;
 

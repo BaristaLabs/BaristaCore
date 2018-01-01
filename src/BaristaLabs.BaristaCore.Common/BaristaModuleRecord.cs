@@ -196,25 +196,28 @@
                         return true;
                     }
 
-                    var newModuleRecord = m_moduleRecordFactory.CreateBaristaModuleRecord(Context, specifier, this, false);
-                    m_importedModules.Add(moduleName, newModuleRecord);
-                    dependentModule = newModuleRecord.Handle.DangerousGetHandle();
-
-                    switch (module)
+                    if (module != null)
                     {
-                        //For the built-in NodeModule type, parse the string returned by ExportDefault, but place it in a closure that
-                        //contains module, module.exports, exports and global which correspond to node module conventions.
-                        case INodeModule nodeModule:
-                            var nodeScriptTask = nodeModule.ExportDefault(Context, newModuleRecord);
-                            string nodeScript;
-                            if (nodeScriptTask == null)
-                            {
-                                nodeScript = "export default null";
-                            }
-                            else
-                            {
-                                nodeScript = nodeScriptTask.GetAwaiter().GetResult() as string;
-                                nodeScript = $@"'use strict';
+
+                        var newModuleRecord = m_moduleRecordFactory.CreateBaristaModuleRecord(Context, specifier, this, false);
+                        m_importedModules.Add(moduleName, newModuleRecord);
+                        dependentModule = newModuleRecord.Handle.DangerousGetHandle();
+
+                        switch (module)
+                        {
+                            //For the built-in NodeModule type, parse the string returned by ExportDefault, but place it in a closure that
+                            //contains module, module.exports, exports and global which correspond to node module conventions.
+                            case INodeModule nodeModule:
+                                var nodeScriptTask = nodeModule.ExportDefault(Context, newModuleRecord);
+                                string nodeScript;
+                                if (nodeScriptTask == null)
+                                {
+                                    nodeScript = "export default null";
+                                }
+                                else
+                                {
+                                    nodeScript = nodeScriptTask.GetAwaiter().GetResult() as string;
+                                    nodeScript = $@"'use strict';
 const window = global;
 const module = {{
     exports: {{}}
@@ -224,29 +227,31 @@ let exports = module.exports;
 {nodeScript}
 }}).call(global);
 export default module.exports";
-                            }
-                            newModuleRecord.ParseModuleSource(nodeScript);
-                            return false;
-                        //For the built-in Script Module type, parse the string returned by ExportDefault and install it as a module.
-                        case IBaristaScriptModule scriptModule:
-                            var scriptTask = scriptModule.ExportDefault(Context, newModuleRecord);
-                            string script;
-                            if (scriptTask == null)
-                            {
-                                script = "export default null";
-                            }
-                            else {
-                                script = scriptTask.GetAwaiter().GetResult() as string;
-                                if (script == null)
+                                }
+                                newModuleRecord.ParseModuleSource(nodeScript);
+                                return false;
+                            //For the built-in Script Module type, parse the string returned by ExportDefault and install it as a module.
+                            case IBaristaScriptModule scriptModule:
+                                var scriptTask = scriptModule.ExportDefault(Context, newModuleRecord);
+                                string script;
+                                if (scriptTask == null)
+                                {
                                     script = "export default null";
+                                }
+                                else
+                                {
+                                    script = scriptTask.GetAwaiter().GetResult() as string;
+                                    if (script == null)
+                                        script = "export default null";
 
-                                newModuleRecord.ParseModuleSource(script);
-                            }
-                            return false;
-                        //Otherwise, install the module.
-                        default:
-                            var result = InstallModule(newModuleRecord, referencingModuleRecord, module, specifier);
-                            return result;
+                                    newModuleRecord.ParseModuleSource(script);
+                                }
+                                return false;
+                            //Otherwise, install the module.
+                            default:
+                                var result = InstallModule(newModuleRecord, referencingModuleRecord, module, specifier);
+                                return result;
+                        }
                     }
                 }
             }

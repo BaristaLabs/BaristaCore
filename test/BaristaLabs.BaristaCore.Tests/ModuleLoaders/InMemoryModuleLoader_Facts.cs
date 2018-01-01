@@ -95,6 +95,39 @@
             }
         }
 
+        [Fact]
+        public void ModuleLoadersThatReturnNullThrowModuleNotFound()
+        {
+            var script = @"
+        import helloworld from 'hello_world';
+        export default helloworld;
+        ";
+
+            var returnsNullModuleLoader = new ReturnsNullModuleLoader();
+
+            var baristaRuntime = GetRuntimeFactory(returnsNullModuleLoader);
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    Assert.Throws<JsScriptException>(() =>
+                    {
+                        try
+                        {
+                            var result = ctx.EvaluateModule(script);
+                        }
+                        catch(Exception ex)
+                        {
+                            Assert.Equal("fetch import module failed", ex.Message);
+                            throw;
+                        }
+                    });
+
+                }
+            }
+        }
+
         [BaristaModule("hello_world", "Only the best module ever.")]
         private sealed class HelloWorldModule : IBaristaModule
         {
@@ -118,6 +151,14 @@
             public Task<IBaristaModule> GetModule(string name)
             {
                 throw new Exception("Derp!");
+            }
+        }
+
+        private sealed class ReturnsNullModuleLoader : IBaristaModuleLoader
+        {
+            public Task<IBaristaModule> GetModule(string name)
+            {
+                return Task.FromResult<IBaristaModule>(null);
             }
         }
     }

@@ -106,9 +106,27 @@
             return new Blob(data, contentType);
         }
 
+        /// <summary>
+        /// Decodes the blob into a UTF-8 string.
+        /// </summary>
+        /// <returns></returns>
+        public string ToUtf8String()
+        {
+            return Encoding.UTF8.GetString(m_blob);
+        }
+
+        /// <summary>
+        /// Converts the blob into a Base64 string encoding.
+        /// </summary>
+        /// <returns></returns>
         public string ToBase64EncodedByteArray()
         {
             return Convert.ToBase64String(m_blob);
+        }
+
+        public static Blob FromUtf8String(string data, string contentType = null)
+        {
+            return new Blob(Encoding.UTF8.GetBytes(data), contentType);
         }
 
         public static Blob FromBase64EncodedByteArray(string data, string contentType = null)
