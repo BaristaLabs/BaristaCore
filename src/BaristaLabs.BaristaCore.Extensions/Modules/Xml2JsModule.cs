@@ -13,7 +13,7 @@
         {
             var toXml = context.CreateFunction(new Func<JsObject, JsValue, JsValue>((thisObj, json) =>
             {
-                if (json == null || String.IsNullOrWhiteSpace(json.ToString()))
+                if (json == context.Null || String.IsNullOrWhiteSpace(json.ToString()))
                 {
                     var error = context.CreateError($"A Json string must be specified as the first argument.");
                     context.Engine.JsSetException(error.Handle);
@@ -31,9 +31,9 @@
                 }
             }));
 
-            var toJson = context.CreateFunction(new Func<JsObject, JsString, JsValue, JsValue>((thisObj, xml, options) =>
+            var toJson = context.CreateFunction(new Func<JsObject, JsValue, JsValue, JsValue>((thisObj, xml, options) =>
             {
-                if (xml == null || String.IsNullOrWhiteSpace(xml.ToString()))
+                if (xml == context.Null || String.IsNullOrWhiteSpace(xml.ToString()))
                 {
                     var error = context.CreateError($"An xml string must be specified as the first argument.");
                     context.Engine.JsSetException(error.Handle);
