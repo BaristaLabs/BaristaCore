@@ -19,7 +19,7 @@
 
         protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
         {
-            return TryExecuteTask(task);
+            return false;
         }
     }
 }

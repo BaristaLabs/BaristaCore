@@ -124,26 +124,32 @@
         }
 
         #region Disposable
+        private bool m_isDisposed = false;
+
         private void Dispose(bool disposing)
         {
-            if (disposing)
+            if (!m_isDisposed)
             {
-                ResolvePendingPromises();
-            }
+                if (disposing)
+                {
+                    ResolvePendingPromises();
+                }
 
-            //Unset the Promise callback.
-            if (m_promiseTaskQueue != null)
-            {
-                m_context.Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
-            }
+                //Unset the Promise callback.
+                if (m_promiseTaskQueue != null)
+                {
+                    m_context.Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
+                }
 
-            //Free the delegate.
-            if (m_promiseContinuationCallbackDelegateHandle != default(GCHandle) && m_promiseContinuationCallbackDelegateHandle.IsAllocated)
-            {
-                m_promiseContinuationCallbackDelegateHandle.Free();
-            }
+                //Free the delegate.
+                if (m_promiseContinuationCallbackDelegateHandle != default(GCHandle) && m_promiseContinuationCallbackDelegateHandle.IsAllocated)
+                {
+                    m_promiseContinuationCallbackDelegateHandle.Free();
+                }
 
-            m_release();
+                m_release();
+                m_isDisposed = true;
+            }
         }
 
         public void Dispose()

@@ -87,6 +87,7 @@ export default ReactDOMServer.renderToStaticMarkup(result);
 ";
 
             var runtimeFactory = GetRuntimeFactory();
+            //System.Diagnostics.Debugger.Launch();
 
             using (var rt = runtimeFactory.CreateRuntime())
             {
@@ -95,7 +96,7 @@ export default ReactDOMServer.renderToStaticMarkup(result);
                     using (ctx.Scope())
                     {
                         var response = ctx.EvaluateTypeScriptModule(script, true);
-                        
+
                         Assert.Equal("<h1>Hello, James Bond!</h1>", response.ToString());
                     }
                 }

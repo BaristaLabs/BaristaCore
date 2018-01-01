@@ -13,7 +13,7 @@
     /// <summary>
     /// Represents a class that uses a BaristaRuntime on a worker thread to transpile TypeScript.
     /// </summary>
-    public sealed class TypeScriptTranspiler
+    public sealed class TypeScriptTranspiler : IDisposable
     {
         private readonly IServiceProvider m_provider;
         private readonly IBaristaRuntimeFactory m_runtimeFactory;
@@ -50,12 +50,15 @@ export default transpiled.outputText;
             return Transpile(new TypeScriptTranspilerOptions() { ScriptToTranspile = scriptToTranspile, Filename = fileName });
         }
 
-        public async Task<string> Transpile(TypeScriptTranspilerOptions options)
+        public Task<string> Transpile(TypeScriptTranspilerOptions options)
         {
+            if (m_isDisposed)
+                throw new ObjectDisposedException(nameof(TypeScriptTranspiler));
+
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-            return await Task.Factory.StartNew(new Func<object, string>((transpilerOptions) =>
+            return Task.Factory.StartNew(new Func<object, string>((transpilerOptions) =>
             {
                 return PerformTranspilation(transpilerOptions as TypeScriptTranspilerOptions);
             }),
@@ -81,14 +84,50 @@ export default transpiled.outputText;
             }
         }
 
-        private static TypeScriptTranspiler s_defaultTranspiler = new TypeScriptTranspiler();
-        
+        #region IDisposable Support
+        private bool m_isDisposed = false;
+
+        private void Dispose(bool disposing)
+        {
+            if (!m_isDisposed)
+            {
+                if (disposing)
+                {
+                    m_runtimeFactory.Dispose();
+                }
+                m_isDisposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+        #endregion
+
+        private static TypeScriptTranspiler m_defaultTranspiler;
+        private static readonly object m_defaultLock = new object();
+
         /// <summary>
-        /// Gets the default transpiler
+        /// Gets the default TypeScript transpiler.
         /// </summary>
         public static TypeScriptTranspiler Default
         {
-            get { return s_defaultTranspiler; }
+            get
+            {
+                if (null == m_defaultTranspiler)
+                {
+                    lock (m_defaultLock)
+                    {
+                        if (null == m_defaultTranspiler)
+                        {
+                            m_defaultTranspiler = new TypeScriptTranspiler();
+                        }
+                    }
+                }
+
+                return m_defaultTranspiler;
+            }
         }
     }
 
