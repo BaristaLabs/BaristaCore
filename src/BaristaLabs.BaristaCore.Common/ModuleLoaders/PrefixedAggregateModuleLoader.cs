@@ -8,11 +8,11 @@
     /// <summary>
     /// Represents a module loader that consolidates multiple module loaders into a single module loader using a module name prefix as a specifier. 
     /// </summary>
-    public class AggregateModuleLoader : IBaristaModuleLoader
+    public class PrefixedAggregateModuleLoader : IBaristaModuleLoader
     {
         private readonly Dictionary<string, Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, Task<IBaristaModule>>>> m_moduleLoaders;
 
-        public AggregateModuleLoader()
+        public PrefixedAggregateModuleLoader()
         {
             m_moduleLoaders = new Dictionary<string, Tuple<IBaristaModuleLoader, Func<string, string, IBaristaModuleLoader, Task<IBaristaModule>>>>();
             FallbackModuleLoader = null;

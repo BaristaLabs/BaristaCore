@@ -10,9 +10,9 @@
 
     [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
-    public class AggregateModuleLoader_Facts
+    public class PrefixedAggregateModuleLoader_Facts
     {
-        public AggregateModuleLoader_Facts()
+        public PrefixedAggregateModuleLoader_Facts()
         {
         }
 
@@ -34,7 +34,7 @@
         ";
 
             var inMemoryModuleLoader = new InMemoryModuleLoader();
-            var aggregateModuleLoader = new AggregateModuleLoader
+            var aggregateModuleLoader = new PrefixedAggregateModuleLoader
             {
                 FallbackModuleLoader = inMemoryModuleLoader
             };
@@ -73,7 +73,7 @@
             var inMemoryModuleLoader2 = new InMemoryModuleLoader();
             inMemoryModuleLoader2.RegisterModule(new GoodnightMoonModule());
 
-            var aggregateModuleLoader = new AggregateModuleLoader();
+            var aggregateModuleLoader = new PrefixedAggregateModuleLoader();
             aggregateModuleLoader.RegisterModuleLoader("daytime", inMemoryModuleLoader1);
             aggregateModuleLoader.RegisterModuleLoader("nighttime", inMemoryModuleLoader2);
 
@@ -103,7 +103,7 @@
             var inMemoryModuleLoader2 = new InMemoryModuleLoader();
             inMemoryModuleLoader2.RegisterModule(new GoodnightMoonModule());
 
-            var aggregateModuleLoader = new AggregateModuleLoader();
+            var aggregateModuleLoader = new PrefixedAggregateModuleLoader();
             aggregateModuleLoader.RegisterModuleLoader("daytime", inMemoryModuleLoader1);
             Assert.Throws<ArgumentException>(() =>
             {
@@ -122,7 +122,7 @@
             var inMemoryModuleLoader1 = new InMemoryModuleLoader();
             inMemoryModuleLoader1.RegisterModule(new HelloWorldModule());
 
-            var aggregateModuleLoader = new AggregateModuleLoader();
+            var aggregateModuleLoader = new PrefixedAggregateModuleLoader();
             aggregateModuleLoader.RegisterModuleLoader("daytime", inMemoryModuleLoader1);
 
             var baristaRuntime = GetRuntimeFactory(aggregateModuleLoader);
@@ -150,7 +150,7 @@
             var inMemoryModuleLoader1 = new InMemoryModuleLoader();
             inMemoryModuleLoader1.RegisterModule(new HelloWorldModule());
 
-            var aggregateModuleLoader = new AggregateModuleLoader();
+            var aggregateModuleLoader = new PrefixedAggregateModuleLoader();
             Assert.Throws<ArgumentNullException>(() =>
             {
                 aggregateModuleLoader.RegisterModuleLoader("       ", inMemoryModuleLoader1);
@@ -178,7 +178,7 @@
         export default helloworld;
         ";
 
-            var aggregateModuleLoader = new AggregateModuleLoader();
+            var aggregateModuleLoader = new PrefixedAggregateModuleLoader();
 
             var baristaRuntime = GetRuntimeFactory(aggregateModuleLoader);
 
@@ -203,7 +203,7 @@
             var inMemoryModuleLoader2 = new InMemoryModuleLoader();
             inMemoryModuleLoader2.RegisterModule(new GoodnightMoonModule());
 
-            var aggregateModuleLoader = new AggregateModuleLoader();
+            var aggregateModuleLoader = new PrefixedAggregateModuleLoader();
 
             Assert.Throws<ArgumentNullException>(() =>
             {
@@ -230,7 +230,7 @@
             var inMemoryModuleLoader2 = new InMemoryModuleLoader();
             inMemoryModuleLoader2.RegisterModule(new GoodnightMoonModule());
 
-            var aggregateModuleLoader = new AggregateModuleLoader();
+            var aggregateModuleLoader = new PrefixedAggregateModuleLoader();
 
             Assert.False(aggregateModuleLoader.HasModuleLoader("foo"));
             aggregateModuleLoader.RegisterModuleLoader("foo", inMemoryModuleLoader1);
