@@ -128,15 +128,6 @@
             }
         }
 
-        [BaristaModule("hello_world", "Only the best module ever.")]
-        private sealed class HelloWorldModule : IBaristaModule
-        {
-            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
-            {
-                return Task.FromResult<object>("Hello, World!");
-            }
-        }
-
         [BaristaModule("", "If it weren't for you meddling kids...")]
         private sealed class PhantomModule : IBaristaModule
         {

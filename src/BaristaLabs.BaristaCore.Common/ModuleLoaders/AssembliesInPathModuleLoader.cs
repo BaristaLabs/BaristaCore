@@ -67,53 +67,26 @@
             {
                 foreach (var assemblyFileInfo in moduleFolderPathInfo.GetFileSystemInfos("*.dll"))
                 {
-                    LoadBaristaModulesFromAssembly(assemblyFileInfo.FullName);
+                    foreach(var moduleType in BaristaModuleTypeLoader.LoadBaristaModulesFromAssembly(assemblyFileInfo.FullName))
+                    {
+                        var baristaModuleAttribute = BaristaModuleAttribute.GetBaristaModuleAttributeFromType(moduleType);
+
+                        string targetModuleName = baristaModuleAttribute.Name;
+
+                        if (string.IsNullOrWhiteSpace(targetModuleName))
+                            throw new InvalidOperationException($"The specfied module ({moduleType}) must indicate a name.");
+                        m_serviceCollection.AddTransient(typeof(IBaristaModule), moduleType);
+
+                        if (m_loadedModules.ContainsKey(targetModuleName))
+                            throw new InvalidOperationException($"A module with the specified name ({targetModuleName}) has already been registered. ({m_loadedModules[targetModuleName]})");
+
+                        m_loadedModules.Add(targetModuleName, moduleType);
+                    }
                 }
             }
             finally
             {
                 AppDomain.CurrentDomain.AssemblyResolve -= ModuleAssemblyLoader;
-            }
-        }
-
-        /// <summary>
-        /// For the given assembly path, loads any types that implement IBaristaModule.
-        /// </summary>
-        /// <param name="assemblyFile"></param>
-        private void LoadBaristaModulesFromAssembly(string assemblyFile)
-        {
-            Assembly asm = null;
-            Type[] types = null;
-
-            try
-            {
-                asm = Assembly.LoadFile(assemblyFile);
-                types = asm.GetExportedTypes();
-            }
-            catch (Exception)
-            {
-                var msg = $"Unable to load assembly: {Path.GetFileNameWithoutExtension(assemblyFile)}";
-                return;
-            }
-
-            foreach (var type in types)
-            {
-                var typeList = type.FindInterfaces(BaristaModuleInterfaceFilter, typeof(IBaristaModule));
-                if (typeList.Length > 0)
-                {
-                    var baristaModuleAttribute = BaristaModuleAttribute.GetBaristaModuleAttributeFromType(type);
-                    m_serviceCollection.AddTransient(typeof(IBaristaModule), type);
-
-                    string targetModuleName = baristaModuleAttribute.Name;
-                    
-                    if (string.IsNullOrWhiteSpace(targetModuleName))
-                        throw new InvalidOperationException($"The specfied module ({type}) must indicate a name.");
-
-                    if (m_loadedModules.ContainsKey(targetModuleName))
-                        throw new InvalidOperationException($"A module with the specified name ({targetModuleName}) has already been registered. ({m_loadedModules[targetModuleName]})");
-
-                    m_loadedModules.Add(targetModuleName, type);
-                }
             }
         }
 
@@ -192,14 +165,5 @@
             Dispose(true);
         }
         #endregion
-
-        private static bool BaristaModuleInterfaceFilter(Type typeObj, Object criteriaObj)
-        {
-            if (typeObj.ToString() == criteriaObj.ToString())
-                return true;
-
-            return false;
-        }
-
     }
 }
