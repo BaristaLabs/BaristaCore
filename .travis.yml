@@ -2,8 +2,6 @@ language: generic
 
 cache:
     directories:
-    - $HOME/.dotnet-sdk-osx
-    - $HOME/.ChakraCore
     - $HOME/.nuget/packages
 
 addons:
@@ -38,19 +36,17 @@ matrix:
       env: CONFIGURATION=Release FRAMEWORK=netcoreapp2.0
 
 before_install:
-  - mkdir -p /usr/local/lib
-  - export DOTNET_SDK_OSX=.dotnet-sdk-osx
-  - export CHAKRACORE_PATH=.ChakraCore
-  - export CHAKRALIBS="$HOME/$CHAKRACORE_PATH/libs/"
   - if test "$TRAVIS_OS_NAME" == "osx"; then
       sw_vers -productVersion;
       sudo curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 2.0;
       eval $(/usr/libexec/path_helper -s);
+      PATH="$HOME/.dotnet":"$PATH";
     else
       lsb_release -a;
       which $cc;
       sudo apt-get install curl;
       sudo curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 2.0;
+      PATH="$HOME/.dotnet":"$PATH";
     fi;
 
 install:
@@ -63,9 +59,6 @@ install:
       echo "dotnet.exe not found";
       exit 1;
     fi
-
-  # Restore dependencies
-  - dotnet restore -v Minimal
 
 script:
   # Run tests
