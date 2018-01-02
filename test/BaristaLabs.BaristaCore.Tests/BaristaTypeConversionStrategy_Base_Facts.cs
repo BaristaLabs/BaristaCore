@@ -2,14 +2,11 @@
 {
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
-    using Newtonsoft.Json;
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public partial class BaristaTypeConversionStrategy_Facts
     {

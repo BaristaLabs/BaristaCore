@@ -1,12 +1,12 @@
 ﻿namespace BaristaLabs.BaristaCore.Tests
 {
-    using Microsoft.Extensions.Configuration;
     using Serilog;
     using System;
-    using System.Text;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class LoggingFixture : IDisposable
     {
         static int s_unhandledExceptionCount = 0;

@@ -3,11 +3,9 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class JsPromise_Facts
     {

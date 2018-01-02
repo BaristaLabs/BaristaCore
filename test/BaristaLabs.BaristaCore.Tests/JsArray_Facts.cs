@@ -4,12 +4,10 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Xunit;
     using System.Collections;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class JsArray_Facts
     {

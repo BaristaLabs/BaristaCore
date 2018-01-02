@@ -3,13 +3,11 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Dynamic;
     using System.Linq;
     using System.Text;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class JsObject_Dynamic_Facts
     {

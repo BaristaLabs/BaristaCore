@@ -3,10 +3,8 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class JsJSON_Facts
     {

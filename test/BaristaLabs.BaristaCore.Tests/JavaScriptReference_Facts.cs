@@ -1,10 +1,8 @@
 ﻿namespace BaristaLabs.BaristaCore.Tests
 {
     using BaristaLabs.BaristaCore.JavaScript;
-    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class JavaScriptReference_Facts
     {
         private IJavaScriptEngine Engine;

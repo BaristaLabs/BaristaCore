@@ -6,11 +6,8 @@ namespace BaristaLabs.BaristaCore.Extensions.Tests
     using Microsoft.Extensions.DependencyInjection;
     using Newtonsoft.Json;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using Xunit;
-    using System.Linq;
 
-    [ExcludeFromCodeCoverage]
     public class Fetch_Facts
     {
         public IBaristaRuntimeFactory GetRuntimeFactory()

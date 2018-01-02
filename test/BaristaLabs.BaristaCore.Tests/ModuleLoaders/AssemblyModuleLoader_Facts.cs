@@ -4,11 +4,9 @@
     using BaristaLabs.BaristaCore.ModuleLoaders;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class AssemblyModuleLoader_Facts
     {

@@ -3,10 +3,8 @@
     using BaristaLabs.BaristaCore.ModuleLoaders;
     using BaristaLabs.BaristaCore.Modules;
     using Microsoft.Extensions.DependencyInjection;
-    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class Xml2Js_Facts
     {
         public IBaristaRuntimeFactory GetRuntimeFactory()

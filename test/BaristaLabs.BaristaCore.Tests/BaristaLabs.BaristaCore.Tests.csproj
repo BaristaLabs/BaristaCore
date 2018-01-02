@@ -6,7 +6,6 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <RuntimeFrameworkVersion>2.0</RuntimeFrameworkVersion>
     <Platforms>AnyCPU;x64</Platforms>
-    <DebugType>Full</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <LangVersion>latest</LangVersion>

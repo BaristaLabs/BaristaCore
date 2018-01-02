@@ -3,10 +3,8 @@
     using BaristaLabs.BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.ModuleLoaders;
     using Microsoft.Extensions.DependencyInjection;
-    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class WebResourceModuleLoader_Facts
     {
         public IBaristaRuntimeFactory GetRuntimeFactory()

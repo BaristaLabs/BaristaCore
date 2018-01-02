@@ -7,12 +7,10 @@
     using BaristaLabs.BaristaCore.Tests.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class BaristaModule_Facts
     {

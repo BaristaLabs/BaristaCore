@@ -4,11 +4,9 @@
     using BaristaLabs.BaristaCore.ModuleLoaders;
     using BaristaLabs.BaristaCore.Modules;
     using Microsoft.Extensions.DependencyInjection;
-    using System.Diagnostics.CodeAnalysis;
     using System.Text;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class Blob_Facts
     {
         public IBaristaRuntimeFactory GetRuntimeFactory()
