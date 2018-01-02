@@ -98,6 +98,10 @@ export default ReactDOMServer.renderToStaticMarkup(result);
                         var response = ctx.EvaluateTypeScriptModule(script, true);
 
                         Assert.Equal("<h1>Hello, James Bond!</h1>", response.ToString());
+
+                        response = ctx.EvaluateTypeScriptModule<JsString>(script, true);
+
+                        Assert.Equal("<h1>Hello, James Bond!</h1>", response.ToString());
                     }
                 }
             }

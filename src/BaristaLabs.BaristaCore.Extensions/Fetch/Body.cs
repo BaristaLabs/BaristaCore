@@ -33,6 +33,7 @@
                 return Task.FromResult<JsValue>(m_context.Undefined);
             }
 
+            var foo = m_response.ContentEncoding;
             var result = m_context.CreateArrayBuffer(m_response.RawBytes);
             m_bodyUsed = true;
 

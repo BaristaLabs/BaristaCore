@@ -58,5 +58,42 @@
                 }
             }
         }
+
+        [Fact]
+        public void CanSliceBlob()
+        {
+            var script = @"
+        import Blob from 'barista-blob';
+        var aFileParts = ['<a id=""a""><b id=""b"">hey!</b></a>']; // an array consisting of a single DOMString
+        var oMyBlob = new Blob(aFileParts, { type : 'text/html'}); // the blob
+        var slicedBlob = oMyBlob.slice(10, 28, 'text/html');
+        export default slicedBlob;
+        ";
+
+            var baristaRuntime = GetRuntimeFactory();
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var response = ctx.EvaluateModule<JsObject>(script);
+                        Assert.NotNull(response);
+                        if (response.TryGetBean(out JsExternalObject exObj) && exObj.Target is Blob myBlob)
+                        {
+                            Assert.Equal(18, myBlob.Size);
+                            Assert.Equal("text/html", myBlob.Type);
+
+                            Assert.Equal(@"<b id=""b"">hey!</b>", Encoding.UTF8.GetString(myBlob.Data));
+                        }
+                        else
+                        {
+                            Assert.True(false, "Result object should have a blob bean");
+                        }
+                    }
+                }
+            }
+        }
     }
 }

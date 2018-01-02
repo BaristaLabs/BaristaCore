@@ -126,9 +126,24 @@
                         var buffer = arrayBuffer.GetArrayBufferStorage();
                         request = request.AddParameter("application/octet-stream", buffer, ParameterType.RequestBody);
                         break;
-                    //TODO: Blob, FormData...
-                    default:
-                        request = request.AddParameter("text/plain", bodyValue.ToString(), ParameterType.RequestBody);
+                    case JsObject obj:
+                        switch(obj.Type)
+                        {
+                            case JsValueType.Object:
+                                if (obj.TryGetBean(out JsExternalObject exObj) && exObj.Target is Blob blobBuffer)
+                                {
+                                    var type = "application/octet-stream";
+                                    if (!string.IsNullOrEmpty(blobBuffer.Type))
+                                        type = blobBuffer.Type;
+
+                                    request = request.AddParameter(type, blobBuffer.Data, ParameterType.RequestBody);
+                                }
+                                break;
+                            //TODO: FormData...
+                            default:
+                                request = request.AddParameter("text/plain", bodyValue.ToString(), ParameterType.RequestBody);
+                                break;
+                        }
                         break;
                 }
             }

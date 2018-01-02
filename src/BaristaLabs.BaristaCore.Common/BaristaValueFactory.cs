@@ -103,7 +103,7 @@
                 data = String.Empty;
 
             JavaScriptValueSafeHandle externalArrayHandle;
-            IntPtr ptrData = Marshal.StringToHGlobalAnsi(data);
+            IntPtr ptrData = Marshal.StringToHGlobalUni(data);
             try
             {
                 externalArrayHandle = m_engine.JsCreateExternalArrayBuffer(ptrData, (uint)data.Length, null, IntPtr.Zero);
@@ -112,7 +112,7 @@
             {
                 //If anything goes wrong, free the unmanaged memory.
                 //This is not a finally as if success, the memory will be freed automagially.
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrData);
+                Marshal.ZeroFreeGlobalAllocUnicode(ptrData);
                 throw;
             }
 
@@ -120,7 +120,7 @@
             {
                 var flyweight = new JsManagedExternalArrayBuffer(m_engine, Context, externalArrayHandle, ptrData, (ptr) =>
                 {
-                    Marshal.ZeroFreeGlobalAllocAnsi(ptr);
+                    Marshal.ZeroFreeGlobalAllocUnicode(ptr);
                 });
 
                 return flyweight;

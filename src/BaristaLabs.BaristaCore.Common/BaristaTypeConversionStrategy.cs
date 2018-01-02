@@ -701,8 +701,14 @@
             for (int i = 0; i < parameters.Length; i++)
             {
                 var currentParam = parameters[i];
+                var currentParamType = currentParam.ParameterType;
+
+                //For nullable values get the underlying type.
+                if (currentParamType.IsGenericType && currentParamType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    currentParamType = Nullable.GetUnderlyingType(currentParamType);
+
                 var currentArg = args.ElementAtOrDefault(i);
-                if (currentParam.ParameterType == typeof(BaristaContext))
+                if (currentParamType == typeof(BaristaContext))
                 {
                     convertedArgs[i] = context;
                 }
@@ -710,12 +716,12 @@
                 {
                     try
                     {
-                        convertedArgs[i] = Convert.ChangeType(currentArg, currentParam.ParameterType);
+                        convertedArgs[i] = Convert.ChangeType(currentArg, currentParamType);
                     }
                     catch (Exception)
                     {
                         //Something went wrong, use the default value.
-                        convertedArgs[i] = currentParam.ParameterType.GetDefaultValue();
+                        convertedArgs[i] = currentParamType.GetDefaultValue();
                     }
                 }
             }

@@ -3,6 +3,7 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using System.Collections;
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Represents a object that implements the JavaScript iterator protocol, encapsulating an IEnumerator
@@ -25,6 +26,15 @@
             }));
 
             SetProperty("next", fnNext);
+        }
+
+        /// <summary>
+        /// Gets the underlying enumerator
+        /// </summary>
+        [BaristaIgnore]
+        public IEnumerator Enumerator
+        {
+            get { return m_enumerator; }
         }
 
         public JsObject Next()

@@ -231,7 +231,7 @@
         }
 
         [Fact]
-        public void ConverterCanConvertIEnumerators()
+        public void ConverterCanConvertIEnumerable()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())
             {
@@ -240,9 +240,14 @@
                     using (ctx.Scope())
                     {
                         var froot = new List<string>() { "apple", "banana", "cherry" };
-                        ctx.Converter.TryFromObject(ctx, froot.GetEnumerator(), out JsValue value);
-                        var iterator = value as JsObject;
-                        Assert.NotNull(iterator);
+                        ctx.Converter.TryFromObject(ctx, froot, out JsValue value);
+                        var objList = value as JsObject;
+                        Assert.NotNull(objList);
+
+                        var fnIteratorGenerator = objList.GetProperty(ctx.Symbol.Iterator) as JsFunction;
+                        Assert.NotNull(fnIteratorGenerator);
+
+                        var iterator = fnIteratorGenerator.Call(value as JsObject) as JsObject;
 
                         var fnNext = iterator["next"] as JsFunction;
                         Assert.NotNull(fnNext);

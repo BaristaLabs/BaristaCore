@@ -80,7 +80,7 @@
 
         public IEnumerable<string> Values()
         {
-            foreach(var key in AllHeaders.Keys)
+            foreach (var key in AllHeaders.Keys)
             {
                 yield return Get(key);
             }

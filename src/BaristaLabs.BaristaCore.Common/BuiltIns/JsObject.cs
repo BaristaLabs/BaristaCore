@@ -541,9 +541,24 @@
         {
             if (GetProperty(binder.Name) is JsFunction fn)
             {
-                if (Context.Converter.TryFromObject(Context, args, out JsValue jsArguments))
+                bool canInvoke = true;
+                var jsArgs = new JsValue[args.Length];
+                for(int i = 0; i < args.Length; i++)
                 {
-                    result = fn.Call(this, jsArguments);
+                    var arg = args[i];
+                    if (Context.Converter.TryFromObject(Context, arg, out JsValue jsArgument))
+                    {
+                        jsArgs[i] = jsArgument;
+                    }
+                    else
+                    {
+                        canInvoke = false;
+                    }
+                }
+
+                if (canInvoke)
+                {
+                    result = fn.Call(this, jsArgs);
                     return true;
                 }
             }

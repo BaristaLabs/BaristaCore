@@ -64,6 +64,15 @@
         }
 
         [BaristaProperty(Configurable = false, Writable = false)]
+        public int StatusCode
+        {
+            get
+            {
+                return (int)m_response.StatusCode;
+            }
+        }
+
+        [BaristaProperty(Configurable = false, Writable = false)]
         public string StatusText
         {
             get

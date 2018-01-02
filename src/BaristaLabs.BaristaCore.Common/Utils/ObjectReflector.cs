@@ -39,7 +39,11 @@
         /// <returns></returns>
         public ConstructorInfo GetConstructorBestMatch(object[] args)
         {
-            var argTypes = args.Select(arg => arg.GetType()).ToArray();
+            var argTypes = args
+                .Where(arg => arg != null)
+                .Select(arg => arg.GetType())
+                .ToArray();
+
             var bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
             var matchingConstructor = m_type.GetConstructor(bindingFlags, null, argTypes, null);
             if (matchingConstructor != null && matchingConstructor.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null)
@@ -190,6 +194,12 @@
             isExact = true;
             for (int i = 0; i < parameters.Length; i++)
             {
+                var parameterType = parameters[i].ParameterType;
+
+                //If the parmeter is a nullable generic, unwrap to the underlying type.
+                if (parameterType.IsGenericType && parameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    parameterType = Nullable.GetUnderlyingType(parameterType);
+
                 //If there are more parameters than arguments, we're no longer exact (and stop processing)
                 if (i >= argTypes.Length)
                 {
@@ -198,17 +208,17 @@
                 }
 
                 //If there is an exact type match, we're still exact.
-                if (parameters[i].ParameterType == argTypes[i])
+                if (parameterType == argTypes[i])
                 {
                     count++;
                 }
                 //If there is an injectable BaristaContext parameter, we're still exact.
-                else if (parameters[i].ParameterType == typeof(BaristaContext))
+                else if (parameterType == typeof(BaristaContext))
                 {
                     count++;
                 }
                 //We're checking numeric types, no longer exact.
-                else if (parameters[i].ParameterType.IsNumeric() && argTypes[i].IsNumeric())
+                else if (parameterType.IsNumeric() && argTypes[i].IsNumeric())
                 {
                     isExact = false;
                     count++;

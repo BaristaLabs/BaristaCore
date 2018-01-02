@@ -103,7 +103,11 @@
             byte[] data = new byte[length];
             Array.Copy(m_blob, indexFrom, data, 0, length);
 
-            return new Blob(data, contentType);
+            var targetContentType = m_type;
+            if (!String.IsNullOrWhiteSpace(contentType))
+                targetContentType = contentType;
+
+            return new Blob(data, targetContentType);
         }
 
         /// <summary>

@@ -99,9 +99,10 @@
                     }
                     value = arr;
                     return true;
-                case IEnumerator enumeratorValue:
-                    value = valueFactory.CreateIterator(enumeratorValue);
-                    return true;
+                //Don't convert IEnumerators -- they'll be auto-created.
+                //case IEnumerator enumeratorValue:
+                //    value = valueFactory.CreateIterator(enumeratorValue);
+                //    return true;
                 case Delegate delegateValue:
                     value = valueFactory.CreateFunction(delegateValue);
                     return true;
