@@ -14,7 +14,6 @@ install:
 before_build:
   - cmd: set
   - cmd: dotnet --info
-  - cmd: appveyor-retry dotnet restore -v Minimal
 build_script:
   build: off
   # - cmd: dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
