@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using BaristaLabs.BaristaCore.Modules;
     using RestSharp;
@@ -20,8 +21,11 @@
         {
             m_restClientBuilder = new Func<IRestClient>(() =>
             {
-                var client = new RestClient(baseUrl);
-                client.Proxy = new DummyProxy();
+                var client = new RestClient(baseUrl)
+                {
+                    Proxy = new DummyProxy(),
+                    Timeout = 60000
+                };
                 return client;
             });
         }
@@ -31,11 +35,14 @@
             m_restClientBuilder = fnRestClientBuilder ?? throw new ArgumentNullException(nameof(fnRestClientBuilder));
         }
 
-        public async Task<IBaristaModule> GetModule(string name)
+        public Task<IBaristaModule> GetModule(string name)
         {
             var restClient = m_restClientBuilder();
             var request = new RestRequest(name, Method.GET);
-            var response = await restClient.ExecuteTaskAsync(request);
+            //RestClient's Async Methods seem to be queued on a single thread
+            //If this is async, it conflicts with fetch (if that is async too)
+            //So we're making them all syncronous. :-/
+            var response = restClient.Execute(request);
 
             if ((int)response.StatusCode >= 200 && (int)response.StatusCode < 400)
             {
@@ -50,7 +57,7 @@
                             Script = response.Content
                         };
 
-                        return scriptModule;
+                        return Task.FromResult<IBaristaModule>(scriptModule);
                     case ".ts":
                     case ".tsx":
                     case ".jsx":
@@ -58,12 +65,12 @@
                         {
                             Script = response.Content
                         };
-                        return typeScriptModule;
+                        return Task.FromResult<IBaristaModule>(typeScriptModule);
                     case ".txt":
-                        return new RawTextModule(name, ModuleDescription, response.Content);
+                        return Task.FromResult<IBaristaModule>(new RawTextModule(name, ModuleDescription, response.Content));
                     case ".bin":
                     default:
-                        return new RawBlobModule(name, ModuleDescription, new Blob(response.RawBytes, response.ContentType));
+                        return Task.FromResult<IBaristaModule>(new RawBlobModule(name, ModuleDescription, new Blob(response.RawBytes, response.ContentType)));
                 }
             }
 

@@ -6,7 +6,6 @@
     using System.Collections.Generic;
     using System.Net;
     using System.Net.Cache;
-    using System.Threading.Tasks;
 
     public sealed class Request
     {
@@ -53,12 +52,13 @@
         /// </summary>
         /// <returns></returns>
         [BaristaIgnore]
-        public async Task<Response> Execute(BaristaContext context)
+        public Response Execute(BaristaContext context)
         {
             var restClient = new RestClient(m_inputUri)
             {
                 UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36 BaristaCore/1.0",
-                Proxy = DummyProxy.GetDefaultProxy()
+                Proxy = DummyProxy.GetDefaultProxy(),
+                Timeout = 60000
             };
 
             var restRequest = new RestRequest
@@ -69,7 +69,7 @@
 
             ProcessInitObject(m_initObject, restClient, restRequest);
 
-            var restResponse = await restClient.ExecuteTaskAsync(restRequest);
+            var restResponse = restClient.Execute(restRequest);
             return new Response(context, restResponse);
         }
 
