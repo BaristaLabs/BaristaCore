@@ -6,8 +6,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1E189DA3-80D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E6B87984-3E9A-476A-AEAA-8B9CECB79BB8}"
 	ProjectSection(SolutionItems) = preProject
-		BaristaCore.nuspec = BaristaCore.nuspec
-		BaristaLabs.BaristaCore.Common.nuspec = BaristaLabs.BaristaCore.Common.nuspec
 		ChakraExternDefinitions.xml = ChakraExternDefinitions.xml
 		LICENSE = LICENSE
 		Logo.png = Logo.png
@@ -37,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.MyT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Extensions.Tests", "test\BaristaLabs.BaristaCore.Extensions.Tests\BaristaLabs.BaristaCore.Extensions.Tests.csproj", "{75D2D0DA-4230-40AF-8DB4-FAA17AE0AB8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaristaLabs.BaristaCore.Extensions", "src\BaristaLabs.BaristaCore.Extensions\BaristaLabs.BaristaCore.Extensions.csproj", "{D3370E72-E475-4E60-9082-27E3D9FC97CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Extensions", "src\BaristaLabs.BaristaCore.Extensions\BaristaLabs.BaristaCore.Extensions.csproj", "{D3370E72-E475-4E60-9082-27E3D9FC97CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -23,7 +23,7 @@
         public void CanConvertJsonToXml()
         {
             var script = @"
-import xml2js from 'xml2js';
+import xml2js from 'barista-xml2js';
 var json = { foo: 'bar' };
 export default xml2js.toXml(JSON.stringify(json));
 ";
@@ -49,7 +49,7 @@ export default xml2js.toXml(JSON.stringify(json));
         public void JsonToXmlNullArgumentThrows()
         {
             var script = @"
-import xml2js from 'xml2js';
+import xml2js from 'barista-xml2js';
 var json = { foo: 'bar' };
 export default xml2js.toXml(null);
 ";
@@ -88,7 +88,7 @@ export default xml2js.toXml(undefined);
         public void CanConvertXmlToJson()
         {
             var script = @"
-import xml2js from 'xml2js';
+import xml2js from 'barista-xml2js';
 var xml = '<?xml version=""1.0"" encoding=""utf-16""?><foo>bar</foo>';
 export default JSON.stringify(xml2js.toJson(xml, { object: true }));
 ";
@@ -114,7 +114,7 @@ export default JSON.stringify(xml2js.toJson(xml, { object: true }));
         public void XmlToJsonNullArgumentThrows()
         {
             var script = @"
-import xml2js from 'xml2js';
+import xml2js from 'barista-xml2js';
 var json = { foo: 'bar' };
 export default xml2js.toJson(null, { object: true });
 ";
@@ -152,7 +152,7 @@ export default xml2js.toJson(undefined, { object: true });
         public void CanConvertXmlToJsonString()
         {
             var script = @"
-import xml2js from 'xml2js';
+import xml2js from 'barista-xml2js';
 var xml = '<?xml version=""1.0"" encoding=""utf-16""?><foo>bar</foo>';
 export default xml2js.toJson(xml);
 ";
@@ -178,7 +178,7 @@ export default xml2js.toJson(xml);
         public void CanConvertXmlToJsonOmittingRootObject()
         {
             var script = @"
-import xml2js from 'xml2js';
+import xml2js from 'barista-xml2js';
 var xml = '<?xml version=""1.0"" encoding=""utf-16""?><doc><user>James Bond</user></doc>';
 export default xml2js.toJson(xml, { omitRootObject: true, formatting: 'None' });
 ";

@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
-    <id>BaristaCore</id>
-    <version>1.0.0-beta6</version>
+    <id>BaristaLabs.BaristaCore.Common</id>
+    <version>$version$</version>
     <authors>Sean McLellan</authors>
     <owners>BaristaLabs, LLC</owners>
     <licenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</licenseUrl>
@@ -10,26 +10,23 @@
     <iconUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <developmentDependency>false</developmentDependency>
-    <summary>Provides a sandboxed JavaScript runtime natively to a .Net Standard 2.0 application on Windows, Linux and macOS.</summary>
+    <summary>Common base library that provides the base types and high-level wrapper around Chakra</summary>
     <description>
-      Provides a sandboxed JavaScript runtime natively to a .Net Standard 2.0 application on Windows, Linux and macOS.
-      Applications can expose custom modules and types written in .Net code to the runtime, making it useful for providing a rules engine
-      or other scripted capabilities that interact with existing managed libraries.
-      The underlying JavaScript runtime is Chakra, the JavaScript engine that powers Microsoft Edge, allowing for a fully managed,
-      latest standards compliant, performant and well sandboxed JavaScript-based scripting environment.
-
+      Common base library that provides the base types and high-level wrapper around Chakra, the JavaScript engine that powers Microsoft Edge.
       For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application
     </description>
     <releaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</releaseNotes>
     <copyright>Copyright (c) 2017 BaristaLabs, LLC</copyright>
     <language>en-US</language>
-    <tags>Barista,BaristaCore,sandbox,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
+    <tags>Barista,BaristaCore,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
         <dependency id="Microsoft.Extensions.DependencyInjection" version="2.0.0" />
-        <dependency id="BaristaLabs.BaristaCore.Common" version="1.0.0-beta6" />
-        <dependency id="BaristaLabs.BaristaCore.ChakraCore" version="1.7.5" />
       </group>
     </dependencies>
   </metadata>
+  <files>
+    <file src="..\src\BaristaLabs.BaristaCore.Common\bin\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Common.dll" target="lib\netstandard2.0\"/>
+    <file src="..\src\BaristaLabs.BaristaCore.Common\bin\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Common.pdb" target="lib\netstandard2.0\"/>
+  </files>
 </package>

@@ -83,7 +83,7 @@
             if (!String.IsNullOrWhiteSpace(filename))
                 return Path.GetExtension(path);
 
-            contentType = contentType.Split(";").FirstOrDefault();
+            contentType = contentType.Split(';').FirstOrDefault();
 
             if (contentType == null)
                 contentType = String.Empty;

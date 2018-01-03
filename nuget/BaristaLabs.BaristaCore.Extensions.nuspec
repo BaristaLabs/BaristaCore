@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
-    <id>BaristaLabs.BaristaCore.Common</id>
-    <version>1.0.0-beta6</version>
+    <id>BaristaLabs.BaristaCore.Extensions</id>
+    <version>$version$</version>
     <authors>Sean McLellan</authors>
     <owners>BaristaLabs, LLC</owners>
     <licenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</licenseUrl>
@@ -10,10 +10,9 @@
     <iconUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <developmentDependency>false</developmentDependency>
-    <summary>Common base library that provides the base types and high-level wrapper around Chakra</summary>
+    <summary>Provides commonly used modules, module loaders, and more to BaristaCore</summary>
     <description>
-      Common base library that provides the base types and high-level wrapper around Chakra, the JavaScript engine that powers Microsoft Edge.
-      For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application
+      For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/baristacore-extensions
     </description>
     <releaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</releaseNotes>
     <copyright>Copyright (c) 2017 BaristaLabs, LLC</copyright>
@@ -21,12 +20,14 @@
     <tags>Barista,BaristaCore,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="Microsoft.Extensions.DependencyInjection" version="2.0.0" />
+		<dependency id="BaristaLabs.BaristaCore.Common" version="$version$" />
+		<dependency id="Newtonsoft.Json" version="10.0.3" />
+		<dependency id="RestSharp" version="106.2.0" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src=".\src\BaristaLabs.BaristaCore.Common\bin\x64\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Common.dll" target="lib\netstandard2.0\"/>
-    <file src=".\src\BaristaLabs.BaristaCore.Common\bin\x64\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Common.pdb" target="lib\netstandard2.0\"/>
+    <file src="..\src\BaristaLabs.BaristaCore.Extensions\bin\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Extensions.dll" target="lib\netstandard2.0\"/>
+    <file src="..\src\BaristaLabs.BaristaCore.Extensions\bin\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Extensions.pdb" target="lib\netstandard2.0\"/>
   </files>
 </package>
