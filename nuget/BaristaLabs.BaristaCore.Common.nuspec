@@ -7,13 +7,13 @@
     <owners>BaristaLabs, LLC</owners>
     <licenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/BaristaLabs/BaristaCore</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/logo.png</iconUrl>
+    <iconUrl>https://github.com/BaristaLabs/BaristaCore/raw/master/Logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <developmentDependency>false</developmentDependency>
     <summary>Common base library that provides the base types and high-level wrapper around Chakra</summary>
-    <description>
-      Common base library that provides the base types and high-level wrapper around Chakra, the JavaScript engine that powers Microsoft Edge.
-      For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application
+    <description>Common base library that provides the base types and high-level wrapper around Chakra, the JavaScript engine that powers Microsoft Edge.
+      
+For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application
     </description>
     <releaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</releaseNotes>
     <copyright>Copyright (c) 2017 BaristaLabs, LLC</copyright>

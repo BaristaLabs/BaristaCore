@@ -7,12 +7,13 @@
     <owners>BaristaLabs, LLC</owners>
     <licenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/BaristaLabs/BaristaCore</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/logo.png</iconUrl>
+    <iconUrl>https://github.com/BaristaLabs/BaristaCore/raw/master/Logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <developmentDependency>false</developmentDependency>
-    <summary>Provides commonly used modules, module loaders, and more to BaristaCore</summary>
-    <description>
-      For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/baristacore-extensions
+    <summary>Provides commonly used modules, module loaders, transpilers, and more to BaristaCore</summary>
+    <description>Provides commonly used modules, module loaders, transpilers, and more to BaristaCore
+
+For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/baristacore-extensions
     </description>
     <releaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</releaseNotes>
     <copyright>Copyright (c) 2017 BaristaLabs, LLC</copyright>
