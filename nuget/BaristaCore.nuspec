@@ -11,14 +11,13 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <developmentDependency>false</developmentDependency>
     <summary>Provides a sandboxed JavaScript runtime natively to a .Net Standard 2.0 application on Windows, Linux and macOS.</summary>
-    <description>
-      Provides a sandboxed JavaScript runtime natively to a .Net Standard 2.0 application on Windows, Linux and macOS.
-	  
-      Applications can expose custom modules and types written in .Net code to the runtime, making it useful for providing a rules engine or other scripted capabilities that interact with existing managed libraries.
-      
-	  The underlying JavaScript runtime is Chakra, the JavaScript engine that powers Microsoft Edge, allowing for a fully managed, latest standards compliant, performant and well sandboxed JavaScript-based scripting environment.
+    <description>Provides a sandboxed JavaScript runtime natively to a .Net Standard 2.0 application on Windows, Linux and macOS.
 
-      For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application
+Applications can expose custom modules and types written in .Net code to the runtime, making it useful for providing a rules engine or other scripted capabilities that interact with existing managed libraries.
+      
+The underlying JavaScript runtime is Chakra, the JavaScript engine that powers Microsoft Edge, allowing for a fully managed, latest standards compliant, performant and well sandboxed JavaScript-based scripting environment.
+
+For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application
     </description>
     <releaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</releaseNotes>
     <copyright>Copyright (c) 2017 BaristaLabs, LLC</copyright>
