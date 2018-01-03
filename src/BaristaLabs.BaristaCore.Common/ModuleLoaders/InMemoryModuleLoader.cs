@@ -3,6 +3,7 @@
     using BaristaLabs.BaristaCore.Extensions;
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a simple in-memory barista module loader.
@@ -27,11 +28,11 @@
             m_modules.Add(name, module);
         }
 
-        public IBaristaModule GetModule(string name)
+        public Task<IBaristaModule> GetModule(string name)
         {
             if (m_modules.ContainsKey(name))
             {
-                return m_modules[name];
+                return Task.FromResult(m_modules[name]);
             }
 
             return null;

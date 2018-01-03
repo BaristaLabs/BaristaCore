@@ -3,11 +3,9 @@
     using BaristaLabs.BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class BaristaValueFactory_Facts
     {
@@ -53,13 +51,13 @@
                 {
                     using (ctx.Scope())
                     {
-                        var jsString = ctx.ValueFactory.CreateString("Hello, world!");
+                        var jsString = ctx.CreateString("Hello, world!");
                         Assert.NotNull(jsString);
                         jsString.Dispose();
 
                         Assert.Throws<ArgumentNullException>(() =>
                         {
-                            ctx.ValueFactory.CreateString(null);
+                            ctx.CreateString(null);
                         });
                     }
                 }
@@ -75,14 +73,15 @@
                 {
                     using (ctx.Scope())
                     {
-                        var jsString = ctx.ValueFactory.CreateArrayBuffer("Hello, world!");
+                        var jsString = ctx.CreateArrayBuffer("Hello, world!");
                         Assert.NotNull(jsString);
+                        Assert.Equal(13, jsString.GetArrayBufferStorage().Length);
                         jsString.Dispose();
 
-                        Assert.Throws<ArgumentNullException>(() =>
-                        {
-                            ctx.ValueFactory.CreateArrayBuffer(null);
-                        });
+                        jsString = ctx.CreateArrayBuffer((string)null);
+                        Assert.NotNull(jsString);
+                        Assert.Empty(jsString.GetArrayBufferStorage());
+                        jsString.Dispose();
                     }
                 }
             }
@@ -105,7 +104,7 @@
                             return "foo";
                         });
 
-                        var jsPromise = ctx.ValueFactory.CreatePromise(myTask);
+                        var jsPromise = ctx.CreatePromise(myTask);
                         Assert.NotNull(jsPromise);
                         Assert.True(iRan);
                     }
@@ -129,20 +128,16 @@
                 {
                     using (ctx.Scope())
                     {
-                        myValue = ctx.ValueFactory.CreateString("Hello, World");
+                        myValue = ctx.CreateString("Hello, World");
                         Assert.NotNull(myValue);
 
                         myValue.BeforeCollect += beforeCollect;
-
-                        Assert.Equal(1, ((BaristaValueFactory)ctx.ValueFactory).Count);
 
                         //Manually dispose of the value handle and trigger a garbage collect to trigger the beforeCollect event.
                         myValue.Handle.Dispose();
                         rt.CollectGarbage();
 
                         Assert.True(hasRaisedBeforeCollect);
-
-                        Assert.Equal(0, ((BaristaValueFactory)ctx.ValueFactory).Count);
                     }
                 }
             }

@@ -3,10 +3,8 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class JsObject_Facts
     {
@@ -36,7 +34,7 @@
                 {
                     using (ctx.Scope())
                     {
-                        var obj = ctx.ValueFactory.CreateObject();
+                        var obj = ctx.CreateObject();
                         Assert.True(obj != null);
                         Assert.Equal(JsValueType.Object, obj.Type);
                     }
@@ -234,8 +232,8 @@
                         var script = "export default { 'foo': 'bar'};";
                         result = ctx.EvaluateModule<JsObject>(script);
 
-                        symbol = ctx.ValueFactory.CreateSymbol("baz");
-                        result.SetProperty(symbol, ctx.ValueFactory.CreateString("qix"));
+                        symbol = ctx.CreateSymbol("baz");
+                        result.SetProperty(symbol, ctx.CreateString("qix"));
 
                         var qix = result[symbol];
                         Assert.True(qix != null);
@@ -268,7 +266,7 @@
                     {
                         var script = "export default { foo: 'bar'};";
                         result = ctx.EvaluateModule<JsObject>(script);
-                        value = ctx.ValueFactory.CreateString("foo");
+                        value = ctx.CreateString("foo");
 
                         var bar = result[value];
                         Assert.True(bar != null);
@@ -302,8 +300,8 @@
                     {
                         var script = "export default { 'foo': 'bar'};";
                         var obj = ctx.EvaluateModule<JsObject>(script);
-                        var symbol = ctx.ValueFactory.CreateSymbol("baz");
-                        var val = ctx.ValueFactory.CreateString("football");
+                        var symbol = ctx.CreateSymbol("baz");
+                        var val = ctx.CreateString("football");
 
                         obj.SetProperty(symbol, val);
 
@@ -325,8 +323,8 @@
                     {
                         var script = "export default { 'foo': 'bar'};";
                         var obj = ctx.EvaluateModule<JsObject>(script);
-                        var propertyName = ctx.ValueFactory.CreateString("baz");
-                        var val = ctx.ValueFactory.CreateString("football");
+                        var propertyName = ctx.CreateString("baz");
+                        var val = ctx.CreateString("football");
 
                         obj.SetProperty(propertyName, val);
 
@@ -348,7 +346,7 @@
                     {
                         var script = "export default { 'foo': 'bar'};";
                         var obj = ctx.EvaluateModule<JsObject>(script);
-                        var val = ctx.ValueFactory.CreateString("football");
+                        var val = ctx.CreateString("football");
 
                         obj.SetProperty(1, val);
 
@@ -373,8 +371,8 @@
                         var script = "export default { 'foo': 'bar'};";
                         var result = ctx.EvaluateModule<JsObject>(script);
 
-                        var strValue = ctx.ValueFactory.CreateString("baz");
-                        var qixValue = ctx.ValueFactory.CreateString("qix");
+                        var strValue = ctx.CreateString("baz");
+                        var qixValue = ctx.CreateString("qix");
 
                         result[strValue] = qixValue;
 
@@ -392,14 +390,14 @@
                 using (var ctx = rt.CreateContext())
                 {
                     JsObject result;
-                    JsObject qixValue;
+                    JsValue qixValue;
                     using (ctx.Scope())
                     {
                         var script = "export default { 'foo': 'bar'};";
                         result = ctx.EvaluateModule<JsObject>(script);
 
-                        var indexValue = ctx.ValueFactory.CreateNumber(0);
-                        qixValue = ctx.ValueFactory.CreateString("qix");
+                        var indexValue = ctx.CreateNumber(0);
+                        qixValue = ctx.CreateString("qix");
 
                         result[indexValue] = qixValue;
 
@@ -431,8 +429,8 @@
                         var script = "export default { 'foo': 'bar'};";
                         var result = ctx.EvaluateModule<JsObject>(script);
 
-                        var symbol = ctx.ValueFactory.CreateSymbol("baz");
-                        result[symbol] = ctx.ValueFactory.CreateString("qix");
+                        var symbol = ctx.CreateSymbol("baz");
+                        result[symbol] = ctx.CreateString("qix");
 
                         Assert.Equal("qix", result[symbol].ToString());
                     }
@@ -452,8 +450,8 @@
                         var script = "export default { 'foo': 'bar'};";
                         var result = ctx.EvaluateModule<JsObject>(script);
 
-                        var jsVal = ctx.ValueFactory.CreateString("baz");
-                        result[jsVal] = ctx.ValueFactory.CreateString("qix");
+                        var jsVal = ctx.CreateString("baz");
+                        result[jsVal] = ctx.CreateString("qix");
 
                         Assert.Equal("qix", result[jsVal].ToString());
                     }
@@ -478,7 +476,7 @@
 
                         Assert.Throws<ArgumentNullException>(() =>
                         {
-                            result.SetProperty((JsSymbol)null, ctx.ValueFactory.CreateString("qix"));
+                            result.SetProperty((JsSymbol)null, ctx.CreateString("qix"));
                         });
                     }
                 }
@@ -497,7 +495,7 @@
                         var script = "export default { 'foo': 'bar'};";
                         var result = ctx.EvaluateModule<JsObject>(script);
 
-                        var symbol = ctx.ValueFactory.CreateSymbol("baz");
+                        var symbol = ctx.CreateSymbol("baz");
 
                         Assert.Throws<ArgumentNullException>(() =>
                         {
@@ -522,8 +520,8 @@
                     {
                         var script = "export default { 'foo': 'bar'};";
                         obj = ctx.EvaluateModule<JsObject>(script);
-                        symbol = ctx.ValueFactory.CreateSymbol("baz");
-                        val = ctx.ValueFactory.CreateString("football");
+                        symbol = ctx.CreateSymbol("baz");
+                        val = ctx.CreateString("football");
                     }
 
                     Assert.Throws<InvalidOperationException>(() =>
@@ -548,7 +546,7 @@
 
                         Assert.Throws<ArgumentNullException>(() =>
                         {
-                            result.SetProperty((JsValue)null, ctx.ValueFactory.CreateString("qix"));
+                            result.SetProperty((JsValue)null, ctx.CreateString("qix"));
                         });
                     }
                 }
@@ -567,7 +565,7 @@
                         var script = "export default { 'foo': 'bar'};";
                         var result = ctx.EvaluateModule<JsObject>(script);
 
-                        var val = ctx.ValueFactory.CreateString("baz");
+                        var val = ctx.CreateString("baz");
 
                         Assert.Throws<ArgumentNullException>(() =>
                         {
@@ -592,8 +590,8 @@
                     {
                         var script = "export default { 'foo': 'bar'};";
                         obj = ctx.EvaluateModule<JsObject>(script);
-                        propertyName = ctx.ValueFactory.CreateSymbol("baz");
-                        val = ctx.ValueFactory.CreateString("football");
+                        propertyName = ctx.CreateSymbol("baz");
+                        val = ctx.CreateString("football");
                     }
 
                     Assert.Throws<InvalidOperationException>(() =>
@@ -682,8 +680,8 @@
                         var script = "export default { 'foo': 'bar'};";
                         result = ctx.EvaluateModule<JsObject>(script);
 
-                        symbol = ctx.ValueFactory.CreateSymbol("baz");
-                        result.SetProperty(symbol, ctx.ValueFactory.CreateString("qix"));
+                        symbol = ctx.CreateSymbol("baz");
+                        result.SetProperty(symbol, ctx.CreateString("qix"));
 
                         Assert.Equal("qix", result.GetProperty(symbol).ToString());
 
@@ -719,7 +717,7 @@
                         var script = "export default { 'foo': 'bar'};";
                         result = ctx.EvaluateModule<JsObject>(script);
 
-                        val = ctx.ValueFactory.CreateString("foo");
+                        val = ctx.CreateString("foo");
                         Assert.True(result.HasProperty("foo"));
 
                         result.DeleteProperty(val);

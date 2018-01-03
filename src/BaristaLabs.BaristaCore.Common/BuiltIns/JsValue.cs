@@ -305,5 +305,39 @@
             Dispose(false);
         }
         #endregion;
+
+        #region Operators
+        public static explicit operator bool (JsValue value)
+        {
+            if (value == null)
+                return false;
+
+            return value.ToBoolean();
+        }
+
+        public static explicit operator int (JsValue value)
+        {
+            if (value == null)
+                return default(int);
+
+            return value.ToInt32();
+        }
+
+        public static explicit operator double (JsValue value)
+        {
+            if (value == null)
+                return default(double);
+
+            return value.ToDouble();
+        }
+
+        public static explicit operator string(JsValue value)
+        {
+            if (value == null)
+                return default(string);
+
+            return value.ToString();
+        }
+        #endregion
     }
 }

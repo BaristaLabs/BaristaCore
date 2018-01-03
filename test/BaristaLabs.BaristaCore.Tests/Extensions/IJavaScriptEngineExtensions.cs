@@ -2,11 +2,9 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
     using System.Text;
 
-    [ExcludeFromCodeCoverage]
     public static class IJavaScriptEngineExtensions
     {
         private const string EvalSourceUrl = "[eval code]";

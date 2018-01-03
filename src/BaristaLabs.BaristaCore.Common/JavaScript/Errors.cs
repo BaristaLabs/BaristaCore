@@ -77,6 +77,11 @@
                         {
                             JsErrorCode innerError = LibChakraCore.JsGetAndClearException(out JavaScriptValueSafeHandle errorObject);
 
+                            //The following throws a really bad error, but if you set and get the error again, it works, but with no actual metadata :-/
+                            //JsErrorCode innerError = LibChakraCore.JsGetAndClearExceptionWithMetadata(out JavaScriptValueSafeHandle metadataObject);
+                            //innerError = LibChakraCore.JsGetPropertyIdFromName("exception", out JavaScriptPropertyIdSafeHandle propertyId);
+                            //innerError = LibChakraCore.JsGetProperty(metadataObject, propertyId, out JavaScriptValueSafeHandle errorObject);
+
                             if (innerError != JsErrorCode.NoError)
                             {
                                 throw new JsFatalException(innerError);

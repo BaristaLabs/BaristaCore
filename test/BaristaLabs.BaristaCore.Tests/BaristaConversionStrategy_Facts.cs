@@ -3,11 +3,10 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class BaristaConversionStrategy_Facts
     {
@@ -157,7 +156,7 @@
                         var fn = value as JsFunction;
                         Assert.NotNull(fn);
 
-                        fn.Call(null, ctx.ValueFactory.CreateString("bananas"));
+                        fn.Call(null, ctx.CreateString("bananas"));
 
                         Assert.Equal("bananas", thingy);
                     }
@@ -228,6 +227,54 @@
                 }
             }
         }
+
+        [Fact]
+        public void ConverterCanConvertIEnumerable()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var froot = new List<string>() { "apple", "banana", "cherry" };
+                        ctx.Converter.TryFromObject(ctx, froot, out JsValue value);
+                        var objList = value as JsObject;
+                        Assert.NotNull(objList);
+
+                        var fnIteratorGenerator = objList.GetProperty(ctx.Symbol.Iterator) as JsFunction;
+                        Assert.NotNull(fnIteratorGenerator);
+
+                        var iterator = fnIteratorGenerator.Call(value as JsObject) as JsObject;
+
+                        var fnNext = iterator["next"] as JsFunction;
+                        Assert.NotNull(fnNext);
+
+                        var currentValue = fnNext.Call(null) as JsObject;
+                        Assert.False(currentValue["done"].ToBoolean());
+                        Assert.Equal("apple", currentValue["value"].ToString());
+
+                        currentValue = fnNext.Call(null) as JsObject;
+                        Assert.False(currentValue["done"].ToBoolean());
+                        Assert.Equal("banana", currentValue["value"].ToString());
+
+                        currentValue = fnNext.Call(null) as JsObject;
+                        Assert.False(currentValue["done"].ToBoolean());
+                        Assert.Equal("cherry", currentValue["value"].ToString());
+
+                        //We're done.
+                        currentValue = fnNext.Call(null) as JsObject;
+                        Assert.True(currentValue["done"].ToBoolean());
+                        Assert.Same(ctx.Undefined, currentValue["value"]);
+
+                        //Still done.
+                        currentValue = fnNext.Call(null) as JsObject;
+                        Assert.True(currentValue["done"].ToBoolean());
+                        Assert.Same(ctx.Undefined, currentValue["value"]);
+                    }
+                }
+            }
+        }
         #endregion
 
         #region ToObject
@@ -244,7 +291,7 @@
                         ctx.Converter.TryToObject(ctx, ctx.Null, out object value);
                         Assert.Null(value);
 
-                        ctx.Converter.TryToObject(null, null, out object value1);
+                        ctx.Converter.TryToObject(ctx, null, out object value1);
                     }
                     myContext = ctx;
                 }
@@ -301,8 +348,8 @@
                 {
                     using (ctx.Scope())
                     {
-                        var myArray = ctx.ValueFactory.CreateArray(0);
-                        myArray.Push(ctx.ValueFactory.CreateString("Foo"));
+                        var myArray = ctx.CreateArray(0);
+                        myArray.Push(ctx.CreateString("Foo"));
 
                         ctx.Converter.TryToObject(ctx, myArray, out object value);
                         Assert.NotNull(value);
@@ -325,7 +372,7 @@
                 {
                     using (ctx.Scope())
                     {
-                        ctx.Converter.TryToObject(ctx, ctx.ValueFactory.CreateError("Err"), out object value);
+                        ctx.Converter.TryToObject(ctx, ctx.CreateError("Err"), out object value);
                         Assert.NotNull(value);
                         Assert.IsType<JsScriptException>(value);
                         Assert.Equal("Err", ((JsScriptException)value).m_message);

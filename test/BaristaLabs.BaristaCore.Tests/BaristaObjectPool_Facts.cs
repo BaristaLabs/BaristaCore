@@ -4,10 +4,8 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class BaristaObjectPool_Facts
     {
@@ -42,7 +40,7 @@
             using (var ctx = rt.CreateContext())
             using (ctx.Scope())
             {
-                var value = ctx.ValueFactory.CreateString("Test 123");
+                var value = ctx.CreateString("Test 123");
                 bop.TryAdd(value);
                 Assert.Equal(1, bop.Count);
             }
@@ -56,7 +54,7 @@
             using (var ctx = rt.CreateContext())
             using (ctx.Scope())
             {
-                var value = ctx.ValueFactory.CreateString("Test 123");
+                var value = ctx.CreateString("Test 123");
                 bop.TryAdd(value);
                 var result = bop.TryAdd(value);
                 Assert.False(result);
@@ -72,7 +70,7 @@
             using (var ctx = rt.CreateContext())
             using (ctx.Scope())
             {
-                var value = ctx.ValueFactory.CreateString("Test 123");
+                var value = ctx.CreateString("Test 123");
 
                 Assert.Throws<ArgumentNullException>(() =>
                 {
@@ -89,7 +87,7 @@
             using (var ctx = rt.CreateContext())
             using (ctx.Scope())
             {
-                var value = ctx.ValueFactory.CreateString("Test 123");
+                var value = ctx.CreateString("Test 123");
                 value.Dispose();
 
                 Assert.Throws<ArgumentNullException>(() =>
@@ -107,7 +105,7 @@
             using (var ctx = rt.CreateContext())
             using (ctx.Scope())
             {
-                var value = ctx.ValueFactory.CreateString("Test 123");
+                var value = ctx.CreateString("Test 123");
                 bop.TryAdd(value);
                 bop.TryGet(value.Handle, out JsValue retrievedValue);
 
@@ -123,7 +121,7 @@
             using (var ctx = rt.CreateContext())
             using (ctx.Scope())
             {
-                var value = ctx.ValueFactory.CreateString("Test 123");
+                var value = ctx.CreateString("Test 123");
                 bop.TryAdd(value);
 
                 Assert.Throws<ArgumentNullException>(() =>
@@ -149,7 +147,7 @@
                 using (var ctx = rt.CreateContext())
                 using (ctx.Scope())
                 {
-                    var value = ctx.ValueFactory.CreateString("Test 123");
+                    var value = ctx.CreateString("Test 123");
                     bop.TryAdd(value);
                     handle = value.Handle;
                     value.Dispose();
@@ -180,10 +178,10 @@
             using (var ctx = rt.CreateContext())
             using (ctx.Scope())
             {
-                var value = ctx.ValueFactory.CreateString("Test 123");
+                var value = ctx.CreateString("Test 123");
                 var addedVal = bop.GetOrAdd(value.Handle, () =>
                 {
-                    return ctx.ValueFactory.CreateValue<JsString>(value.Handle);
+                    return ctx.CreateValue<JsString>(value.Handle);
                 });
 
                 Assert.Equal(1, bop.Count);
@@ -217,7 +215,7 @@
 
                 var added2Val = bop.GetOrAdd(handle, () =>
                 {
-                    return ctx.ValueFactory.CreateValue<JsString>(handle);
+                    return ctx.CreateValue<JsString>(handle);
                 });
 
                 Assert.Equal(1, bop.Count);
@@ -232,12 +230,12 @@
             using (var ctx = rt.CreateContext())
             using (ctx.Scope())
             {
-                var value = ctx.ValueFactory.CreateString("Test 123");
+                var value = ctx.CreateString("Test 123");
                 Assert.Throws<ArgumentNullException>(() =>
                 {
                    var addedVal = bop.GetOrAdd(JavaScriptValueSafeHandle.Invalid, () =>
                    {
-                       return ctx.ValueFactory.CreateValue<JsString>(value.Handle);
+                       return ctx.CreateValue<JsString>(value.Handle);
                    });
                 });
 
@@ -245,7 +243,7 @@
                 {
                     var addedVal = bop.GetOrAdd(default(JavaScriptValueSafeHandle), () =>
                     {
-                        return ctx.ValueFactory.CreateValue<JsString>(value.Handle);
+                        return ctx.CreateValue<JsString>(value.Handle);
                     });
                 });
             }

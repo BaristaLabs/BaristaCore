@@ -40,7 +40,7 @@
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            var moduleNameValue = context.ValueFactory.CreateString(moduleName);
+            var moduleNameValue = context.CreateString(moduleName);
             return CreateBaristaModuleRecordInternal(context, moduleName, moduleNameValue.Handle, parentModule, setAsHost);
         }
 
@@ -52,7 +52,7 @@
             if (specifier == null || specifier.IsClosed || specifier.IsInvalid)
                 throw new ArgumentNullException(nameof(specifier));
 
-            var moduleNameValue = context.ValueFactory.CreateValue<JsString>(specifier);
+            var moduleNameValue = context.CreateValue<JsString>(specifier);
             if (moduleNameValue == null)
                 throw new InvalidOperationException("Specifier is expected to be a string value.");
 

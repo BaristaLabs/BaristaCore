@@ -18,10 +18,18 @@
             m_type = t ?? throw new ArgumentNullException(nameof(t));
         }
 
+        /// <summary>
+        /// Gets the type associated with the reflector
+        /// </summary>
+        public Type Type
+        {
+            get { return m_type;  }
+        }
+
         public IEnumerable<ConstructorInfo> GetConstructors()
         {
             return m_type.GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                .Where(c => c.GetCustomAttribute<BaristaIgnoreAttribute>() == null);
+                .Where(c => c.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null);
         }
 
         /// <summary>
@@ -31,10 +39,14 @@
         /// <returns></returns>
         public ConstructorInfo GetConstructorBestMatch(object[] args)
         {
-            var argTypes = args.Select(arg => arg.GetType()).ToArray();
+            var argTypes = args
+                .Where(arg => arg != null)
+                .Select(arg => arg.GetType())
+                .ToArray();
+
             var bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
             var matchingConstructor = m_type.GetConstructor(bindingFlags, null, argTypes, null);
-            if (matchingConstructor != null && matchingConstructor.GetCustomAttribute<BaristaIgnoreAttribute>() == null)
+            if (matchingConstructor != null && matchingConstructor.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null)
                 return matchingConstructor;
 
             var constructors = GetConstructors();
@@ -52,18 +64,30 @@
                     continue;
                 }
 
+                //One parameter constructor that is a BaristaContext - treat it as a default constructor.
+                if (bestMatch == null && constructorParams.Length == 1 && constructorParams[0].ParameterType == typeof(BaristaContext))
+                {
+                    bestMatch = constructor;
+                    bestMatchMatchingArgs = 0;
+                    continue;
+                }
+
                 var currentMatchingArgs = GetMatchingParameterCount(constructorParams, argTypes, out bool isExact);
                 if (currentMatchingArgs > bestMatchMatchingArgs || (currentMatchingArgs == bestMatchMatchingArgs && isExact))
                 {
                     bestMatch = constructor;
                     bestMatchMatchingArgs = currentMatchingArgs;
-                    continue;
                 }
             }
 
             return bestMatch;
         }
 
+        /// <summary>
+        /// Returns all non-indexer properties on the type not marked as ignored.
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <returns></returns>
         public IEnumerable<PropertyInfo> GetProperties(bool instance)
         {
             PropertyInfo[] properties;
@@ -72,7 +96,23 @@
             else
                 properties = m_type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-            return properties.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>() == null);
+            return properties.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null && p.GetIndexParameters().Length <= 0);
+        }
+
+        /// <summary>
+        /// Returns all indexer properties on the type not marked as ignored -- in C#, there's only one, but in other languages this may not be the case.
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <returns></returns>
+        public IEnumerable<PropertyInfo> GetIndexerProperties(bool instance)
+        {
+            PropertyInfo[] properties;
+            if (instance == false)
+                properties = m_type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
+            else
+                properties = m_type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+            return properties.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null && p.GetIndexParameters().Length > 0);
         }
 
         public IDictionary<string, IList<MethodInfo>> GetUniqueMethodsByName(bool instance)
@@ -83,7 +123,7 @@
             else
                 methods = m_type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-            methods = methods.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>() == null).ToArray();
+            methods = methods.Where(m => !m.IsSpecialName && m.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null).ToArray();
 
             var methodTable = new Dictionary<string, IList<MethodInfo>>();
             foreach(var methodInfo in methods)
@@ -131,7 +171,7 @@
             else
                 events = m_type.GetEvents(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-            events = events.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>() == null).ToArray();
+            events = events.Where(p => p.GetCustomAttribute<BaristaIgnoreAttribute>(true) == null).ToArray();
 
             var eventTable = new Dictionary<string, EventInfo>();
             foreach (var eventInfo in events)
@@ -154,6 +194,12 @@
             isExact = true;
             for (int i = 0; i < parameters.Length; i++)
             {
+                var parameterType = parameters[i].ParameterType;
+
+                //If the parmeter is a nullable generic, unwrap to the underlying type.
+                if (parameterType.IsGenericType && parameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    parameterType = Nullable.GetUnderlyingType(parameterType);
+
                 //If there are more parameters than arguments, we're no longer exact (and stop processing)
                 if (i >= argTypes.Length)
                 {
@@ -162,12 +208,17 @@
                 }
 
                 //If there is an exact type match, we're still exact.
-                if (parameters[i].ParameterType == argTypes[i])
+                if (parameterType == argTypes[i])
+                {
+                    count++;
+                }
+                //If there is an injectable BaristaContext parameter, we're still exact.
+                else if (parameterType == typeof(BaristaContext))
                 {
                     count++;
                 }
                 //We're checking numeric types, no longer exact.
-                else if (parameters[i].ParameterType.IsNumeric() && argTypes[i].IsNumeric())
+                else if (parameterType.IsNumeric() && argTypes[i].IsNumeric())
                 {
                     isExact = false;
                     count++;

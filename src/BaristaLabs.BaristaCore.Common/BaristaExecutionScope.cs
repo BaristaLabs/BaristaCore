@@ -54,7 +54,7 @@
         public JsValue GetAndClearException()
         {
             var valueHandle = m_context.Engine.JsGetAndClearException();
-            return m_context.ValueFactory.CreateValue(valueHandle);
+            return m_context.CreateValue(valueHandle);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@
         public JsValue GetAndClearExceptionWithMetadata()
         {
             var valueHandle = m_context.Engine.JsGetAndClearExceptionWithMetadata();
-            return m_context.ValueFactory.CreateValue(valueHandle);
+            return m_context.CreateValue(valueHandle);
         }
 
         /// <summary>
@@ -83,6 +83,10 @@
             while (m_promiseTaskQueue.Count > 0)
             {
                 var promise = m_promiseTaskQueue.Dequeue();
+                if (promise == null || promise.IsDisposed)
+                {
+                    continue;
+                }
                 try
                 {
                     //All results from this are undefined.
@@ -90,6 +94,7 @@
                 }
                 finally
                 {
+                    m_context.Engine.JsRelease(promise.Handle);
                     promise.Dispose();
                 }
             }
@@ -111,33 +116,40 @@
             {
                 return;
             }
-
             var task = new JavaScriptValueSafeHandle(taskHandle);
-            var promise = m_context.ValueFactory.CreateValue<JsFunction>(task);
+            //Ensure that the object doesn't get disposed as we're processing items in the queue.
+            m_context.Engine.JsAddRef(task);
+            var promise = m_context.CreateValue<JsFunction>(task);
             m_promiseTaskQueue.Enqueue(promise);
         }
 
         #region Disposable
+        private bool m_isDisposed = false;
+
         private void Dispose(bool disposing)
         {
-            if (disposing)
+            if (!m_isDisposed)
             {
-                ResolvePendingPromises();
-            }
+                if (disposing)
+                {
+                    ResolvePendingPromises();
+                }
 
-            //Unset the Promise callback.
-            if (m_promiseTaskQueue != null)
-            {
-                m_context.Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
-            }
+                //Unset the Promise callback.
+                if (m_promiseTaskQueue != null)
+                {
+                    m_context.Engine.JsSetPromiseContinuationCallback(null, IntPtr.Zero);
+                }
 
-            //Free the delegate.
-            if (m_promiseContinuationCallbackDelegateHandle != default(GCHandle) && m_promiseContinuationCallbackDelegateHandle.IsAllocated)
-            {
-                m_promiseContinuationCallbackDelegateHandle.Free();
-            }
+                //Free the delegate.
+                if (m_promiseContinuationCallbackDelegateHandle != default(GCHandle) && m_promiseContinuationCallbackDelegateHandle.IsAllocated)
+                {
+                    m_promiseContinuationCallbackDelegateHandle.Free();
+                }
 
-            m_release();
+                m_release();
+                m_isDisposed = true;
+            }
         }
 
         public void Dispose()

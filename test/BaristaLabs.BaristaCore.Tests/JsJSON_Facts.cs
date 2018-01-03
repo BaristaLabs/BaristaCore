@@ -3,10 +3,8 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class JsJSON_Facts
     {
@@ -51,7 +49,7 @@
                 {
                     using (ctx.Scope())
                     {
-                        var str = ctx.ValueFactory.CreateString("{ \"foo\": \"bar\" }");
+                        var str = ctx.CreateString("{ \"foo\": \"bar\" }");
 
                         var jsObject = ctx.JSON.Parse(str) as JsObject;
                         Assert.NotNull(jsObject);

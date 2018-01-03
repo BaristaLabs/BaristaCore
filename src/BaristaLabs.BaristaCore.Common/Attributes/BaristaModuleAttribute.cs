@@ -20,7 +20,7 @@
         }
 
         /// <summary>
-        /// Gets the name of the module.
+        /// Gets or sets the name of the module.
         /// </summary>
         public string Name
         {
@@ -29,7 +29,16 @@
         }
 
         /// <summary>
-        /// Gets the description of the module.
+        /// Gets or sets the version of the module.
+        /// </summary>
+        public string Version
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the description of the module.
         /// </summary>
         public string Description
         {

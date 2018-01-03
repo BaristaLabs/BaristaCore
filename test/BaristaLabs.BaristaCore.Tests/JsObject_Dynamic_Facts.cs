@@ -3,13 +3,11 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Dynamic;
     using System.Linq;
     using System.Text;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class JsObject_Dynamic_Facts
     {
@@ -259,11 +257,11 @@
                         var intVal = result[(object)0];
                         Assert.Equal(ctx.Undefined, intVal);
 
-                        var symbol = ctx.ValueFactory.CreateSymbol("broom");
+                        var symbol = ctx.CreateSymbol("broom");
                         var symbolVal = result[(object)symbol];
                         Assert.Equal(ctx.Undefined, symbolVal);
 
-                        var val = ctx.ValueFactory.CreateString("window");
+                        var val = ctx.CreateString("window");
                         var jsVal = result[(object)val];
                         Assert.Equal(ctx.Undefined, jsVal);
 
@@ -288,8 +286,8 @@
                         var script = "export default { foo: 'bar' }";
                         dynamic result = ctx.EvaluateModule(script);
 
-                        var symbol = ctx.ValueFactory.CreateSymbol("broom");
-                        var jsVal = ctx.ValueFactory.CreateString("window");
+                        var symbol = ctx.CreateSymbol("broom");
+                        var jsVal = ctx.CreateString("window");
 
                         result["baz"] = "qix";
                         result[0] = "qix";
@@ -326,8 +324,8 @@
                         var script = "export default { foo: 'bar' }";
                         dynamic result = ctx.EvaluateModule(script);
 
-                        var symbol = ctx.ValueFactory.CreateSymbol("broom");
-                        var jsVal = ctx.ValueFactory.CreateString("window");
+                        var symbol = ctx.CreateSymbol("broom");
+                        var jsVal = ctx.CreateString("window");
                         result[0] = "qix";
                         result[symbol] = "qix";
                         result[jsVal] = "qix";

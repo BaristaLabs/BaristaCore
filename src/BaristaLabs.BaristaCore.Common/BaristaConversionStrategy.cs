@@ -40,19 +40,19 @@
             if (context.IsDisposed)
                 throw new ObjectDisposedException(nameof(context));
 
-            var valueFactory = context.ValueFactory;
+            var valueFactory = (IBaristaValueFactory)context;
 
             //Well this is easy!
             if (obj == null)
             {
-                value = valueFactory.GetNullValue();
+                value = valueFactory.Null;
                 return true;
             }
 
             switch (obj)
             {
                 case Undefined undefinedValue:
-                    value = valueFactory.GetUndefinedValue();
+                    value = valueFactory.Undefined;
                     return true;
                 case JsValue jsValue:
                     value = jsValue;
@@ -81,12 +81,11 @@
                     value = valueFactory.CreateNumber(longValue);
                     return true;
                 case bool boolValue:
-                    value = boolValue ? valueFactory.GetTrueValue() : valueFactory.GetFalseValue();
+                    value = boolValue ? valueFactory.True : valueFactory.False;
                     return true;
-                case IEnumerable enumerableValue:
-                    var arrayValue = enumerableValue.OfType<object>().ToArray();
+                case Array arrayValue:
                     var arr = valueFactory.CreateArray((uint)arrayValue.LongLength);
-                    for(int i = 0; i < arrayValue.Length; i++)
+                    for (int i = 0; i < arrayValue.Length; i++)
                     {
                         if (TryFromObject(context, arrayValue.GetValue(i), out JsValue currentValue))
                         {
@@ -100,6 +99,10 @@
                     }
                     value = arr;
                     return true;
+                //Don't convert IEnumerators -- they'll be auto-created.
+                //case IEnumerator enumeratorValue:
+                //    value = valueFactory.CreateIterator(enumeratorValue);
+                //    return true;
                 case Delegate delegateValue:
                     value = valueFactory.CreateFunction(delegateValue);
                     return true;
@@ -136,10 +139,10 @@
             }
 
             //We've run out of options, convert the non-primitive object.
-            return TryConvertFromNonPrimitiveObject(context, valueFactory, obj, out value);
+            return TryConvertFromNonPrimitiveObject(context, obj, out value);
         }
 
-        private bool TryConvertFromNonPrimitiveObject(BaristaContext context, IBaristaValueFactory valueFactory, object obj, out JsValue value)
+        private bool TryConvertFromNonPrimitiveObject(BaristaContext context, object obj, out JsValue value)
         {
             if (m_typeConversionStrategy == null)
             {
@@ -151,7 +154,7 @@
             Type typeToConvert = obj.GetType();
             if (m_typeConversionStrategy.TryCreatePrototypeFunction(context, typeToConvert, out JsFunction fnCtor))
             {
-                var exObj = context.ValueFactory.CreateExternalObject(obj);
+                var exObj = context.CreateExternalObject(obj);
                 var resultValue = fnCtor.Construct(null, exObj);
                 
                 value = resultValue;
@@ -164,6 +167,14 @@
 
         public bool TryToObject(BaristaContext context, JsValue value, out object obj)
         {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+
+            if (context.IsDisposed)
+                throw new ObjectDisposedException(nameof(context));
+
+            var valueFactory = (IBaristaValueFactory)context;
+
             if (value == null)
             {
                 obj = null;
@@ -224,13 +235,13 @@
                 case JsError jsError:
                     obj = new JsScriptException(JsErrorCode.ScriptException, jsError.Handle);
                     return true;
+                case JsExternalObject jsExternalObject:
+                    obj = jsExternalObject.Target;
+                    return true;
                 case JsObject jsObject:
                     //TODO: we can cheat a bit here with Json converter
                     //Also, figure out how to convert other types, like the date built-in.
                     obj = jsObject;
-                    return true;
-                case JsExternalObject jsExternalObject:
-                    obj = jsExternalObject.Target;
                     return true;
                 default:
                     obj = null;

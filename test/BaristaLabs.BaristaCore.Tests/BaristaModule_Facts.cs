@@ -3,16 +3,14 @@
     using BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.JavaScript;
     using BaristaLabs.BaristaCore.ModuleLoaders;
+    using BaristaLabs.BaristaCore.Modules;
     using BaristaLabs.BaristaCore.Tests.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
-    using System.Text;
     using System.Threading.Tasks;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class BaristaModule_Facts
     {
@@ -50,7 +48,7 @@
 
                     using (ctx.Scope())
                     {
-                        var specifier = ctx.ValueFactory.CreateString("");
+                        var specifier = ctx.CreateString("");
                         var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
 
                         try
@@ -85,7 +83,7 @@
 
                     using (ctx.Scope())
                     {
-                        var specifier = ctx.ValueFactory.CreateString("");
+                        var specifier = ctx.CreateString("");
                         var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
 
                         try
@@ -120,7 +118,7 @@
 
                     using (ctx.Scope())
                     {
-                        var specifier = ctx.ValueFactory.CreateString("");
+                        var specifier = ctx.CreateString("");
                         var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
 
                         try
@@ -155,7 +153,7 @@
 
                     using (ctx.Scope())
                     {
-                        var specifier = ctx.ValueFactory.CreateString("");
+                        var specifier = ctx.CreateString("");
                         var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
 
                         try
@@ -189,7 +187,7 @@
 
                     using (ctx.Scope())
                     {
-                        var specifier = ctx.ValueFactory.CreateString("");
+                        var specifier = ctx.CreateString("");
                         var moduleHandle = rt.Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, specifier.Handle);
 
                         try
@@ -726,7 +724,7 @@ export default carlyRae;
         {
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                return Task.FromResult<object>(context.ValueFactory.CreateString("Hello, World!"));
+                return Task.FromResult<object>(context.CreateString("Hello, World!"));
             }
         }
 
@@ -810,7 +808,7 @@ export default carlyRae;
         {
             public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                return Task.FromResult<object>(new StringBuilder());
+                return Task.FromResult<object>(' ');
             }
         }
 

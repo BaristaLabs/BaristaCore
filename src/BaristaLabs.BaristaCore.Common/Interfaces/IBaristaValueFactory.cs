@@ -2,19 +2,72 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.Collections;
     using System.Threading.Tasks;
 
     public interface IBaristaValueFactory : IDisposable
     {
+
+        #region Properties
+        /// <summary>
+        /// Gets the value of false.
+        /// </summary>
+        /// <returns></returns>
+        JsBoolean False
+        {
+            get;
+        }
+
+        /// <summary>
+        /// Gets the global object.
+        /// </summary>
+        /// <returns></returns>
+        JsObject GlobalObject
+        {
+            get;
+        }
+
+        /// <summary>
+        /// Gets the value of null
+        /// </summary>
+        /// <returns></returns>
+        JsNull Null
+        {
+            get;
+        }
+
+        /// <summary>
+        /// Gets the value of true
+        /// </summary>
+        /// <returns></returns>
+        JsBoolean True
+        {
+            get;
+        }
+
+        /// <summary>
+        /// Gets the value of undefined
+        /// </summary>
+        /// <returns></returns>
+        JsUndefined Undefined
+        {
+            get;
+        }
+        #endregion
+
         JsArray CreateArray(uint length);
 
         JsArrayBuffer CreateArrayBuffer(string data);
+
+        JsArrayBuffer CreateArrayBuffer(byte[] data);
 
         JsError CreateError(string message);
 
         JsExternalObject CreateExternalObject(object obj);
 
         JsFunction CreateFunction(Delegate func, string name = null);
+
+        JsIterator CreateIterator(IEnumerator enumerator);
 
         JsNumber CreateNumber(double number);
 
@@ -68,35 +121,5 @@
         /// <returns>The JavaScript Value that represents the Handle</returns>
         T CreateValue<T>(JavaScriptValueSafeHandle valueHandle)
             where T : JsValue;
-
-        /// <summary>
-        /// Gets the value of false in the specified script context.
-        /// </summary>
-        /// <returns></returns>
-        JsBoolean GetFalseValue();
-
-        /// <summary>
-        /// Gets the global object in the specified script context.
-        /// </summary>
-        /// <returns></returns>
-        JsObject GetGlobalObject();
-
-        /// <summary>
-        /// Gets the value of null in the specified script context.
-        /// </summary>
-        /// <returns></returns>
-        JsNull GetNullValue();
-
-        /// <summary>
-        /// Gets the value of true in the specified script context.
-        /// </summary>
-        /// <returns></returns>
-        JsBoolean GetTrueValue();
-
-        /// <summary>
-        /// Gets the value of undefined in the specified script context.
-        /// </summary>
-        /// <returns></returns>
-        JsUndefined GetUndefinedValue();
     }
 }

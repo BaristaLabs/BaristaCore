@@ -6,6 +6,7 @@
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a JavaScript Module
@@ -70,7 +71,7 @@
                 {
                     if (Engine.JsHasException() == false)
                     {
-                        Engine.JsSetException(Context.ValueFactory.CreateError(ex.Message).Handle);
+                        Engine.JsSetException(Context.CreateError(ex.Message).Handle);
                     }
 
                     dependentModule = referencingModule;
@@ -144,23 +145,22 @@
         {
             var scriptBuffer = Encoding.UTF8.GetBytes(script);
             var parseResultHandle = Engine.JsParseModuleSource(Handle, JavaScriptSourceContext.GetNextSourceContext(), scriptBuffer, (uint)scriptBuffer.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
-            return Context.ValueFactory.CreateValue<JsError>(parseResultHandle);
+            return Context.CreateValue<JsError>(parseResultHandle);
         }
 
         private bool FetchImportedModule(JavaScriptModuleRecord jsReferencingModuleRecord, JavaScriptValueSafeHandle specifier, out IntPtr dependentModule)
         {
-            var moduleName = Context.ValueFactory.CreateValue(specifier).ToString();
+            var moduleName = Context.CreateValue(specifier).ToString();
             var referencingModuleRecord = m_moduleRecordFactory.GetBaristaModuleRecord(jsReferencingModuleRecord);
 
             //If the current module name is equal to the fetching module name, return this value.
-            if (Name == moduleName)
+            if (Name == moduleName || referencingModuleRecord != null && referencingModuleRecord.Name == moduleName)
             {
                 //Top-level self-referencing module. Reference itself.
                 dependentModule = jsReferencingModuleRecord.DangerousGetHandle();
                 return false;
             }
-
-            if (m_importedModules.ContainsKey(moduleName))
+            else if (m_importedModules.ContainsKey(moduleName))
             {
                 //The module has already been imported, return the existing JavaScriptModuleRecord
                 dependentModule = m_importedModules[moduleName].Handle.DangerousGetHandle();
@@ -168,39 +168,90 @@
             }
             else if (m_moduleLoader != null)
             {
-                IBaristaModule module = null;
+                Task<IBaristaModule> moduleLoaderTask = null;
                 try
                 {
-                    module = m_moduleLoader.GetModule(moduleName);
+                    moduleLoaderTask = m_moduleLoader.GetModule(moduleName);
                 }
                 catch (Exception ex)
                 {
-                    var error = Context.ValueFactory.CreateError($"An error occurred while attempting to load a module named {moduleName}: {ex.Message}");
+                    var error = Context.CreateError($"An error occurred while attempting to load a module named {moduleName}: {ex.Message}");
                     Engine.JsSetException(error.Handle);
+                    dependentModule = jsReferencingModuleRecord.DangerousGetHandle();
+                    return true;
                 }
 
-                if (module != null)
+                if (moduleLoaderTask != null)
                 {
-                    var newModuleRecord = m_moduleRecordFactory.CreateBaristaModuleRecord(Context, specifier, this, false);
-                    m_importedModules.Add(moduleName, newModuleRecord);
-                    
-                    switch (module)
+                    IBaristaModule module;
+                    try
                     {
-                        //For the built-in Script Module type, parse the string returned by ExportDefault and install it as a module.
-                        case IBaristaScriptModule scriptModule:
-                            var script = (scriptModule.ExportDefault(Context, newModuleRecord)).GetAwaiter().GetResult() as string;
-                            if (script == null)
-                                script = "export default null";
+                        module = moduleLoaderTask.GetAwaiter().GetResult();
+                    }
+                    catch (Exception ex)
+                    {
+                        var error = Context.CreateError($"An error occurred while attempting to load a module named {moduleName}: {ex.Message}");
+                        Engine.JsSetException(error.Handle);
+                        dependentModule = jsReferencingModuleRecord.DangerousGetHandle();
+                        return true;
+                    }
 
-                            dependentModule = newModuleRecord.Handle.DangerousGetHandle();
-                            newModuleRecord.ParseModuleSource(script);
-                            return false;
-                        //Otherwise, install the module.
-                        default:
-                            var result = InstallModule(newModuleRecord, referencingModuleRecord, module, specifier);
+                    if (module != null)
+                    {
 
-                            dependentModule = newModuleRecord.Handle.DangerousGetHandle();
-                            return result;
+                        var newModuleRecord = m_moduleRecordFactory.CreateBaristaModuleRecord(Context, specifier, this, false);
+                        m_importedModules.Add(moduleName, newModuleRecord);
+                        dependentModule = newModuleRecord.Handle.DangerousGetHandle();
+
+                        switch (module)
+                        {
+                            //For the built-in NodeModule type, parse the string returned by ExportDefault, but place it in a closure that
+                            //contains module, module.exports, exports and global which correspond to node module conventions.
+                            case INodeModule nodeModule:
+                                var nodeScriptTask = nodeModule.ExportDefault(Context, newModuleRecord);
+                                string nodeScript;
+                                if (nodeScriptTask == null)
+                                {
+                                    nodeScript = "export default null";
+                                }
+                                else
+                                {
+                                    nodeScript = nodeScriptTask.GetAwaiter().GetResult() as string;
+                                    nodeScript = $@"'use strict';
+const window = global;
+const module = {{
+    exports: {{}}
+}};
+let exports = module.exports;
+(function() {{
+{nodeScript}
+}}).call(global);
+export default module.exports";
+                                }
+                                newModuleRecord.ParseModuleSource(nodeScript);
+                                return false;
+                            //For the built-in Script Module type, parse the string returned by ExportDefault and install it as a module.
+                            case IBaristaScriptModule scriptModule:
+                                var scriptTask = scriptModule.ExportDefault(Context, newModuleRecord);
+                                string script;
+                                if (scriptTask == null)
+                                {
+                                    script = "export default null";
+                                }
+                                else
+                                {
+                                    script = scriptTask.GetAwaiter().GetResult() as string;
+                                    if (script == null)
+                                        script = "export default null";
+
+                                    newModuleRecord.ParseModuleSource(script);
+                                }
+                                return false;
+                            //Otherwise, install the module.
+                            default:
+                                var result = InstallModule(newModuleRecord, referencingModuleRecord, module, specifier);
+                                return result;
+                        }
                     }
                 }
             }
@@ -218,7 +269,7 @@
             }
             catch (Exception ex)
             {
-                var error = Context.ValueFactory.CreateError($"An error occurred while obtaining the default export of the native module named {newModuleRecord.Name}: {ex.Message}");
+                var error = Context.CreateError($"An error occurred while obtaining the default export of the native module named {newModuleRecord.Name}: {ex.Message}");
                 Engine.JsSetException(error.Handle);
                 return true;
             }
@@ -229,7 +280,7 @@
             }
             else
             {
-                var error = Context.ValueFactory.CreateError($"Unable to install module {newModuleRecord.Name}: the default exported value could not be converted into a JavaScript object.");
+                var error = Context.CreateError($"Unable to install module {newModuleRecord.Name}: the default exported value could not be converted into a JavaScript object.");
                 Engine.JsSetException(error.Handle);
                 return true;
             }
@@ -246,13 +297,13 @@
         private bool CreateSingleValueModule(BaristaModuleRecord moduleRecord, JavaScriptValueSafeHandle specifier, JsValue defaultExportedValue)
         {
             var globalId = Guid.NewGuid();
+            var exportSymbol = Context.Symbol.For($"$DEFAULTEXPORT_{globalId.ToString()}");
             var exposeNativeValueScript = $@"
-let global = (new Function('return this;'))();
-let defaultExport = global['$DEFAULTEXPORT_{globalId.ToString()}'];
+const defaultExport = global[Symbol.for('$DEFAULTEXPORT_{globalId.ToString()}')];
 export default defaultExport;
 ";
+            Context.Object.DefineProperty(Context.GlobalObject, exportSymbol, new JsPropertyDescriptor() { Configurable = false, Enumerable = false, Writable = false, Value = defaultExportedValue });
 
-            Context.GlobalObject.SetProperty($"$DEFAULTEXPORT_{globalId.ToString()}", defaultExportedValue);
             moduleRecord.ParseModuleSource(exposeNativeValueScript);
             return false;
         }

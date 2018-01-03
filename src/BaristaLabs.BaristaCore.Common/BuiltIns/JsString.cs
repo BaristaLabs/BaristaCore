@@ -2,7 +2,7 @@
 {
     using BaristaLabs.BaristaCore.JavaScript;
 
-    public class JsString : JsObject
+    public sealed class JsString : JsObject
     {
         public JsString(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
             : base(engine, context, valueHandle)

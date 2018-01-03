@@ -1,11 +1,13 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
     using System;
+    using System.Diagnostics;
     using System.Threading;
 
     /// <summary>
     ///     A cookie that identifies a script for debugging purposes.
     /// </summary>
+    [DebuggerStepThrough]
     public struct JavaScriptSourceContext : IEquatable<JavaScriptSourceContext>
     {
         /// <summary>

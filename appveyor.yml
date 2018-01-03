@@ -14,11 +14,13 @@ install:
 before_build:
   - cmd: set
   - cmd: dotnet --info
-  - cmd: appveyor-retry dotnet restore -v Minimal
 build_script:
-  - cmd: dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
+  build: off
+  # - cmd: dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
+  # - cmd: dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Extensions.Tests\
 test_script:
   - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
+  - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Extensions.Tests\
 after_test:
   # Use vstest to gather code coverage and submit to coveralls via coveralls.net (test project dependency)
   # - ps: $vstest = "VSTest.Console.exe"

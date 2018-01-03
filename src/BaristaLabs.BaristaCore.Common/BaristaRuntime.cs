@@ -7,8 +7,23 @@
     /// <summary>
     /// Represents a JavaScript Runtime
     /// </summary>
-    /// <remarks>
-    ///     A runtime in which contexts are created and JavaScript is executed.
+    /// <remarks> 
+    /// A runtime represents a complete JavaScript execution environment. Each runtime that is created has its own isolated garbage-collected heap and, 
+    /// by default, its own just-in-time (JIT) compiler thread and garbage collector (GC) thread. An execution context represents a JavaScript environment 
+    /// that has its own JavaScript global object distinct from all other execution contexts. One runtime may contain multiple execution contexts, and 
+    /// in such cases, all the execution contexts share the JIT compiler and GC thread associated with the runtime.
+    /// 
+    /// Runtimes represent a single thread of execution. Only one runtime can be active on a particular thread at a time, and a runtime can only be active 
+    /// on one thread at a time. Runtimes are rental threaded, so a runtime that is not currently active on a thread 
+    /// (i.e.isn’t running any JavaScript code or responding to any calls from the host) can be used on any thread that doesn’t already have an 
+    /// active runtime on it.
+    /// 
+    /// Execution contexts are tied to a particular runtime and execute code within that runtime. Unlike runtimes, multiple execution contexts can be 
+    /// active on a thread at the same time. So a host can make a call into an execution context, that execution context can call back to the host, 
+    /// and the host can make a call into a different execution context.
+    /// 
+    /// In practice, unless a host needs to run code in separated environments, a single execution context can be used.
+    /// Similarly, unless a host needs to run multiple pieces of code concurrently, a single runtime is sufficient.
     /// </remarks>
     public sealed class BaristaRuntime : BaristaObject<JavaScriptRuntimeSafeHandle>
     {
@@ -127,6 +142,8 @@
 
         protected override void Dispose(bool disposing)
         {
+            bool shouldCallAfterDispose = false;
+
             if (disposing && !IsDisposed)
             {
                 if (m_contextFactory != null)
@@ -134,6 +151,8 @@
                     m_contextFactory.Dispose();
                     m_contextFactory = null;
                 }
+
+                shouldCallAfterDispose = true;
             }
 
             if (!IsDisposed)
@@ -149,7 +168,10 @@
 
             base.Dispose(disposing);
 
-            OnAfterDispose();
+            if (shouldCallAfterDispose)
+            {
+                OnAfterDispose();
+            }
         }
     }
 }

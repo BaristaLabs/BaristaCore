@@ -1,12 +1,9 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript.Tests
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
-    using System.Text;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class IDebugWindowsJavaScriptEngine_Facts
     {

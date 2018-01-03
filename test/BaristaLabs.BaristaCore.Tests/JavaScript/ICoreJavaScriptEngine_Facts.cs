@@ -2,12 +2,10 @@
 {
     using BaristaLabs.BaristaCore.Tests.Extensions;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
     using System.Text;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class ICoreJavaScriptEngine_Facts
     {
@@ -469,7 +467,7 @@
             var mainModuleName = "";
             var mainModuleSource = @"
 import cube from 'foo';
-let global = (new Function('return this;'))();
+const global = (new Function('return this;'))();
 global.$EXPORTS = cube(3);
 ";
 

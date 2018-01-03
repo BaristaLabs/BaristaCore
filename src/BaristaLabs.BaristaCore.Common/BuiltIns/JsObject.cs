@@ -8,65 +8,6 @@
     using System.Dynamic;
     using System.Linq;
 
-    public class JsObjectConstructor : JsObject
-    {
-        public JsObjectConstructor(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
-            : base(engine, context, valueHandle)
-        {
-        }
-
-        public int Length
-        {
-            get
-            {
-                var result = GetProperty<JsNumber>("length");
-                return result.ToInt32();
-            }
-        }
-
-        /// <summary>
-        /// Returns a new object with the specified prototype object and properties.
-        /// </summary>
-        /// <remarks>
-        /// <see cref="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create"/>
-        /// </remarks>
-        /// <param name="proto">The object which should be the prototype of the newly-created object.</param>
-        /// <param name="propertiesObject">Optional. If specified and not undefined, an object whose enumerable own properties (that is, those properties defined upon itself and not enumerable properties along its prototype chain) specify property descriptors to be added to the newly-created object, with the corresponding property names. These properties correspond to the second argument of Object.defineProperties().</param>
-        /// <returns>A new object with the specified prototype object and properties.</returns>
-        public JsObject Create(JsObject proto, JsObject propertiesObject = null)
-        {
-            var result = GetProperty<JsFunction>("create");
-            return result.Call<JsObject>(this, proto, propertiesObject);
-        }
-
-        /// <summary>
-        /// Defines a new property directly on an object, or modifies an existing property on an object, and returns the object.
-        /// </summary>
-        /// <remarks>
-        /// <see cref="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty"/>
-        /// </remarks>
-        /// <param name="obj">The object on which to define the property.</param>
-        /// <param name="prop">The name of the property to be defined or modified.</param>
-        /// <param name="descriptor">The descriptor for the property being defined or modified.</param>
-        /// <returns></returns>
-        public JsObject DefineProperty(JsObject obj, JsString prop, JsObject descriptor)
-        {
-            var result = GetProperty<JsFunction>("defineProperty");
-            return result.Call<JsObject>(this, obj, prop, descriptor);
-        }
-
-        /// <summary>
-        /// Returns the specified object in a frozen state.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public JsObject Freeze(JsObject obj)
-        {
-            var result = GetProperty<JsFunction>("freeze");
-            return result.Call<JsObject>(this, obj);
-        }
-    }
-
     public class JsObject : JsValue
     {
         public JsObject(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle)
@@ -184,7 +125,7 @@
         // </summary>
         protected IBaristaValueFactory ValueFactory
         {
-            get { return Context.ValueFactory; }
+            get { return Context; }
         }
         #endregion
 
@@ -389,9 +330,25 @@
             }
         }
 
+        public bool HasProperty(JsSymbol propertySymbol)
+        {
+            using (var propertyIdHandle = Engine.JsGetPropertyIdFromSymbol(propertySymbol.Handle))
+            {
+                return Engine.JsHasProperty(Handle, propertyIdHandle);
+            }
+        }
+
         public bool HasOwnProperty(string propertyName)
         {
             using (var propertyIdHandle = Engine.JsCreatePropertyId(propertyName, (ulong)propertyName.Length))
+            {
+                return Engine.JsHasOwnProperty(Handle, propertyIdHandle);
+            }
+        }
+
+        public bool HasOwnProperty(JsSymbol propertySymbol)
+        {
+            using (var propertyIdHandle = Engine.JsGetPropertyIdFromSymbol(propertySymbol.Handle))
             {
                 return Engine.JsHasOwnProperty(Handle, propertyIdHandle);
             }
@@ -584,9 +541,24 @@
         {
             if (GetProperty(binder.Name) is JsFunction fn)
             {
-                if (Context.Converter.TryFromObject(Context, args, out JsValue jsArguments))
+                bool canInvoke = true;
+                var jsArgs = new JsValue[args.Length];
+                for(int i = 0; i < args.Length; i++)
                 {
-                    result = fn.Call(this, jsArguments);
+                    var arg = args[i];
+                    if (Context.Converter.TryFromObject(Context, arg, out JsValue jsArgument))
+                    {
+                        jsArgs[i] = jsArgument;
+                    }
+                    else
+                    {
+                        canInvoke = false;
+                    }
+                }
+
+                if (canInvoke)
+                {
+                    result = fn.Call(this, jsArgs);
                     return true;
                 }
             }
@@ -635,6 +607,56 @@
                 return true;
             }
             return base.TrySetMember(binder, value);
+        }
+        #endregion
+
+        #region Bean Methods
+        private const string BaristaBeanName = "__BaristaBean__";
+
+        /// <summary>
+        /// Gets a value that indicates if the object contains a bean.
+        /// </summary>
+        public bool HasBean
+        {
+            get
+            {
+                return HasOwnProperty(Context.Symbol.For(BaristaBeanName));
+            }
+        }
+
+        /// <summary>
+        /// Attempts to get the bean object from the value.
+        /// </summary>
+        /// <param name="bean"></param>
+        /// <returns></returns>
+        public bool TryGetBean(out JsExternalObject bean)
+        {
+            if (!HasBean)
+            {
+                bean = null;
+                return false;
+            }
+
+            bean = GetProperty<JsExternalObject>(Context.Symbol.For(BaristaBeanName));
+            return true;
+        }
+
+        /// <summary>
+        /// Set the bean to the specified value.
+        /// </summary>
+        /// <param name="exObj"></param>
+        /// <returns></returns>
+        public bool SetBean(JsExternalObject exObj)
+        {
+            if (exObj == null)
+                throw new ArgumentNullException(nameof(exObj));
+
+            if (HasBean)
+                throw new InvalidOperationException("A bean has already been set for this object. Once set, beans are immutable.");
+
+            var descriptor = ValueFactory.CreateObject();
+            descriptor.SetProperty("value", exObj);
+            return Context.Object.DefineProperty(this, Context.Symbol.For(BaristaBeanName), descriptor);
         }
         #endregion
     }

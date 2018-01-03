@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>BaristaLabs.BaristaCore.Extensions</id>
+    <version>$version$</version>
+    <authors>Sean McLellan</authors>
+    <owners>BaristaLabs, LLC</owners>
+    <licenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/BaristaLabs/BaristaCore</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <developmentDependency>false</developmentDependency>
+    <summary>Provides commonly used modules, module loaders, and more to BaristaCore</summary>
+    <description>
+      For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/baristacore-extensions
+    </description>
+    <releaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</releaseNotes>
+    <copyright>Copyright (c) 2017 BaristaLabs, LLC</copyright>
+    <language>en-US</language>
+    <tags>Barista,BaristaCore,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+		<dependency id="BaristaLabs.BaristaCore.Common" version="$version$" />
+		<dependency id="Newtonsoft.Json" version="10.0.3" />
+		<dependency id="RestSharp" version="106.2.0" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\src\BaristaLabs.BaristaCore.Extensions\bin\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Extensions.dll" target="lib\netstandard2.0\"/>
+    <file src="..\src\BaristaLabs.BaristaCore.Extensions\bin\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Extensions.pdb" target="lib\netstandard2.0\"/>
+  </files>
+</package>

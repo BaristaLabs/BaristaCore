@@ -1,19 +1,47 @@
 $CONFIGURATION = "Release"
-$FRAMEWORK = "netcoreapp1.0"
+$FRAMEWORK = "netstandard2.0"
 
-Remove-Item *.nupkg
+$root = (split-path -parent $MyInvocation.MyCommand.Definition)
+$packageRoot = "$root\nuget"
+$versionFile = "$packageRoot\.version"
+$artifactsPath = "$packageRoot\artifacts"
 
-dotnet restore
-dotnet build -c $CONFIGURATION
+#Delete any existing artifacts
+If (Test-Path $artifactsPath)
+{
+    Remove-Item $artifactsPath\*.nupkg
+}
+
+$common = "$root\src\BaristaLabs.BaristaCore.Common\"
+$extensions = "$root\src\BaristaLabs.BaristaCore.Extensions\"
+dotnet build -c $CONFIGURATION -f $FRAMEWORK $common
+dotnet build -c $CONFIGURATION -f $FRAMEWORK $extensions
+
+$VERSION = (Get-Content $versionFile)
+Write-Host "Setting .nuspec version tag to $VERSION"
+$compiledNuspec = "$packageRoot\compiled.nuspec"
 
 # Create new packages for any nuspec files that exist in this directory.
-Foreach ($nuspec in $(Get-Item *.nuspec))
+Foreach ($nuspec in $(Get-Item "$packageRoot\*.nuspec"))
 {
-    & nuget pack $nuspec -Properties Configuration=$CONFIGURATION
+	$content = (Get-Content $nuspec)
+    $content = $content -replace '\$version\$',$VERSION
+	$content = $content -replace '\$configuration\$',$CONFIGURATION
+	$content = $content -replace '\$framework\$',$FRAMEWORK
+	$content = $content -replace '\$root\$',$root
+    $content | Out-File $compiledNuspec
+
+    & nuget pack $compiledNuspec -outputdirectory $artifactsPath 
+}
+
+# Delete compiled temporary nuspec.
+If (Test-Path $compiledNuspec)
+{
+    Remove-Item $compiledNuspec
 }
 
 # Publish new packages for any nupkg files that exist in this directory.
-Foreach ($nupkg in $(Get-Item *.nupkg))
+Foreach ($nupkg in $(Get-Item $artifactsPath\*.nupkg))
 {
     & nuget push $nupkg -Source https://api.nuget.org/v3/index.json
 }

@@ -10,14 +10,17 @@
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Method | AttributeTargets.Event, AllowMultiple = false)]
     public sealed class BaristaPropertyAttribute : Attribute
     {
-        private readonly string m_name;
-
-        public BaristaPropertyAttribute(string name)
+        public BaristaPropertyAttribute()
         {
-            m_name = name;
             Configurable = true;
             Enumerable = true;
             Writable = true;
+        }
+
+        public BaristaPropertyAttribute(string name)
+            : this()
+        {
+            Name = name;
         }
 
         /// <summary>
@@ -31,7 +34,8 @@
 
         public string Name
         {
-            get { return m_name; }
+            get;
+            set;
         }
 
         /// <summary>
@@ -54,24 +58,30 @@
 
         public static string GetMemberName(MemberInfo member)
         {
-            var attributes = member.GetCustomAttributes(typeof(BaristaPropertyAttribute), false);
-            if (attributes.Length == 1 && attributes[0] is BaristaPropertyAttribute attr)
-            {
-                return attr.Name;
-            }
-
-            return member.Name.Camelize();
+            var attr = GetAttribute(member);
+            return attr.Name;
         }
 
         public static BaristaPropertyAttribute GetAttribute(MemberInfo member)
         {
-            var attributes = member.GetCustomAttributes(typeof(BaristaPropertyAttribute), false);
+            var attributes = member.GetCustomAttributes(typeof(BaristaPropertyAttribute), true);
             if (attributes.Length == 1 && attributes[0] is BaristaPropertyAttribute attr)
             {
+                if (String.IsNullOrWhiteSpace(attr.Name))
+                    attr.Name = member.Name.Camelize();
+
                 return attr;
             }
 
-            return new BaristaPropertyAttribute(member.Name.Camelize());
+            var memberName = member.Name.Camelize();
+
+            //If the member is a indexer, name it XxxxAt
+            if (member is PropertyInfo propertyInfo && propertyInfo.GetIndexParameters().Length > 0)
+            {
+                memberName = member.Name + "At";
+            }
+
+            return new BaristaPropertyAttribute(memberName);
         }
     }
 }

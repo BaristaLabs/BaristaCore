@@ -3,10 +3,8 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class BaristaRuntimeStability_Facts
     {
@@ -44,7 +42,7 @@
                 {
                     using (ctx.Scope())
                     {
-                        myValue = ctx.ValueFactory.CreateString("Hello, World");
+                        myValue = ctx.CreateString("Hello, World");
                     }
                 }
 

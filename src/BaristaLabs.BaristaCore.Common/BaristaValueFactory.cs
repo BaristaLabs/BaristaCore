@@ -3,6 +3,7 @@
     using BaristaLabs.BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.JavaScript;
     using System;
+    using System.Collections;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.InteropServices;
@@ -45,6 +46,51 @@
             get { return m_valuePool.Count; }
         }
 
+        public JsObject GlobalObject
+        {
+            get
+            {
+                var globalValueHandle = m_engine.JsGetGlobalObject();
+                return CreateValue<JsObject>(globalValueHandle);
+            }
+        }
+
+        public JsBoolean False
+        {
+            get
+            {
+                var falseValueHandle = m_engine.JsGetFalseValue();
+                return CreateValue<JsBoolean>(falseValueHandle);
+            }
+        }
+
+        public JsNull Null
+        {
+            get
+            {
+                var nullValueHandle = m_engine.JsGetNullValue();
+                return CreateValue<JsNull>(nullValueHandle);
+            }
+        }
+
+        public JsBoolean True
+        {
+            get
+            {
+                var trueValueHandle = m_engine.JsGetTrueValue();
+                return CreateValue<JsBoolean>(trueValueHandle);
+            }
+        }
+
+        public JsUndefined Undefined
+        {
+            get
+            {
+                var undefinedValueHandle = m_engine.JsGetUndefinedValue();
+                return CreateValue<JsUndefined>(undefinedValueHandle);
+            }
+        }
+
         public JsArray CreateArray(uint length)
         {
             var arrayHandle = m_engine.JsCreateArray(length);
@@ -54,10 +100,10 @@
         public JsArrayBuffer CreateArrayBuffer(string data)
         {
             if (data == null)
-                throw new ArgumentNullException(nameof(data));
+                data = String.Empty;
 
             JavaScriptValueSafeHandle externalArrayHandle;
-            IntPtr ptrData = Marshal.StringToHGlobalAnsi(data);
+            IntPtr ptrData = Marshal.StringToHGlobalUni(data);
             try
             {
                 externalArrayHandle = m_engine.JsCreateExternalArrayBuffer(ptrData, (uint)data.Length, null, IntPtr.Zero);
@@ -66,7 +112,7 @@
             {
                 //If anything goes wrong, free the unmanaged memory.
                 //This is not a finally as if success, the memory will be freed automagially.
-                Marshal.ZeroFreeGlobalAllocAnsi(ptrData);
+                Marshal.ZeroFreeGlobalAllocUnicode(ptrData);
                 throw;
             }
 
@@ -74,7 +120,47 @@
             {
                 var flyweight = new JsManagedExternalArrayBuffer(m_engine, Context, externalArrayHandle, ptrData, (ptr) =>
                 {
-                    Marshal.ZeroFreeGlobalAllocAnsi(ptr);
+                    Marshal.ZeroFreeGlobalAllocUnicode(ptr);
+                });
+
+                return flyweight;
+            });
+
+            var resultArrayBuffer = result as JsArrayBuffer;
+            if (resultArrayBuffer == null)
+                throw new InvalidOperationException($"Expected the result object to be a JsArrayBuffer, however the value was {result.GetType()}");
+
+            return (JsArrayBuffer)result;
+        }
+
+        public JsArrayBuffer CreateArrayBuffer(byte[] data)
+        {
+            if (data == null)
+                data = new byte[0] { };
+
+            JavaScriptValueSafeHandle externalArrayHandle;
+            int size = Marshal.SizeOf(data[0]) * data.Length;
+            IntPtr ptrData = Marshal.AllocHGlobal(size);
+            try
+            {
+                // Copy the array to unmanaged memory.
+                Marshal.Copy(data, 0, ptrData, data.Length);
+
+                externalArrayHandle = m_engine.JsCreateExternalArrayBuffer(ptrData, (uint)data.Length, null, IntPtr.Zero);
+            }
+            catch (Exception)
+            {
+                //If anything goes wrong, free the unmanaged memory.
+                //This is not a finally as if success, the memory will be freed automagially.
+                Marshal.FreeHGlobal(ptrData);
+                throw;
+            }
+
+            var result = m_valuePool.GetOrAdd(externalArrayHandle, () =>
+            {
+                var flyweight = new JsManagedExternalArrayBuffer(m_engine, Context, externalArrayHandle, ptrData, (ptr) =>
+                {
+                    Marshal.FreeHGlobal(ptr);
                 });
 
                 return flyweight;
@@ -122,8 +208,8 @@
             if (func == null)
                 throw new ArgumentNullException(nameof(func));
 
-            JavaScriptNativeFunction fnDelegate;
-            switch(func)
+            JavaScriptNativeFunction fnDelegate = null;
+            switch (func)
             {
                 case BaristaFunctionDelegate fnBaristaFunctionDelegate:
                     fnDelegate = CreateNativeFunctionForDelegate(fnBaristaFunctionDelegate);
@@ -152,6 +238,20 @@
                 jsNativeFunction.BeforeCollect += JsValueBeforeCollectCallback;
                 return jsNativeFunction;
             }) as JsNativeFunction;
+        }
+
+        public JsIterator CreateIterator(IEnumerator enumerator)
+        {
+            if (enumerator == null)
+                enumerator = Enumerable.Empty<object>().GetEnumerator();
+
+            var objectHandle = m_engine.JsCreateObject();
+
+            //this is a special case where we cannot use our CreateValue<> method.
+            return m_valuePool.GetOrAdd(objectHandle, () =>
+            {
+                return new JsIterator(m_engine, Context, objectHandle, enumerator);
+            }) as JsIterator;
         }
 
         /// <summary>
@@ -190,7 +290,7 @@
                             nativeArgs[i] = jsValue as JsObject;
                         }
                         //If the target type is the same as the value type (The delegate expects a JsValue) don't convert.
-                        else if (targetParameterType == jsValue.GetType())
+                        else if (targetParameterType.IsSameOrSubclass(jsValue.GetType()))
                         {
                             nativeArgs[i] = jsValue;
                         }
@@ -247,6 +347,8 @@
             JavaScriptNativeFunction fnDelegate = (IntPtr callee, bool isConstructCall, IntPtr[] arguments, ushort argumentCount, IntPtr callbackData) =>
             {
                 //Convert each argument into a native object.
+                var calleeObj = CreateValue(new JavaScriptValueSafeHandle(callee)) as JsObject;
+
                 var nativeArgs = new object[argumentCount-1];
                 JsObject thisObj = null;
                 for (int i = 0; i < argumentCount; i++)
@@ -273,7 +375,7 @@
 
                 try
                 {
-                    var nativeResult = functionDelegate.DynamicInvoke(isConstructCall, thisObj, nativeArgs);
+                    var nativeResult = functionDelegate.DynamicInvoke(calleeObj, isConstructCall, thisObj, nativeArgs);
                     if (Context.Converter.TryFromObject(Context, nativeResult, out JsValue valueResult))
                     {
                         return valueResult.Handle.DangerousGetHandle();
@@ -335,18 +437,18 @@
                     {
                         if (Context.Converter.TryFromObject(Context, task.Exception, out JsValue rejectValue))
                         {
-                            reject.Call(GetGlobalObject(), rejectValue);
+                            reject.Call(GlobalObject, rejectValue);
                         }
                         else
                         {
-                            reject.Call(GetGlobalObject(), GetUndefinedValue());
+                            reject.Call(GlobalObject, Undefined);
                         }
                     }
 
                     var taskType = task.GetType();
                     if (taskType.IsGenericType == false || taskType.GetGenericTypeDefinition() != typeof(Task<>))
                     {
-                        resolve.Call(GetGlobalObject(), GetUndefinedValue());
+                        resolve.Call(GlobalObject, Undefined);
                         return;
                     }
 
@@ -356,11 +458,11 @@
                     //If we got an object back attempt to convert it into a JsValue and call the resolve method with the value.
                     if (Context.Converter.TryFromObject(Context, result, out JsValue resolveValue))
                     {
-                        resolve.Call(GetGlobalObject(), resolveValue);
+                        resolve.Call(GlobalObject, resolveValue);
                     }
                     else
                     {
-                        resolve.Call(GetGlobalObject(), GetUndefinedValue());
+                        resolve.Call(GlobalObject, Undefined);
                     }
                 },
                 CancellationToken.None,
@@ -475,7 +577,7 @@
             if (targetType == null)
                 throw new ArgumentNullException(nameof(targetType));
 
-            if (typeof(JsValue).IsSameOrSubclass(targetType) == false)
+            if (targetType.IsSubclassOf(typeof(JsValue)) == false)
                 throw new ArgumentOutOfRangeException(nameof(targetType));
 
             if (valueHandle == JavaScriptValueSafeHandle.Invalid)
@@ -489,23 +591,35 @@
                 {
                     result = Activator.CreateInstance(targetType, new object[] { m_engine, Context, valueHandle }) as JsValue;
                 }
-                else if (typeof(JsSymbol).IsSameOrSubclass(targetType))
-                {
-                    result = new JsSymbol(m_engine, Context, valueHandle);
-                }
-                else if (typeof(JsUndefined).IsSameOrSubclass(targetType))
-                {
-                    result = new JsUndefined(m_engine, Context, valueHandle);
-                }
-                else if (typeof(JsNull).IsSameOrSubclass(targetType))
-                {
-                    result = new JsNull(m_engine, Context, valueHandle);
-                }
                 else if (typeof(JsExternalObject).IsSameOrSubclass(targetType))
                 {
                     //TODO: This isn't exactly true, we should set the ExternalData to the GCHandle.
                     //Then we can new JsExternalObject(m_engine, Context, valueHandle, Engine.GetExternalData(valueHandle));
                     throw new InvalidOperationException("External Objects must first be created by ...");
+                }
+                else if (typeof(JsBoolean) == targetType)
+                {
+                    result = new JsBoolean(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsNumber) == targetType)
+                {
+                    result = new JsNumber(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsString) == targetType)
+                {
+                    result = new JsString(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsSymbol) == targetType)
+                {
+                    result = new JsSymbol(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsUndefined) == targetType)
+                {
+                    result = new JsUndefined(m_engine, Context, valueHandle);
+                }
+                else if (typeof(JsNull) == targetType)
+                {
+                    result = new JsNull(m_engine, Context, valueHandle);
                 }
                 else
                 {
@@ -525,36 +639,6 @@
         {
             var targetType = typeof(T);
             return CreateValue(targetType, valueHandle) as T;
-        }
-
-        public JsObject GetGlobalObject()
-        {
-            var globalValueHandle = m_engine.JsGetGlobalObject();
-            return CreateValue<JsObject>(globalValueHandle);
-        }
-
-        public JsBoolean GetFalseValue()
-        {
-            var falseValueHandle = m_engine.JsGetFalseValue();
-            return CreateValue<JsBoolean>(falseValueHandle);
-        }
-
-        public JsNull GetNullValue()
-        {
-            var nullValueHandle = m_engine.JsGetNullValue();
-            return CreateValue<JsNull>(nullValueHandle);
-        }
-
-        public JsBoolean GetTrueValue()
-        {
-            var trueValueHandle = m_engine.JsGetTrueValue();
-            return CreateValue<JsBoolean>(trueValueHandle);
-        }
-
-        public JsUndefined GetUndefinedValue()
-        {
-            var undefinedValueHandle = m_engine.JsGetUndefinedValue();
-            return CreateValue<JsUndefined>(undefinedValueHandle);
         }
 
         /// <summary>

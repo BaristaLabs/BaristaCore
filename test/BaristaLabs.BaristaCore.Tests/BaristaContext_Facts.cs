@@ -3,10 +3,8 @@
     using BaristaCore.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class BaristaContext_Facts
     {
@@ -177,14 +175,10 @@
                 {
                     using (ctx.Scope())
                     {
-                        Assert.NotNull(ctx.ValueFactory);
+                        Assert.NotNull(ctx as IBaristaValueFactory);
                     }
 
                     ctx.Dispose();
-                    Assert.Throws<ObjectDisposedException>(() =>
-                    {
-                        var foo = ctx.ValueFactory;
-                    });
                 }
             }
         }

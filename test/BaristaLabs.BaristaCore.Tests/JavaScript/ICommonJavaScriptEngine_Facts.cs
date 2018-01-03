@@ -3,7 +3,6 @@
     using BaristaLabs.BaristaCore.Tests.Extensions;
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
     using System.Text;
     using Xunit;
@@ -12,7 +11,6 @@
     /// <summary>
     /// Direct tests against the IChakraApi layer
     /// </summary>
-    [ExcludeFromCodeCoverage]
     [Collection("BaristaCore Tests")]
     public class ICommonJavaScriptEngine_Facts
     {
