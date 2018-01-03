@@ -353,6 +353,154 @@ export default fn;
         }
 
         [Fact]
+        public void CanSetCache()
+        {
+            var script = @"
+import fetch from 'barista-fetch';
+var fn = (async () => {
+    var response = await fetch('https://httpbin.org/post', { method: 'POST', cache: 'only-if-cached', body: JSON.stringify({ foo: 'bar' }) });
+    var json = await response.json();
+    return JSON.stringify(json);
+})();
+export default fn;
+        ";
+
+            var baristaRuntime = GetRuntimeFactory();
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var response = ctx.EvaluateModule<JsString>(script);
+                        Assert.NotNull(response);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void CanSetCredentials()
+        {
+            var script = @"
+import fetch from 'barista-fetch';
+var fn = (async () => {
+    var response = await fetch('https://httpbin.org/post', { method: 'POST', credentials: 'include', body: JSON.stringify({ foo: 'bar' }) });
+    var json = await response.json();
+    return JSON.stringify(json);
+})();
+export default fn;
+        ";
+
+            var baristaRuntime = GetRuntimeFactory();
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var response = ctx.EvaluateModule<JsString>(script);
+                        Assert.NotNull(response);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void CanSetCookies()
+        {
+            var script = @"
+import fetch from 'barista-fetch';
+var fn = (async () => {
+    var response = await fetch('https://httpbin.org/post', { method: 'POST', cookies: { foo: 'bar' }, body: JSON.stringify({ foo: 'bar' }) });
+    var json = await response.json();
+    return JSON.stringify(json);
+})();
+export default fn;
+        ";
+
+            var baristaRuntime = GetRuntimeFactory();
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var response = ctx.EvaluateModule<JsString>(script);
+                        Assert.NotNull(response);
+                        var jsonData = response.ToString();
+                        Assert.True(jsonData.Length > 0);
+                        dynamic data = JsonConvert.DeserializeObject(jsonData);
+                        Assert.Equal("foo=bar", (string)data.headers.Cookie);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void CanSetTimeout()
+        {
+            var script = @"
+import fetch from 'barista-fetch';
+var fn = (async () => {
+    var response = await fetch('https://httpbin.org/post', { method: 'POST', timeout: 30000, body: JSON.stringify({ foo: 'bar' }) });
+    var json = await response.json();
+    return JSON.stringify(json);
+})();
+export default fn;
+        ";
+
+            var baristaRuntime = GetRuntimeFactory();
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var response = ctx.EvaluateModule<JsString>(script);
+                        Assert.NotNull(response);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void CanSetUserAgent()
+        {
+            var script = @"
+import fetch from 'barista-fetch';
+var fn = (async () => {
+    var response = await fetch('https://httpbin.org/post', { method: 'POST', 'user-agent': 'curl/7.9.8 (i686-pc-linux-gnu) libcurl 7.9.8 (OpenSSL 0.9.6b) (ipv6 enabled)', body: JSON.stringify({ foo: 'bar' }) });
+    var json = await response.json();
+    return JSON.stringify(json);
+})();
+export default fn;
+        ";
+
+            var baristaRuntime = GetRuntimeFactory();
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var response = ctx.EvaluateModule<JsString>(script);
+                        Assert.NotNull(response);
+                        var jsonData = response.ToString();
+                        Assert.True(jsonData.Length > 0);
+                        dynamic data = JsonConvert.DeserializeObject(jsonData);
+                        Assert.Equal("curl/7.9.8 (i686-pc-linux-gnu) libcurl 7.9.8 (OpenSSL 0.9.6b) (ipv6 enabled)", (string)data.headers["User-Agent"]);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void CanCreateAndCloneRequest()
         {
             var script = @"
@@ -559,11 +707,11 @@ var fn = (async () => {
     var response = await fetch('https://httpbin.org/response-headers?X-Foo=bar&X-Foo=baz');
     var result = {};
 
-    /*result.entries = [];
+    result.entries = [];
     for(var entry of response.headers.entries())
     {
         result.entries.push(entry);
-    }*/
+    }
 
     result.keys = [];
     for(var entry of response.headers.keys('X-Foo'))
@@ -591,6 +739,10 @@ export default fn;
                     {
                         var headersResult = ctx.EvaluateModule<JsObject>(script);
                         Assert.NotNull(headersResult);
+
+                        Assert.Equal(11, headersResult.GetProperty<JsObject>("entries")["length"].ToInt32());
+                        Assert.Equal(11, headersResult.GetProperty<JsObject>("keys")["length"].ToInt32());
+                        Assert.Equal(11, headersResult.GetProperty<JsObject>("values")["length"].ToInt32());
                     }
                 }
             }
