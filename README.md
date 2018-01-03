@@ -39,13 +39,13 @@ To summarize, BaristaCore provides:
  - iron.io
  - Hyperdev
 
- However, each of the solutions above are closed-source cloud implementations. BaristaCore lets you have the same types of flexability as the above, but within your own datacenter.
+ However, each of the solutions above are closed-source cloud implementations. BaristaCore lets you have the same types of flexibility as the above, but within your own datacenter.
 
 Embedding BaristaCore Within your own application
  ----------
   
 BaristaCore.Common can provide scripting capabilities within any .Net Standard application and can be found as a cross-platform .Net Standard 2.0 NuGet Package here:
-https://www.nuget.org/packages/BaristaLabs.BaristaCore.Common/
+https://www.nuget.org/packages/BaristaCore/
 
 For more information, please read [this wiki topic on embedding BaristaCore](https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application)
 
