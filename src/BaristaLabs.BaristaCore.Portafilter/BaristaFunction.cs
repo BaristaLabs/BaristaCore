@@ -60,7 +60,7 @@ namespace BaristaLabs.BaristaCore.Portafilter
                 Content = new ByteArrayContent(Encoding.UTF8.GetBytes(result.ToString()))
             };
 
-            response.Headers.Add("Content-Type", "text/plain");
+            response.Content.Headers.Add("Content-Type", "text/plain");
             
             return response;
         }

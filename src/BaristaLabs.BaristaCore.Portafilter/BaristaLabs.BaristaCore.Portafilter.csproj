@@ -4,7 +4,9 @@
     <AzureFunctionsVersion>v2</AzureFunctionsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="BaristaCore" Version="1.0.0-beta7" />
+    <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore.win-x64" Version="1.7.6-beta2" />
+    <PackageReference Include="BaristaLabs.BaristaCore.Common" Version="1.0.0-beta7" />
+    <PackageReference Include="BaristaLabs.BaristaCore.Extensions" Version="1.0.0-beta7" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.6" />
   </ItemGroup>
   <ItemGroup>
