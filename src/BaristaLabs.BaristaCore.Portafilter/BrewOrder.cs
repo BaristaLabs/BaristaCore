@@ -17,6 +17,15 @@
         }
 
         /// <summary>
+        /// Gets or sets the path associated with the request.
+        /// </summary>
+        public string Path
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets or sets the code that will be executed
         /// </summary>
         public string Code
@@ -37,6 +46,7 @@
 
     public enum BrewLanguage
     {
+        Unknown,
         JavaScript,
         TypeScript,
         Jsx,

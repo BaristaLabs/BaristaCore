@@ -7,17 +7,19 @@ namespace BaristaLabs.BaristaCore.Portafilter
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Azure.WebJobs.Host;
     using Microsoft.Extensions.DependencyInjection;
-    using RestSharp;
     using System;
+    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
+    using System.Net.Http.Formatting;
     using System.Text;
     using System.Threading.Tasks;
 
     public static class BaristaFunction
     {
-        private static IBaristaRuntimeFactory m_baristaRuntimeFactory;
+        private static readonly IBaristaRuntimeFactory m_baristaRuntimeFactory;
+        private static readonly HttpClient m_httpClient;
 
         private const string GithubRawUserContentUrl = "https://raw.githubusercontent.com/";
 
@@ -26,6 +28,7 @@ namespace BaristaLabs.BaristaCore.Portafilter
 
         private const string Language_HeaderName_EnvironmentVariableName = "Barista_Language_DefaultLanguage";
         private const string Language_HeaderName = "X-Barista-Language";
+        private const string Language_Override_HeaderName = "X-Barista-Language-Override";
 
         private const string Code_Url_HeaderName = "X-Barista-Code-Url";
         private const string Code_Url_QueryName = "Barista-Code-Url";
@@ -38,10 +41,11 @@ namespace BaristaLabs.BaristaCore.Portafilter
 
             var provider = serviceCollection.BuildServiceProvider();
             m_baristaRuntimeFactory = provider.GetRequiredService<IBaristaRuntimeFactory>();
+            m_httpClient = new HttpClient();
         }
 
         [FunctionName("BaristaFunction")]
-        public static HttpResponseMessage Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", "patch", "put", "delete", "options", "head", "brew", Route = "{*path}")]HttpRequest req, string path, TraceWriter log)
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", "patch", "put", "delete", "options", "head", "brew", Route = "{*path}")]HttpRequest req, string path, TraceWriter log)
         {
             log.Info("Barista Function processed a request.");
 
@@ -49,34 +53,24 @@ namespace BaristaLabs.BaristaCore.Portafilter
             var brewOrder = new BrewOrder()
             {
                 BaseUrl = GetBrewBaseUrl(req),
+                Path = path,
                 Code = "export default 6 * 7;",
-                Language = GetBrewLanguage(req)
+                Language = GetBrewLanguage(req),
             };
 
-            if (!TryTakeOrder(brewOrder, req, path))
+            if (!await TryTakeOrder(brewOrder, req))
             {
                 //Return an exception.
             }
 
+            if (req.Headers.ContainsKey(Language_Override_HeaderName) || brewOrder.Language == BrewLanguage.Unknown)
+                brewOrder.Language = GetBrewLanguage(req);
+
             var moduleLoader = Tamp(brewOrder, req, log);
 
             try
-            { 
-                //Brew:
-                using (var rt = m_baristaRuntimeFactory.CreateRuntime())
-                using (var ctx = rt.CreateContext())
-                using (var scope = ctx.Scope())
-                {
-                    JsValue result;
-                    switch(brewOrder.Language)
-                    {
-                        default:
-                            result = ctx.EvaluateModule(brewOrder.Code, moduleLoader);
-                            break;
-                    }
-
-                    return Serve(req, result);
-                }
+            {
+                return Brew(brewOrder, moduleLoader, req);
             }
             finally
             {
@@ -92,14 +86,13 @@ namespace BaristaLabs.BaristaCore.Portafilter
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        private static bool TryTakeOrder(BrewOrder order, HttpRequest req, string path)
+        private static async Task<bool> TryTakeOrder(BrewOrder order, HttpRequest req)
         {
             var codeIsSet = false;
 
             //Attempt to use the path as the path to the resource.
-            if (Uri.TryCreate(order.BaseUrl + path, UriKind.Absolute, out Uri resourceUri) && TryGetResource(resourceUri, out string content))
+            if (await TryGetResource(order, new Uri(new Uri(order.BaseUrl, UriKind.Absolute), order.Path)))
             {
-                order.Code = content;
                 codeIsSet = true;
             }
 
@@ -107,9 +100,8 @@ namespace BaristaLabs.BaristaCore.Portafilter
             else if (req.QueryString.HasValue && !String.IsNullOrWhiteSpace(req.Query[Code_Url_QueryName].FirstOrDefault()))
             {
                 var queryCodeUrl = req.Query[Code_Url_QueryName].FirstOrDefault();
-                if (TryGetResourceContentByRelativeOrAbsoluteUrl(queryCodeUrl, order.BaseUrl, out string queryCodeContent))
+                if (await TryGetResourceContentByRelativeOrAbsoluteUrl(order, queryCodeUrl))
                 {
-                    order.Code = queryCodeContent;
                     codeIsSet = true;
                 }
             }
@@ -117,9 +109,8 @@ namespace BaristaLabs.BaristaCore.Portafilter
             else if (req.HasFormContentType && req.Form.ContainsKey(Code_Url_FormName))
             {
                 var formCodeUrl = req.Form[Code_Url_FormName].FirstOrDefault();
-                if (TryGetResourceContentByRelativeOrAbsoluteUrl(formCodeUrl, order.BaseUrl, out string formCodeContent))
+                if (await TryGetResourceContentByRelativeOrAbsoluteUrl(order, formCodeUrl))
                 {
-                    order.Code = formCodeContent;
                     codeIsSet = true;
                 }
 
@@ -128,9 +119,8 @@ namespace BaristaLabs.BaristaCore.Portafilter
             else if (req.Headers.ContainsKey(Code_Url_HeaderName))
             {
                 var headerCodeValue = req.Headers[Code_Url_HeaderName].FirstOrDefault();
-                if (TryGetResourceContentByRelativeOrAbsoluteUrl(headerCodeValue, order.BaseUrl, out string headerCodeContent))
+                if (await TryGetResourceContentByRelativeOrAbsoluteUrl(order, headerCodeValue))
                 {
-                    order.Code = headerCodeContent;
                     codeIsSet = true;
                 }
             }
@@ -149,7 +139,7 @@ namespace BaristaLabs.BaristaCore.Portafilter
             var moduleLoader = new PrioritizedAggregateModuleLoader();
 
             //Register all the modules within the BaristaLabs.BaristaCore.Extensions assembly.
-            moduleLoader.RegisterModuleLoader(new AssemblyModuleLoader(typeof(AssemblyModuleLoader).Assembly), 1);
+            moduleLoader.RegisterModuleLoader(new AssemblyModuleLoader(typeof(TypeScriptTranspiler).Assembly), 1);
 
             //Register modules needing context.
             var currentContextModule = new BaristaFunctionContextualModule(req, log);
@@ -159,10 +149,45 @@ namespace BaristaLabs.BaristaCore.Portafilter
 
             moduleLoader.RegisterModuleLoader(contextModuleLoader, 2);
 
+            //Register the web resource module loader, using the base url that we obtained previously.
             var webResourceModuleLoader = new WebResourceModuleLoader(order.BaseUrl);
             moduleLoader.RegisterModuleLoader(webResourceModuleLoader, 100);
 
             return moduleLoader;
+        }
+
+        /// <summary>
+        /// Pulls the shot of espresso
+        /// </summary>
+        /// <param name="brewOrder"></param>
+        /// <param name="moduleLoader"></param>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        private static HttpResponseMessage Brew(BrewOrder brewOrder, IBaristaModuleLoader moduleLoader, HttpRequest req)
+        {
+            //Brew:
+            using (var rt = m_baristaRuntimeFactory.CreateRuntime())
+            using (var ctx = rt.CreateContext())
+            using (var scope = ctx.Scope())
+            {
+                JsValue result;
+                switch (brewOrder.Language)
+                {
+                    case BrewLanguage.Tsx:
+                    case BrewLanguage.Jsx:
+                        result = ctx.EvaluateTypeScriptModule(brewOrder.Code, moduleLoader, true);
+                        break;
+                    case BrewLanguage.TypeScript:
+                        result = ctx.EvaluateTypeScriptModule(brewOrder.Code, moduleLoader);
+                        break;
+                    case BrewLanguage.JavaScript:
+                    default:
+                        result = ctx.EvaluateModule(brewOrder.Code, moduleLoader);
+                        break;
+                }
+
+                return Serve(ctx, req, result);
+            }
         }
 
         /// <summary>
@@ -171,21 +196,78 @@ namespace BaristaLabs.BaristaCore.Portafilter
         /// <param name="req"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        private static HttpResponseMessage Serve(HttpRequest req, JsValue result)
+        private static HttpResponseMessage Serve(BaristaContext ctx, HttpRequest req, JsValue result)
         {
-            //HttpResponseMessage message = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            //switch(result)
-            //{
-            //    case JsError errorValue:
-            //        return new BadRequestObjectResult(errorValue.ToString());
-            //}
-            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+            switch (result)
             {
-                Content = new ByteArrayContent(Encoding.UTF8.GetBytes(result.ToString()))
-            };
+                case JsError errorValue:
+                    response = new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        ReasonPhrase = result.ToString()
+                    };
+                    break;
+                case JsArrayBuffer arrayBufferValue:
+                    response = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new ByteArrayContent(arrayBufferValue.GetArrayBufferStorage())
+                    };
+                    response.Content.Headers.Add("Content-Type", "application/octet-stream");
+                    break;
+                case JsBoolean booleanValue:
+                case JsNumber numberValue:
+                case JsString stringValue:
+                    response = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new ByteArrayContent(Encoding.UTF8.GetBytes(result.ToString()))
+                    };
+                    response.Content.Headers.Add("Content-Type", "text/plain");
+                    break;
+                case JsObject objValue:
+                    //if the object contains a bean - attempt to serialize that.
+                    if (objValue.Type == JsValueType.Object && objValue.TryGetBean(out JsExternalObject exObj))
+                    {
+                        switch(exObj.Target)
+                        {
+                            case Blob blobObj:
+                                response = new HttpResponseMessage(HttpStatusCode.OK)
+                                {
+                                    Content = new ByteArrayContent(blobObj.Data)
+                                };
+                                response.Content.Headers.Add("Content-Type", blobObj.Type);
+                                if (!String.IsNullOrWhiteSpace(blobObj.Disposition))
+                                    response.Content.Headers.Add("Content-Disposition", blobObj.Disposition);
+                                break;
+                            case BrewResponse brewResponseObj:
+                                //TODO: convert the response obj to a HttpResponseMessage.
+                                break;
+                            default:
+                                response = new HttpResponseMessage(HttpStatusCode.OK)
+                                {
+                                    Content = new ObjectContent(exObj.Target.GetType(), exObj, new JsonMediaTypeFormatter())
+                                };
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        var json = ctx.JSON.Stringify(objValue, null, null);
+                        response = new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new ByteArrayContent(Encoding.UTF8.GetBytes(json.ToString()))
+                        };
+                        response.Content.Headers.Add("Content-Type", "application/json");
+                    }
+                    break;
+                default:
+                    response = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new ByteArrayContent(Encoding.UTF8.GetBytes(result.ToString()))
+                    };
+                    response.Content.Headers.Add("Content-Type", "text/plain");
+                    break;
+            }
 
-            response.Content.Headers.Add("Content-Type", "text/plain");
-            
             return response;
         }
 
@@ -223,36 +305,95 @@ namespace BaristaLabs.BaristaCore.Portafilter
             return brewLanguage;
         }
 
-        private static bool TryGetResourceContentByRelativeOrAbsoluteUrl(string absOrRelUrl, string baseUrl, out string content)
+        private static async Task<bool> TryGetResourceContentByRelativeOrAbsoluteUrl(BrewOrder brewOrder, string absOrRelUrl)
         {
-            if (Uri.TryCreate(absOrRelUrl, UriKind.Absolute, out Uri queryCodeAbsResouceUri) &&
-                    TryGetResource(queryCodeAbsResouceUri, out content))
+            if (Uri.TryCreate(absOrRelUrl, UriKind.Absolute, out Uri absoluteResourceUri) &&
+                    await TryGetResource(brewOrder, absoluteResourceUri))
             {
                 return true;
             }
-            else if (Uri.TryCreate(baseUrl + absOrRelUrl, UriKind.Absolute, out Uri queryCodeRelResouceUri) &&
-                     TryGetResource(queryCodeRelResouceUri, out content))
+            else if (Uri.TryCreate(brewOrder.BaseUrl + absOrRelUrl, UriKind.Absolute, out Uri basePlusRelativeResourceUri) &&
+                     await TryGetResource(brewOrder, basePlusRelativeResourceUri))
             {
                 return true;
             }
 
-            content = null;
             return false;
         }
 
-        private static bool TryGetResource(Uri resource, out string content)
+        /// <summary>
+        /// Attempts to retrieve the resource using a GET request.
+        /// </summary>
+        /// <param name="baseUrl"></param>
+        /// <param name="resource"></param>
+        /// <param name="content"></param>
+        /// <param name="language"></param>
+        /// <returns></returns>
+        private static async Task<bool> TryGetResource(BrewOrder brewOrder, Uri requestUri)
         {
-            var client = new RestClient(resource);
-            client.Proxy = new DummyProxy();
-            var request = new RestRequest();
-            var response = client.ExecuteAsGet(request, "get");
-            if (response.IsSuccessful)
+            using (var response = await m_httpClient.GetAsync(requestUri))
             {
-                content = response.Content;
-                return true;
+                if (response.IsSuccessStatusCode)
+                {
+                    brewOrder.Code = await response.Content.ReadAsStringAsync();
+                    brewOrder.Language = GetBrewLanguageFromResponse(response);
+                    return true;
+                }
             }
-            content = null;
+
+            brewOrder.Code = null;
+            brewOrder.Language = BrewLanguage.Unknown;
             return false;
+        }
+
+        private static BrewLanguage GetBrewLanguageFromResponse(HttpResponseMessage response)
+        {
+            var path = response.RequestMessage.RequestUri.ToString();
+
+            var filename = Path.GetFileName(path);
+            if (!String.IsNullOrWhiteSpace(filename))
+            {
+                var ext = Path.GetExtension(path);
+                switch (ext)
+                {
+                    case ".js":
+                        return BrewLanguage.JavaScript;
+                    case ".jsx":
+                        return BrewLanguage.Jsx;
+                    case ".ts":
+                        return BrewLanguage.TypeScript;
+                    case ".tsx":
+                        return BrewLanguage.Tsx;
+                }
+            }
+
+            var contentType = response.Content.Headers.ContentType.MediaType;
+
+            if (String.IsNullOrWhiteSpace(contentType))
+                contentType = String.Empty;
+
+            switch (contentType.ToLowerInvariant())
+            {
+                case "text/js":
+                case "text/javascript":
+                case "application/javascript":
+                    return BrewLanguage.JavaScript;
+                case "text/jsx":
+                case "application/x-javascript+xml":
+                case "application/vnd.facebook.javascript+xml":
+                    return BrewLanguage.Jsx;
+                case "text/ts":
+                case "text/typescript":
+                case "application/x-typescript":
+                case "application/vnd.microsoft.typescript":
+                    return BrewLanguage.TypeScript;
+                case "text/tsx":
+                case "application/x-typescript+xml":
+                case "application/vnd.microsoft.typescript+xml":
+                    return BrewLanguage.Tsx;
+            }
+
+            return BrewLanguage.Unknown;
         }
 
         private static string GetAppSetting(string name, string defaultValue)
