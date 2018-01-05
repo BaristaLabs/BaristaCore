@@ -6,6 +6,7 @@
     /// <summary>
     /// Module that returns a text value as its default export.
     /// </summary>
+    [BaristaModule("barista-raw-text", "Built-in module that returns a text value. Not to be imported directly by scripts.", IsDiscoverable = false)]
     public class RawTextModule : IBaristaModule
     {
         private readonly string m_name;

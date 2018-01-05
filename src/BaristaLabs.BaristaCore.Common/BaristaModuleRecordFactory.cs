@@ -35,16 +35,16 @@
             return null;
         }
 
-        public BaristaModuleRecord CreateBaristaModuleRecord(BaristaContext context, string moduleName, BaristaModuleRecord parentModule = null, bool setAsHost = false)
+        public BaristaModuleRecord CreateBaristaModuleRecord(BaristaContext context, string moduleName, BaristaModuleRecord parentModule = null, bool setAsHost = false, IBaristaModuleLoader moduleLoader = null)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
             var moduleNameValue = context.CreateString(moduleName);
-            return CreateBaristaModuleRecordInternal(context, moduleName, moduleNameValue.Handle, parentModule, setAsHost);
+            return CreateBaristaModuleRecordInternal(context, moduleName, moduleNameValue.Handle, parentModule, setAsHost, moduleLoader);
         }
 
-        public BaristaModuleRecord CreateBaristaModuleRecord(BaristaContext context, JavaScriptValueSafeHandle specifier, BaristaModuleRecord parentModule = null, bool setAsHost = false)
+        public BaristaModuleRecord CreateBaristaModuleRecord(BaristaContext context, JavaScriptValueSafeHandle specifier, BaristaModuleRecord parentModule = null, bool setAsHost = false, IBaristaModuleLoader moduleLoader = null)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
@@ -56,10 +56,10 @@
             if (moduleNameValue == null)
                 throw new InvalidOperationException("Specifier is expected to be a string value.");
 
-            return CreateBaristaModuleRecordInternal(context, moduleNameValue.ToString(), specifier, parentModule, setAsHost);
+            return CreateBaristaModuleRecordInternal(context, moduleNameValue.ToString(), specifier, parentModule, setAsHost, moduleLoader);
         }
 
-        private BaristaModuleRecord CreateBaristaModuleRecordInternal(BaristaContext context, string moduleName, JavaScriptValueSafeHandle specifier, BaristaModuleRecord parentModule = null, bool setAsHost = false)
+        private BaristaModuleRecord CreateBaristaModuleRecordInternal(BaristaContext context, string moduleName, JavaScriptValueSafeHandle specifier, BaristaModuleRecord parentModule = null, bool setAsHost = false, IBaristaModuleLoader moduleLoader = null)
         {
             JavaScriptModuleRecord moduleRecord = null;
             if (m_specifierModuleLookup.ContainsKey(specifier))
@@ -75,7 +75,12 @@
 
             return m_moduleReferencePool.GetOrAdd(moduleRecord, () =>
             {
-                var moduleLoader = m_serviceProvider.GetRequiredService<IBaristaModuleLoader>();
+                //If a module loader hasn't be specified in the parameters, obtain one from DI.
+                if (moduleLoader == null)
+                {
+                    moduleLoader = m_serviceProvider.GetRequiredService<IBaristaModuleLoader>();
+                }
+            
                 var module = new BaristaModuleRecord(moduleName.ToString(), specifier, parentModule, m_engine, context, this, moduleLoader, moduleRecord);
                 m_specifierModuleLookup.Add(specifier, moduleRecord);
 

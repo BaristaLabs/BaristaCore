@@ -39,7 +39,7 @@
             foreach (var type in assembly.GetExportedTypes())
             {
                 var typeList = type.FindInterfaces(BaristaModuleInterfaceFilter, typeof(IBaristaModule));
-                if (typeList.Length > 0)
+                if (!type.IsAbstract && !type.IsInterface && !type.IsGenericType && !type.IsNotPublic && typeList.Length > 0)
                 {
                     yield return type;
                 }

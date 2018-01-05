@@ -13,6 +13,7 @@
         //Replace this with Span<byte>
         private readonly byte[] m_blob;
         private string m_type = string.Empty;
+        private string m_disposition = string.Empty;
 
         public Blob(object[] array, JsObject options = null)
         {
@@ -65,6 +66,18 @@
         public string Type
         {
             get { return m_type; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value that indicates the blob's content disposition.
+        /// </summary>
+        /// <remarks>
+        /// This is a non-standard property used by Barista services that will set the Content-Disposition response header of a brew request if the default exported object is a blob and this value is set.
+        /// </remarks>
+        public string Disposition
+        {
+            get { return m_disposition; }
+            set { m_disposition = value; }
         }
 
         /// <summary>

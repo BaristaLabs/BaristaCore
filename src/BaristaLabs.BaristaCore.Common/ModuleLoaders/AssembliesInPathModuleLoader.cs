@@ -71,10 +71,14 @@
                     {
                         var baristaModuleAttribute = BaristaModuleAttribute.GetBaristaModuleAttributeFromType(moduleType);
 
+                        if (baristaModuleAttribute.IsDiscoverable == false)
+                            continue;
+
                         string targetModuleName = baristaModuleAttribute.Name;
 
                         if (string.IsNullOrWhiteSpace(targetModuleName))
                             throw new InvalidOperationException($"The specfied module ({moduleType}) must indicate a name.");
+
                         m_serviceCollection.AddTransient(typeof(IBaristaModule), moduleType);
 
                         if (m_loadedModules.ContainsKey(targetModuleName))

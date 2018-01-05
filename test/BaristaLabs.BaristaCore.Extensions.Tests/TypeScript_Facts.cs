@@ -93,11 +93,11 @@ export default ReactDOMServer.renderToStaticMarkup(result);
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateTypeScriptModule(script, true);
+                        var response = ctx.EvaluateTypeScriptModule(script, null, true);
 
                         Assert.Equal("<h1>Hello, James Bond!</h1>", response.ToString());
 
-                        response = ctx.EvaluateTypeScriptModule<JsString>(script, true);
+                        response = ctx.EvaluateTypeScriptModule<JsString>(script, null, true);
 
                         Assert.Equal("<h1>Hello, James Bond!</h1>", response.ToString());
                     }

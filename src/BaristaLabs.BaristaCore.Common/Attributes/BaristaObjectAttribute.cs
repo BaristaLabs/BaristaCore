@@ -1,6 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
-    using BaristaLabs.BaristaCore.Extensions;
     using System;
 
     /// <summary>

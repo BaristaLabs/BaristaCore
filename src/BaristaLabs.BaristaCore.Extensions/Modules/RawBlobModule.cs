@@ -6,6 +6,7 @@
     /// <summary>
     /// Module that returns a blob as its default export.
     /// </summary>
+    [BaristaModule("barista-raw-blob", "Built-in module that returns a blob value. Not to be imported directly by scripts.", IsDiscoverable = false)]
     public class RawBlobModule : IBaristaModule
     {
         private readonly string m_name;

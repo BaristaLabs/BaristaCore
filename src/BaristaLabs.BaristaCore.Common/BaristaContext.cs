@@ -1,6 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
     using BaristaLabs.BaristaCore.JavaScript;
+    using BaristaLabs.BaristaCore.ModuleLoaders;
     using BaristaLabs.BaristaCore.Tasks;
     using System;
     using System.Collections;
@@ -392,7 +393,7 @@
         /// </summary>
         /// <param name="script">Script to evaluate.</param>
         /// <returns></returns>
-        public JsValue EvaluateModule(string script)
+        public JsValue EvaluateModule(string script, IBaristaModuleLoader moduleLoader = null)
         {
             //Create a scope if we're not currently in one.
             BaristaExecutionScope scope = null;
@@ -401,7 +402,7 @@
 
             try
             {
-                var globalName = EvaluateModuleInternal(script);
+                var globalName = EvaluateModuleInternal(script, moduleLoader);
                 return GlobalObject.GetProperty(globalName);
             }
             finally
@@ -416,7 +417,7 @@
         /// </summary>
         /// <param name="script">Script to evaluate.</param>
         /// <returns></returns>
-        public T EvaluateModule<T>(string script)
+        public T EvaluateModule<T>(string script, IBaristaModuleLoader moduleLoader = null)
             where T : JsValue
         {
             //Create a scope if we're not currently in one.
@@ -426,7 +427,7 @@
 
             try
             {
-                var globalName = EvaluateModuleInternal(script);
+                var globalName = EvaluateModuleInternal(script, moduleLoader);
                 return GlobalObject.GetProperty<T>(globalName);
             }
             finally
@@ -436,7 +437,7 @@
             }
         }
 
-        private string EvaluateModuleInternal(string script)
+        private string EvaluateModuleInternal(string script, IBaristaModuleLoader moduleLoader = null)
         {
             var subModuleId = Guid.NewGuid();
             var subModuleName = subModuleId.ToString();
@@ -462,8 +463,8 @@ import child from '{subModuleName}';
 ";
             }
 
-            var mainModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, "", null, true);
-            var subModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, subModuleName, mainModule);
+            var mainModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, "", null, true, moduleLoader);
+            var subModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, subModuleName, mainModule, false, moduleLoader);
             
             //Set the global value.
             Object.DefineProperty(GlobalObject, "global", new JsPropertyDescriptor() { Configurable = false, Enumerable = false, Writable = false, Value = GlobalObject });

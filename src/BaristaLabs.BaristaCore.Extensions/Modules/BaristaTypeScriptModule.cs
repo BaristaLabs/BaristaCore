@@ -6,7 +6,7 @@
     /// <summary>
     /// Represents a module that returns a script that will be parsed when imported.
     /// </summary>
-    [BaristaModule("TypeScriptModule", "Built-in module that allows for specifing a string based typescript module")]
+    [BaristaModule("TypeScriptModule", "Built-in module that allows for specifing a string-based typescript module. Not to be imported directly by scripts.", IsDiscoverable = false)]
     public sealed class BaristaTypeScriptModule : IBaristaScriptModule
     {
         private readonly string m_name;
