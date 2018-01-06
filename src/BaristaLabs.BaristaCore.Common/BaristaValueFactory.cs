@@ -7,6 +7,7 @@
     using System.Linq;
     using System.Reflection;
     using System.Runtime.InteropServices;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -106,7 +107,16 @@
             IntPtr ptrData = Marshal.StringToHGlobalUni(data);
             try
             {
-                externalArrayHandle = m_engine.JsCreateExternalArrayBuffer(ptrData, (uint)data.Length, null, IntPtr.Zero);
+                GCHandle freeCallbackHandle = default(GCHandle);
+                JavaScriptObjectFinalizeCallback freeCallback = (ptr) =>
+                {
+                    Marshal.ZeroFreeGlobalAllocUnicode(ptrData);
+                    if (freeCallbackHandle.IsAllocated)
+                        freeCallbackHandle.Free();
+                };
+                freeCallbackHandle = GCHandle.Alloc(freeCallback);
+
+                externalArrayHandle = m_engine.JsCreateExternalArrayBuffer(ptrData, (uint)data.Length, freeCallback, IntPtr.Zero);
             }
             catch (Exception)
             {
@@ -118,12 +128,53 @@
 
             var result = m_valuePool.GetOrAdd(externalArrayHandle, () =>
             {
-                var flyweight = new JsManagedExternalArrayBuffer(m_engine, Context, externalArrayHandle, ptrData, (ptr) =>
-                {
-                    Marshal.ZeroFreeGlobalAllocUnicode(ptr);
-                });
+                return new JsManagedExternalArrayBuffer(m_engine, Context, externalArrayHandle, ptrData);
+            });
 
-                return flyweight;
+            var resultArrayBuffer = result as JsArrayBuffer;
+            if (resultArrayBuffer == null)
+                throw new InvalidOperationException($"Expected the result object to be a JsArrayBuffer, however the value was {result.GetType()}");
+
+            return (JsArrayBuffer)result;
+        }
+
+        public JsArrayBuffer CreateArrayBufferUtf8(string data)
+        {
+            if (data == null)
+                data = String.Empty;
+
+            JavaScriptValueSafeHandle externalArrayHandle;
+
+            int len = Encoding.UTF8.GetByteCount(data);
+            byte[] buffer = new byte[len + 1];
+            Encoding.UTF8.GetBytes(data, 0, data.Length, buffer, 0);
+            IntPtr ptrData = Marshal.AllocHGlobal(buffer.Length);
+            try
+            {
+                Marshal.Copy(buffer, 0, ptrData, buffer.Length);
+
+                GCHandle freeCallbackHandle = default(GCHandle);
+                JavaScriptObjectFinalizeCallback freeCallback = (ptr) =>
+                {
+                    Marshal.FreeHGlobal(ptrData);
+                    if (freeCallbackHandle.IsAllocated)
+                        freeCallbackHandle.Free();
+                };
+                freeCallbackHandle = GCHandle.Alloc(freeCallback);
+
+                externalArrayHandle = m_engine.JsCreateExternalArrayBuffer(ptrData, (uint)data.Length, freeCallback, IntPtr.Zero);
+            }
+            catch (Exception)
+            {
+                //If anything goes wrong, free the unmanaged memory.
+                //This is not a finally as if success, the memory will be freed automagially.
+                Marshal.FreeHGlobal(ptrData);
+                throw;
+            }
+
+            var result = m_valuePool.GetOrAdd(externalArrayHandle, () =>
+            {
+                return new JsManagedExternalArrayBuffer(m_engine, Context, externalArrayHandle, ptrData);
             });
 
             var resultArrayBuffer = result as JsArrayBuffer;
@@ -146,7 +197,16 @@
                 // Copy the array to unmanaged memory.
                 Marshal.Copy(data, 0, ptrData, data.Length);
 
-                externalArrayHandle = m_engine.JsCreateExternalArrayBuffer(ptrData, (uint)data.Length, null, IntPtr.Zero);
+                GCHandle freeCallbackHandle = default(GCHandle);
+                JavaScriptObjectFinalizeCallback freeCallback = (ptr) =>
+                {
+                    Marshal.FreeHGlobal(ptrData);
+                    if (freeCallbackHandle.IsAllocated)
+                        freeCallbackHandle.Free();
+                };
+                freeCallbackHandle = GCHandle.Alloc(freeCallback);
+
+                externalArrayHandle = m_engine.JsCreateExternalArrayBuffer(ptrData, (uint)data.Length, freeCallback, IntPtr.Zero);
             }
             catch (Exception)
             {
@@ -158,12 +218,7 @@
 
             var result = m_valuePool.GetOrAdd(externalArrayHandle, () =>
             {
-                var flyweight = new JsManagedExternalArrayBuffer(m_engine, Context, externalArrayHandle, ptrData, (ptr) =>
-                {
-                    Marshal.FreeHGlobal(ptr);
-                });
-
-                return flyweight;
+                return new JsManagedExternalArrayBuffer(m_engine, Context, externalArrayHandle, ptrData);
             });
 
             var resultArrayBuffer = result as JsArrayBuffer;

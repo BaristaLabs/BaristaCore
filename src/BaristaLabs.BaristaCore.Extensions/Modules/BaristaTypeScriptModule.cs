@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.Modules
 {
+    using BaristaLabs.BaristaCore.TypeScript;
     using System;
     using System.Threading.Tasks;
 
@@ -58,13 +59,13 @@
 
         public async Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            var transpiledScript = await TypeScriptTranspiler.Default.Transpile(new TypeScriptTranspilerOptions()
+            var transpiledScript = await TypeScriptTranspiler.Default.Transpile(new TranspileOptions()
             {
-                ScriptToTranspile = Script,
-                Filename = m_filename
+                Script = Script,
+                FileName = m_filename
             });
 
-            return transpiledScript;
+            return transpiledScript.OutputText;
         }
     }
 }

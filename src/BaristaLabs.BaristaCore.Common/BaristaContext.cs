@@ -313,6 +313,11 @@
             return ValueFactory.CreateArrayBuffer(data);
         }
 
+        public JsArrayBuffer CreateArrayBufferUtf8(string data)
+        {
+            return ValueFactory.CreateArrayBufferUtf8(data);
+        }
+
         public JsError CreateError(string message)
         {
             return ValueFactory.CreateError(message);
@@ -500,6 +505,28 @@ import child from '{subModuleName}';
         }
 
         /// <summary>
+        /// Returns a function representing the specified, previously-serialized, script.
+        /// </summary>
+        /// <param name="serializedScript"></param>
+        /// <param name="sourceUrl"></param>
+        /// <returns></returns>
+        public JsFunction ParseSerializedScript(byte[] serializedScript, string sourceUrl = "[eval code]")
+        {
+            var buffer = ValueFactory.CreateArrayBuffer(serializedScript);
+            var jsSourceUrl = ValueFactory.CreateString(sourceUrl);
+
+            bool callback(JavaScriptSourceContext sourceContext, out JavaScriptValueSafeHandle value, out JavaScriptParseScriptAttributes parseAttributes)
+            {
+                value = null;
+                parseAttributes = JavaScriptParseScriptAttributes.None;
+                return true;
+            }
+
+            var fnScript = Engine.JsParseSerialized(buffer.Handle, callback, JavaScriptSourceContext.None, jsSourceUrl.Handle);
+            return ValueFactory.CreateValue<JsFunction>(fnScript);
+        }
+
+        /// <summary>
         /// Returns a new JavaScript Execution Scope to perform work in.
         /// </summary>
         /// <returns></returns>
@@ -517,13 +544,21 @@ import child from '{subModuleName}';
             }
         }
 
-        private void ReleaseScope()
+        /// <summary>
+        /// Returns a runtime-independent buffer of the the specified script that can be reused without requiring the script to be re-parsed.
+        /// </summary>
+        /// <param name="script"></param>
+        /// <param name="isLibraryCode"></param>
+        /// <returns></returns>
+        public byte[] SerializeScript(string script, bool isLibraryCode = false)
         {
-            Engine.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
-            m_currentExecutionScope = null;
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(BaristaContext));
 
-            //Release the lock
-            Interlocked.Exchange(ref m_withinScope, 0);
+            var scriptBuffer = ValueFactory.CreateArrayBufferUtf8(script);
+            var parsedArrayBufferHandle = Engine.JsSerialize(scriptBuffer.Handle, isLibraryCode ? JavaScriptParseScriptAttributes.LibraryCode : JavaScriptParseScriptAttributes.None);
+            var arrayBuffer = ValueFactory.CreateValue<JsArrayBuffer>(parsedArrayBufferHandle);
+            return arrayBuffer.GetArrayBufferStorage();
         }
 
         protected override void Dispose(bool disposing)
@@ -554,6 +589,15 @@ import child from '{subModuleName}';
             }
 
             base.Dispose(disposing);
+        }
+
+        private void ReleaseScope()
+        {
+            Engine.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
+            m_currentExecutionScope = null;
+
+            //Release the lock
+            Interlocked.Exchange(ref m_withinScope, 0);
         }
     }
 }

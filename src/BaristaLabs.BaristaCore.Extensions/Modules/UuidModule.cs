@@ -8,7 +8,7 @@
     {
         public async Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            return await EmbeddedResourceHelper.LoadResource(this, "BaristaLabs.BaristaCore.Scripts.uuid.min.js");
+            return await EmbeddedResourceHelper.LoadResourceAsync(this, "BaristaLabs.BaristaCore.Scripts.uuid.min.js");
         }
     }
 }
