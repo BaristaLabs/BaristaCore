@@ -1,7 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
-    using System.Threading.Tasks;
-
     /// <summary>
     /// Represents a BaristaModule that is used by Barista scripts to provide functionality.
     /// </summary>
@@ -13,6 +11,6 @@
         /// <param name="context">The current BaristaContext</param>
         /// <param name="referencingModule">The module that is requesting the module.</param>
         /// <returns></returns>
-        Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule);
+        JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule);
     }
 }

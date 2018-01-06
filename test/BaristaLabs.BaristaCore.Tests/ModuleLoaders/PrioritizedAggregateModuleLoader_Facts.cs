@@ -4,7 +4,6 @@
     using BaristaLabs.BaristaCore.ModuleLoaders;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Threading.Tasks;
     using Xunit;
 
     [Collection("BaristaCore Tests")]
@@ -149,27 +148,27 @@
         [BaristaModule("hello_world", "Only the best module ever.")]
         private sealed class HelloWorldModule : IBaristaModule
         {
-            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                return Task.FromResult<object>("Hello, World!");
+                return context.CreateString("Hello, World!");
             }
         }
 
         [BaristaModule("hello_world", "Only the best module ever.")]
         private sealed class AnotherHelloWorldModule : IBaristaModule
         {
-            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                return Task.FromResult<object>("Another Hello, World!");
+                return context.CreateString("Another Hello, World!");
             }
         }
 
         [BaristaModule("goodnight_moon", "Yaaaawwwwwn")]
         private sealed class GoodnightMoonModule : IBaristaModule
         {
-            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                return Task.FromResult<object>("Goodnight, moon.");
+                return context.CreateString("Goodnight, moon.");
             }
         }
     }

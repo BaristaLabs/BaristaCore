@@ -1,11 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore.Http
 {
-    using JavaScript;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Routing;
-    using Microsoft.Extensions.DependencyInjection;
-    using System;
-    using System.Linq;
     using System.Threading.Tasks;
 
     public static class BaristaApplicationBuilderExtensions

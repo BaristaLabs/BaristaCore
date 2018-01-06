@@ -123,9 +123,6 @@
         }
         #endregion
 
-        private static object s_serializedTypeScriptCompilerLock = new object();
-        private static byte[] s_serializedTypeScriptCompiler = null;
-
         private static TypeScriptTranspiler m_defaultTranspiler;
         private static readonly object m_defaultLock = new object();
 
@@ -151,30 +148,17 @@
             }
         }
 
-        private static byte[] GetSerializedTypeScriptCompiler(BaristaContext context)
+        /// <summary>
+        /// returns a byte array consisting of a runtime-independent typescript compiler.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static byte[] GetSerializedTypeScriptCompiler(BaristaContext context)
         {
-            if (null == s_serializedTypeScriptCompiler)
-            {
-                lock (s_serializedTypeScriptCompilerLock)
-                {
-                    if (null == s_serializedTypeScriptCompiler)
-                    {
-                        var ts = EmbeddedResourceHelper.LoadResource(typeof(TypeScriptTranspiler).Assembly, "BaristaLabs.BaristaCore.Scripts.typescript.min.js");
-                        var typeScriptCompilerScript = $@"(() => {{
-'use strict';
-const module = {{
-    exports: {{}}
-}};
-let exports = module.exports;
-{ts}
-return module.exports;
-}})();";
-                        s_serializedTypeScriptCompiler = context.SerializeScript(typeScriptCompilerScript);
-                    }
-                }
-            }
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
 
-            return s_serializedTypeScriptCompiler;
+            return SerializedScriptService.GetSerializedScript("BaristaLabs.BaristaCore.Scripts.typescript.min.js", context);
         }
     }
 }

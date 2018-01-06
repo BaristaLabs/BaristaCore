@@ -205,47 +205,17 @@
 
                         switch (module)
                         {
-                            //For the built-in NodeModule type, parse the string returned by ExportDefault, but place it in a closure that
-                            //contains module, module.exports, exports and global which correspond to node module conventions.
-                            case INodeModule nodeModule:
-                                var nodeScriptTask = nodeModule.ExportDefault(Context, newModuleRecord);
-                                string nodeScript;
-                                if (nodeScriptTask == null)
-                                {
-                                    nodeScript = "export default null";
-                                }
-                                else
-                                {
-                                    nodeScript = nodeScriptTask.GetAwaiter().GetResult() as string;
-                                    nodeScript = $@"'use strict';
-const window = global;
-const module = {{
-    exports: {{}}
-}};
-let exports = module.exports;
-(function() {{
-{nodeScript}
-}}).call(global);
-export default module.exports";
-                                }
-                                newModuleRecord.ParseModuleSource(nodeScript);
-                                return false;
                             //For the built-in Script Module type, parse the string returned by ExportDefault and install it as a module.
                             case IBaristaScriptModule scriptModule:
-                                var scriptTask = scriptModule.ExportDefault(Context, newModuleRecord);
-                                string script;
-                                if (scriptTask == null)
+                                var script = scriptModule.ExportDefault(Context, newModuleRecord) as JsString;
+                                if (script == null)
                                 {
-                                    script = "export default null";
+                                    var error = Context.CreateError($"The module {moduleName} implements IBaristaScriptModule and is expected to return a string based module that exports a default value.");
+                                    Engine.JsSetException(error.Handle);
+                                    return true;
                                 }
-                                else
-                                {
-                                    script = scriptTask.GetAwaiter().GetResult() as string;
-                                    if (script == null)
-                                        script = "export default null";
 
-                                    newModuleRecord.ParseModuleSource(script);
-                                }
+                                newModuleRecord.ParseModuleSource(script.ToString());
                                 return false;
                             //Otherwise, install the module.
                             default:
@@ -262,25 +232,14 @@ export default module.exports";
 
         private bool InstallModule(BaristaModuleRecord newModuleRecord, BaristaModuleRecord referencingModuleRecord, IBaristaModule module, JavaScriptValueSafeHandle specifier)
         {
-            object moduleValue;
             try
             {
-                moduleValue = module.ExportDefault(Context, referencingModuleRecord).GetAwaiter().GetResult();
+                var moduleValue = module.ExportDefault(Context, referencingModuleRecord);
+                return CreateSingleValueModule(newModuleRecord, specifier, moduleValue);
             }
             catch (Exception ex)
             {
                 var error = Context.CreateError($"An error occurred while obtaining the default export of the native module named {newModuleRecord.Name}: {ex.Message}");
-                Engine.JsSetException(error.Handle);
-                return true;
-            }
-
-            if (Context.Converter.TryFromObject(Context, moduleValue, out JsValue convertedValue))
-            {
-                return CreateSingleValueModule(newModuleRecord, specifier, convertedValue);
-            }
-            else
-            {
-                var error = Context.CreateError($"Unable to install module {newModuleRecord.Name}: the default exported value could not be converted into a JavaScript object.");
                 Engine.JsSetException(error.Handle);
                 return true;
             }

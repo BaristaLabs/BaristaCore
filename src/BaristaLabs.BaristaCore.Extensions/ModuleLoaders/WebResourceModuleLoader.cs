@@ -1,12 +1,11 @@
 ﻿namespace BaristaLabs.BaristaCore.ModuleLoaders
 {
+    using BaristaLabs.BaristaCore.Modules;
+    using RestSharp;
     using System;
     using System.IO;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
-    using BaristaLabs.BaristaCore.Modules;
-    using RestSharp;
 
     /// <summary>
     /// Represents a module loader that loads script modules from a web-based resource.

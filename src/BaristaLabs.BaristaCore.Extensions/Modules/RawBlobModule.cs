@@ -1,7 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.Modules
 {
     using System;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Module that returns a blob as its default export.
@@ -47,9 +46,10 @@
             get { return m_blob; }
         }
 
-        public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+        public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            return Task.FromResult<object>(m_blob);
+            context.Converter.TryFromObject(context, m_blob, out JsValue value);
+            return value;
         }
     }
 }

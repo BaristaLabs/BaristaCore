@@ -1,7 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.Modules
 {
     using System;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a module that returns a script that will be parsed when imported.
@@ -46,9 +45,9 @@
             set;
         }
 
-        public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+        public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            return Task.FromResult<object>(Script);
+            return context.CreateString(Script);
         }
     }
 }

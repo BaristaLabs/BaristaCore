@@ -1,6 +1,5 @@
 ﻿namespace BaristaLabs.BaristaCore.Http
 {
-    using JavaScript;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc.Formatters;
     using Microsoft.AspNetCore.Mvc.Internal;
@@ -9,7 +8,6 @@
     using System;
     using System.Buffers;
     using System.IO;
-    using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
 

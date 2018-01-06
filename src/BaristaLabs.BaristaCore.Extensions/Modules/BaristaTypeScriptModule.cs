@@ -2,7 +2,6 @@
 {
     using BaristaLabs.BaristaCore.TypeScript;
     using System;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a module that returns a script that will be parsed when imported.
@@ -57,15 +56,15 @@
             set;
         }
 
-        public async Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+        public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            var transpiledScript = await TypeScriptTranspiler.Default.Transpile(new TranspileOptions()
+            var transpiledScript = TypeScriptTranspiler.Default.Transpile(new TranspileOptions()
             {
                 Script = Script,
                 FileName = m_filename
-            });
+            }).GetAwaiter().GetResult();
 
-            return transpiledScript.OutputText;
+            return context.CreateString(transpiledScript.OutputText);
         }
     }
 }

@@ -17,7 +17,7 @@
             m_log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
-        public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+        public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
             var brewRequest = new BrewRequest(context, m_request);
 
@@ -47,7 +47,7 @@
                 Value = logObj
             });
 
-            return Task.FromResult<object>(contextObj);
+            return contextObj;
         }
     }
 }

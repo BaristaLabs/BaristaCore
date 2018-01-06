@@ -129,9 +129,9 @@
         [BaristaModule("", "If it weren't for you meddling kids...")]
         private sealed class PhantomModule : IBaristaModule
         {
-            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                return Task.FromResult<object>("Spooky.");
+                return context.CreateString("Spooky.");
             }
         }
 

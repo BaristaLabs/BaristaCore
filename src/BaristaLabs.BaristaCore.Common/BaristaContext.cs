@@ -561,6 +561,23 @@ import child from '{subModuleName}';
             return arrayBuffer.GetArrayBufferStorage();
         }
 
+        /// <summary>
+        /// Returns a runtime-independent buffer of the the specified script, which contains unicode characters, that can be reused without requiring the script to be re-parsed.
+        /// </summary>
+        /// <param name="script"></param>
+        /// <param name="isLibraryCode"></param>
+        /// <returns></returns>
+        public byte[] SerializeUnicodeScript(string unicodeScript, bool isLibraryCode = false)
+        {
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(BaristaContext));
+
+            var scriptBuffer = ValueFactory.CreateArrayBuffer(unicodeScript);
+            var parsedArrayBufferHandle = Engine.JsSerialize(scriptBuffer.Handle, JavaScriptParseScriptAttributes.ArrayBufferIsUtf16Encoded);
+            var arrayBuffer = ValueFactory.CreateValue<JsArrayBuffer>(parsedArrayBufferHandle);
+            return arrayBuffer.GetArrayBufferStorage();
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && !IsDisposed)

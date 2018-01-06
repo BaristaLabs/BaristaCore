@@ -2,6 +2,7 @@ namespace BaristaLabs.BaristaCore.Portafilter
 {
     using BaristaLabs.BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.ModuleLoaders;
+    using BaristaLabs.BaristaCore.TypeScript;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Azure.WebJobs;
     using Microsoft.Azure.WebJobs.Extensions.Http;

@@ -1,14 +1,13 @@
-﻿namespace BaristaLabs.BaristaCore
+﻿namespace BaristaLabs.BaristaCore.Modules
 {
     using System;
     using System.Globalization;
     using System.Resources;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a module that returns scripts from a resource file
     /// </summary>
-    [BaristaModule("ResourceScriptModule", "Built-in module that allows for specifying a script as coming from a resource.")]
+    [BaristaModule("ResourceScriptModule", "Built-in module that allows for specifying a script as coming from a resource.", IsDiscoverable = false)]
 
     public sealed class BaristaResourceScriptModule : IBaristaScriptModule
     {
@@ -65,9 +64,9 @@
             set;
         }
 
-        public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+        public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            return Task.FromResult<object>(m_resourceManager.GetString(ResourceName, ResourceCulture));
+            return context.CreateString(m_resourceManager.GetString(ResourceName, ResourceCulture));
         }
     }
 }
