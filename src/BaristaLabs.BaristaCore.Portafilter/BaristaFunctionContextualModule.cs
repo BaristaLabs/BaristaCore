@@ -3,7 +3,6 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.Azure.WebJobs.Host;
     using System;
-    using System.Threading.Tasks;
 
     [BaristaModule("barista-context", "Contains the current context of the Barista Function, including the current request object.")]
     public sealed class BaristaFunctionContextualModule : IBaristaModule
@@ -22,8 +21,8 @@
             var brewRequest = new BrewRequest(context, m_request);
 
             context.Converter.TryFromObject(context, brewRequest, out JsValue requestObj);
-            context.Converter.TryFromObject(context, new BrewResponse(), out JsValue responseObj);
-            context.Converter.TryFromObject(context, m_log, out JsValue logObj);
+            context.Converter.TryFromObject(context, typeof(BrewResponse), out JsValue responseObj);
+            //context.Converter.TryFromObject(context, m_log, out JsValue logObj);
 
             var contextObj = context.CreateObject();
             context.Object.DefineProperty(contextObj, "request", new JsPropertyDescriptor()
@@ -40,12 +39,12 @@
                 Value = responseObj
             });
 
-            context.Object.DefineProperty(contextObj, "log", new JsPropertyDescriptor()
-            {
-                Configurable = false,
-                Writable = false,
-                Value = logObj
-            });
+            //context.Object.DefineProperty(contextObj, "log", new JsPropertyDescriptor()
+            //{
+            //    Configurable = false,
+            //    Writable = false,
+            //    Value = logObj
+            //});
 
             return contextObj;
         }

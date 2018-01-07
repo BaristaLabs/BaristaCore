@@ -51,5 +51,6 @@
         TypeScript,
         Jsx,
         Tsx,
+        Json,
     }
 }

@@ -12,6 +12,10 @@
         private readonly HttpRequest m_httpRequest;
         private readonly Headers m_headers;
 
+        public BrewRequest()
+        {
+        }
+
         [BaristaIgnore]
         public BrewRequest(BaristaContext context, HttpRequest request)
         {

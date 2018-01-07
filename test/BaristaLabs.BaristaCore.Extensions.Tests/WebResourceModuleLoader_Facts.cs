@@ -91,12 +91,12 @@
         }
 
         [Fact]
-        public void CanLoadBinaryResources()
+        public void CanLoadJsonResources()
         {
             var script = @"
-        import readme from 'README.md';
+        import jsObj from 'test.json';
 
-        export default readme.toUtf8String();
+        export default jsObj;
         ";
 
             var baristaRuntime = GetRuntimeFactory();
@@ -108,7 +108,60 @@
                     using (ctx.Scope())
                     {
                         var result = ctx.EvaluateModule<JsObject>(script);
-                        Assert.Equal("# curly-octo-umbrella\nTest files\n", result.ToString());
+                        Assert.Equal("bar", result["foo"].ToString());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void CanLoadBinaryResources()
+        {
+            var script = @"
+        import logo from 'BaristaLabs.png';
+
+        export default logo;
+        ";
+
+            var baristaRuntime = GetRuntimeFactory();
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var result = ctx.EvaluateModule<JsObject>(script);
+                        Assert.NotNull(result);
+                        Assert.True(result.HasBean);
+                        result.TryGetBean(out JsExternalObject exObj);
+
+                        Assert.IsType<Blob>(exObj.Target);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void NestedImportsAreRootedAtInitialPath()
+        {
+            var script = @"
+        import index from 'index.js';
+
+        export default index;
+        ";
+
+            var baristaRuntime = GetRuntimeFactory();
+
+            using (var rt = baristaRuntime.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        var result = ctx.EvaluateModule<JsObject>(script);
+                        Assert.Equal("hello, world!", result["test1"].ToString());
+                        Assert.Equal("Another Hello!", result["test2"].ToString());
                     }
                 }
             }

@@ -11,10 +11,7 @@ namespace BaristaLabs.BaristaCore.Portafilter
     using System;
     using System.IO;
     using System.Linq;
-    using System.Net;
     using System.Net.Http;
-    using System.Net.Http.Formatting;
-    using System.Text;
     using System.Threading.Tasks;
 
     public static class BaristaFunction
@@ -150,9 +147,15 @@ namespace BaristaLabs.BaristaCore.Portafilter
 
             moduleLoader.RegisterModuleLoader(contextModuleLoader, 2);
 
-            //Register the web resource module loader, using the base url that we obtained previously.
-            var webResourceModuleLoader = new WebResourceModuleLoader(order.BaseUrl);
-            moduleLoader.RegisterModuleLoader(webResourceModuleLoader, 100);
+            //Register the web resource module loader rooted at the target path.
+            var path = Path.Combine(order.BaseUrl, order.Path);
+            var fileName = Path.GetFileName(path);
+            if (Uri.TryCreate(path, UriKind.Absolute, out Uri targetUri))
+            {
+                var targetPath = targetUri.GetLeftPart(UriPartial.Authority) + String.Join("", targetUri.Segments.Take(targetUri.Segments.Length - 1));
+                var webResourceModuleLoader = new WebResourceModuleLoader(targetPath);
+                moduleLoader.RegisterModuleLoader(webResourceModuleLoader, 100);
+            }
 
             return moduleLoader;
         }
@@ -181,6 +184,9 @@ namespace BaristaLabs.BaristaCore.Portafilter
                     case BrewLanguage.TypeScript:
                         result = ctx.EvaluateTypeScriptModule(brewOrder.Code, moduleLoader);
                         break;
+                    case BrewLanguage.Json:
+                        result = ctx.JSON.Parse(ctx.CreateString(brewOrder.Code));
+                        break;
                     case BrewLanguage.JavaScript:
                     default:
                         result = ctx.EvaluateModule(brewOrder.Code, moduleLoader);
@@ -199,77 +205,15 @@ namespace BaristaLabs.BaristaCore.Portafilter
         /// <returns></returns>
         private static HttpResponseMessage Serve(BaristaContext ctx, HttpRequest req, JsValue result)
         {
-            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            switch (result)
+            if (result is JsObject jsObject &&
+                jsObject.TryGetBean(out JsExternalObject exObj) &&
+                exObj.Target is BrewResponse brewResponseObj
+                )
             {
-                case JsError errorValue:
-                    response = new HttpResponseMessage(HttpStatusCode.InternalServerError)
-                    {
-                        ReasonPhrase = result.ToString()
-                    };
-                    break;
-                case JsArrayBuffer arrayBufferValue:
-                    response = new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = new ByteArrayContent(arrayBufferValue.GetArrayBufferStorage())
-                    };
-                    response.Content.Headers.Add("Content-Type", "application/octet-stream");
-                    break;
-                case JsBoolean booleanValue:
-                case JsNumber numberValue:
-                case JsString stringValue:
-                    response = new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = new ByteArrayContent(Encoding.UTF8.GetBytes(result.ToString()))
-                    };
-                    response.Content.Headers.Add("Content-Type", "text/plain");
-                    break;
-                case JsObject objValue:
-                    //if the object contains a bean - attempt to serialize that.
-                    if (objValue.Type == JsValueType.Object && objValue.TryGetBean(out JsExternalObject exObj))
-                    {
-                        switch(exObj.Target)
-                        {
-                            case Blob blobObj:
-                                response = new HttpResponseMessage(HttpStatusCode.OK)
-                                {
-                                    Content = new ByteArrayContent(blobObj.Data)
-                                };
-                                response.Content.Headers.Add("Content-Type", blobObj.Type);
-                                if (!String.IsNullOrWhiteSpace(blobObj.Disposition))
-                                    response.Content.Headers.Add("Content-Disposition", blobObj.Disposition);
-                                break;
-                            case BrewResponse brewResponseObj:
-                                //TODO: convert the response obj to a HttpResponseMessage.
-                                break;
-                            default:
-                                response = new HttpResponseMessage(HttpStatusCode.OK)
-                                {
-                                    Content = new ObjectContent(exObj.Target.GetType(), exObj, new JsonMediaTypeFormatter())
-                                };
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        var json = ctx.JSON.Stringify(objValue, null, null);
-                        response = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = new ByteArrayContent(Encoding.UTF8.GetBytes(json.ToString()))
-                        };
-                        response.Content.Headers.Add("Content-Type", "application/json");
-                    }
-                    break;
-                default:
-                    response = new HttpResponseMessage(HttpStatusCode.OK)
-                    {
-                        Content = new ByteArrayContent(Encoding.UTF8.GetBytes(result.ToString()))
-                    };
-                    response.Content.Headers.Add("Content-Type", "text/plain");
-                    break;
+                return brewResponseObj.CreateResponseMessage(ctx);
             }
 
-            return response;
+            return ResponseValueConverter.CreateResponseMessageForValue(ctx, result);
         }
 
         private static string GetBrewBaseUrl(HttpRequest req)
@@ -365,6 +309,9 @@ namespace BaristaLabs.BaristaCore.Portafilter
                         return BrewLanguage.TypeScript;
                     case ".tsx":
                         return BrewLanguage.Tsx;
+                    case ".json":
+                    case ".jsonx":
+                        return BrewLanguage.Json;
                 }
             }
 
@@ -392,6 +339,9 @@ namespace BaristaLabs.BaristaCore.Portafilter
                 case "application/x-typescript+xml":
                 case "application/vnd.microsoft.typescript+xml":
                     return BrewLanguage.Tsx;
+                case "text/json":
+                case "application/json":
+                    return BrewLanguage.Json;
             }
 
             return BrewLanguage.Unknown;
