@@ -1,7 +1,7 @@
-﻿using BaristaLabs.BaristaCore.ModuleLoaders;
-
-namespace BaristaLabs.BaristaCore.Portafilter
+﻿namespace BaristaLabs.BaristaCore.AspNetCore
 {
+    using BaristaLabs.BaristaCore.ModuleLoaders;
+
     public class BrewOrder
     {
         public BrewOrder()
@@ -40,6 +40,12 @@ namespace BaristaLabs.BaristaCore.Portafilter
         /// Gets or sets the language of the code.
         /// </summary>
         public ResourceKind Language
+        {
+            get;
+            set;
+        }
+
+        public bool IsCodeSet
         {
             get;
             set;

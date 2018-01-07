@@ -1,4 +1,4 @@
-﻿namespace BaristaLabs.BaristaCore.Portafilter
+﻿namespace BaristaLabs.BaristaCore.AspNetCore
 {
     using System.Net;
     using System.Net.Http;

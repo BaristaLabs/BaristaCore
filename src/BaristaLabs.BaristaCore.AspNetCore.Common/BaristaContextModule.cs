@@ -1,19 +1,16 @@
-﻿namespace BaristaLabs.BaristaCore.Portafilter
+﻿namespace BaristaLabs.BaristaCore.AspNetCore
 {
     using Microsoft.AspNetCore.Http;
-    using Microsoft.Azure.WebJobs.Host;
     using System;
 
     [BaristaModule("barista-context", "Contains the current context of the Barista Function, including the current request object.")]
-    public sealed class BaristaFunctionContextualModule : IBaristaModule
+    public sealed class BaristaContextModule : IBaristaModule
     {
         private readonly HttpRequest m_request;
-        private readonly TraceWriter m_log;
 
-        public BaristaFunctionContextualModule(HttpRequest request, TraceWriter log)
+        public BaristaContextModule(HttpRequest request)
         {
             m_request = request ?? throw new ArgumentNullException(nameof(request));
-            m_log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
         public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
@@ -38,13 +35,6 @@
                 Writable = false,
                 Value = responseObj
             });
-
-            //context.Object.DefineProperty(contextObj, "log", new JsPropertyDescriptor()
-            //{
-            //    Configurable = false,
-            //    Writable = false,
-            //    Value = logObj
-            //});
 
             return contextObj;
         }

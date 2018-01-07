@@ -27,4 +27,7 @@
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BaristaLabs.BaristaCore.AspNetCore.Common\BaristaLabs.BaristaCore.AspNetCore.Common.csproj" />
+  </ItemGroup>
 </Project>

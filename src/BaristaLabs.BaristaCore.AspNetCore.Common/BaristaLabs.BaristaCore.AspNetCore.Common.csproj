@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>BaristaLabs.BaristaCore.AspNetCore</AssemblyName>
+    <RootNamespace>BaristaLabs.BaristaCore.AspNetCore</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.csproj" />
+    <ProjectReference Include="..\BaristaLabs.BaristaCore.Extensions\BaristaLabs.BaristaCore.Extensions.csproj" />
+  </ItemGroup>
+
+</Project>

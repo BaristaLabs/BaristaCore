@@ -1,9 +1,9 @@
-﻿namespace BaristaLabs.BaristaCore.Portafilter
+﻿namespace BaristaLabs.BaristaCore.AspNetCore
 {
+    using Newtonsoft.Json;
     using System;
     using System.Net;
     using System.Net.Http;
-    using System.Net.Http.Formatting;
     using System.Text;
 
     public static class ResponseValueConverter
@@ -52,9 +52,11 @@
                                     response.Content.Headers.Add("Content-Disposition", blobObj.Disposition);
                                 break;
                             default:
+                                //Use Json.net to serialize the object to a string.
+                                var jsonObj = JsonConvert.SerializeObject(exObj);
                                 response = new HttpResponseMessage(HttpStatusCode.OK)
                                 {
-                                    Content = new ObjectContent(exObj.Target.GetType(), exObj, new JsonMediaTypeFormatter())
+                                    Content = new StringContent(jsonObj, Encoding.UTF8, "application/json")
                                 };
                                 break;
                         }
