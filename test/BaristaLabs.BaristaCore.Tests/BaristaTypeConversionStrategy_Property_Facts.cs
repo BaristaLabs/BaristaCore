@@ -214,6 +214,31 @@ export default myFoo;
         }
 
         [Fact]
+        public void ClassesThatExposeJsValuePropertiesCanBeSet()
+        {
+            var script = @"
+var myFoo = new Foo();
+myFoo.myJsValue = '123Test';
+export default myFoo;
+";
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                using (var ctx = rt.CreateContext())
+                {
+                    using (ctx.Scope())
+                    {
+                        ctx.Converter.TryFromObject(ctx, typeof(HasHybridProperties), out JsValue value);
+                        ctx.GlobalObject["Foo"] = value;
+
+                        var result = ctx.EvaluateModule<JsObject>(script);
+                        Assert.IsType<JsString>(result["myJsValue"]);
+                        Assert.True(ctx.CreateString("123Test").StrictEquals(result["myJsValue"]));
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void FawltyPropertiesRethrow()
         {
             var script = @"
@@ -464,6 +489,15 @@ export default thing;
             {
                 get { throw new Exception("This is a fawlty getter"); }
                 set { throw new Exception("This is a fawlty setter"); }
+            }
+        }
+
+        private class HasHybridProperties
+        {
+            public JsObject MyJsValue
+            {
+                get;
+                set;
             }
         }
 

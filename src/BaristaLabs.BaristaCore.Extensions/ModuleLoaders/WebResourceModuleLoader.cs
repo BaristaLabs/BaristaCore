@@ -59,7 +59,7 @@
                 var filename = Path.GetFileName(response.ResponseUri.ToString());
 
                 //Based on file's type, return an appropriate module.
-                switch (GetCanonicalFileType(response.ResponseUri.ToString(), response.ContentType))
+                switch (GetCanonicalResourceKind(response.ResponseUri.ToString(), response.ContentType))
                 {
                     case ResourceKind.JavaScript:
                         var scriptModule = new BaristaScriptModule(name, ModuleDescription)
@@ -89,7 +89,7 @@
             return null;
         }
 
-        private ResourceKind GetCanonicalFileType(string path, string contentType)
+        public static ResourceKind GetCanonicalResourceKind(string path, string contentType)
         {
             var filename = Path.GetFileName(path);
             if (!String.IsNullOrWhiteSpace(filename))

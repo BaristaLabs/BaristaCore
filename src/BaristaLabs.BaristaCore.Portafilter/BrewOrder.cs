@@ -1,10 +1,12 @@
-﻿namespace BaristaLabs.BaristaCore.Portafilter
+﻿using BaristaLabs.BaristaCore.ModuleLoaders;
+
+namespace BaristaLabs.BaristaCore.Portafilter
 {
     public class BrewOrder
     {
         public BrewOrder()
         {
-            Language = BrewLanguage.JavaScript;
+            Language = ResourceKind.JavaScript;
         }
 
         /// <summary>
@@ -37,20 +39,10 @@
         /// <summary>
         /// Gets or sets the language of the code.
         /// </summary>
-        public BrewLanguage Language
+        public ResourceKind Language
         {
             get;
             set;
         }
-    }
-
-    public enum BrewLanguage
-    {
-        Unknown,
-        JavaScript,
-        TypeScript,
-        Jsx,
-        Tsx,
-        Json,
     }
 }

@@ -5,8 +5,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore.win-x64" Version="1.7.6-beta2" />
-    <PackageReference Include="BaristaLabs.BaristaCore.Common" Version="1.0.1-beta04" />
-    <PackageReference Include="BaristaLabs.BaristaCore.Extensions" Version="1.0.1-beta04" />
+    <PackageReference Include="BaristaLabs.BaristaCore.Common" Version="1.0.1-beta05" />
+    <PackageReference Include="BaristaLabs.BaristaCore.Extensions" Version="1.0.1-beta05" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.6" />
   </ItemGroup>
   <ItemGroup>

@@ -11,7 +11,9 @@ namespace BaristaLabs.BaristaCore.Portafilter
     using System;
     using System.IO;
     using System.Linq;
+    using System.Net;
     using System.Net.Http;
+    using System.Text;
     using System.Threading.Tasks;
 
     public static class BaristaFunction
@@ -53,7 +55,7 @@ namespace BaristaLabs.BaristaCore.Portafilter
                 BaseUrl = GetBrewBaseUrl(req),
                 Path = path,
                 Code = "export default 6 * 7;",
-                Language = GetBrewLanguage(req),
+                Language = GetResourceKindOverride(req),
             };
 
             if (!await TryTakeOrder(brewOrder, req))
@@ -61,8 +63,8 @@ namespace BaristaLabs.BaristaCore.Portafilter
                 //Return an exception.
             }
 
-            if (req.Headers.ContainsKey(Language_Override_HeaderName) || brewOrder.Language == BrewLanguage.Unknown)
-                brewOrder.Language = GetBrewLanguage(req);
+            if (req.Headers.ContainsKey(Language_Override_HeaderName))
+                brewOrder.Language = GetResourceKindOverride(req);
 
             var moduleLoader = Tamp(brewOrder, req, log);
 
@@ -177,20 +179,25 @@ namespace BaristaLabs.BaristaCore.Portafilter
                 JsValue result;
                 switch (brewOrder.Language)
                 {
-                    case BrewLanguage.Tsx:
-                    case BrewLanguage.Jsx:
+                    case ResourceKind.Tsx:
+                    case ResourceKind.Jsx:
                         result = ctx.EvaluateTypeScriptModule(brewOrder.Code, moduleLoader, true);
                         break;
-                    case BrewLanguage.TypeScript:
+                    case ResourceKind.TypeScript:
                         result = ctx.EvaluateTypeScriptModule(brewOrder.Code, moduleLoader);
                         break;
-                    case BrewLanguage.Json:
+                    case ResourceKind.Json:
                         result = ctx.JSON.Parse(ctx.CreateString(brewOrder.Code));
                         break;
-                    case BrewLanguage.JavaScript:
-                    default:
+                    case ResourceKind.JavaScript:
                         result = ctx.EvaluateModule(brewOrder.Code, moduleLoader);
                         break;
+                    default:
+                        //Just pass-through the response.
+                        return new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new ByteArrayContent(Encoding.UTF8.GetBytes(brewOrder.Code.ToString()))
+                        };
                 }
 
                 return Serve(ctx, req, result);
@@ -228,12 +235,12 @@ namespace BaristaLabs.BaristaCore.Portafilter
             return resourceLoaderBaseUrl;
         }
 
-        private static BrewLanguage GetBrewLanguage(HttpRequest req)
+        private static ResourceKind GetResourceKindOverride(HttpRequest req)
         {
-            var brewLanguage = BrewLanguage.JavaScript;
+            var brewLanguage = ResourceKind.JavaScript;
 
             var appSettingsLanguage = GetAppSetting(Language_HeaderName_EnvironmentVariableName, "JavaScript");
-            if (Enum.TryParse<BrewLanguage>(appSettingsLanguage, out BrewLanguage appSettingBrewLanguage))
+            if (Enum.TryParse(appSettingsLanguage, out ResourceKind appSettingBrewLanguage))
             {
                 brewLanguage = appSettingBrewLanguage;
             }
@@ -241,7 +248,7 @@ namespace BaristaLabs.BaristaCore.Portafilter
             if (req.Headers.ContainsKey(Language_HeaderName))
             {
                 var headersLanguage = req.Headers[Language_HeaderName].FirstOrDefault().ToString();
-                if (Enum.TryParse<BrewLanguage>(headersLanguage, out BrewLanguage headersBrewLanguage))
+                if (Enum.TryParse(headersLanguage, out ResourceKind headersBrewLanguage))
                 {
                     brewLanguage = headersBrewLanguage;
                 }
@@ -281,70 +288,14 @@ namespace BaristaLabs.BaristaCore.Portafilter
                 if (response.IsSuccessStatusCode)
                 {
                     brewOrder.Code = await response.Content.ReadAsStringAsync();
-                    brewOrder.Language = GetBrewLanguageFromResponse(response);
+                    brewOrder.Language = WebResourceModuleLoader.GetCanonicalResourceKind(brewOrder.Path, response.Content.Headers.ContentType.ToString());
                     return true;
                 }
             }
 
             brewOrder.Code = null;
-            brewOrder.Language = BrewLanguage.Unknown;
+            brewOrder.Language = ResourceKind.Binary;
             return false;
-        }
-
-        private static BrewLanguage GetBrewLanguageFromResponse(HttpResponseMessage response)
-        {
-            var path = response.RequestMessage.RequestUri.ToString();
-
-            var filename = Path.GetFileName(path);
-            if (!String.IsNullOrWhiteSpace(filename))
-            {
-                var ext = Path.GetExtension(path);
-                switch (ext)
-                {
-                    case ".js":
-                        return BrewLanguage.JavaScript;
-                    case ".jsx":
-                        return BrewLanguage.Jsx;
-                    case ".ts":
-                        return BrewLanguage.TypeScript;
-                    case ".tsx":
-                        return BrewLanguage.Tsx;
-                    case ".json":
-                    case ".jsonx":
-                        return BrewLanguage.Json;
-                }
-            }
-
-            var contentType = response.Content.Headers.ContentType.MediaType;
-
-            if (String.IsNullOrWhiteSpace(contentType))
-                contentType = String.Empty;
-
-            switch (contentType.ToLowerInvariant())
-            {
-                case "text/js":
-                case "text/javascript":
-                case "application/javascript":
-                    return BrewLanguage.JavaScript;
-                case "text/jsx":
-                case "application/x-javascript+xml":
-                case "application/vnd.facebook.javascript+xml":
-                    return BrewLanguage.Jsx;
-                case "text/ts":
-                case "text/typescript":
-                case "application/x-typescript":
-                case "application/vnd.microsoft.typescript":
-                    return BrewLanguage.TypeScript;
-                case "text/tsx":
-                case "application/x-typescript+xml":
-                case "application/vnd.microsoft.typescript+xml":
-                    return BrewLanguage.Tsx;
-                case "text/json":
-                case "application/json":
-                    return BrewLanguage.Json;
-            }
-
-            return BrewLanguage.Unknown;
         }
 
         private static string GetAppSetting(string name, string defaultValue)
