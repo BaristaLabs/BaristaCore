@@ -15,6 +15,8 @@
     /// </summary>
     public sealed class TypeScriptTranspiler : IDisposable
     {
+        public const string ResourceName = "BaristaLabs.BaristaCore.Scripts.typescript.min.js";
+
         private readonly IServiceProvider m_provider;
         private readonly IBaristaRuntimeFactory m_runtimeFactory;
 
@@ -71,7 +73,7 @@
             using (ctx.Scope())
             {
                 var tsBuffer = GetSerializedTypeScriptCompiler(ctx);
-                var fnTypeScript = ctx.ParseSerializedScript(tsBuffer, "[typescript]");
+                var fnTypeScript = ctx.ParseSerializedScript(tsBuffer, () => EmbeddedResourceHelper.LoadResource(ResourceName), "[typescript]");
 
                 //Create the compiler options object that specifies the compiler options.
                 var objCompilerOptions = ctx.CreateObject();
@@ -158,7 +160,7 @@
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            return SerializedScriptService.GetSerializedScript("BaristaLabs.BaristaCore.Scripts.typescript.min.js", context);
+            return SerializedScriptService.GetSerializedScript(ResourceName, context);
         }
     }
 }

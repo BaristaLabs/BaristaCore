@@ -9,7 +9,7 @@
         public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
             var tsBuffer = TypeScriptTranspiler.GetSerializedTypeScriptCompiler(context);
-            var fnTypeScript = context.ParseSerializedScript(tsBuffer, "[typescript]");
+            var fnTypeScript = context.ParseSerializedScript(tsBuffer, () => EmbeddedResourceHelper.LoadResource(TypeScriptTranspiler.ResourceName), "[typescript]");
             return fnTypeScript.Call<JsObject>();
         }
     }

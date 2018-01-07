@@ -17,8 +17,11 @@
             }
         }
 
-        public static string LoadResource(Assembly assembly, string name)
+        public static string LoadResource(string name, Assembly assembly = null)
         {
+            if (assembly == null)
+                assembly = Assembly.GetAssembly(typeof(EmbeddedResourceHelper));
+
             var resourceStream = assembly.GetManifestResourceStream(name);
             using (var reader = new StreamReader(resourceStream, Encoding.UTF8))
             {

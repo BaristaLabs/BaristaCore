@@ -379,9 +379,9 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptSerializedLoadScriptCallback callback = (JavaScriptSourceContext sourceContext, out JavaScriptValueSafeHandle value, out JavaScriptParseScriptAttributes parseAttributes) =>
+                    JavaScriptSerializedLoadScriptCallback callback = (JavaScriptSourceContext sourceContext, out IntPtr value, out JavaScriptParseScriptAttributes parseAttributes) =>
                     {
-                        value = null;
+                        value = Engine.JsCreateString(script, (ulong)script.Length).DangerousGetHandle();
                         parseAttributes = JavaScriptParseScriptAttributes.None;
                         return true;
                     };
@@ -424,9 +424,9 @@
                 {
                     Engine.JsSetCurrentContext(contextHandle);
 
-                    JavaScriptSerializedLoadScriptCallback callback = (JavaScriptSourceContext sourceContext, out JavaScriptValueSafeHandle value, out JavaScriptParseScriptAttributes parseAttributes) =>
+                    JavaScriptSerializedLoadScriptCallback callback = (JavaScriptSourceContext sourceContext, out IntPtr value, out JavaScriptParseScriptAttributes parseAttributes) =>
                     {
-                        value = null;
+                        value = Engine.JsCreateString(script, (ulong)script.Length).DangerousGetHandle();
                         parseAttributes = JavaScriptParseScriptAttributes.None;
                         return true;
                     };

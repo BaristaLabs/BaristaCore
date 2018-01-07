@@ -4,10 +4,12 @@
     [BaristaModule("moment", "Parse, validate, manipulate, and display dates", Version = "2.20.1")]
     public class MomentModule : IBaristaModule
     {
+        private const string ResourceName = "BaristaLabs.BaristaCore.Scripts.moment.min.js";
+
         public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            var buffer = SerializedScriptService.GetSerializedScript("BaristaLabs.BaristaCore.Scripts.moment.min.js", context);
-            var fnScript = context.ParseSerializedScript(buffer, "[moment]");
+            var buffer = SerializedScriptService.GetSerializedScript(ResourceName, context);
+            var fnScript = context.ParseSerializedScript(buffer, () => EmbeddedResourceHelper.LoadResource(ResourceName), "[moment]");
             var jsMoment = fnScript.Call<JsObject>();
             return jsMoment;
         }

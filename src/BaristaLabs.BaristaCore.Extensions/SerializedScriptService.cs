@@ -17,7 +17,7 @@
 
             return s_serializedScripts.GetOrAdd(resourceName, new Func<string, byte[]>((name) =>
              {
-                 var script = EmbeddedResourceHelper.LoadResource(typeof(SerializedScriptService).Assembly, name);
+                 var script = EmbeddedResourceHelper.LoadResource(name);
 
                  string mapWindowToGlobalString = mapWindowToGlobal ? "const window = global;" : null;
 

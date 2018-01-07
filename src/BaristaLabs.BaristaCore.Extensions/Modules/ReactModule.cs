@@ -4,10 +4,12 @@
     [BaristaModule("react", "Allows for server-side rendering in Barista via React", Version = "16.2")]
     public class ReactModule : IBaristaModule
     {
+        private const string ResourceName = "BaristaLabs.BaristaCore.Scripts.react.production.min.js";
+
         public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            var buffer = SerializedScriptService.GetSerializedScript("BaristaLabs.BaristaCore.Scripts.react.production.min.js", context);
-            var fnScript = context.ParseSerializedScript(buffer, "[react]");
+            var buffer = SerializedScriptService.GetSerializedScript(ResourceName, context);
+            var fnScript = context.ParseSerializedScript(buffer, () => EmbeddedResourceHelper.LoadResource(ResourceName), "[react]");
             return fnScript.Call<JsObject>();
         }
     }

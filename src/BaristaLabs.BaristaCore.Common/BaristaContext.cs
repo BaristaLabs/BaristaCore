@@ -510,17 +510,18 @@ import child from '{subModuleName}';
         /// <param name="serializedScript"></param>
         /// <param name="sourceUrl"></param>
         /// <returns></returns>
-        public JsFunction ParseSerializedScript(byte[] serializedScript, string sourceUrl = "[eval code]")
+        public JsFunction ParseSerializedScript(byte[] serializedScript, Func<string> scriptLoadCallback, string sourceUrl = "[eval code]")
         {
             var buffer = ValueFactory.CreateArrayBuffer(serializedScript);
             var jsSourceUrl = ValueFactory.CreateString(sourceUrl);
 
-            bool callback(JavaScriptSourceContext sourceContext, out JavaScriptValueSafeHandle value, out JavaScriptParseScriptAttributes parseAttributes)
+            var callback = new JavaScriptSerializedLoadScriptCallback((JavaScriptSourceContext sourceContext, out IntPtr value, out JavaScriptParseScriptAttributes parseAttributes) =>
             {
-                value = null;
+                var script = scriptLoadCallback();
+                value = Engine.JsCreateString(script, (ulong)script.Length).DangerousGetHandle();
                 parseAttributes = JavaScriptParseScriptAttributes.None;
                 return true;
-            }
+            });
 
             var fnScript = Engine.JsParseSerialized(buffer.Handle, callback, JavaScriptSourceContext.None, jsSourceUrl.Handle);
             return ValueFactory.CreateValue<JsFunction>(fnScript);
