@@ -39,6 +39,12 @@
             get { return m_bodyUsed; }
         }
 
+        public string Method
+        {
+            get;
+            set;
+        }
+
         public string QueryString
         {
             get { return m_httpRequest.QueryString.Value; }

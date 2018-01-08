@@ -39,6 +39,8 @@
                     disposableLoader.Dispose();
                 }
             }
+
+            await m_next(context);
         }
     }
 }
