@@ -27,17 +27,41 @@
             m_baristaRuntimeFactory = baristaRuntimeFactory;
         }
 
-        public async Task Invoke(HttpContext context, BrewOrder brewOrder, IBaristaModuleLoader moduleLoader)
+        public async Task Invoke(HttpContext context)
         {
+            var brewOrder = context.Items[BrewKeys.BrewOrderKey] as BrewOrder;
             if (brewOrder == null)
-                throw new ArgumentNullException(nameof(brewOrder));
+                throw new InvalidOperationException("BrewOrder was not defined within the http context.");
 
+            var moduleLoader = context.Items[BrewKeys.BrewModuleLoader] as IBaristaModuleLoader;
+            if (moduleLoader == null)
+                throw new InvalidOperationException("BrewModuleLoader was not defined within the http context.");
+
+            await Invoke(brewOrder, m_baristaRuntimeFactory, moduleLoader, async (ctx, brewResult) =>
+            {
+                if (brewResult == null)
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.OK;
+                    context.Response.Body = new MemoryStream(Encoding.UTF8.GetBytes(brewOrder.Code.ToString()));
+                    return;
+                }
+
+                context.Items[BrewKeys.BrewResult] = brewResult;
+
+                await m_next(context);
+
+                context.Items.Remove(BrewKeys.BrewResult);
+            });
+        }
+
+        public static async Task Invoke(BrewOrder brewOrder, IBaristaRuntimeFactory baristaRuntimeFactory, IBaristaModuleLoader moduleLoader, Func<BaristaContext, JsValue, Task> processBrewResult)
+        {
             //Brew:
-            using (var rt = m_baristaRuntimeFactory.CreateRuntime())
+            using (var rt = baristaRuntimeFactory.CreateRuntime())
             using (var ctx = rt.CreateContext())
             using (var scope = ctx.Scope())
             {
-                JsValue result;
+                JsValue result = null;
                 switch (brewOrder.Language)
                 {
                     case ResourceKind.Tsx:
@@ -53,14 +77,9 @@
                     case ResourceKind.JavaScript:
                         result = ctx.EvaluateModule(brewOrder.Code, moduleLoader);
                         break;
-                    default:
-                        //Just pass-through the response.
-                        context.Response.StatusCode = (int)HttpStatusCode.OK;
-                        context.Response.Body = new MemoryStream(Encoding.UTF8.GetBytes(brewOrder.Code.ToString()));
-                        return;
                 }
 
-                await m_next(context);
+                await processBrewResult?.Invoke(ctx, result);
             }
         }
     }

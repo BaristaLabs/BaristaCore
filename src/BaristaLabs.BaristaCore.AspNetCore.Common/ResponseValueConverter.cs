@@ -1,5 +1,6 @@
 ﻿namespace BaristaLabs.BaristaCore.AspNetCore
 {
+    using Microsoft.AspNetCore.Http;
     using Newtonsoft.Json;
     using System;
     using System.Net;
@@ -8,6 +9,11 @@
 
     public static class ResponseValueConverter
     {
+        public static void PopulateResponseForValue(HttpResponse response, BaristaContext context, JsValue value)
+        {
+            throw new NotImplementedException();
+        }
+
         public static HttpResponseMessage CreateResponseMessageForValue(BaristaContext context, JsValue value)
         {
             HttpResponseMessage response;

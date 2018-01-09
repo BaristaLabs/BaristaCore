@@ -1,8 +1,11 @@
 ﻿namespace BaristaLabs.BaristaCore.AspNetCore
 {
+    using System;
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
 
     public class BrewResponse
     {
@@ -48,28 +51,33 @@
         }
 
         [BaristaIgnore]
-        public HttpResponseMessage CreateResponseMessage(BaristaContext ctx)
+        public static HttpResponseMessage CreateResponseMessage(BaristaContext ctx, BrewResponse response)
         {
-            var result = ResponseValueConverter.CreateResponseMessageForValue(ctx, Body);
+            var result = ResponseValueConverter.CreateResponseMessageForValue(ctx, response.Body);
 
-            result.StatusCode = (HttpStatusCode)StatusCode;
-            result.ReasonPhrase = StatusDescription;
-            foreach(var header in Headers.AllHeaders)
+            result.StatusCode = (HttpStatusCode)response.StatusCode;
+            result.ReasonPhrase = response.StatusDescription;
+            foreach(var header in response.Headers.AllHeaders)
             {
                 result.Headers.Add(header.Key, header.Value);
             }
 
-            if (!string.IsNullOrWhiteSpace(ContentType))
+            if (!string.IsNullOrWhiteSpace(response.ContentType))
             {
-                result.Content.Headers.ContentType = new MediaTypeHeaderValue(ContentType);
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue(response.ContentType);
             }
 
-            if (!string.IsNullOrWhiteSpace(ContentDisposition))
+            if (!string.IsNullOrWhiteSpace(response.ContentDisposition))
             {
-                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(ContentDisposition);
+                result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(response.ContentDisposition);
             }
             
             return result;
+        }
+
+        public static void PopulateRequest(HttpRequest request, BaristaContext brewContext, BrewResponse brewResponseObj)
+        {
+            throw new NotImplementedException();
         }
     }
 }

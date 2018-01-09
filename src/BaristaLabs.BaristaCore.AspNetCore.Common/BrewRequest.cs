@@ -22,6 +22,7 @@
             m_context = context ?? throw new ArgumentNullException(nameof(context));
             m_httpRequest = request ?? throw new ArgumentNullException(nameof(request));
 
+            Method = request.Method;
             m_headers = new Headers(context);
             foreach(var header in request.Headers)
             {
