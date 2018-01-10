@@ -36,7 +36,7 @@
 
         public async Task Invoke(HttpContext context)
         {
-            var brewOrder = await Invoke("", context.Request);
+            var brewOrder = await Invoke(context.Request.Path, context.Request);
             context.Items[BrewKeys.BrewOrderKey] = brewOrder;
             await m_next(context);
             context.Items.Remove(BrewKeys.BrewOrderKey);

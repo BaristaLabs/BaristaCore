@@ -39,15 +39,9 @@
 
             await Invoke(brewOrder, m_baristaRuntimeFactory, moduleLoader, async (ctx, brewResult) =>
             {
-                if (brewResult == null)
-                {
-                    context.Response.StatusCode = (int)HttpStatusCode.OK;
-                    context.Response.Body = new MemoryStream(Encoding.UTF8.GetBytes(brewOrder.Code.ToString()));
-                    return;
-                }
-
+                context.Items[BrewKeys.BrewContext] = ctx;
                 context.Items[BrewKeys.BrewResult] = brewResult;
-
+                
                 await m_next(context);
 
                 context.Items.Remove(BrewKeys.BrewResult);

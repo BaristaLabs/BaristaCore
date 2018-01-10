@@ -53,9 +53,7 @@
             moduleLoader.RegisterModuleLoader(contextModuleLoader, 2);
 
             //Register the web resource module loader rooted at the target path.
-            var path = Path.Combine(brewOrder.BaseUrl, brewOrder.Path);
-            var fileName = Path.GetFileName(path);
-            if (Uri.TryCreate(path, UriKind.Absolute, out Uri targetUri))
+            if (Uri.TryCreate(new Uri(brewOrder.BaseUrl, UriKind.Absolute), brewOrder.Path, out Uri targetUri))
             {
                 var targetPath = targetUri.GetLeftPart(UriPartial.Authority) + String.Join("", targetUri.Segments.Take(targetUri.Segments.Length - 1));
                 var webResourceModuleLoader = new WebResourceModuleLoader(targetPath);

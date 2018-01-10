@@ -1,11 +1,12 @@
 ﻿namespace BaristaLabs.BaristaCore.AspNetCore
 {
-    using System;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Http.Features;
+    using Microsoft.Extensions.Primitives;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
 
     public class BrewResponse
     {
@@ -75,9 +76,29 @@
             return result;
         }
 
-        public static void PopulateRequest(HttpRequest request, BaristaContext brewContext, BrewResponse brewResponseObj)
+        [BaristaIgnore]
+        public static void PopulateHttpResponse(HttpResponse response, BaristaContext brewContext, BrewResponse brewResponse)
         {
-            throw new NotImplementedException();
+            response.StatusCode = brewResponse.StatusCode;
+            response.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase = brewResponse.StatusDescription;
+
+            foreach(var header in brewResponse.Headers.AllHeaders)
+            {
+                var values = new StringValues(header.Value.ToArray());
+                response.Headers.Add(header.Key, values);
+            }
+
+            if (!string.IsNullOrWhiteSpace(brewResponse.ContentType))
+            {
+                response.ContentType = brewResponse.ContentType;
+            }
+
+            if (!string.IsNullOrWhiteSpace(brewResponse.ContentDisposition))
+            {
+                response.Headers["Content-Disposition"] = brewResponse.ContentDisposition;
+            }
+
+            ResponseValueConverter.PopulateResponseForValue(response, brewContext, brewResponse.Body, false);
         }
     }
 }

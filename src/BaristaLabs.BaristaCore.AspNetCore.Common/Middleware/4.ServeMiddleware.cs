@@ -14,27 +14,28 @@
             m_next = next;
         }
 
-        public Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context)
         {
-            var brewResult = context.Items[BrewKeys.BrewResult] as JsValue;
-            if (brewResult == null)
-                throw new InvalidOperationException("BrewResult was not defined within the http context.");
-
             var brewContext = context.Items[BrewKeys.BrewContext] as BaristaContext;
             if (brewContext == null)
                 throw new InvalidOperationException("BrewContext was not defined within the http context.");
 
+            var brewResult = context.Items[BrewKeys.BrewResult] as JsValue;
             if (brewResult is JsObject jsObject &&
                 jsObject.TryGetBean(out JsExternalObject exObj) &&
                 exObj.Target is BrewResponse brewResponseObj
                 )
             {
-                BrewResponse.PopulateRequest(context.Request, brewContext, brewResponseObj);
+                BrewResponse.PopulateHttpResponse(context.Response, brewContext, brewResponseObj);
+                return;
+            }
+            else if (brewResult != null)
+            {
+                ResponseValueConverter.PopulateResponseForValue(context.Response, brewContext, brewResult);
+                return;
             }
 
-            ResponseValueConverter.PopulateResponseForValue(context.Response, brewContext, brewResult);
-
-            return Task.CompletedTask;
+            await m_next(context);
         }
 
         public static HttpResponseMessage Invoke(BaristaContext brewContext, JsValue brewResult)

@@ -8,26 +8,28 @@ having x64 enabled on the application configuration page, Azure Functions loads 
 
 wtf.
 
-So you have to do the following in your app service via Kudu.
+https://github.com/Azure/Azure-Functions/issues/651 to track, but, given the issue queue is growing, and so...
 
-1. Download the x64 .net sdk into your d:\home\deployments\tools folder using curl.
+Round the world and home again
+That’s the sailor’s way
+Faster faster, faster faster
 
-Find the url of the sdk from
-https://www.microsoft.com/net/download/windows
+There’s no earthly way of knowing
+Which direction we are going
+There’s no knowing where we’re rowing
+Or which way the river’s flowing
 
-``` cmd
-curl -O [.net sdkurl]
-unzip [zipfilename]
+Is it raining, is it snowing
+Is a hurricane a-blowing
 
-```
+Not a speck of light is showing
+So the danger must be growing
+Are the fires of Hell a-glowing
+Is the grisly reaper mowing
 
-2. Edit the web.config of the Functions to point to the x64 version of .net sdk.
+Yes, the danger must be growing
+For the rowers keep on rowing
+And they’re certainly not showing
+Any signs that they are slowing
 
-This file is located in this path (version number might change)
-
-D:\Program Files (x86)\SiteExtensions\Functions\2.0.11415-alpha>
-
-
-
-
-.... nevermind this doesnt work.
+– ‘Wondrous Boat Ride’, from Willy Wonka and the Chocolate Factory (1971)

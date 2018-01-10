@@ -1,56 +1,27 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <PreserveCompilationContext>true</PreserveCompilationContext>
-    <AssemblyName>BaristaServer</AssemblyName>
-    <OutputType>Exe</OutputType>
-    <PackageId>BaristaServer</PackageId>
-    <RuntimeFrameworkVersion>2.0</RuntimeFrameworkVersion>
-    <Platforms>AnyCPU;x64</Platforms>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="wwwroot\**\*">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </None>
-  </ItemGroup>
-
-  <Target Name="CopyChakraLibraries" AfterTargets="Compile">
-    <ItemGroup>
-      <ChakraCore Include="$(SolutionDir)\lib\ChakraCore\**\*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(ChakraCore)" DestinationFolder="$(TargetDir)\ChakraCore\%(RecursiveDir)">
-    </Copy>
-  </Target>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\BaristaLabs.BaristaCore.Server\BaristaLabs.BaristaCore.Server.csproj" />
-    <ProjectReference Include="..\BaristaLabs.BaristaCore.Fiddle\BaristaLabs.BaristaCore.Fiddle.csproj" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0" />
+    <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore" Version="1.7.6-beta2" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BaristaLabs.BaristaCore.AspNetCore.Common\BaristaLabs.BaristaCore.AspNetCore.Common.csproj" />
+    <ProjectReference Include="..\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.csproj" />
+    <ProjectReference Include="..\BaristaLabs.BaristaCore.Extensions\BaristaLabs.BaristaCore.Extensions.csproj" />
   </ItemGroup>
 
 </Project>
