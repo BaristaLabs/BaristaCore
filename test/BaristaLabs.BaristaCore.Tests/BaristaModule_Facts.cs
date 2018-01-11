@@ -4,11 +4,8 @@
     using BaristaLabs.BaristaCore.JavaScript;
     using BaristaLabs.BaristaCore.ModuleLoaders;
     using BaristaLabs.BaristaCore.Modules;
-    using BaristaLabs.BaristaCore.Tests.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using System;
-    using System.Runtime.InteropServices;
-    using System.Threading.Tasks;
     using Xunit;
 
     [Collection("BaristaCore Tests")]
@@ -421,7 +418,7 @@ export default 'hello, world! ' + banana;
         }
 
         [Fact]
-        public void JsScriptModulesWithNullScriptsContinue()
+        public void JsScriptModulesWithEmptyScriptsThrow()
         {
             var script = @"
 import banana from 'banana';
@@ -429,7 +426,7 @@ export default 'hello, world! ' + banana;
 ";
             var bananaModule = new BaristaScriptModule("banana")
             {
-                Script = null
+                Script = ""
             };
 
             ModuleLoader.RegisterModule(bananaModule);
@@ -440,9 +437,10 @@ export default 'hello, world! ' + banana;
                 {
                     using (ctx.Scope())
                     {
-                        var result = ctx.EvaluateModule(script);
-
-                        Assert.True(result.ToString() == "hello, world! null");
+                        Assert.Throws<JsScriptException>(() =>
+                        {
+                            var result = ctx.EvaluateModule(script);
+                        });
                     }
                 }
             }
@@ -551,8 +549,6 @@ export default asdf@11;
                     Assert.Equal("!dlrow ,olleh", result.ToString());
                 }
             }
-
-            myReverseModule.Dispose();
         }
 
 
@@ -608,28 +604,6 @@ export default asdf@11;
             {
                 ModuleLoader.RegisterModule(noAttributeModule);
             });
-        }
-
-        [Fact]
-        public void BaristaModulesWithUnconvertableDefaultExportsWillThrow()
-        {
-            var script = @"
-        import derp from 'TooSmart';
-        export default derp;
-        ";
-            var tooSmartModule = new TooSmartModule();
-            ModuleLoader.RegisterModule(tooSmartModule);
-
-            using (var rt = BaristaRuntimeFactory.CreateRuntime())
-            {
-                using (var ctx = rt.CreateContext())
-                {
-                    Assert.Throws<JsScriptException>(() =>
-                    {
-                        var result = ctx.EvaluateModule<JsNumber>(script);
-                    });
-                }
-            }
         }
 
         [Fact]
@@ -722,82 +696,49 @@ export default carlyRae;
         [BaristaModule("hello_world", "Only the best module ever.")]
         private sealed class HelloWorldModule : IBaristaModule
         {
-            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                return Task.FromResult<object>(context.CreateString("Hello, World!"));
+                return context.CreateString("Hello, World!");
             }
         }
 
         [BaristaModule("reverse", "reverses the string passed in.")]
-        private sealed class ReverseModule : IBaristaModule, IDisposable
+        private sealed class ReverseModule : IBaristaModule
         {
-            private GCHandle m_reverseDelegateHandle;
-
-            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                //This module goes through the trouble of creating a JavaScriptValueSafeHandle to ensure that it can be done.
-                JavaScriptNativeFunction fnReverse = (callee, isConstructCall, arguments, argumentCount, callbackData) =>
+                var fnResult = context.CreateFunction(new Func<JsObject, JsValue, JsValue>((thisObj, toReverse) =>
                 {
-                    if (argumentCount < 2)
+                    if (toReverse == null || String.IsNullOrWhiteSpace(toReverse.ToString()))
                     {
-                        return context.Undefined.Handle.DangerousGetHandle();
+                        return context.Undefined;
                     }
 
-                    var str = context.Engine.GetStringUtf8(new JavaScriptValueSafeHandle(arguments[1]), true);
-
+                    var str = toReverse.ToString();
                     var charArray = str.ToCharArray();
                     Array.Reverse(charArray);
                     var reversed = new string(charArray);
 
-                    var reversedHandle = context.Engine.JsCreateString(reversed, (ulong)reversed.Length);
-                    return reversedHandle.DangerousGetHandle();
-                };
-                m_reverseDelegateHandle = GCHandle.Alloc(fnReverse);
-                return Task.FromResult<object>(context.Engine.JsCreateFunction(fnReverse, IntPtr.Zero));
+                    return context.CreateString(reversed);
+                }));
+
+                return fnResult;
             }
-
-            #region IDisposable Support
-            private bool m_isDisposed = false;
-
-            private void Dispose(bool disposing)
-            {
-                if (!m_isDisposed)
-                {
-                    if (disposing)
-                    {
-                    }
-
-                    m_reverseDelegateHandle.Free();
-                    m_isDisposed = true;
-                }
-            }
-
-            ~ReverseModule()
-            {
-                Dispose(false);
-            }
-
-            public void Dispose()
-            {
-                Dispose(true);
-                GC.SuppressFinalize(this);
-            }
-            #endregion
         }
 
         [BaristaModule("FourtyTwo", "The answer is...")]
         private sealed class FourtyTwoModule : IBaristaModule
         {
-            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                return Task.FromResult<object>(42);
+                return context.CreateNumber(42);
             }
         }
 
         [BaristaModule("Fawlty", "Derp!")]
         private sealed class FawltyModule : IBaristaModule
         {
-            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 throw new Exception("Derp!");
             }
@@ -806,37 +747,37 @@ export default carlyRae;
         [BaristaModule("TooSmart", "So complicated!")]
         private sealed class TooSmartModule : IBaristaModule
         {
-            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                return Task.FromResult<object>(' ');
+                return context.CreateString(" ");
             }
         }
 
         [BaristaModule("depedendent", "Returns the name of the requesting module.")]
         private sealed class ReturnDependentNameModule : IBaristaModule
         {
-            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                return Task.FromResult<object>(referencingModule.Name);
+                return context.CreateString(referencingModule.Name);
             }
         }
 
         private sealed class NoBaristaModuleAttributeModule : IBaristaModule
         {
-            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
-                return Task.FromResult<object>("You'll not see me.");
+                return context.CreateString("You'll not see me.");
             }
         }
 
         [BaristaModule("native-object", "Returns a native .net object that can be used within scripts.")]
         private sealed class NativeObjectModule : IBaristaModule
         {
-            public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+            public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
             {
                 var foo = new CarlyRae() { Name = "Kilroy" };
-
-                return Task.FromResult<object>(foo);
+                context.Converter.TryFromObject(context, foo, out JsValue resultObj);
+                return resultObj;
             }
 
             private class CarlyRae

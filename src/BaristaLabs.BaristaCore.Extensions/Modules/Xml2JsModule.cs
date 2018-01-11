@@ -3,13 +3,12 @@
     using Newtonsoft.Json;
     using System;
     using System.IO;
-    using System.Threading.Tasks;
     using System.Xml;
 
     [BaristaModule("barista-xml2js", "Simple XML to JavaScript object converter.")]
     public class Xml2JsModule : IBaristaModule
     {
-        public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+        public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
             var toXml = context.CreateFunction(new Func<JsObject, JsValue, JsValue>((thisObj, json) =>
             {
@@ -80,7 +79,7 @@
                 Value = toJson
             });
 
-            return Task.FromResult<object>(resultObj);
+            return resultObj;
         }
     }
 }

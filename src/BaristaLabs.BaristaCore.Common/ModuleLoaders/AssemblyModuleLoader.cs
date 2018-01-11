@@ -27,6 +27,9 @@
             {
                 var baristaModuleAttribute = BaristaModuleAttribute.GetBaristaModuleAttributeFromType(moduleType);
 
+                if (baristaModuleAttribute.IsDiscoverable == false)
+                    continue;
+
                 string targetModuleName = baristaModuleAttribute.Name;
 
                 if (string.IsNullOrWhiteSpace(targetModuleName))

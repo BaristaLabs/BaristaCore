@@ -591,9 +591,22 @@
                 targetObj = xoObj.Target;
             }
 
+            var setPropertyValueType = prop.SetMethod.GetParameters().First().ParameterType;
+            var argumentValue = args.ElementAtOrDefault(0);
+
             try
             {
-                var value = Convert.ChangeType(args.ElementAtOrDefault(0), prop.SetMethod.GetParameters().First().ParameterType);
+                
+                //If the exposed property is a JsValue, Attempt to convert and then set the property.
+                if (typeof(JsValue).IsSameOrSubclass(setPropertyValueType) &&
+                    context.Converter.TryFromObject(context, argumentValue, out JsValue jsValue) &&
+                    setPropertyValueType.IsSameOrSubclass(jsValue.GetType()))
+                {
+                    prop.SetValue(targetObj, jsValue);
+                    return context.Undefined;
+                }
+                
+                var value = Convert.ChangeType(args.ElementAtOrDefault(0), setPropertyValueType);
                 prop.SetValue(targetObj, value);
                 return context.Undefined;
             }

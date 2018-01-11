@@ -3,7 +3,9 @@
     using BaristaLabs.BaristaCore.Extensions;
     using BaristaLabs.BaristaCore.ModuleLoaders;
     using BaristaLabs.BaristaCore.Modules;
+    using BaristaLabs.BaristaCore.TypeScript;
     using Microsoft.Extensions.DependencyInjection;
+    using System.Threading.Tasks;
     using Xunit;
 
     public class TypeScript_Facts
@@ -62,6 +64,47 @@ export default transpiled.outputText;
         }
 
         [Fact]
+        public async Task CanUseTranspilerToTranspileTypeScript()
+        {
+            var script = @"
+import React from 'react';
+import ReactDOMServer from 'react-dom-server';
+
+function formatName(user) {
+  return user.firstName + ' ' + user.lastName;
+}
+
+function getGreeting(user) {
+  if (user) {
+    return <h1>Hello, {formatName(user)}!</h1>;
+  }
+  return <h1>Hello, Stranger.</h1>;
+}
+
+var result = getGreeting({ firstName: 'James', lastName: 'Bond'});
+
+export default ReactDOMServer.renderToStaticMarkup(result);
+";
+            var transpileOutput = await TypeScriptTranspiler.Default.Transpile(new TranspileOptions()
+            {
+                Script = script,
+                FileName = "foo.tsx"
+            });
+
+            Assert.NotNull(transpileOutput);
+            Assert.False(string.IsNullOrWhiteSpace(transpileOutput.OutputText));
+
+            transpileOutput = await TypeScriptTranspiler.Default.Transpile(new TranspileOptions()
+            {
+                Script = script,
+                FileName = "foo.tsx"
+            });
+
+            Assert.NotNull(transpileOutput);
+            Assert.False(string.IsNullOrWhiteSpace(transpileOutput.OutputText));
+        }
+
+        [Fact]
         public void CanUseExtensionMethodsToEvaluateTypeScript()
         {
             var script = @"
@@ -93,11 +136,11 @@ export default ReactDOMServer.renderToStaticMarkup(result);
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateTypeScriptModule(script, true);
+                        var response = ctx.EvaluateTypeScriptModule(script, null, true);
 
                         Assert.Equal("<h1>Hello, James Bond!</h1>", response.ToString());
 
-                        response = ctx.EvaluateTypeScriptModule<JsString>(script, true);
+                        response = ctx.EvaluateTypeScriptModule<JsString>(script, null, true);
 
                         Assert.Equal("<h1>Hello, James Bond!</h1>", response.ToString());
                     }

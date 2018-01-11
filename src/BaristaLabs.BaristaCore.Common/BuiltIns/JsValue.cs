@@ -217,6 +217,26 @@
         }
 
         /// <summary>
+        /// Returns a value that indicates if the JsValue is equivalent to another JsValue using JavaScript semantics.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool Equals(JsValue other)
+        {
+            return Engine.JsEquals(Handle, other.Handle);
+        }
+
+        /// <summary>
+        /// Returns a value that indicates if the JsValue is strictly equivalent to another JsValue using JavaScript semantics.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool StrictEquals(JsValue other)
+        {
+            return Engine.JsStrictEquals(Handle, other.Handle);
+        }
+
+        /// <summary>
         /// Converts the value to a string (using standard JavaScript semantics) and returns the result
         /// </summary>
         /// <returns></returns>

@@ -20,15 +20,13 @@
     public sealed class JsManagedExternalArrayBuffer : JsExternalArrayBuffer
     {
         private IntPtr m_bufferHandle;
-        private readonly Action<IntPtr> m_releaseBufferHandle;
 
-        public JsManagedExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle, IntPtr bufferHandle, Action<IntPtr> releaseBufferHandle)
+        public JsManagedExternalArrayBuffer(IJavaScriptEngine engine, BaristaContext context, JavaScriptValueSafeHandle valueHandle, IntPtr bufferHandle)
             : base(engine, context, valueHandle)
         {
             if (bufferHandle == default(IntPtr) || bufferHandle == null)
                 throw new ArgumentNullException(nameof(bufferHandle));
             m_bufferHandle = bufferHandle;
-            m_releaseBufferHandle = releaseBufferHandle ?? throw new ArgumentNullException(nameof(releaseBufferHandle));
         }
 
         /// <summary>
@@ -43,7 +41,6 @@
         {
             if (m_bufferHandle != default(IntPtr))
             {
-                m_releaseBufferHandle?.Invoke(m_bufferHandle);
                 m_bufferHandle = default(IntPtr);
             }
 

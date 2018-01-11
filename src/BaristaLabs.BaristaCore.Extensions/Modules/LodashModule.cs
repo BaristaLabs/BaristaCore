@@ -1,14 +1,17 @@
 ﻿namespace BaristaLabs.BaristaCore.Modules
 {
-    using System.Threading.Tasks;
-
     //https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js
     [BaristaModule("lodash", "A utility library delivering consistency, customization, performance, & extras.", Version = "4.17.4")]
-    public class LodashModule : INodeModule
+    public class LodashModule : IBaristaModule
     {
-        public async Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+        private const string ResourceName = "BaristaLabs.BaristaCore.Scripts.lodash.min.js";
+
+        public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            return await EmbeddedResourceHelper.LoadResource(this, "BaristaLabs.BaristaCore.Scripts.lodash.min.js");
+            var buffer = SerializedScriptService.GetSerializedScript(ResourceName, context, mapWindowToGlobal: true);
+            var fnScript = context.ParseSerializedScript(buffer, () => EmbeddedResourceHelper.LoadResource(ResourceName), "[eval lodash]");
+            var jsLodash = fnScript.Call<JsObject>();
+            return jsLodash;
         }
     }
 }

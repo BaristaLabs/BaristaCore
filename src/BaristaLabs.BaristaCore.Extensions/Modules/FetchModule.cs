@@ -1,12 +1,11 @@
 ﻿namespace BaristaLabs.BaristaCore.Modules
 {
     using System;
-    using System.Threading.Tasks;
 
     [BaristaModule("barista-fetch", "Provides a subset of the standard Fetch Specification.")]
     public class FetchModule : IBaristaModule
     {
-        public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+        public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
             var fnFetch = context.CreateFunction(new Func<JsObject, JsValue, JsObject, object>((thisObj, input, init) =>
             {
@@ -43,7 +42,7 @@
                 fnFetch["Response"] = fnResponse;
             }
 
-            return Task.FromResult<object>(fnFetch);
+            return fnFetch;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore
 {
     using BaristaLabs.BaristaCore.JavaScript;
+    using BaristaLabs.BaristaCore.ModuleLoaders;
     using BaristaLabs.BaristaCore.Tasks;
     using System;
     using System.Collections;
@@ -312,6 +313,11 @@
             return ValueFactory.CreateArrayBuffer(data);
         }
 
+        public JsArrayBuffer CreateArrayBufferUtf8(string data)
+        {
+            return ValueFactory.CreateArrayBufferUtf8(data);
+        }
+
         public JsError CreateError(string message)
         {
             return ValueFactory.CreateError(message);
@@ -392,7 +398,7 @@
         /// </summary>
         /// <param name="script">Script to evaluate.</param>
         /// <returns></returns>
-        public JsValue EvaluateModule(string script)
+        public JsValue EvaluateModule(string script, IBaristaModuleLoader moduleLoader = null)
         {
             //Create a scope if we're not currently in one.
             BaristaExecutionScope scope = null;
@@ -401,7 +407,7 @@
 
             try
             {
-                var globalName = EvaluateModuleInternal(script);
+                var globalName = EvaluateModuleInternal(script, moduleLoader);
                 return GlobalObject.GetProperty(globalName);
             }
             finally
@@ -416,7 +422,7 @@
         /// </summary>
         /// <param name="script">Script to evaluate.</param>
         /// <returns></returns>
-        public T EvaluateModule<T>(string script)
+        public T EvaluateModule<T>(string script, IBaristaModuleLoader moduleLoader = null)
             where T : JsValue
         {
             //Create a scope if we're not currently in one.
@@ -426,7 +432,7 @@
 
             try
             {
-                var globalName = EvaluateModuleInternal(script);
+                var globalName = EvaluateModuleInternal(script, moduleLoader);
                 return GlobalObject.GetProperty<T>(globalName);
             }
             finally
@@ -436,7 +442,7 @@
             }
         }
 
-        private string EvaluateModuleInternal(string script)
+        private string EvaluateModuleInternal(string script, IBaristaModuleLoader moduleLoader = null)
         {
             var subModuleId = Guid.NewGuid();
             var subModuleName = subModuleId.ToString();
@@ -462,8 +468,8 @@ import child from '{subModuleName}';
 ";
             }
 
-            var mainModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, "", null, true);
-            var subModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, subModuleName, mainModule);
+            var mainModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, "", null, true, moduleLoader);
+            var subModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, subModuleName, mainModule, false, moduleLoader);
             
             //Set the global value.
             Object.DefineProperty(GlobalObject, "global", new JsPropertyDescriptor() { Configurable = false, Enumerable = false, Writable = false, Value = GlobalObject });
@@ -499,6 +505,29 @@ import child from '{subModuleName}';
         }
 
         /// <summary>
+        /// Returns a function representing the specified, previously-serialized, script.
+        /// </summary>
+        /// <param name="serializedScript"></param>
+        /// <param name="sourceUrl"></param>
+        /// <returns></returns>
+        public JsFunction ParseSerializedScript(byte[] serializedScript, Func<string> scriptLoadCallback, string sourceUrl = "[eval code]")
+        {
+            var buffer = ValueFactory.CreateArrayBuffer(serializedScript);
+            var jsSourceUrl = ValueFactory.CreateString(sourceUrl);
+
+            var callback = new JavaScriptSerializedLoadScriptCallback((JavaScriptSourceContext sourceContext, out IntPtr value, out JavaScriptParseScriptAttributes parseAttributes) =>
+            {
+                var script = scriptLoadCallback();
+                value = Engine.JsCreateString(script, (ulong)script.Length).DangerousGetHandle();
+                parseAttributes = JavaScriptParseScriptAttributes.None;
+                return true;
+            });
+
+            var fnScript = Engine.JsParseSerialized(buffer.Handle, callback, JavaScriptSourceContext.None, jsSourceUrl.Handle);
+            return ValueFactory.CreateValue<JsFunction>(fnScript);
+        }
+
+        /// <summary>
         /// Returns a new JavaScript Execution Scope to perform work in.
         /// </summary>
         /// <returns></returns>
@@ -516,13 +545,38 @@ import child from '{subModuleName}';
             }
         }
 
-        private void ReleaseScope()
+        /// <summary>
+        /// Returns a runtime-independent buffer of the the specified script that can be reused without requiring the script to be re-parsed.
+        /// </summary>
+        /// <param name="script"></param>
+        /// <param name="isLibraryCode"></param>
+        /// <returns></returns>
+        public byte[] SerializeScript(string script, bool isLibraryCode = false)
         {
-            Engine.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
-            m_currentExecutionScope = null;
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(BaristaContext));
 
-            //Release the lock
-            Interlocked.Exchange(ref m_withinScope, 0);
+            var scriptBuffer = ValueFactory.CreateArrayBufferUtf8(script);
+            var parsedArrayBufferHandle = Engine.JsSerialize(scriptBuffer.Handle, isLibraryCode ? JavaScriptParseScriptAttributes.LibraryCode : JavaScriptParseScriptAttributes.None);
+            var arrayBuffer = ValueFactory.CreateValue<JsArrayBuffer>(parsedArrayBufferHandle);
+            return arrayBuffer.GetArrayBufferStorage();
+        }
+
+        /// <summary>
+        /// Returns a runtime-independent buffer of the the specified script, which contains unicode characters, that can be reused without requiring the script to be re-parsed.
+        /// </summary>
+        /// <param name="script"></param>
+        /// <param name="isLibraryCode"></param>
+        /// <returns></returns>
+        public byte[] SerializeUnicodeScript(string unicodeScript, bool isLibraryCode = false)
+        {
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(BaristaContext));
+
+            var scriptBuffer = ValueFactory.CreateArrayBuffer(unicodeScript);
+            var parsedArrayBufferHandle = Engine.JsSerialize(scriptBuffer.Handle, JavaScriptParseScriptAttributes.ArrayBufferIsUtf16Encoded);
+            var arrayBuffer = ValueFactory.CreateValue<JsArrayBuffer>(parsedArrayBufferHandle);
+            return arrayBuffer.GetArrayBufferStorage();
         }
 
         protected override void Dispose(bool disposing)
@@ -553,6 +607,15 @@ import child from '{subModuleName}';
             }
 
             base.Dispose(disposing);
+        }
+
+        private void ReleaseScope()
+        {
+            Engine.JsSetCurrentContext(JavaScriptContextSafeHandle.Invalid);
+            m_currentExecutionScope = null;
+
+            //Release the lock
+            Interlocked.Exchange(ref m_withinScope, 0);
         }
     }
 }

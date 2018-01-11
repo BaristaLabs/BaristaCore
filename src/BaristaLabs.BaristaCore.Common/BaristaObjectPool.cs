@@ -87,7 +87,8 @@
         {
             if (m_javaScriptReferencePool.TryRemove(handle, out TBaristaObject jsRef))
             {
-                jsRef.Dispose();
+                if (!jsRef.IsDisposed)
+                    jsRef.Dispose();
             }
         }
 

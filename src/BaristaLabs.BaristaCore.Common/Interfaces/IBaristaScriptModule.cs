@@ -6,11 +6,4 @@
     public interface IBaristaScriptModule : IBaristaModule
     {
     }
-
-    /// <summary>
-    /// Decorator interface that indicates a module that returns a script file that expects node module conventions.
-    /// </summary>
-    public interface INodeModule : IBaristaScriptModule
-    {
-    }
 }

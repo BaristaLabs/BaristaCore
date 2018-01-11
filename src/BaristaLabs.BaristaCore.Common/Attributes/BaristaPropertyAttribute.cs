@@ -32,6 +32,9 @@
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the name of the property. If no name is specified, uses the camel-cased member name.
+        /// </summary>
         public string Name
         {
             get;

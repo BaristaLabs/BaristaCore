@@ -57,7 +57,19 @@
 
         JsArray CreateArray(uint length);
 
+        /// <summary>
+        /// Creates a unicode (UTF-16) based ExternalArrayBuffer from the specified string.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         JsArrayBuffer CreateArrayBuffer(string data);
+
+        /// <summary>
+        /// Creates a utf-8 based ExternalArrayBuffer from the specified string.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        JsArrayBuffer CreateArrayBufferUtf8(string data);
 
         JsArrayBuffer CreateArrayBuffer(byte[] data);
 

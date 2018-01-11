@@ -620,6 +620,9 @@
         {
             get
             {
+                if (Type != JsValueType.Object)
+                    return false;
+
                 return HasOwnProperty(Context.Symbol.For(BaristaBeanName));
             }
         }
@@ -650,6 +653,9 @@
         {
             if (exObj == null)
                 throw new ArgumentNullException(nameof(exObj));
+
+            if (Type != JsValueType.Object)
+                throw new InvalidOperationException("Beans can only be set on true objects.");
 
             if (HasBean)
                 throw new InvalidOperationException("A bean has already been set for this object. Once set, beans are immutable.");

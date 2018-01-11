@@ -1,12 +1,12 @@
 ﻿namespace BaristaLabs.BaristaCore.Modules
 {
+    using BaristaLabs.BaristaCore.TypeScript;
     using System;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a module that returns a script that will be parsed when imported.
     /// </summary>
-    [BaristaModule("TypeScriptModule", "Built-in module that allows for specifing a string based typescript module")]
+    [BaristaModule("TypeScriptModule", "Built-in module that allows for specifing a string-based typescript module. Not to be imported directly by scripts.", IsDiscoverable = false)]
     public sealed class BaristaTypeScriptModule : IBaristaScriptModule
     {
         private readonly string m_name;
@@ -56,15 +56,15 @@
             set;
         }
 
-        public async Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+        public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            var transpiledScript = await TypeScriptTranspiler.Default.Transpile(new TypeScriptTranspilerOptions()
+            var transpiledScript = TypeScriptTranspiler.Default.Transpile(new TranspileOptions()
             {
-                ScriptToTranspile = Script,
-                Filename = m_filename
-            });
+                Script = Script,
+                FileName = m_filename
+            }).GetAwaiter().GetResult();
 
-            return transpiledScript;
+            return context.CreateString(transpiledScript.OutputText);
         }
     }
 }

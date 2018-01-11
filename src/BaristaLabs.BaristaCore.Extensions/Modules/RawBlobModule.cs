@@ -1,11 +1,11 @@
 ﻿namespace BaristaLabs.BaristaCore.Modules
 {
     using System;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Module that returns a blob as its default export.
     /// </summary>
+    [BaristaModule("barista-raw-blob", "Built-in module that returns a blob value. Not to be imported directly by scripts.", IsDiscoverable = false)]
     public class RawBlobModule : IBaristaModule
     {
         private readonly string m_name;
@@ -46,9 +46,10 @@
             get { return m_blob; }
         }
 
-        public Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+        public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            return Task.FromResult<object>(m_blob);
+            context.Converter.TryFromObject(context, m_blob, out JsValue value);
+            return value;
         }
     }
 }

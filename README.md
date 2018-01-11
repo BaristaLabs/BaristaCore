@@ -14,141 +14,24 @@ BaristaCore
 
 > Updated with ChakraCore 1.7.5
 
-BaristaCore is an open-source cross-platform sandbox to run code with a http call.
+Provides a sandboxed JavaScript runtime natively to a .Net Standard 2.0 application on Windows, Linux and macOS.
 
-BaristaCore improves upon barista-sharepoint by decoupling SharePoint from the equation, allowing Barista to execute as part of any .Net WebAPI middleware
+Applications can expose custom modules and types written in .Net code to the runtime, making it useful for providing a rules engine or other scripted capabilities that interact with existing managed libraries.
+     
+The underlying JavaScript runtime is Chakra, the JavaScript engine that powers Microsoft Edge, allowing for a fully managed, latest standards compliant, performant and well sandboxed JavaScript-based scripting environment.
 
-In addition, Barista has been rewritten to use the ChakraCore Engine within .Net Core to allow Barista to execute in cross-platform environments.
+The BaristaCore package comes with an extensions library that enables hybrid .net functionality, such as on-the-fly transpilation between TypeScript and JavaScript, server-side rendering via React/React-Dom-Server and more.
 
-To summarize, BaristaCore provides:
-
- - Barista as generic WebAPI Middleware
- - .Net Core Support
- - ChakraCore as the JavaScript Engine
- - Cross-Platform (Windows/OSx/Linux) Support
- - New features and services.
- - Better documentation and distribution.
-
-
- Other players in the serverless service app space that have sprung up in the past few years include:
-
-
- - AWS Lambda
- - Azure Functions
- - Auth0 WebTask
- - iron.io
- - Hyperdev
-
- However, each of the solutions above are closed-source cloud implementations. BaristaCore lets you have the same types of flexability as the above, but within your own datacenter.
+Additionally, BaristaCore comes with a set of WebAPI middleware, allowing an application to provide a Functions-as-a-Service platform where scripts, stored as content, can be used to power web-based applications.
 
 Embedding BaristaCore Within your own application
  ----------
-  
-BaristaCore.Common can provide scripting capabilities within any .Net Standard application and can be found as a cross-platform .Net Standard 2.0 NuGet Package here:
-https://www.nuget.org/packages/BaristaLabs.BaristaCore.Common/
 
-For more information, please read [this wiki topic on embedding BaristaCore](https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application)
+BaristaCore is available on NuGet and can be simply added to any dotnet standard 2.0 application.
+It can be found as a cross-platform .Net Standard 2.0 NuGet Package here:
+https://www.nuget.org/packages/BaristaCore/
 
-Roadmap
-----------
+For in-depth instruction, please read [this wiki topic on embedding BaristaCore](https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application)
 
-Core Functionality:
-  - [X] Barista as WebAPI Middleware
-    - [ ] Support configuring endpoint url
-    - [ ] Configurable output formatters
-    - [ ] Configurable Source File Providers (ISourceFileProvider)
-	- [ ] Auto-Response marshalling based on result object type (ArrayBuffer/DataView = raw response)
-	- [ ] Re-implementation of X- Header behavior (instancing, language, code location)
-  - [X] .Net Core Support
-  - [X] Use ChakraCore as the JavaScript Engine
-    - [X] Enables ECMAScript 6+ support (classes, arrow functions, etc), and beyond.
-    - [X] ES6 Promises
-    - [X] ES6 Modules
-    - [X] More performant script execution
-	- [X] T4 Template driven generation of P/Invoke classes
-	- [X] Full unit test suite surrounding managed/unmanaged interop layer
-    - [ ] Debugging Support
-	- [ ] Time-Travel Debugging Support
-  - [X] Cross-Platform Support
-    - [X] Provide Pre-built ChakraCore.dll binaries for 3 platforms
-    - [X] Provide an automatic way for the .dll to be specified.
-  - [ ] High-Level Object Model around ChakraCore
-  - [ ] Automatic TypeScript transpilation
-  - [ ] Built-in Swagger/Apiary API mocks, ability to implement.
-  - [ ] Provide for WASM support, allowing *any* front-end language to be used (so long as there's a WASM compiler)
-	- [ ] Have Fiddle provide automatic WASM compilation for a variety of languages.
+### [Roadmap](https://github.com/BaristaLabs/BaristaCore/wiki/Roadmap)
 
-New Services:
- - [ ] Define 'apps' as logical containers of files
-   - [ ] Bundles can be enabled/disabled on a per-app basis
-   - [ ] Source file providers can be defined and configured on a per-app basis
-   - [ ] Define environment-variables per app.
-   - [ ] Apps automatically include metrics.
-   - [ ] More app-centric services, index, secure key store, etc...
- - [ ] Built-In Scheduling via Quartz.Net
- - [ ] Built-In Lucene.Net 4.8 Support (Lucene .Net Core Support forthcoming)
- - [ ] Global Bundle Management Service
- - [ ] Support multi-tenancy in cloud environments. (https://xxx/{user}/{app}/???)
-
-Bundle re-implmentation
- - [ ] http/request
- - [ ] SharePoint
- - [ ] Lucene
- - [ ] Azure
- - [ ] Scraping
- - [ ] PDF Generation
- - [ ] Local Automation
- - [ ] Legacy Bundles (for compatibility)
- - [ ] ...
-
-New extensibility support:
- - [ ] ISourceFileProvider Allows implementations of external stores to be used
-   - require(...) now supports webpack-like syntax to use external file stores for instance:
-   ``` javascript
-   const foo = require('github:myrepo!'/foo.js);
-   ```
- - [ ] API Wrappers generated via T4 templates to minimize LoE when exposing existing APIs to BaristaCore
-
-Fiddle Improvements:
- - [ ] Provide Fiddle as WebAPI Middleware
- - [ ] Monaco Editor based
- - [ ] Develop as a PWA for offline/local dev.
- - [ ] Use webpack for bundling/minification
-   - [ ] Seperate node.js based environment for actually developing BaristaFiddle
- - [ ] Support UI/UX around new services
-   - [ ] Apps
-   - [ ] Scheduling/Cron
-   - [ ] ...
- - [ ] TypeScript syntax support
- - [ ] Provide better 'save' support via SourceFileProviders
- - [ ] Debugging support
- - [ ] Time-Travel Debugging Support
-
-BaristaServer-SharePoint
- - [ ] SP2016 Deployment Scripts
- - [ ] Less dependency on SharePoint-level services (Farm Property Bag, et. al.)
- - [ ] Promote Barista Search Index (Lucene.Net 4.8) to be a stand-alone service application
-
-Documentation
- - [x] Barista Site (baristalabs.io)
-   - [ ] Update with BaristaCore
- - [ ] BaristaCore Docs (Github Wiki)
-
-Distribution (BaristaCore.Common)
- - [X] NuGet (Pre-release)
- 
-Distribution (BaristaServer)
- - [ ] Chocolatey
- - [ ] Brew
- - [ ] Apt-Get
-
-Continuous Integration
- - [X] Automated Cross-Platform builds w/ Unit Tests
-  - [X] Windows
-  - [X] Linux
-  - [X] macOS
- - [ ] Automated Releases
-  - [ ] NuGet
-  - [ ] Chocolatey
-  - [ ] Apt-Get
-  - [ ] Brew

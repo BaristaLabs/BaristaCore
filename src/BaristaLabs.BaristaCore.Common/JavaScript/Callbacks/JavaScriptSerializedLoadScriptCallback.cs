@@ -1,5 +1,7 @@
 ﻿namespace BaristaLabs.BaristaCore.JavaScript
 {
+    using System;
+
     /// <summary>
     ///     Called by the runtime to load the source code of the serialized script.
     /// </summary>
@@ -8,5 +10,5 @@
     /// <returns>
     ///     true if the operation succeeded, false otherwise.
     /// </returns>
-    public delegate bool JavaScriptSerializedLoadScriptCallback(JavaScriptSourceContext sourceContext, out JavaScriptValueSafeHandle value, out JavaScriptParseScriptAttributes parseAttributes);
+    public delegate bool JavaScriptSerializedLoadScriptCallback(JavaScriptSourceContext sourceContext, out IntPtr value, out JavaScriptParseScriptAttributes parseAttributes);
 }

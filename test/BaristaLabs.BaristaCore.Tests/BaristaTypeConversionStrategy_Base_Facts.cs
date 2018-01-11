@@ -43,6 +43,33 @@
         }
 
         [Fact]
+        public void ConversionsOfTheSameTypeInSeperateContextsAreDifferentConstructorFunctions()
+        {
+            using (var rt = BaristaRuntimeFactory.CreateRuntime())
+            {
+                var ctx1 = rt.CreateContext();
+                var ctx2 = rt.CreateContext();
+
+                JsValue valueOne;
+                JsValue valueTwo;
+
+                using (ctx1.Scope())
+                {
+                    ctx1.Converter.TryFromObject(ctx1, typeof(Foo), out valueOne);
+                    Assert.IsType<JsNativeFunction>(valueOne);
+                }
+
+                using (ctx2.Scope())
+                {
+                    ctx2.Converter.TryFromObject(ctx2, typeof(Foo), out valueTwo);
+                    Assert.IsType<JsNativeFunction>(valueTwo);
+                }
+
+                Assert.NotSame(valueOne, valueTwo);
+            }
+        }
+
+        [Fact]
         public void CallingTryFromObjectWithNullArgumentsThrows()
         {
             using (var rt = BaristaRuntimeFactory.CreateRuntime())

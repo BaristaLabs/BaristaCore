@@ -1,14 +1,16 @@
 ﻿namespace BaristaLabs.BaristaCore.Modules
 {
-    using System.Threading.Tasks;
-
     //https://cdnjs.cloudflare.com/ajax/libs/node-uuid/1.4.8/uuid.min.js
     [BaristaModule("uuid", "Rigorous implementation of RFC4122 (v1 and v4) UUIDs.", Version = "1.4.8")]
-    public class UuidModule : INodeModule
+    public class UuidModule : IBaristaModule
     {
-        public async Task<object> ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
+        private const string ResourceName = "BaristaLabs.BaristaCore.Scripts.uuid.min.js";
+
+        public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)
         {
-            return await EmbeddedResourceHelper.LoadResource(this, "BaristaLabs.BaristaCore.Scripts.uuid.min.js");
+            var buffer = SerializedScriptService.GetSerializedScript(ResourceName, context, mapWindowToGlobal: true);
+            var fnScript = context.ParseSerializedScript(buffer, () => EmbeddedResourceHelper.LoadResource(ResourceName), "[uuid]");
+            return fnScript.Call<JsObject>();
         }
     }
 }

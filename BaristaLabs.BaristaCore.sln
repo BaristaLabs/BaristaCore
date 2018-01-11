@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1E189DA3-80DF-4A10-BC21-E616DEB0E752}"
 EndProject
@@ -14,16 +14,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{BF7A5A92-FCD0-4CA4-9234-B96B543F2488}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Server", "src\BaristaLabs.BaristaCore.Server\BaristaLabs.BaristaCore.Server.csproj", "{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Fiddle", "src\BaristaLabs.BaristaCore.Fiddle\BaristaLabs.BaristaCore.Fiddle.csproj", "{D39A215A-C493-4A4E-A1F5-508228BBBF89}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Tests", "test\BaristaLabs.BaristaCore.Tests\BaristaLabs.BaristaCore.Tests.csproj", "{E3FF6242-6102-4BA5-927B-BD43903BA195}"
 	ProjectSection(ProjectDependencies) = postProject
 		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3} = {107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3}
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaServer", "src\BaristaServer\BaristaServer.csproj", "{624574AB-E6D3-4030-9A4F-E816723B6625}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Common", "src\BaristaLabs.BaristaCore.Common\BaristaLabs.BaristaCore.Common.csproj", "{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6}"
 EndProject
@@ -37,16 +33,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Ext
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Extensions", "src\BaristaLabs.BaristaCore.Extensions\BaristaLabs.BaristaCore.Extensions.csproj", "{D3370E72-E475-4E60-9082-27E3D9FC97CD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Portafilter", "src\BaristaLabs.BaristaCore.Portafilter\BaristaLabs.BaristaCore.Portafilter.csproj", "{055D6319-7CA5-467D-80D1-22B0AFA3F65F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.AspNetCore.Common", "src\BaristaLabs.BaristaCore.AspNetCore.Common\BaristaLabs.BaristaCore.AspNetCore.Common.csproj", "{34150BA4-54EC-4B57-AF11-2EFBE94B439E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaServer", "src\BaristaServer\BaristaServer.csproj", "{A8892F51-C5DC-4830-9A9B-FAF62136A349}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D39A215A-C493-4A4E-A1F5-508228BBBF89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D39A215A-C493-4A4E-A1F5-508228BBBF89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D39A215A-C493-4A4E-A1F5-508228BBBF89}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -55,10 +53,6 @@ Global
 		{E3FF6242-6102-4BA5-927B-BD43903BA195}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3FF6242-6102-4BA5-927B-BD43903BA195}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3FF6242-6102-4BA5-927B-BD43903BA195}.Release|Any CPU.Build.0 = Release|Any CPU
-		{624574AB-E6D3-4030-9A4F-E816723B6625}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{624574AB-E6D3-4030-9A4F-E816723B6625}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{624574AB-E6D3-4030-9A4F-E816723B6625}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{624574AB-E6D3-4030-9A4F-E816723B6625}.Release|Any CPU.Build.0 = Release|Any CPU
 		{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -79,20 +73,33 @@ Global
 		{D3370E72-E475-4E60-9082-27E3D9FC97CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3370E72-E475-4E60-9082-27E3D9FC97CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3370E72-E475-4E60-9082-27E3D9FC97CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{055D6319-7CA5-467D-80D1-22B0AFA3F65F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{055D6319-7CA5-467D-80D1-22B0AFA3F65F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{055D6319-7CA5-467D-80D1-22B0AFA3F65F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{055D6319-7CA5-467D-80D1-22B0AFA3F65F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34150BA4-54EC-4B57-AF11-2EFBE94B439E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34150BA4-54EC-4B57-AF11-2EFBE94B439E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34150BA4-54EC-4B57-AF11-2EFBE94B439E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34150BA4-54EC-4B57-AF11-2EFBE94B439E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8892F51-C5DC-4830-9A9B-FAF62136A349}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8892F51-C5DC-4830-9A9B-FAF62136A349}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8892F51-C5DC-4830-9A9B-FAF62136A349}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8892F51-C5DC-4830-9A9B-FAF62136A349}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{F3A4BAF3-F96D-4C5F-8BD1-AA46AFD19556} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
 		{D39A215A-C493-4A4E-A1F5-508228BBBF89} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
 		{E3FF6242-6102-4BA5-927B-BD43903BA195} = {BF7A5A92-FCD0-4CA4-9234-B96B543F2488}
-		{624574AB-E6D3-4030-9A4F-E816723B6625} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
 		{16A6D8B0-B004-426C-9C09-DC2E7D9DF2A6} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
 		{343AFCA5-8768-43D7-B038-3221A4CAA057} = {36B7F578-1E35-489D-91A2-B3BE0F53187F}
 		{107C3301-9642-4CC6-BF7A-3ACD4FEBEFC3} = {BF7A5A92-FCD0-4CA4-9234-B96B543F2488}
 		{75D2D0DA-4230-40AF-8DB4-FAA17AE0AB8A} = {BF7A5A92-FCD0-4CA4-9234-B96B543F2488}
 		{D3370E72-E475-4E60-9082-27E3D9FC97CD} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
+		{055D6319-7CA5-467D-80D1-22B0AFA3F65F} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
+		{34150BA4-54EC-4B57-AF11-2EFBE94B439E} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
+		{A8892F51-C5DC-4830-9A9B-FAF62136A349} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {43910680-2459-4C25-9FC4-821E302DAE91}

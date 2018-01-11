@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BaristaLabs.BaristaCore.Server.Controllers
+namespace BaristaServer.Controllers
 {
     [Route("api/[controller]")]
     public class ValuesController : Controller

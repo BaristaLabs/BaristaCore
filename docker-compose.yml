@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  baristaserver:
+    image: baristaserver
+    build:
+      context: .
+      dockerfile: src/BaristaServer/Dockerfile

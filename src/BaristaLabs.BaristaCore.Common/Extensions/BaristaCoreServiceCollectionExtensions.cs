@@ -29,8 +29,10 @@
             services.AddSingleton(moduleLoader);
             services.AddSingleton<IBaristaValueFactoryBuilder, BaristaValueFactoryBuilder>();
             services.AddSingleton<IBaristaRuntimeFactory, BaristaRuntimeFactory>();
-            services.AddSingleton<IBaristaConversionStrategy, BaristaConversionStrategy>();
-            services.AddSingleton<IBaristaTypeConversionStrategy, BaristaTypeConversionStrategy>();
+
+            //Conversion strategies must be transient, as they create objects tied to the context.
+            services.AddTransient<IBaristaConversionStrategy, BaristaConversionStrategy>();
+            services.AddTransient<IBaristaTypeConversionStrategy, BaristaTypeConversionStrategy>();
 
             services.AddTransient<IBaristaContextFactory, BaristaContextFactory>();
             services.AddTransient<IBaristaModuleRecordFactory, BaristaModuleRecordFactory>();
