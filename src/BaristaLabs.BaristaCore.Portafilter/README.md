@@ -8,7 +8,9 @@ having x64 enabled on the application configuration page, Azure Functions loads 
 
 wtf.
 
-https://github.com/Azure/Azure-Functions/issues/651 to track, but, given the issue queue is growing, and so...
+---
+https://github.com/Azure/Azure-Functions/issues/651 to track, but, 
+given the issue queue is growing, and since there's no way of knowing...
 
 Round the world and home again
 That’s the sailor’s way
@@ -33,3 +35,7 @@ And they’re certainly not showing
 Any signs that they are slowing
 
 – ‘Wondrous Boat Ride’, from Willy Wonka and the Chocolate Factory (1971)
+
+
+---
+AWS Lambda doesn't support dotnet core 2.0 yet. So we're stuck for now.
