@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1E189DA3-80DF-4A10-BC21-E616DEB0E752}"
 EndProject
@@ -37,9 +37,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.Por
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.AspNetCore.Common", "src\BaristaLabs.BaristaCore.AspNetCore.Common\BaristaLabs.BaristaCore.AspNetCore.Common.csproj", "{34150BA4-54EC-4B57-AF11-2EFBE94B439E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaristaServer", "src\BaristaServer\BaristaServer.csproj", "{A8892F51-C5DC-4830-9A9B-FAF62136A349}"
-EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{366C1979-9ACA-45A7-B7CD-F66FEE79BA5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaServer", "src\BaristaServer\BaristaServer.csproj", "{A8892F51-C5DC-4830-9A9B-FAF62136A349}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,10 +85,6 @@ Global
 		{A8892F51-C5DC-4830-9A9B-FAF62136A349}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8892F51-C5DC-4830-9A9B-FAF62136A349}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8892F51-C5DC-4830-9A9B-FAF62136A349}.Release|Any CPU.Build.0 = Release|Any CPU
-		{366C1979-9ACA-45A7-B7CD-F66FEE79BA5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{366C1979-9ACA-45A7-B7CD-F66FEE79BA5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{366C1979-9ACA-45A7-B7CD-F66FEE79BA5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{366C1979-9ACA-45A7-B7CD-F66FEE79BA5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
