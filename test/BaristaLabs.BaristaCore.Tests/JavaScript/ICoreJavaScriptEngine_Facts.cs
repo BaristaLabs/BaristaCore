@@ -685,104 +685,105 @@ export default function cube(x) {
         }
 
         //TODO: Keeping the SharedContents an IntPtr for now, as a safehandle seems to corrupt the runtime until a hard reboot.
+        //TODO: These unit tests are disabled in 1.7.6 due to potential timing attacks irt spectre.
 
-        [Fact]
-        public void JsSharedArrayBufferWithSharedContentCanBeRetrieved()
-        {
-            var source = @"(() => {
-        return new SharedArrayBuffer(50);
-        })();
-        ";
-            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
-            {
-                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
-                {
-                    Engine.JsSetCurrentContext(contextHandle);
+        //[Fact]
+        //public void JsSharedArrayBufferWithSharedContentCanBeRetrieved()
+        //{
+        //    var source = @"(() => {
+        //return new SharedArrayBuffer(50);
+        //})();
+        //";
+        //    using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+        //    {
+        //        using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+        //        {
+        //            Engine.JsSetCurrentContext(contextHandle);
 
-                    var sharedArrayBufferHandle = Engine.JsRunScript(source);
-                    var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
+        //            var sharedArrayBufferHandle = Engine.JsRunScript(source);
+        //            var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
 
-                    //Apparently the type is object for now.
-                    Assert.True(handleType == JsValueType.Object);
+        //            //Apparently the type is object for now.
+        //            Assert.True(handleType == JsValueType.Object);
 
-                    Internal.LibChakraCore.JsGetSharedArrayBufferContent(sharedArrayBufferHandle, out IntPtr sharedContents);
-                    Assert.True(sharedContents != IntPtr.Zero);
+        //            Internal.LibChakraCore.JsGetSharedArrayBufferContent(sharedArrayBufferHandle, out IntPtr sharedContents);
+        //            Assert.True(sharedContents != IntPtr.Zero);
 
-                    Internal.LibChakraCore.JsReleaseSharedArrayBufferContentHandle(sharedContents);
+        //            Internal.LibChakraCore.JsReleaseSharedArrayBufferContentHandle(sharedContents);
 
-                    sharedArrayBufferHandle.Dispose();
-                }
-            }
-        }
+        //            sharedArrayBufferHandle.Dispose();
+        //        }
+        //    }
+        //}
 
-        [Fact]
-        public void JsSharedArrayBufferWithSharedContentCanBeCreated()
-        {
-            var source = @"(() => {
-        return new SharedArrayBuffer(50);
-        })();
-        ";
+        //[Fact]
+        //public void JsSharedArrayBufferWithSharedContentCanBeCreated()
+        //{
+        //    var source = @"(() => {
+        //return new SharedArrayBuffer(50);
+        //})();
+        //";
 
-            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
-            {
-                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
-                {
-                    Engine.JsSetCurrentContext(contextHandle);
+        //    using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+        //    {
+        //        using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+        //        {
+        //            Engine.JsSetCurrentContext(contextHandle);
 
-                    var sharedArrayBufferHandle = Engine.JsRunScript(source);
-                    var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
+        //            var sharedArrayBufferHandle = Engine.JsRunScript(source);
+        //            var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
 
-                    //Apparently the type is object for now.
-                    Assert.True(handleType == JsValueType.Object);
+        //            //Apparently the type is object for now.
+        //            Assert.True(handleType == JsValueType.Object);
 
-                    var sharedBufferContentHandle = Engine.JsGetSharedArrayBufferContent(sharedArrayBufferHandle);
-                    Assert.True(sharedBufferContentHandle != IntPtr.Zero);
+        //            var sharedBufferContentHandle = Engine.JsGetSharedArrayBufferContent(sharedArrayBufferHandle);
+        //            Assert.True(sharedBufferContentHandle != IntPtr.Zero);
 
-                    var sharedArrayHandle = Engine.JsCreateSharedArrayBufferWithSharedContent(sharedBufferContentHandle);
-                    Assert.True(sharedArrayHandle != JavaScriptValueSafeHandle.Invalid);
+        //            var sharedArrayHandle = Engine.JsCreateSharedArrayBufferWithSharedContent(sharedBufferContentHandle);
+        //            Assert.True(sharedArrayHandle != JavaScriptValueSafeHandle.Invalid);
 
-                    handleType = Engine.JsGetValueType(sharedArrayHandle);
-                    Assert.True(handleType == JsValueType.Object);
+        //            handleType = Engine.JsGetValueType(sharedArrayHandle);
+        //            Assert.True(handleType == JsValueType.Object);
 
-                    Internal.LibChakraCore.JsReleaseSharedArrayBufferContentHandle(sharedBufferContentHandle);
+        //            Internal.LibChakraCore.JsReleaseSharedArrayBufferContentHandle(sharedBufferContentHandle);
 
-                    sharedArrayBufferHandle.Dispose();
-                    sharedArrayHandle.Dispose();
-                }
-            }
-        }
+        //            sharedArrayBufferHandle.Dispose();
+        //            sharedArrayHandle.Dispose();
+        //        }
+        //    }
+        //}
 
-        [Fact]
-        public void JsSharedArrayBufferWithSharedContentCanBeReleased()
-        {
-            var source = @"(() => {
-        return new SharedArrayBuffer(50);
-        })();
-        ";
+        //[Fact]
+        //public void JsSharedArrayBufferWithSharedContentCanBeReleased()
+        //{
+        //    var source = @"(() => {
+        //return new SharedArrayBuffer(50);
+        //})();
+        //";
 
-            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
-            {
-                using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
-                {
-                    Engine.JsSetCurrentContext(contextHandle);
+        //    using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+        //    {
+        //        using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+        //        {
+        //            Engine.JsSetCurrentContext(contextHandle);
 
-                    var sharedArrayBufferHandle = Engine.JsRunScript(source);
-                    var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
+        //            var sharedArrayBufferHandle = Engine.JsRunScript(source);
+        //            var handleType = Engine.JsGetValueType(sharedArrayBufferHandle);
 
-                    //Apparently the type is object for now.
-                    Assert.True(handleType == JsValueType.Object);
+        //            //Apparently the type is object for now.
+        //            Assert.True(handleType == JsValueType.Object);
 
-                    var sharedBufferContentHandle = Engine.JsGetSharedArrayBufferContent(sharedArrayBufferHandle);
-                    Assert.True(sharedBufferContentHandle != IntPtr.Zero);
+        //            var sharedBufferContentHandle = Engine.JsGetSharedArrayBufferContent(sharedArrayBufferHandle);
+        //            Assert.True(sharedBufferContentHandle != IntPtr.Zero);
 
-                    Engine.JsReleaseSharedArrayBufferContentHandle(sharedBufferContentHandle);
+        //            Engine.JsReleaseSharedArrayBufferContentHandle(sharedBufferContentHandle);
 
-                    //TODO: we called it, but unsure how to verify that it has been released -- calling Get again still returns the obj.
+        //            //TODO: we called it, but unsure how to verify that it has been released -- calling Get again still returns the obj.
 
-                    sharedArrayBufferHandle.Dispose();
-                }
-            }
-        }
+        //            sharedArrayBufferHandle.Dispose();
+        //        }
+        //    }
+        //}
 
         [Fact]
         public void JsDataViewInfoCanBeRetrieved()

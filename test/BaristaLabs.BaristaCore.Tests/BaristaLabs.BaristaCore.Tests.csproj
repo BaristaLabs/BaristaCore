@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore" Version="1.7.6-beta2" />
+    <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore" Version="1.7.6" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
