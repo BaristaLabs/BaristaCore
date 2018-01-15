@@ -14,8 +14,10 @@ If (Test-Path $artifactsPath)
 
 $common = "$root\src\BaristaLabs.BaristaCore.Common\"
 $extensions = "$root\src\BaristaLabs.BaristaCore.Extensions\"
+$aspnetcorecommon = "$root\src\BaristaLabs.BaristaCore.AspNetCore.Common\"
 dotnet build -c $CONFIGURATION -f $FRAMEWORK $common
 dotnet build -c $CONFIGURATION -f $FRAMEWORK $extensions
+dotnet build -c $CONFIGURATION -f $FRAMEWORK $aspnetcorecommon
 
 $VERSION = (Get-Content $versionFile)
 Write-Host "Setting .nuspec version tag to $VERSION"

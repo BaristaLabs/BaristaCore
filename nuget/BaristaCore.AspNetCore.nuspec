@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
-    <id>BaristaCore</id>
+    <id>BaristaCore.AspNetCore</id>
     <version>$version$</version>
     <authors>Sean McLellan</authors>
     <owners>BaristaLabs, LLC</owners>
@@ -10,24 +10,26 @@
     <iconUrl>https://github.com/BaristaLabs/BaristaCore/raw/master/Logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <developmentDependency>false</developmentDependency>
-    <summary>Provides a sandboxed JavaScript runtime natively to a .Net Standard 2.0 application on Windows, Linux and macOS.</summary>
-    <description>Provides a sandboxed JavaScript runtime natively to a .Net Standard 2.0 application on Windows, Linux and macOS.
-
-Applications can expose custom modules and types written in .Net code to the runtime, making it useful for providing a rules engine or other scripted capabilities that interact with existing managed libraries.
+    <summary>Provides middleware and other behavior for hosting BaristaCore within a ASP.Net Core Web Application</summary>
+    <description>Allows BaristaCore to be used in conjunction with ASP.Net core to provide Azure Functions or AWS Lambda like functionality within your own web application.
       
-The underlying JavaScript runtime is Chakra, the JavaScript engine that powers Microsoft Edge, allowing for a fully managed, latest standards compliant, performant and well sandboxed JavaScript-based scripting environment.
-
-For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application
+For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/Using-BaristaCore-as-AspDotNet-Middleware
     </description>
     <releaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</releaseNotes>
     <copyright>Copyright (c) 2017 BaristaLabs, LLC</copyright>
     <language>en-US</language>
-    <tags>Barista,BaristaCore,sandbox,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
+    <tags>Barista,BaristaCore,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="Microsoft.Extensions.DependencyInjection" version="2.0.0" />
+		<dependency id="Microsoft.AspNetCore.Http" version="2.0.1" />
+		<dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.0.1" />
+		<dependency id="Microsoft.AspNetCore.Http.Extensions" version="2.0.1" />
+		<dependency id="Microsoft.AspNetCore.Http.Features" version="2.0.1" />
+		<dependency id="Microsoft.Extensions.DependencyInjection" version="2.0.0" />
+		<dependency id="Newtonsoft.Json" version="10.0.3" />
         <dependency id="BaristaLabs.BaristaCore.Common" version="$version$" />
 		<dependency id="BaristaLabs.BaristaCore.Extensions" version="$version$" />
+		<dependency id="BaristaLabs.BaristaCore.AspNetCore.Common" version="$version$" />
         <dependency id="BaristaLabs.BaristaCore.ChakraCore" version="1.7.6" />
       </group>
     </dependencies>
