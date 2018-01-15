@@ -27,10 +27,8 @@ For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCo
 		<dependency id="Microsoft.AspNetCore.Http.Features" version="2.0.1" />
 		<dependency id="Microsoft.Extensions.DependencyInjection" version="2.0.0" />
 		<dependency id="Newtonsoft.Json" version="10.0.3" />
-        <dependency id="BaristaLabs.BaristaCore.Common" version="$version$" />
-		<dependency id="BaristaLabs.BaristaCore.Extensions" version="$version$" />
+        <dependency id="BaristaCore" version="$version$" />
 		<dependency id="BaristaLabs.BaristaCore.AspNetCore.Common" version="$version$" />
-        <dependency id="BaristaLabs.BaristaCore.ChakraCore" version="1.7.6" />
       </group>
     </dependencies>
   </metadata>
