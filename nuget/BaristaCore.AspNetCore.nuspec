@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
-    <id>BaristaLabs.BaristaCore.Extensions</id>
+    <id>BaristaCore.AspNetCore</id>
     <version>$version$</version>
     <authors>Sean McLellan</authors>
     <owners>BaristaLabs, LLC</owners>
@@ -10,10 +10,10 @@
     <iconUrl>https://github.com/BaristaLabs/BaristaCore/raw/master/Logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <developmentDependency>false</developmentDependency>
-    <summary>Provides commonly used modules, module loaders, transpilers, and more to BaristaCore</summary>
-    <description>Provides commonly used modules, module loaders, transpilers, and more to BaristaCore
-
-For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/baristacore-extensions
+    <summary>Provides middleware and other behavior for hosting BaristaCore within a ASP.Net Core Web Application</summary>
+    <description>Allows BaristaCore to be used in conjunction with ASP.Net core to provide Azure Functions or AWS Lambda like functionality within your own web application.
+      
+For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCore/wiki/Using-BaristaCore-as-AspDotNet-Middleware
     </description>
     <releaseNotes>https://github.com/BaristaLabs/BaristaCore/blob/master/README.md#roadmap</releaseNotes>
     <copyright>Copyright (c) 2017 BaristaLabs, LLC</copyright>
@@ -21,14 +21,15 @@ For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCo
     <tags>Barista,BaristaCore,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-		<dependency id="BaristaLabs.BaristaCore.Common" version="$version$" />
+		<dependency id="Microsoft.AspNetCore.Http" version="2.0.1" />
+		<dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.0.1" />
+		<dependency id="Microsoft.AspNetCore.Http.Extensions" version="2.0.1" />
+		<dependency id="Microsoft.AspNetCore.Http.Features" version="2.0.1" />
+		<dependency id="Microsoft.Extensions.DependencyInjection" version="2.0.0" />
 		<dependency id="Newtonsoft.Json" version="10.0.3" />
-		<dependency id="RestSharp" version="106.2.1" />
+        <dependency id="BaristaCore" version="$version$" />
+		<dependency id="BaristaLabs.BaristaCore.AspNetCore.Common" version="$version$" />
       </group>
     </dependencies>
   </metadata>
-  <files>
-    <file src="..\src\BaristaLabs.BaristaCore.Extensions\bin\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Extensions.dll" target="lib\netstandard2.0\"/>
-    <file src="..\src\BaristaLabs.BaristaCore.Extensions\bin\$configuration$\netstandard2.0\BaristaLabs.BaristaCore.Extensions.pdb" target="lib\netstandard2.0\"/>
-  </files>
 </package>
