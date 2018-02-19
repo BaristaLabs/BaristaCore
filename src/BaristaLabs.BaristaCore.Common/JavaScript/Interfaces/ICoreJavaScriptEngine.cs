@@ -529,5 +529,169 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// </returns>
         JavaScriptValueSafeHandle JsGetDataViewInfo(JavaScriptValueSafeHandle dataView, out uint byteOffset, out uint byteLength);
 
+        /// <summary>
+        ///   Determine if one JavaScript value is less than another JavaScript value.
+        /// </summary>
+        /// <remarks>
+        ///     This function is equivalent to the < operator in Javascript.
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="object1">
+        ///     The first object to compare.
+        /// </param>
+        /// <param name="object2">
+        ///     The second object to compare.
+        /// </param>
+        /// <returns>
+        ///     Whether object1 is less than object2.
+        /// </returns>
+        bool JsLessThan(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2);
+
+        /// <summary>
+        ///   Determine if one JavaScript value is less than or equal to another JavaScript value.
+        /// </summary>
+        /// <remarks>
+        ///     This function is equivalent to the <= operator in Javascript.
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="object1">
+        ///     The first object to compare.
+        /// </param>
+        /// <param name="object2">
+        ///     The second object to compare.
+        /// </param>
+        /// <returns>
+        ///     Whether object1 is less than or equal to object2.
+        /// </returns>
+        bool JsLessThanOrEqual(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2);
+
+        /// <summary>
+        ///   Gets an object's property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that contains the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <returns>
+        ///     The value of the property.
+        /// </returns>
+        JavaScriptValueSafeHandle JsObjectGetProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key);
+
+        /// <summary>
+        ///   Puts an object's property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that contains the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <param name="value">
+        ///     The new value of the property.
+        /// </param>
+        /// <param name="useStrictRules">
+        ///     The property set should follow strict mode rules.
+        /// </param>
+        void JsObjectSetProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key, JavaScriptValueSafeHandle value, bool useStrictRules);
+
+        /// <summary>
+        ///   Determines whether an object has a property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that may contain the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <returns>
+        ///     Whether the object (or a prototype) has the property.
+        /// </returns>
+        bool JsObjectHasProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key);
+
+        /// <summary>
+        ///   Defines a new object's own property from a property descriptor.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that has the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <param name="propertyDescriptor">
+        ///     The property descriptor.
+        /// </param>
+        /// <returns>
+        ///     Whether the property was defined.
+        /// </returns>
+        bool JsObjectDefineProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key, JavaScriptValueSafeHandle propertyDescriptor);
+
+        /// <summary>
+        ///   Deletes an object's property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that contains the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <param name="useStrictRules">
+        ///     The property set should follow strict mode rules.
+        /// </param>
+        /// <returns>
+        ///     Whether the property was deleted.
+        /// </returns>
+        JavaScriptValueSafeHandle JsObjectDeleteProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key, bool useStrictRules);
+
+        /// <summary>
+        ///   Gets a property descriptor for an object's own property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that has the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <returns>
+        ///     The property descriptor.
+        /// </returns>
+        JavaScriptValueSafeHandle JsObjectGetOwnPropertyDescriptor(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key);
+
+        /// <summary>
+        ///   Determines whether an object has a non-inherited property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that may contain the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <returns>
+        ///     Whether the object has the non-inherited property.
+        /// </returns>
+        bool JsObjectHasOwnProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key);
+
     }
 }
