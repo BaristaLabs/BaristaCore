@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore" Version="1.7.6" />
+    <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore" Version="1.8.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
   </ItemGroup>
 
