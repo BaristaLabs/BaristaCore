@@ -635,6 +635,206 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         public static extern JsErrorCode JsGetDataViewInfo(JavaScriptValueSafeHandle dataView, out JavaScriptValueSafeHandle arrayBuffer, out uint byteOffset, out uint byteLength);
 
         /// <summary>
+        ///     Determine if one JavaScript value is less than another JavaScript value.
+        /// </summary>
+        /// <remarks>
+        ///     This function is equivalent to the < operator in Javascript.
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="object1">
+        ///     The first object to compare.
+        /// </param>
+        /// <param name="object2">
+        ///     The second object to compare.
+        /// </param>
+        /// <param name="result">
+        ///     Whether object1 is less than object2.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsLessThan", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JsErrorCode JsLessThan(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2, out bool result);
+
+        /// <summary>
+        ///     Determine if one JavaScript value is less than or equal to another JavaScript value.
+        /// </summary>
+        /// <remarks>
+        ///     This function is equivalent to the <= operator in Javascript.
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="object1">
+        ///     The first object to compare.
+        /// </param>
+        /// <param name="object2">
+        ///     The second object to compare.
+        /// </param>
+        /// <param name="result">
+        ///     Whether object1 is less than or equal to object2.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsLessThanOrEqual", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JsErrorCode JsLessThanOrEqual(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2, out bool result);
+
+        /// <summary>
+        ///     Gets an object's property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that contains the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <param name="value">
+        ///     The value of the property.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsObjectGetProperty", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JsErrorCode JsObjectGetProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key, out JavaScriptValueSafeHandle value);
+
+        /// <summary>
+        ///     Puts an object's property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that contains the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <param name="value">
+        ///     The new value of the property.
+        /// </param>
+        /// <param name="useStrictRules">
+        ///     The property set should follow strict mode rules.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsObjectSetProperty", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JsErrorCode JsObjectSetProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key, JavaScriptValueSafeHandle value, bool useStrictRules);
+
+        /// <summary>
+        ///     Determines whether an object has a property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that may contain the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <param name="hasProperty">
+        ///     Whether the object (or a prototype) has the property.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsObjectHasProperty", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JsErrorCode JsObjectHasProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key, out bool hasProperty);
+
+        /// <summary>
+        ///     Defines a new object's own property from a property descriptor.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that has the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <param name="propertyDescriptor">
+        ///     The property descriptor.
+        /// </param>
+        /// <param name="result">
+        ///     Whether the property was defined.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsObjectDefineProperty", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JsErrorCode JsObjectDefineProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key, JavaScriptValueSafeHandle propertyDescriptor, out bool result);
+
+        /// <summary>
+        ///     Deletes an object's property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that contains the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <param name="useStrictRules">
+        ///     The property set should follow strict mode rules.
+        /// </param>
+        /// <param name="result">
+        ///     Whether the property was deleted.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsObjectDeleteProperty", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JsErrorCode JsObjectDeleteProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key, bool useStrictRules, out JavaScriptValueSafeHandle result);
+
+        /// <summary>
+        ///     Gets a property descriptor for an object's own property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that has the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <param name="propertyDescriptor">
+        ///     The property descriptor.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsObjectGetOwnPropertyDescriptor", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JsErrorCode JsObjectGetOwnPropertyDescriptor(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key, out JavaScriptValueSafeHandle propertyDescriptor);
+
+        /// <summary>
+        ///     Determines whether an object has a non-inherited property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that may contain the property.
+        /// </param>
+        /// <param name="key">
+        ///     The key (JavascriptString) to the property.
+        /// </param>
+        /// <param name="hasOwnProperty">
+        ///     Whether the object has the non-inherited property.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsObjectHasOwnProperty", CallingConvention = CallingConvention.Cdecl)]
+        public static extern JsErrorCode JsObjectHasOwnProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key, out bool hasOwnProperty);
+
+        /// <summary>
         ///     Creates a new runtime.
         /// </summary>
         /// <remarks>
@@ -2686,6 +2886,7 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         ///     NONE = 0x1,
         ///     HAVE_CHILDRENS = 0x2,
         ///     READ_ONLY_VALUE = 0x4,
+        ///     IN_TDZ = 0x8,
         ///     {
         ///     "thisObject": {
         ///     "name": "this",
@@ -2920,6 +3121,30 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         /// </returns>
         [DllImport(DllName, EntryPoint = "JsRunScript", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         public static extern JsErrorCode JsRunScript(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
+
+        /// <summary>
+        ///     Executes a module.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="script">
+        ///     The module script to parse and execute.
+        /// </param>
+        /// <param name="sourceContext">
+        ///     A cookie identifying the script that can be used by debuggable script contexts.
+        /// </param>
+        /// <param name="sourceUrl">
+        ///     The location the module script came from.
+        /// </param>
+        /// <param name="result">
+        ///     The result of executing the module script, if any. This parameter can be null.
+        /// </param>
+        /// <returns>
+        ///     The code JsNoError if the operation succeeded, a failure code otherwise.
+        /// </returns>
+        [DllImport(DllName, EntryPoint = "JsExperimentalApiRunModule", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        public static extern JsErrorCode JsExperimentalApiRunModule(string script, JavaScriptSourceContext sourceContext, string sourceUrl, out JavaScriptValueSafeHandle result);
 
         /// <summary>
         ///     Serializes a parsed script to a buffer than can be reused.

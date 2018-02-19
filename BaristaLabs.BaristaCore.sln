@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1E189DA3-80DF-4A10-BC21-E616DEB0E752}"
 EndProject
@@ -38,6 +38,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaLabs.BaristaCore.AspNetCore.Common", "src\BaristaLabs.BaristaCore.AspNetCore.Common\BaristaLabs.BaristaCore.AspNetCore.Common.csproj", "{34150BA4-54EC-4B57-AF11-2EFBE94B439E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaristaServer", "src\BaristaServer\BaristaServer.csproj", "{A8892F51-C5DC-4830-9A9B-FAF62136A349}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", "{0515BCEB-48E0-437F-AA34-308B7C9F8DFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaristaLabs.BaristaCore.Benchmarks", "benchmarks\BaristaLabs.BaristaCore.Benchmarks\BaristaLabs.BaristaCore.Benchmarks.csproj", "{4CD68F44-6544-435B-BA56-90F1E8777019}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,6 +89,10 @@ Global
 		{A8892F51-C5DC-4830-9A9B-FAF62136A349}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8892F51-C5DC-4830-9A9B-FAF62136A349}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8892F51-C5DC-4830-9A9B-FAF62136A349}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CD68F44-6544-435B-BA56-90F1E8777019}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CD68F44-6544-435B-BA56-90F1E8777019}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CD68F44-6544-435B-BA56-90F1E8777019}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CD68F44-6544-435B-BA56-90F1E8777019}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -100,6 +108,7 @@ Global
 		{055D6319-7CA5-467D-80D1-22B0AFA3F65F} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
 		{34150BA4-54EC-4B57-AF11-2EFBE94B439E} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
 		{A8892F51-C5DC-4830-9A9B-FAF62136A349} = {1E189DA3-80DF-4A10-BC21-E616DEB0E752}
+		{4CD68F44-6544-435B-BA56-90F1E8777019} = {0515BCEB-48E0-437F-AA34-308B7C9F8DFA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {43910680-2459-4C25-9FC4-821E302DAE91}

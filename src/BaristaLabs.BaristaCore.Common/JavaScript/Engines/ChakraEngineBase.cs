@@ -252,6 +252,74 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return arrayBuffer;
         }
 
+        public bool JsLessThan(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsLessThan(object1, object2, out bool result));
+            return result;
+        }
+
+        public bool JsLessThanOrEqual(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsLessThanOrEqual(object1, object2, out bool result));
+            return result;
+        }
+
+        public JavaScriptValueSafeHandle JsObjectGetProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsObjectGetProperty(@object, key, out JavaScriptValueSafeHandle value));
+            value.NativeFunctionSource = nameof(LibChakraCore.JsObjectGetProperty);
+            if (value != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(value, out uint valueRefCount));
+			}
+            return value;
+        }
+
+        public void JsObjectSetProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key, JavaScriptValueSafeHandle value, bool useStrictRules)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsObjectSetProperty(@object, key, value, useStrictRules));
+        }
+
+        public bool JsObjectHasProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsObjectHasProperty(@object, key, out bool hasProperty));
+            return hasProperty;
+        }
+
+        public bool JsObjectDefineProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key, JavaScriptValueSafeHandle propertyDescriptor)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsObjectDefineProperty(@object, key, propertyDescriptor, out bool result));
+            return result;
+        }
+
+        public JavaScriptValueSafeHandle JsObjectDeleteProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key, bool useStrictRules)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsObjectDeleteProperty(@object, key, useStrictRules, out JavaScriptValueSafeHandle result));
+            result.NativeFunctionSource = nameof(LibChakraCore.JsObjectDeleteProperty);
+            if (result != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out uint valueRefCount));
+			}
+            return result;
+        }
+
+        public JavaScriptValueSafeHandle JsObjectGetOwnPropertyDescriptor(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsObjectGetOwnPropertyDescriptor(@object, key, out JavaScriptValueSafeHandle propertyDescriptor));
+            propertyDescriptor.NativeFunctionSource = nameof(LibChakraCore.JsObjectGetOwnPropertyDescriptor);
+            if (propertyDescriptor != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(propertyDescriptor, out uint valueRefCount));
+			}
+            return propertyDescriptor;
+        }
+
+        public bool JsObjectHasOwnProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsObjectHasOwnProperty(@object, key, out bool hasOwnProperty));
+            return hasOwnProperty;
+        }
+
         public JavaScriptRuntimeSafeHandle JsCreateRuntime(JavaScriptRuntimeAttributes attributes, JavaScriptThreadServiceCallback threadService)
         {
             Errors.ThrowIfError(LibChakraCore.JsCreateRuntime(attributes, threadService, out JavaScriptRuntimeSafeHandle runtime));

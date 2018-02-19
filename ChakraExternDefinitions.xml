@@ -757,6 +757,229 @@
       <Parameter type="uint" name="byteLength" direction="Out" />
     </Parameters>
   </Export>
+  <Export name="JsLessThan" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Determine if one JavaScript value is less than another JavaScript value.
+/// </summary>
+/// <remarks>
+///     <para>
+///     This function is equivalent to the <c>&lt;</c> operator in Javascript.
+///     </para>
+///     <para>
+///     Requires an active script context.
+///     </para>
+/// </remarks>
+/// <param name="object1">The first object to compare.</param>
+/// <param name="object2">The second object to compare.</param>
+/// <param name="result">Whether object1 is less than object2.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="object1" />
+      <Parameter type="JsValueRef" name="object2" />
+      <Parameter type="bool" name="result" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsLessThanOrEqual" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Determine if one JavaScript value is less than or equal to another JavaScript value.
+/// </summary>
+/// <remarks>
+///     <para>
+///     This function is equivalent to the <c>&lt;=</c> operator in Javascript.
+///     </para>
+///     <para>
+///     Requires an active script context.
+///     </para>
+/// </remarks>
+/// <param name="object1">The first object to compare.</param>
+/// <param name="object2">The second object to compare.</param>
+/// <param name="result">Whether object1 is less than or equal to object2.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="object1" />
+      <Parameter type="JsValueRef" name="object2" />
+      <Parameter type="bool" name="result" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsObjectGetProperty" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Gets an object's property.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="object">The object that contains the property.</param>
+/// <param name="key">The key (JavascriptString) to the property.</param>
+/// <param name="value">The value of the property.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="key" />
+      <Parameter type="JsValueRef" name="value" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsObjectSetProperty" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Puts an object's property.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="object">The object that contains the property.</param>
+/// <param name="key">The key (JavascriptString) to the property.</param>
+/// <param name="value">The new value of the property.</param>
+/// <param name="useStrictRules">The property set should follow strict mode rules.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="key" />
+      <Parameter type="JsValueRef" name="value" />
+      <Parameter type="bool" name="useStrictRules" />
+    </Parameters>
+  </Export>
+  <Export name="JsObjectHasProperty" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Determines whether an object has a property.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="object">The object that may contain the property.</param>
+/// <param name="key">The key (JavascriptString) to the property.</param>
+/// <param name="hasProperty">Whether the object (or a prototype) has the property.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="key" />
+      <Parameter type="bool" name="hasProperty" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsObjectDefineProperty" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Defines a new object's own property from a property descriptor.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="object">The object that has the property.</param>
+/// <param name="key">The key (JavascriptString) to the property.</param>
+/// <param name="propertyDescriptor">The property descriptor.</param>
+/// <param name="result">Whether the property was defined.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="key" />
+      <Parameter type="JsValueRef" name="propertyDescriptor" />
+      <Parameter type="bool" name="result" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsObjectDeleteProperty" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Deletes an object's property.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="object">The object that contains the property.</param>
+/// <param name="key">The key (JavascriptString) to the property.</param>
+/// <param name="useStrictRules">The property set should follow strict mode rules.</param>
+/// <param name="result">Whether the property was deleted.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="key" />
+      <Parameter type="bool" name="useStrictRules" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsObjectGetOwnPropertyDescriptor" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Gets a property descriptor for an object's own property.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="object">The object that has the property.</param>
+/// <param name="key">The key (JavascriptString) to the property.</param>
+/// <param name="propertyDescriptor">The property descriptor.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="key" />
+      <Parameter type="JsValueRef" name="propertyDescriptor" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsObjectHasOwnProperty" target="Common" source="ChakraCore.h">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Determines whether an object has a non-inherited property.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="object">The object that may contain the property.</param>
+/// <param name="key">The key (JavascriptString) to the property.</param>
+/// <param name="hasOwnProperty">Whether the object has the non-inherited property.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="JsValueRef" name="@object" />
+      <Parameter type="JsValueRef" name="key" />
+      <Parameter type="bool" name="hasOwnProperty" direction="Out" />
+    </Parameters>
+  </Export>
   <!--
   ***************************************
   **
@@ -3278,6 +3501,7 @@
 ///         NONE = 0x1,
 ///         HAVE_CHILDRENS = 0x2,
 ///         READ_ONLY_VALUE = 0x4,
+///         IN_TDZ = 0x8,
 ///     </para>
 ///     <para>
 ///     {
@@ -3487,7 +3711,7 @@
       <Parameter type="JsValueRef" name="evalResult" direction="Out" />
     </Parameters>
   </Export>
-  <!-- 
+  <!--
   ***************************************
   **
   ** ChakraCommonWindows.h
@@ -3565,6 +3789,33 @@
 /// </param>
 /// <param name="sourceUrl">The location the script came from.</param>
 /// <param name="result">The result of the script, if any. This parameter can be null.</param>
+/// <returns>
+///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
+/// </returns>
+]]>
+    </Description>
+    <Parameters>
+      <Parameter type="string" name="script" />
+      <Parameter type="JsSourceContext" name="sourceContext" />
+      <Parameter type="string" name="sourceUrl" />
+      <Parameter type="JsValueRef" name="result" direction="Out" />
+    </Parameters>
+  </Export>
+  <Export name="JsExperimentalApiRunModule" target="WindowsOnly" source="ChakraCommonWindows.h" dllImportEx=", CharSet = CharSet.Unicode">
+    <Description>
+      <![CDATA[
+/// <summary>
+///     Executes a module.
+/// </summary>
+/// <remarks>
+///     Requires an active script context.
+/// </remarks>
+/// <param name="script">The module script to parse and execute.</param>
+/// <param name="sourceContext">
+///     A cookie identifying the script that can be used by debuggable script contexts.
+/// </param>
+/// <param name="sourceUrl">The location the module script came from.</param>
+/// <param name="result">The result of executing the module script, if any. This parameter can be null.</param>
 /// <returns>
 ///     The code <c>JsNoError</c> if the operation succeeded, a failure code otherwise.
 /// </returns>
