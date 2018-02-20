@@ -12,7 +12,7 @@ BaristaCore
 
 > **01/12/2017** *BaristaCore is currently in active development. The functionality described below indicates the design goals of BaristaCore and may not be all currently implemented.*
 
-> Updated with ChakraCore 1.7.6
+> Updated with ChakraCore 1.8.1
 
 Provides a sandboxed JavaScript runtime natively to a .Net Standard 2.0 application on Windows, Linux and macOS.
 
@@ -33,5 +33,6 @@ https://www.nuget.org/packages/BaristaCore/
 
 For in-depth instruction, please read [this wiki topic on embedding BaristaCore](https://github.com/BaristaLabs/BaristaCore/wiki/Embedding-BaristaCore-into-your-own-application)
 
-### [Roadmap](https://github.com/BaristaLabs/BaristaCore/wiki/Roadmap)
+## [Roadmap](https://github.com/BaristaLabs/BaristaCore/wiki/Roadmap)
 
+For details on planned features and future direction please refer to the [Roadmap](https://github.com/BaristaLabs/BaristaCore/wiki/Roadmap).
