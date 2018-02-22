@@ -6,12 +6,12 @@
     using Microsoft.Extensions.DependencyInjection;
     using System;
 
-    public class Adding
+    public class ComputeTheAnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything
     {
         private IServiceProvider m_serviceProvider;
         private IBaristaRuntimeFactory m_runtimeFactory;
 
-        public Adding()
+        public ComputeTheAnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything()
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddBaristaCore();
@@ -21,7 +21,7 @@
         }
 
         [Benchmark]
-        public void EvalutateWithNoReuse()
+        public void EvaluateWithNoReuse()
         {
             using (var rt = m_runtimeFactory.CreateRuntime())
             using (var ctx = rt.CreateContext())
@@ -34,7 +34,7 @@
     {
         static void Main(string[] args)
         {
-            var summary = BenchmarkRunner.Run<Adding>();
+            var summary = BenchmarkRunner.Run<ComputeTheAnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything>();
         }
     }
 }
