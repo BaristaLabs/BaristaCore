@@ -240,3 +240,6 @@ opencoverCoverage.xml
 # NuGet Artifacts
 lib/ChakraCore/NuGet.exe
 lib/ChakraCore/Artifacts/
+
+#BenchmarkDotNet Artifacts
+BenchmarkDotNet.Artifacts/
