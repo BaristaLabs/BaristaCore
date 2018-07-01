@@ -8,6 +8,17 @@ namespace BaristaLabs.BaristaCore.JavaScript
     [System.Diagnostics.DebuggerNonUserCode]
     public abstract class ChakraEngineBase : IJavaScriptEngine
     {
+        public JavaScriptValueSafeHandle JsCreateEnhancedFunction(JavaScriptEnhancedNativeFunction nativeFunction, JavaScriptValueSafeHandle metadata, IntPtr callbackState)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsCreateEnhancedFunction(nativeFunction, metadata, callbackState, out JavaScriptValueSafeHandle function));
+            function.NativeFunctionSource = nameof(LibChakraCore.JsCreateEnhancedFunction);
+            if (function != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(function, out uint valueRefCount));
+			}
+            return function;
+        }
+
         public JavaScriptModuleRecord JsInitializeModuleRecord(JavaScriptModuleRecord referencingModule, JavaScriptValueSafeHandle normalizedSpecifier)
         {
             Errors.ThrowIfError(LibChakraCore.JsInitializeModuleRecord(referencingModule, normalizedSpecifier, out JavaScriptModuleRecord moduleRecord));
@@ -169,6 +180,23 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return result;
         }
 
+        public JavaScriptPromiseState JsGetPromiseState(JavaScriptValueSafeHandle promise)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsGetPromiseState(promise, out JavaScriptPromiseState state));
+            return state;
+        }
+
+        public JavaScriptValueSafeHandle JsGetPromiseResult(JavaScriptValueSafeHandle promise)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsGetPromiseResult(promise, out JavaScriptValueSafeHandle result));
+            result.NativeFunctionSource = nameof(LibChakraCore.JsGetPromiseResult);
+            if (result != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out uint valueRefCount));
+			}
+            return result;
+        }
+
         public JavaScriptValueSafeHandle JsCreatePromise(out JavaScriptValueSafeHandle resolveFunction, out JavaScriptValueSafeHandle rejectFunction)
         {
             Errors.ThrowIfError(LibChakraCore.JsCreatePromise(out JavaScriptValueSafeHandle promise, out resolveFunction, out rejectFunction));
@@ -264,6 +292,17 @@ namespace BaristaLabs.BaristaCore.JavaScript
             return result;
         }
 
+        public JavaScriptValueSafeHandle JsCreateExternalObjectWithPrototype(IntPtr data, JavaScriptObjectFinalizeCallback finalizeCallback, JavaScriptValueSafeHandle prototype)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsCreateExternalObjectWithPrototype(data, finalizeCallback, prototype, out JavaScriptValueSafeHandle @object));
+            @object.NativeFunctionSource = nameof(LibChakraCore.JsCreateExternalObjectWithPrototype);
+            if (@object != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(@object, out uint valueRefCount));
+			}
+            return @object;
+        }
+
         public JavaScriptValueSafeHandle JsObjectGetProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key)
         {
             Errors.ThrowIfError(LibChakraCore.JsObjectGetProperty(@object, key, out JavaScriptValueSafeHandle value));
@@ -318,6 +357,60 @@ namespace BaristaLabs.BaristaCore.JavaScript
         {
             Errors.ThrowIfError(LibChakraCore.JsObjectHasOwnProperty(@object, key, out bool hasOwnProperty));
             return hasOwnProperty;
+        }
+
+        public void JsSetHostPromiseRejectionTracker(JavaScriptPromiseRejectionTrackerCallback promiseRejectionTrackerCallback, IntPtr callbackState)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsSetHostPromiseRejectionTracker(promiseRejectionTrackerCallback, callbackState));
+        }
+
+        public JavaScriptValueSafeHandle JsGetModuleNamespace(JavaScriptModuleRecord requestModule)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsGetModuleNamespace(requestModule, out JavaScriptValueSafeHandle moduleNamespace));
+            moduleNamespace.NativeFunctionSource = nameof(LibChakraCore.JsGetModuleNamespace);
+            if (moduleNamespace != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(moduleNamespace, out uint valueRefCount));
+			}
+            return moduleNamespace;
+        }
+
+        public bool JsGetProxyProperties(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle target, out JavaScriptValueSafeHandle handler)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsGetProxyProperties(@object, out bool isProxy, out target, out handler));
+            target.NativeFunctionSource = nameof(LibChakraCore.JsGetProxyProperties);
+            if (target != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(target, out uint valueRefCount));
+			}
+            handler.NativeFunctionSource = nameof(LibChakraCore.JsGetProxyProperties);
+            if (handler != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(handler, out uint valueRefCount));
+			}
+            return isProxy;
+        }
+
+        public JavaScriptValueSafeHandle JsSerializeParserState(JavaScriptValueSafeHandle scriptVal, JavaScriptParseScriptAttributes parseAttributes)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsSerializeParserState(scriptVal, out JavaScriptValueSafeHandle bufferVal, parseAttributes));
+            bufferVal.NativeFunctionSource = nameof(LibChakraCore.JsSerializeParserState);
+            if (bufferVal != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(bufferVal, out uint valueRefCount));
+			}
+            return bufferVal;
+        }
+
+        public JavaScriptValueSafeHandle JsRunScriptWithParserState(JavaScriptValueSafeHandle script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes, JavaScriptValueSafeHandle parserState)
+        {
+            Errors.ThrowIfError(LibChakraCore.JsRunScriptWithParserState(script, sourceContext, sourceUrl, parseAttributes, parserState, out JavaScriptValueSafeHandle result));
+            result.NativeFunctionSource = nameof(LibChakraCore.JsRunScriptWithParserState);
+            if (result != JavaScriptValueSafeHandle.Invalid)
+            {
+				Errors.ThrowIfError(LibChakraCore.JsAddRef(result, out uint valueRefCount));
+			}
+            return result;
         }
 
         public JavaScriptRuntimeSafeHandle JsCreateRuntime(JavaScriptRuntimeAttributes attributes, JavaScriptThreadServiceCallback threadService)

@@ -11,31 +11,54 @@ namespace BaristaLabs.BaristaCore.JavaScript
     public interface ICoreJavaScriptEngine
     {
         /// <summary>
+        ///   Creates a new enhanced JavaScript function.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="nativeFunction">
+        ///     The method to call when the function is invoked.
+        /// </param>
+        /// <param name="metadata">
+        ///     If this is not JS_INVALID_REFERENCE, it is converted to a string and used as the name of the function.
+        /// </param>
+        /// <param name="callbackState">
+        ///     User provided state that will be passed back to the callback.
+        /// </param>
+        /// <returns>
+        ///     The new function object.
+        /// </returns>
+        JavaScriptValueSafeHandle JsCreateEnhancedFunction(JavaScriptEnhancedNativeFunction nativeFunction, JavaScriptValueSafeHandle metadata, IntPtr callbackState);
+
+        /// <summary>
         ///   Initialize a ModuleRecord from host
         /// </summary>
         /// <remarks>
         ///     Bootstrap the module loading process by creating a new module record.
         /// </remarks>
         /// <param name="referencingModule">
-        ///     The referencingModule as in HostResolveImportedModule (15.2.1.17). nullptr if this is the top level module.
+        ///     The parent module of the new module - nullptr for a root module.
         /// </param>
         /// <param name="normalizedSpecifier">
-        ///     The host normalized specifier. This is the key to a unique ModuleRecord.
+        ///     The normalized specifier for the module.
         /// </param>
         /// <returns>
-        ///     The new ModuleRecord created. The host should not try to call this API twice with the same normalizedSpecifier.
-        ///     chakra will return an existing ModuleRecord if the specifier was passed in before.
+        ///     The new module record. The host should not try to call this API twice
+        ///     with the same normalizedSpecifier.
         /// </returns>
         JavaScriptModuleRecord JsInitializeModuleRecord(JavaScriptModuleRecord referencingModule, JavaScriptValueSafeHandle normalizedSpecifier);
 
         /// <summary>
-        ///   Parse the module source
+        ///   Parse the source for an ES module
         /// </summary>
         /// <remarks>
-        ///     This is basically ParseModule operation in ES6 spec. It is slightly different in that the ModuleRecord was initialized earlier, and passed in as an argument.
+        ///     This is basically ParseModule operation in ES6 spec. It is slightly different in that:
+        ///     a) The ModuleRecord was initialized earlier, and passed in as an argument.
+        ///     b) This includes a check to see if the module being Parsed is the last module in the
+        ///     dependency tree. If it is it automatically triggers Module Instantiation.
         /// </remarks>
         /// <param name="requestModule">
-        ///     The ModuleRecord that holds the parse tree of the source code.
+        ///     The ModuleRecord being parsed.
         /// </param>
         /// <param name="sourceContext">
         ///     A cookie identifying the script that can be used by debuggable script contexts.
@@ -44,10 +67,10 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     The source script to be parsed, but not executed in this code.
         /// </param>
         /// <param name="scriptLength">
-        ///     The source length of sourceText. The input might contain embedded null.
+        ///     The length of sourceText in bytes. As the input might contain a embedded null.
         /// </param>
         /// <param name="sourceFlag">
-        ///     The type of the source code passed in. It could be UNICODE or utf8 at this time.
+        ///     The type of the source code passed in. It could be utf16 or utf8 at this time.
         /// </param>
         /// <returns>
         ///     The error object if there is parse error.
@@ -59,11 +82,12 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// </summary>
         /// <remarks>
         ///     This method implements 15.2.1.1.6.5, "ModuleEvaluation" concrete method.
-        ///     When this methid is called, the chakra engine should have notified the host that the module and all its dependent are ready to be executed.
+        ///     This method should be called after the engine notifies the host that the module is ready.
+        ///     This method only needs to be called on root modules - it will execute all of the dependent modules.
         ///     One moduleRecord will be executed only once. Additional execution call on the same moduleRecord will fail.
         /// </remarks>
         /// <param name="requestModule">
-        ///     The module to be executed.
+        ///     The ModuleRecord being executed.
         /// </param>
         /// <returns>
         ///     The return value of the module.
@@ -71,8 +95,20 @@ namespace BaristaLabs.BaristaCore.JavaScript
         JavaScriptValueSafeHandle JsModuleEvaluation(JavaScriptModuleRecord requestModule);
 
         /// <summary>
-        ///   Set the host info for the specified module.
+        ///   Set host info for the specified module.
         /// </summary>
+        /// <remarks>
+        ///     This is used for four things:
+        ///     1. Setting up the callbacks for module loading - note these are actually
+        ///     set on the current Context not the module so only have to be set for
+        ///     the first root module in any given context.
+        ///     2. Setting host defined info on a module record - can be anything that
+        ///     you wish to associate with your modules.
+        ///     3. Setting a URL for a module to be used for stack traces/debugging -
+        ///     note this must be set before calling JsParseModuleSource on the module
+        ///     or it will be ignored.
+        ///     4. Setting an exception on the module object - only relevant prior to it being Parsed.
+        /// </remarks>
         /// <param name="requestModule">
         ///     The request module.
         /// </param>
@@ -87,14 +123,17 @@ namespace BaristaLabs.BaristaCore.JavaScript
         /// <summary>
         ///   Retrieve the host info for the specified module.
         /// </summary>
+        /// <remarks>
+        ///     This can used to retrieve info previously set with JsSetModuleHostInfo.
+        /// </remarks>
         /// <param name="requestModule">
         ///     The request module.
         /// </param>
         /// <param name="moduleHostInfo">
-        ///     The type of host info to get.
+        ///     The type of host info to be retrieved.
         /// </param>
         /// <returns>
-        ///     The host info to be retrieved.
+        ///     The retrieved host info for the module.
         /// </returns>
         IntPtr JsGetModuleHostInfo(JavaScriptModuleRecord requestModule, JavaScriptModuleHostInfoKind moduleHostInfo);
 
@@ -383,6 +422,34 @@ namespace BaristaLabs.BaristaCore.JavaScript
         JavaScriptValueSafeHandle JsRunSerialized(JavaScriptValueSafeHandle buffer, JavaScriptSerializedLoadScriptCallback scriptLoadCallback, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl);
 
         /// <summary>
+        ///   Gets the state of a given Promise object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="promise">
+        ///     The Promise object.
+        /// </param>
+        /// <returns>
+        ///     The current state of the Promise.
+        /// </returns>
+        JavaScriptPromiseState JsGetPromiseState(JavaScriptValueSafeHandle promise);
+
+        /// <summary>
+        ///   Gets the result of a given Promise object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="promise">
+        ///     The Promise object.
+        /// </param>
+        /// <returns>
+        ///     The result of the Promise.
+        /// </returns>
+        JavaScriptValueSafeHandle JsGetPromiseResult(JavaScriptValueSafeHandle promise);
+
+        /// <summary>
         ///   Creates a new JavaScript Promise object.
         /// </summary>
         /// <remarks>
@@ -566,6 +633,26 @@ namespace BaristaLabs.BaristaCore.JavaScript
         bool JsLessThanOrEqual(JavaScriptValueSafeHandle object1, JavaScriptValueSafeHandle object2);
 
         /// <summary>
+        ///   Creates a new object (with prototype) that stores some external data.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="data">
+        ///     External data that the object will represent. May be null.
+        /// </param>
+        /// <param name="finalizeCallback">
+        ///     A callback for when the object is finalized. May be null.
+        /// </param>
+        /// <param name="prototype">
+        ///     Prototype object or nullptr.
+        /// </param>
+        /// <returns>
+        ///     The new object.
+        /// </returns>
+        JavaScriptValueSafeHandle JsCreateExternalObjectWithPrototype(IntPtr data, JavaScriptObjectFinalizeCallback finalizeCallback, JavaScriptValueSafeHandle prototype);
+
+        /// <summary>
         ///   Gets an object's property.
         /// </summary>
         /// <remarks>
@@ -575,7 +662,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     The object that contains the property.
         /// </param>
         /// <param name="key">
-        ///     The key (JavascriptString) to the property.
+        ///     The key (JavascriptString or JavascriptSymbol) to the property.
         /// </param>
         /// <returns>
         ///     The value of the property.
@@ -592,7 +679,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     The object that contains the property.
         /// </param>
         /// <param name="key">
-        ///     The key (JavascriptString) to the property.
+        ///     The key (JavascriptString or JavascriptSymbol) to the property.
         /// </param>
         /// <param name="value">
         ///     The new value of the property.
@@ -612,7 +699,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     The object that may contain the property.
         /// </param>
         /// <param name="key">
-        ///     The key (JavascriptString) to the property.
+        ///     The key (JavascriptString or JavascriptSymbol) to the property.
         /// </param>
         /// <returns>
         ///     Whether the object (or a prototype) has the property.
@@ -629,7 +716,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     The object that has the property.
         /// </param>
         /// <param name="key">
-        ///     The key (JavascriptString) to the property.
+        ///     The key (JavascriptString or JavascriptSymbol) to the property.
         /// </param>
         /// <param name="propertyDescriptor">
         ///     The property descriptor.
@@ -649,7 +736,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     The object that contains the property.
         /// </param>
         /// <param name="key">
-        ///     The key (JavascriptString) to the property.
+        ///     The key (JavascriptString or JavascriptSymbol) to the property.
         /// </param>
         /// <param name="useStrictRules">
         ///     The property set should follow strict mode rules.
@@ -669,7 +756,7 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     The object that has the property.
         /// </param>
         /// <param name="key">
-        ///     The key (JavascriptString) to the property.
+        ///     The key (JavascriptString or JavascriptSymbol) to the property.
         /// </param>
         /// <returns>
         ///     The property descriptor.
@@ -686,12 +773,122 @@ namespace BaristaLabs.BaristaCore.JavaScript
         ///     The object that may contain the property.
         /// </param>
         /// <param name="key">
-        ///     The key (JavascriptString) to the property.
+        ///     The key (JavascriptString or JavascriptSymbol) to the property.
         /// </param>
         /// <returns>
         ///     Whether the object has the non-inherited property.
         /// </returns>
         bool JsObjectHasOwnProperty(JavaScriptValueSafeHandle @object, JavaScriptValueSafeHandle key);
+
+        /// <summary>
+        ///   Sets whether any action should be taken when a promise is rejected with no reactions or a reaction is added to a promise that was rejected before it had reactions. By default in either of these cases nothing occurs. This function allows you to specify if something should occur and provide a callback to implement whatever should occur.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="promiseRejectionTrackerCallback">
+        ///     The callback function being set.
+        /// </param>
+        /// <param name="callbackState">
+        ///     User provided state that will be passed back to the callback.
+        /// </param>
+        void JsSetHostPromiseRejectionTracker(JavaScriptPromiseRejectionTrackerCallback promiseRejectionTrackerCallback, IntPtr callbackState);
+
+        /// <summary>
+        ///   Retrieve the namespace object for a module.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context and that the module has already been evaluated.
+        /// </remarks>
+        /// <param name="requestModule">
+        ///     The JsModuleRecord for which the namespace is being requested.
+        /// </param>
+        /// <returns>
+        ///     A JsValueRef - the requested namespace object.
+        /// </returns>
+        JavaScriptValueSafeHandle JsGetModuleNamespace(JavaScriptModuleRecord requestModule);
+
+        /// <summary>
+        ///   Determines if a provided object is a JavscriptProxy Object and provides references to a Proxy's target and handler.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        ///     If object is not a Proxy object the target and handler parameters are not touched.
+        ///     If nullptr is supplied for target or handler the function returns after
+        ///     setting the isProxy value.
+        ///     If the object is a revoked Proxy target and handler are set to JS_INVALID_REFERENCE.
+        ///     If it is a Proxy object that has not been revoked target and handler are set to the
+        ///     the object's target and handler.
+        /// </remarks>
+        /// <param name="@object">
+        ///     The object that may be a Proxy.
+        /// </param>
+        /// <param name="target">
+        ///     Pointer to a JsValueRef - the object's target.
+        /// </param>
+        /// <param name="handler">
+        ///     Pointer to a JsValueRef - the object's handler.
+        /// </param>
+        /// <returns>
+        ///     Pointer to a Boolean - is the object a proxy?
+        /// </returns>
+        bool JsGetProxyProperties(JavaScriptValueSafeHandle @object, out JavaScriptValueSafeHandle target, out JavaScriptValueSafeHandle handler);
+
+        /// <summary>
+        ///   Parses a script and stores the generated parser state cache into a buffer which can be reused.
+        /// </summary>
+        /// <remarks>
+        ///     JsSerializeParserState parses a script and then stores a cache of the parser state
+        ///     in a runtime-independent format. The parser state may be deserialized in any runtime along
+        ///     with the same script to skip the initial parse phase.
+        ///     Requires an active script context.
+        ///     Script source can be either JavascriptString or JavascriptExternalArrayBuffer.
+        ///     In case it is an ExternalArrayBuffer, and the encoding of the buffer is Utf16,
+        ///     JsParseScriptAttributeArrayBufferIsUtf16Encoded is expected on parseAttributes.
+        ///     Use JavascriptExternalArrayBuffer with Utf8/ASCII script source
+        ///     for better performance and smaller memory footprint.
+        /// </remarks>
+        /// <param name="scriptVal">
+        ///     The script to parse.
+        /// </param>
+        /// <param name="parseAttributes">
+        ///     Encoding for the script.
+        /// </param>
+        /// <returns>
+        ///     The buffer to put the serialized parser state cache into.
+        /// </returns>
+        JavaScriptValueSafeHandle JsSerializeParserState(JavaScriptValueSafeHandle scriptVal, JavaScriptParseScriptAttributes parseAttributes);
+
+        /// <summary>
+        ///   Deserializes the cache of initial parser state and (along with the same script source) executes the script and returns the result.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        ///     Script source can be either JavascriptString or JavascriptExternalArrayBuffer.
+        ///     In case it is an ExternalArrayBuffer, and the encoding of the buffer is Utf16,
+        ///     JsParseScriptAttributeArrayBufferIsUtf16Encoded is expected on parseAttributes.
+        ///     Use JavascriptExternalArrayBuffer with Utf8/ASCII script source
+        ///     for better performance and smaller memory footprint.
+        /// </remarks>
+        /// <param name="script">
+        ///     The script to run.
+        /// </param>
+        /// <param name="sourceContext">
+        ///     A cookie identifying the script that can be used by debuggable script contexts.
+        /// </param>
+        /// <param name="sourceUrl">
+        ///     The location the script came from
+        /// </param>
+        /// <param name="parseAttributes">
+        ///     Attribute mask for parsing the script
+        /// </param>
+        /// <param name="parserState">
+        ///     A buffer containing a cache of the parser state generated by JsSerializeParserState.
+        /// </param>
+        /// <returns>
+        ///     The result of the script, if any. This parameter can be null.
+        /// </returns>
+        JavaScriptValueSafeHandle JsRunScriptWithParserState(JavaScriptValueSafeHandle script, JavaScriptSourceContext sourceContext, JavaScriptValueSafeHandle sourceUrl, JavaScriptParseScriptAttributes parseAttributes, JavaScriptValueSafeHandle parserState);
 
     }
 }
