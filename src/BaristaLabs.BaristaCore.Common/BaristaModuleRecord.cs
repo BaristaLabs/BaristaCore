@@ -19,8 +19,8 @@
         private readonly IBaristaModuleRecordFactory m_moduleRecordFactory;
         private readonly IBaristaModuleLoader m_moduleLoader;
 
-        private readonly GCHandle m_fetchImportedModuleCallbackHandle = default;
-        private readonly GCHandle m_notifyCallbackHandle = default;
+        private readonly GCHandle m_fetchImportedModuleCallbackHandle = default(GCHandle);
+        private readonly GCHandle m_notifyCallbackHandle = default(GCHandle);
 
         private readonly Dictionary<string, BaristaModuleRecord> m_importedModules = new Dictionary<string, BaristaModuleRecord>();
 
