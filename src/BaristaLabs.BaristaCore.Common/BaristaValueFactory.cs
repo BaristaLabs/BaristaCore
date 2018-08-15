@@ -500,15 +500,11 @@
                         }
                     }
 
-                    var taskType = task.GetType();
-                    if (taskType.IsGenericType == false || taskType.GetGenericTypeDefinition() != typeof(Task<>))
+                    var result = task.GetTaskResult(out bool hasResult);
+                    if (!hasResult)
                     {
                         resolve.Call(GlobalObject, Undefined);
-                        return;
                     }
-
-                    var resultProperty = taskType.GetProperty("Result");
-                    var result = resultProperty.GetValue(task);
 
                     //If we got an object back attempt to convert it into a JsValue and call the resolve method with the value.
                     if (Context.Converter.TryFromObject(Context, result, out JsValue resolveValue))
