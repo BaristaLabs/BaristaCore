@@ -131,7 +131,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsString>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsString>(promise);
                         Assert.NotNull(response);
                         var jsonData = response.ToString();
                         Assert.True(jsonData.Length > 0);
@@ -165,7 +166,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsString>(script);
+                        var promise = ctx.EvaluateModule<JsString>(script);
+                        var response = ctx.Promise.Wait<JsObject>(promise);
                         Assert.NotNull(response);
                         var jsonData = response.ToString();
                         Assert.True(jsonData.Length > 0);
@@ -211,7 +213,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsString>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsString>(promise);
                         Assert.NotNull(response);
                         var jsonData = response.ToString();
                         Assert.True(jsonData.Length > 0);
@@ -243,7 +246,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsString>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsString>(promise);
                         Assert.NotNull(response);
                         var jsonData = response.ToString();
                         Assert.True(jsonData.Length > 0);
@@ -275,7 +279,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsString>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsString>(promise);
                         Assert.NotNull(response);
                         var jsonData = response.ToString();
                         Assert.True(jsonData.Length > 0);
@@ -309,7 +314,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsString>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsString>(promise);
                         Assert.NotNull(response);
                         var jsonData = response.ToString();
                         Assert.True(jsonData.Length > 0);
@@ -341,7 +347,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsString>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsString>(promise);
                         Assert.NotNull(response);
                         var jsonData = response.ToString();
                         Assert.True(jsonData.Length > 0);
@@ -373,7 +380,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsString>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsString>(promise);
                         Assert.NotNull(response);
                     }
                 }
@@ -401,7 +409,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsString>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsString>(promise);
                         Assert.NotNull(response);
                     }
                 }
@@ -429,7 +438,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsString>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsString>(promise);
                         Assert.NotNull(response);
                         var jsonData = response.ToString();
                         Assert.True(jsonData.Length > 0);
@@ -461,7 +471,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsString>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsString>(promise);
                         Assert.NotNull(response);
                     }
                 }
@@ -489,7 +500,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsString>(script);
+                        var promise = ctx.EvaluateModule<JsString>(script);
+                        var response = ctx.Promise.Wait<JsString>(promise);
                         Assert.NotNull(response);
                         var jsonData = response.ToString();
                         Assert.True(jsonData.Length > 0);
@@ -549,7 +561,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsObject>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsObject>(promise);
                         Assert.NotNull(response);
                         Assert.False(response["ok"].ToBoolean());
                         Assert.Equal(418, response["statusCode"].ToInt32());
@@ -582,7 +595,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsObject>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsObject>(promise);
                         Assert.NotNull(response);
                         Assert.False(response["ok"].ToBoolean());
                         Assert.Equal(302, response["statusCode"].ToInt32());
@@ -614,7 +628,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsObject>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsObject>(promise);
                         Assert.NotNull(response);
                         Assert.False(response["ok"].ToBoolean());
                         Assert.Equal(418, response["statusCode"].ToInt32());
@@ -644,7 +659,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var response = ctx.EvaluateModule<JsObject>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var response = ctx.Promise.Wait<JsObject>(promise);
                         Assert.NotNull(response);
                         Assert.Equal("bar", response.ToString());
                     }
@@ -672,7 +688,8 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        dynamic headers = ctx.EvaluateModule<JsObject>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        dynamic headers = ctx.Promise.Wait<JsObject>(promise);
                         Assert.NotNull(headers);
                         Assert.Equal("bar", (string)headers.get("X-Foo"));
                         headers.set("X-Bag", "bagman");
@@ -737,12 +754,13 @@ export default fn;
                 {
                     using (ctx.Scope())
                     {
-                        var headersResult = ctx.EvaluateModule<JsObject>(script);
+                        var promise = ctx.EvaluateModule<JsObject>(script);
+                        var headersResult = ctx.Promise.Wait<JsObject>(promise);
                         Assert.NotNull(headersResult);
 
-                        Assert.Equal(11, headersResult.GetProperty<JsObject>("entries")["length"].ToInt32());
-                        Assert.Equal(11, headersResult.GetProperty<JsObject>("keys")["length"].ToInt32());
-                        Assert.Equal(11, headersResult.GetProperty<JsObject>("values")["length"].ToInt32());
+                        Assert.Equal(9, headersResult.GetProperty<JsObject>("entries")["length"].ToInt32());
+                        Assert.Equal(9, headersResult.GetProperty<JsObject>("keys")["length"].ToInt32());
+                        Assert.Equal(9, headersResult.GetProperty<JsObject>("values")["length"].ToInt32());
                     }
                 }
             }

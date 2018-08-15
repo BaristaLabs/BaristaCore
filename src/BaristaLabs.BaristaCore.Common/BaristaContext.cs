@@ -444,8 +444,6 @@
 
         private JsObject EvaluateModuleInternal(string script, IBaristaModuleLoader moduleLoader = null)
         {
-            //TODO: If there is a promise task queue defined, have the script auto-resolve any promises.
-
             var mainModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, "", null, true, moduleLoader);
 
             //Set the global value - this is akin to node.js's 'global' variable (https://nodejs.org/api/globals.html#globals_global)
@@ -463,13 +461,6 @@
                 
                 //Evaluate any pending promises.
                 CurrentScope.ResolvePendingPromises();
-
-                //TODO: Fix this to be able to throw script errors.
-                //if (m_promiseTaskQueue != null && GlobalObject.HasOwnProperty("$ERROR"))
-                //{
-                //    var errorValue = GlobalObject.GetProperty("$ERROR");
-                //    throw new JsScriptException(JsErrorCode.ScriptException, errorValue.Handle);
-                //}
 
                 //Retrieve the module namespace.
                 var moduleNamespace = Engine.JsGetModuleNamespace(mainModule.Handle);
