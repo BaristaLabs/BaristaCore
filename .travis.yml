@@ -62,5 +62,5 @@ install:
 
 script:
   # Run tests
-  - dotnet test -c $CONFIGURATION -f $FRAMEWORK ./test/BaristaLabs.BaristaCore.Tests/ --collect:"Code Coverage" /p:CoverletOutputFormat=\"cobertura,opencover\"
-  - dotnet test -c $CONFIGURATION -f $FRAMEWORK ./test/BaristaLabs.BaristaCore.Extensions.Tests/ --collect:"Code Coverage" /p:CoverletOutputFormat=\"cobertura,opencover\"
+  - dotnet test -c $CONFIGURATION -f $FRAMEWORK ./test/BaristaLabs.BaristaCore.Tests/ /p:CollectCoverage=true /p:CoverletOutputFormat=\"cobertura,opencover\"
+  - dotnet test -c $CONFIGURATION -f $FRAMEWORK ./test/BaristaLabs.BaristaCore.Extensions.Tests/ /p:CollectCoverage=true /p:CoverletOutputFormat=\"cobertura,opencover\"
