@@ -1,8 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AzureFunctionsVersion>v2</AzureFunctionsVersion>
-    <RuntimeIdentifiers>win7-x64;ubuntu.16.10-x64;osx.10.12-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -11,10 +10,10 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore.win-x64" Version="1.8.1" />
+    <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore.win-x64" Version="1.10.0" />
     <PackageReference Include="BaristaLabs.BaristaCore.Common" Version="1.0.1-beta05" />
     <PackageReference Include="BaristaLabs.BaristaCore.Extensions" Version="1.0.1-beta05" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.8" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.14" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

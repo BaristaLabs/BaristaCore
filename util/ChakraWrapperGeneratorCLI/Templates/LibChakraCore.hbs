@@ -6,7 +6,11 @@
     /// <summary>
     ///	Represents the Unmanaged ChakraCore Library
     /// </summary>
+
+    //FIXME: Commenting this out until MS can get their shit together RE:https://github.com/dotnet/project-system/issues/2733
+/*#if !DEBUG
     [System.Diagnostics.DebuggerNonUserCode]
+#endif*/
     public static class LibChakraCore
     {
         private const string DllName = "{{DllName}}";

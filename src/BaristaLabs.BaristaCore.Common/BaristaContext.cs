@@ -407,8 +407,8 @@
 
             try
             {
-                var globalName = EvaluateModuleInternal(script, moduleLoader);
-                return GlobalObject.GetProperty(globalName);
+                var moduleNamespace = EvaluateModuleInternal(script, moduleLoader);
+                return moduleNamespace.GetProperty("default");
             }
             finally
             {
@@ -432,8 +432,8 @@
 
             try
             {
-                var globalName = EvaluateModuleInternal(script, moduleLoader);
-                return GlobalObject.GetProperty<T>(globalName);
+                var moduleNamespace = EvaluateModuleInternal(script, moduleLoader);
+                return moduleNamespace.GetProperty<T>("default");
             }
             finally
             {
@@ -442,46 +442,19 @@
             }
         }
 
-        private string EvaluateModuleInternal(string script, IBaristaModuleLoader moduleLoader = null)
+        private JsObject EvaluateModuleInternal(string script, IBaristaModuleLoader moduleLoader = null)
         {
-            var subModuleId = Guid.NewGuid();
-            var subModuleName = subModuleId.ToString();
-
-            //Define a shim script that will set a global to the result of the script run as a module.
-            //This is because JsModuleEvaluation always returns undefined, and there is no other way
-            //To obtain access to variables defined in the module's namespace.
-
-            //If there is a promise task queue defined, have the script auto-resolve any promises.
-            string mainModuleScript;
-            if (m_promiseTaskQueue == null)
-            {
-                mainModuleScript = $@"
-import child from '{subModuleName}';
-global.$EXPORTS = child;
-";
-            }
-            else
-            {
-                mainModuleScript = $@"
-import child from '{subModuleName}';
-(async () => await child)().then((result) => {{ global.$EXPORTS = result; }}, (reject) => {{ global.$ERROR = reject }});
-";
-            }
-
             var mainModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, "", null, true, moduleLoader);
-            var subModule = m_moduleRecordFactory.CreateBaristaModuleRecord(this, subModuleName, mainModule, false, moduleLoader);
-            
-            //Set the global value.
+
+            //Set the global value - this is akin to node.js's 'global' variable (https://nodejs.org/api/globals.html#globals_global)
+            //It's preferable for barista not to use this, however, right now I don't see a way to actually 'Set' values dynamically in a module namespace
             Object.DefineProperty(GlobalObject, "global", new JsPropertyDescriptor() { Configurable = false, Enumerable = false, Writable = false, Value = GlobalObject });
 
             //Now start the parsing.
             try
             {
                 //First, parse our main module script.
-                mainModule.ParseModuleSource(mainModuleScript);
-
-                //Now Parse the user-provided script.
-                subModule.ParseModuleSource(script);
+                mainModule.ParseModuleSource(script);
 
                 //Now we're ready, evaluate the main module.
                 Engine.JsModuleEvaluation(mainModule.Handle);
@@ -489,14 +462,11 @@ import child from '{subModuleName}';
                 //Evaluate any pending promises.
                 CurrentScope.ResolvePendingPromises();
 
-                if (m_promiseTaskQueue != null && GlobalObject.HasOwnProperty("$ERROR"))
-                {
-                    var errorValue = GlobalObject.GetProperty("$ERROR");
-                    throw new JsScriptException(JsErrorCode.ScriptException, errorValue.Handle);
-                }
+                //Retrieve the module namespace.
+                var moduleNamespace = Engine.JsGetModuleNamespace(mainModule.Handle);
 
-                //Return the name of the global.
-                return "$EXPORTS";
+                //Return the module namespace as an object.
+                return new JsObject(Engine, this, moduleNamespace);
             }
             finally
             {

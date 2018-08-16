@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
@@ -15,8 +15,34 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Templates\ChakraTypedInterface.hbs" />
+    <None Remove="Templates\ChakraTypedSafeImplementation.hbs" />
+    <None Remove="Templates\ChakraTypedSafeImplementation_Logging.hbs" />
+    <None Remove="Templates\LibChakraCore.hbs" />
+    <None Remove="Templates\settings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Templates\ChakraTypedInterface.hbs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\ChakraTypedSafeImplementation.hbs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\ChakraTypedSafeImplementation_Logging.hbs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\LibChakraCore.hbs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BaristaCore" Version="1.0.2-beta03" />
-    <PackageReference Include="Handlebars.Net" Version="1.9.0" />
+    <PackageReference Include="Handlebars.Net" Version="1.9.5" />
   </ItemGroup>
 
 </Project>

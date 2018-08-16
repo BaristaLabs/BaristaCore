@@ -174,7 +174,7 @@
                     using (ctx.Scope())
                     {
                         ctx.Converter.TryFromObject(ctx, ctx.TaskFactory.StartNew(async () => {
-                            await Task.Delay(500);
+                            await Task.Delay(10);
                             return 42;
                         }), out JsValue value);
                         var promise = value as JsObject;

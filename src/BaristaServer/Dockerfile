@@ -1,18 +1,17 @@
-FROM microsoft/aspnetcore:2.0 AS base
+FROM microsoft/dotnet:2.1-runtime-alpine AS base
 WORKDIR /app
 EXPOSE 80
 
-FROM microsoft/aspnetcore-build:2.0 AS build
-WORKDIR /src
-COPY *.sln ./
-COPY src/BaristaServer/BaristaServer.csproj src/BaristaServer/
-RUN dotnet restore
+FROM microsoft/dotnet:2.1-sdk-alpine AS build
+WORKDIR /app
+COPY ./BaristaServer.csproj src/BaristaServer/
+RUN dotnet restore src/BaristaServer/BaristaServer.csproj
 COPY . .
-WORKDIR /src/src/BaristaServer
-RUN dotnet build -c Release -o /app
+WORKDIR /app/src/BaristaServer
+RUN dotnet build BaristaServer.csproj -c Release -o /app
 
 FROM build AS publish
-RUN dotnet publish -c Release -o /app
+RUN dotnet publish BaristaServer.csproj -c Release -o /app
 
 FROM base AS final
 WORKDIR /app

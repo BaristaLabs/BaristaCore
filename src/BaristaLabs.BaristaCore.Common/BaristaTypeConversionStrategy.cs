@@ -77,16 +77,31 @@
                         return context.Undefined;
                     }
 
+                    var isParentConstructing = thisObj.HasProperty("__isConstructing");
+
                     if (superCtor != null)
                     {
-                        superCtor.Call(thisObj);
+                        if (!isParentConstructing)
+                        {
+                            thisObj.SetProperty("__isConstructing", context.True);
+                            superCtor.Call(thisObj);
+                            thisObj.DeleteProperty("__isConstructing");
+                        }
+                        else
+                        {
+                            superCtor.Call(thisObj);
+                        }
                     }
 
                     context.Object.DefineProperties(thisObj, instancePropertyDescriptors);
 
                     //If this isn't a construct call, don't attempt to set the bean
-                    if (!isConstructCall)
+                    //In 1.10.x, isConstructCall is true when calling the super's constructor
+                    //when previously it was false. 
+                    if (!isConstructCall || isParentConstructing)
+                    {
                         return thisObj;
+                    }
 
                     //Set our native object.
                     JsExternalObject externalObject = null;

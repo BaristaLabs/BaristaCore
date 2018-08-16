@@ -21,11 +21,11 @@ For more information, visit the wiki at https://github.com/BaristaLabs/BaristaCo
     <tags>Barista,BaristaCore,Chakra,ChakraCore,javascript,js,ecmascript,compiler,platform,oss,opensource,native</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-		<dependency id="Microsoft.AspNetCore.Http" version="2.0.1" />
-		<dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.0.1" />
-		<dependency id="Microsoft.AspNetCore.Http.Extensions" version="2.0.1" />
-		<dependency id="Microsoft.AspNetCore.Http.Features" version="2.0.1" />
-		<dependency id="Newtonsoft.Json" version="10.0.3" />
+		<dependency id="Microsoft.AspNetCore.Http" version="2.1.1" />
+		<dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.1.1" />
+		<dependency id="Microsoft.AspNetCore.Http.Extensions" version="2.1.1" />
+		<dependency id="Microsoft.AspNetCore.Http.Features" version="2.1.1" />
+		<dependency id="Newtonsoft.Json" version="11.0.2" />
 		<dependency id="BaristaLabs.BaristaCore.Common" version="$version$"/>
 		<dependency id="BaristaLabs.BaristaCore.Extensions" version="$version$"/>
       </group>

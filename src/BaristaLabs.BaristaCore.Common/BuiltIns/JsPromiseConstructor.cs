@@ -76,8 +76,16 @@
         /// <returns></returns>
         public JsValue Wait(JsObject promise)
         {
-            Context.GlobalObject["$PROMISE"] = promise;
-            return Context.EvaluateModule("export default Promise.resolve($PROMISE)");
+            var promiseResultHandle = Engine.JsGetPromiseResult(promise.Handle);
+            var state = Engine.JsGetPromiseState(promise.Handle);
+
+            if (state == JavaScriptPromiseState.Rejected)
+            {
+                throw new JsScriptException(JsErrorCode.ScriptException, promiseResultHandle);
+            }
+
+            var result = Context.CreateValue(promiseResultHandle);
+            return result;
         }
 
         /// <summary>
@@ -88,8 +96,16 @@
         public T Wait<T>(JsObject promise)
             where T : JsValue
         {
-            Context.GlobalObject["$PROMISE"] = promise;
-            return Context.EvaluateModule<T>("export default Promise.resolve($PROMISE)");
+            var promiseResultHandle = Engine.JsGetPromiseResult(promise.Handle);
+            var state = Engine.JsGetPromiseState(promise.Handle);
+
+            if (state == JavaScriptPromiseState.Rejected)
+            {
+                throw new JsScriptException(JsErrorCode.ScriptException, promiseResultHandle);
+            }
+
+            var result = Context.CreateValue<T>(promiseResultHandle);
+            return result;
         }
     }
 }

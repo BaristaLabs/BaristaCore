@@ -38,5 +38,25 @@
 
             return m_numTypes.Contains(t);
         }
+
+        public static bool IsSubclassOfRawGeneric(this Type genericType, Type typeToCheck)
+        {
+            if (typeToCheck == typeof(object))
+            {
+                return false;
+            }
+            else if (typeToCheck == null)
+            {
+                return false;
+            }
+            else if (typeToCheck.IsGenericType && typeToCheck.GetGenericTypeDefinition() == genericType)
+            {
+                return true;
+            }
+            else
+            {
+                return IsSubclassOfRawGeneric(genericType, typeToCheck.BaseType);
+            }
+        }
     }
 }

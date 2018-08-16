@@ -262,7 +262,7 @@ export default asdf@11;
         }
 
         [Fact]
-        public void JsModulesContainingPromisesCanBeEvaluated()
+        public void JsModulesExportPromisesThatResolve()
         {
             var script = @"
 var result = new Promise((resolve, reject) => {
@@ -277,6 +277,7 @@ export default result;
                     using (ctx.Scope())
                     {
                         var result = ctx.EvaluateModule(script);
+                        result = ctx.Promise.Wait(result as JsObject);
                         Assert.True(result.ToString() == "hello, world!");
                     }
                 }
@@ -284,7 +285,7 @@ export default result;
         }
 
         [Fact]
-        public void JsModulesThatRejectPromisesWillThrow()
+        public void JsModulesExportPromisesThatCanReject()
         {
             var script = @"
 var result = new Promise((resolve, reject) => {
@@ -303,6 +304,7 @@ export default result;
                             try
                             {
                                 var result = ctx.EvaluateModule(script);
+                                result = ctx.Promise.Wait(result as JsObject);
                             }
                             catch (JsScriptException ex)
                             {

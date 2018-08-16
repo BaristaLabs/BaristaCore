@@ -30,6 +30,7 @@
                 { "JsModuleRecord", "JavaScriptModuleRecord" },
                 { "JsParseModuleSourceFlags", "JavaScriptParseModuleSourceFlags" },
                 { "JsModuleHostInfoKind", "JavaScriptModuleHostInfoKind" },
+                { "JsPromiseState", "JavaScriptPromiseState" },
 
                 { "JsRuntimeAttributes", "JavaScriptRuntimeAttributes"},
                 { "JsParseScriptAttributes", "JavaScriptParseScriptAttributes"},
@@ -39,6 +40,7 @@
                 { "JsDiagStepType", "JavaScriptDiagStepType"},
 
                 { "JsNativeFunction", "JavaScriptNativeFunction"},
+                { "JsEnhancedNativeFunction", "JavaScriptEnhancedNativeFunction"},
 
                 { "JsSerializedLoadScriptCallback", "JavaScriptSerializedLoadScriptCallback" },
                 { "JsSerializedScriptLoadSourceCallback", "JavaScriptSerializedScriptLoadSourceCallback" },
@@ -46,6 +48,11 @@
                 { "JsFinalizeCallback", "JavaScriptObjectFinalizeCallback"},
                 { "JsPromiseContinuationCallback", "JavaScriptPromiseContinuationCallback"},
                 { "JsDiagDebugEventCallback", "JavaScriptDiagDebugEventCallback" },
+                { "JsMemoryAllocationCallback", "JavaScriptMemoryAllocationCallback" },
+                { "JsBeforeCollectCallback", "JavaScriptBeforeCollectCallback" },
+                { "JsObjectBeforeCollectCallback", "JavaScriptObjectBeforeCollectCallback" },
+                { "JsThreadServiceCallback", "JavaScriptThreadServiceCallback" },
+                { "JsHostPromiseRejectionTrackerCallback", "JavaScriptPromiseRejectionTrackerCallback" },
                 { "FetchImportedModuleCallBack", "JavaScriptFetchImportedModuleCallBack" },
                 { "NotifyModuleReadyCallback", "JavaScriptNotifyModuleReadyCallback" },
 
@@ -76,7 +83,7 @@
                 Externs = externs
             });
 
-            File.WriteAllText("../../src/BaristaLabs.BaristaCore.Common/JavaScript/Internal/LibChakraCore.cs", libChakraCore);
+            File.WriteAllText("C:/Projects/BaristaCore/src/BaristaLabs.BaristaCore.Common/JavaScript/Internal/LibChakraCore.cs", libChakraCore);
 
             //Output Interfaces
             var interfaceTemplateContents = File.ReadAllText("./templates/ChakraTypedInterface.hbs");
@@ -249,7 +256,7 @@
                 InterfaceName = interfaceName,
                 InterfaceExterns = externs.Where(e => e.Source == sourceName && predicate(e)).Select(e => e.InterfaceExtern)
             });
-            File.WriteAllText($"../../src/BaristaLabs.BaristaCore.Common/JavaScript/Interfaces/{interfaceName}.cs", interfaceDefinition);
+            File.WriteAllText($"C:/Projects/BaristaCore/src/BaristaLabs.BaristaCore.Common/JavaScript/Interfaces/{interfaceName}.cs", interfaceDefinition);
         }
 
         public static void GenerateImplementation(Func<object, string> implementationGenerator, IList<ChakraExtern> externs, string accessModifier, string className, string interfaces, Func<ChakraExtern, bool> predicate = null)
@@ -266,7 +273,7 @@
                 Interfaces = interfaces,
                 Externs = externs.Where(predicate)
             });
-            File.WriteAllText($"../../src/BaristaLabs.BaristaCore.Common/JavaScript/Engines/{className}.cs", implementation);
+            File.WriteAllText($"C:/Projects/BaristaCore/src/BaristaLabs.BaristaCore.Common/JavaScript/Engines/{className}.cs", implementation);
         }
     }
 }
