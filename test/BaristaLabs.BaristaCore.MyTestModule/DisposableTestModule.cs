@@ -1,8 +1,10 @@
 ﻿namespace BaristaLabs.BaristaCore.MyTestModule
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
     [BaristaModule("MyDisposableTestModule", "This is a test, this is only a test.")]
+    [ExcludeFromCodeCoverage]
     public class DisposableTestModule : IBaristaModule, IDisposable
     {
         public JsValue ExportDefault(BaristaContext context, BaristaModuleRecord referencingModule)

@@ -3,8 +3,8 @@ BaristaCore
 
 #### Build Status
 
-|                               | __Release__ |
-|:-----------------------------:|:-----------:|
+|               __Platform__    | __AppVeyor/Travis CI__ |
+|:-----------------------------:|:----------------------:|
 | __Windows (x64)__             | [![Build status](https://ci.appveyor.com/api/projects/status/4bk8y6id53ltv72m?svg=true)](https://ci.appveyor.com/project/Oceanswave/baristacore) [![Coverage Status](https://coveralls.io/repos/github/BaristaLabs/BaristaCore/badge.svg?branch=master)](https://coveralls.io/github/BaristaLabs/BaristaCore?branch=master)|
 | __Ubuntu 14.04 (x64)__        | [![Build Status](https://travis-ci.org/BaristaLabs/BaristaCore.svg?branch=master)](https://travis-ci.org/BaristaLabs/BaristaCore) |
 | __macOS 10.12.1 (x64)__       | [![Build Status](https://travis-ci.org/BaristaLabs/BaristaCore.svg?branch=master)](https://travis-ci.org/BaristaLabs/BaristaCore) |
