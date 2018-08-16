@@ -243,3 +243,6 @@ lib/ChakraCore/Artifacts/
 
 #BenchmarkDotNet Artifacts
 BenchmarkDotNet.Artifacts/
+
+coverage.cobertura.xml
+coverage.opencover.xml
