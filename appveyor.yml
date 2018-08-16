@@ -19,8 +19,8 @@ build_script:
   # - cmd: dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
   # - cmd: dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Extensions.Tests\
 test_script:
-  - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\ --collect:"Code Coverage" /p:CoverletOutputFormat=\"cobertura,opencover\"
-  - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Extensions.Tests\ --collect:"Code Coverage" /p:CoverletOutputFormat=\"cobertura,opencover\"
+  - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\ /p:CollectCoverage=true /p:CoverletOutputFormat=\"cobertura,opencover\"
+  - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Extensions.Tests\ /p:CollectCoverage=true /p:CoverletOutputFormat=\"cobertura,opencover\"
 after_test:
   - cmd: dotnet tool install -g coveralls.net --version 1.0.0
   - cmd: csmacnz.Coveralls --opencover -i ./test/BaristaLabs.BaristaCore.Tests/coverage.opencover.xml --useRelativePaths --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID'
