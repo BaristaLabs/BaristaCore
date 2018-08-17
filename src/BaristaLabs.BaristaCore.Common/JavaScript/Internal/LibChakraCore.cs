@@ -6,7 +6,11 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
     /// <summary>
     ///	Represents the Unmanaged ChakraCore Library
     /// </summary>
+
+    //FIXME: Commenting this out until MS can get their shit together RE:https://github.com/dotnet/project-system/issues/2733
+/*#if !DEBUG
     [System.Diagnostics.DebuggerNonUserCode]
+#endif*/
     public static class LibChakraCore
     {
         private const string DllName = "libChakraCore";
@@ -469,8 +473,8 @@ namespace BaristaLabs.BaristaCore.JavaScript.Internal
         /// </summary>
         /// <remarks>
         ///     Requires an active script context.
-        ///     The runtime will hold on to the buffer until all instances of any functions created from
-        ///     the buffer are garbage collected.
+        ///     The runtime will detach the data from the buffer and hold on to it until all
+        ///     instances of any functions created from the buffer are garbage collected.
         /// </remarks>
         /// <param name="buffer">
         ///     The serialized script as an ArrayBuffer (preferably ExternalArrayBuffer).

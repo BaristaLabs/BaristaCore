@@ -6,9 +6,9 @@ namespace BaristaLabs.BaristaCore.JavaScript
 	using System.Runtime.InteropServices;
 
     //FIXME: Commenting this out until MS can get their shit together RE:https://github.com/dotnet/project-system/issues/2733
-/*#if !DEBUG
-    [System.Diagnostics.DebuggerNonUserCode]
-#endif*/
+    /*#if !DEBUG
+        [System.Diagnostics.DebuggerNonUserCode]
+    #endif*/
     public abstract class ChakraEngineBase : IJavaScriptEngine
     {
         public JavaScriptValueSafeHandle JsCreateEnhancedFunction(JavaScriptEnhancedNativeFunction nativeFunction, JavaScriptValueSafeHandle metadata, IntPtr callbackState)
