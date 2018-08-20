@@ -465,6 +465,7 @@
         public void JsModuleCanBeImportedAndExecuted()
         {
             var mainModuleName = "";
+            var badModuleName = "badFoo";
             var mainModuleSource = @"
 import cube from 'foo';
 const global = (new Function('return this;'))();
@@ -476,6 +477,10 @@ export default function cube(x) {
   return x * x * x;
 }
 ";
+            var badFooModuleSource = @"
+export default ';
+";
+
             var mainModuleReady = false;
             JavaScriptModuleRecord childModuleHandle = JavaScriptModuleRecord.Invalid;
 
@@ -513,7 +518,7 @@ export default function cube(x) {
 
             JavaScriptNotifyModuleReadyCallback notifyCallback = (IntPtr referencingModule, IntPtr exceptionVar) =>
             {
-                Assert.Equal(IntPtr.Zero, exceptionVar);
+                //Assert.Equal(IntPtr.Zero, exceptionVar);
                 mainModuleReady = true;
                 return false;
             };
@@ -593,6 +598,12 @@ export default function cube(x) {
                     var result = Engine.JsNumberToInt(resultHandle);
                     Assert.Equal(27, result);
 
+                    //assert that syntax errors fail.
+                    var badModuleNameHandle = Engine.JsCreateString(badModuleName, (ulong)badModuleName.Length);
+                    var badChildModuleHandle = Engine.JsInitializeModuleRecord(JavaScriptModuleRecord.Invalid, moduleNameHandle);
+                    var badFooScriptBuffer = Encoding.UTF8.GetBytes(fooModuleSource);
+                    errorHandle = Engine.JsParseModuleSource(badChildModuleHandle, JavaScriptSourceContext.GetNextSourceContext(), badFooScriptBuffer, (uint)badFooModuleSource.Length, JavaScriptParseModuleSourceFlags.DataIsUTF8);
+                    Assert.False(errorHandle == JavaScriptValueSafeHandle.Invalid);
 
                     //Cleanup
                     Engine.JsSetModuleHostInfo(mainModuleHandle, JavaScriptModuleHostInfoKind.FetchImportedModuleCallback, IntPtr.Zero);
@@ -685,7 +696,9 @@ export default function cube(x) {
         }
 
         //TODO: Keeping the SharedContents an IntPtr for now, as a safehandle seems to corrupt the runtime until a hard reboot.
-        //TODO: These unit tests are disabled in 1.7.6 due to potential timing attacks irt spectre.
+        //TODO: These unit tests are disabled in 1.7.6-1.10.0
+        // The methods are still exposed, but the SharedArrayBuffer prototype is not available in the runtime
+        // due to potential timing attacks irt spectre.
 
         //[Fact]
         //public void JsSharedArrayBufferWithSharedContentCanBeRetrieved()
@@ -812,6 +825,333 @@ export default function cube(x) {
                     dataViewInfoHandle.Dispose();
                     arrayBufferHandle.Dispose();
                     dataViewHandle.Dispose();
+                }
+            }
+        }
+
+        [Fact]
+        public void JsLessThanCanBeDetermined()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+            {
+                Engine.JsSetCurrentContext(contextHandle);
+
+                var fourHandle = Engine.JsIntToNumber(4);
+                var fiveHandle = Engine.JsIntToNumber(5);
+
+                var result = Engine.JsLessThan(fourHandle, fiveHandle);
+                Assert.True(result);
+
+                result = Engine.JsLessThan(fiveHandle, fourHandle);
+                Assert.False(result);
+
+                fourHandle.Dispose();
+                fiveHandle.Dispose();
+            }
+        }
+
+        [Fact]
+        public void JsLessThanOrEqualCanBeDetermined()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+            {
+                Engine.JsSetCurrentContext(contextHandle);
+
+                var fourHandle = Engine.JsIntToNumber(4);
+                var anotherFourHandle = Engine.JsCreateString("4", 1);
+                var fiveHandle = Engine.JsIntToNumber(5);
+
+                var result = Engine.JsLessThanOrEqual(fourHandle, fiveHandle);
+                Assert.True(result);
+
+                result = Engine.JsLessThanOrEqual(fourHandle, anotherFourHandle);
+                Assert.True(result);
+
+                result = Engine.JsLessThanOrEqual(fiveHandle, fourHandle);
+                Assert.False(result);
+
+                result = Engine.JsLessThanOrEqual(fiveHandle, anotherFourHandle);
+                Assert.False(result);
+
+                fourHandle.Dispose();
+                anotherFourHandle.Dispose();
+                fiveHandle.Dispose();
+            }
+        }
+
+        [Fact]
+        public void JsObjectCanRetrieveProperty()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+            {
+                Engine.JsSetCurrentContext(contextHandle);
+
+                var jsObjectHandle = Engine.JsCreateObject();
+
+                string isPirate = "isPirate";
+                var isPiratePropertyHandle = Engine.JsCreatePropertyId(isPirate, (ulong)isPirate.Length);
+
+                Engine.JsSetProperty(jsObjectHandle, isPiratePropertyHandle, Engine.JsGetTrueValue(), true);
+
+                var yarrr = Engine.JsCreateString(isPirate, (ulong)isPirate.Length);
+                var propertyHandle = Engine.JsObjectGetProperty(jsObjectHandle, yarrr);
+                Assert.True(Engine.JsBooleanToBool(propertyHandle));
+
+                var shiverMeTimbers = Engine.JsCreateString("blowMeDown", (ulong)"blowMeDown".Length);
+                propertyHandle = Engine.JsObjectGetProperty(jsObjectHandle, shiverMeTimbers);
+                Assert.Equal(Engine.JsGetUndefinedValue(), propertyHandle);
+            }
+        }
+
+        [Fact]
+        public void JsObjectCanSetProperty()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+            {
+                Engine.JsSetCurrentContext(contextHandle);
+
+                var jsObjectHandle = Engine.JsCreateObject();
+
+                string isPirate = "isPirate";
+                var yarrr = Engine.JsCreateString(isPirate, (ulong)isPirate.Length);
+
+                Engine.JsObjectSetProperty(jsObjectHandle, yarrr, Engine.JsGetTrueValue(), true);
+
+                var propertyHandle = Engine.JsObjectGetProperty(jsObjectHandle, yarrr);
+                Assert.True(Engine.JsBooleanToBool(propertyHandle));
+
+                var shiverMeTimbers = Engine.JsCreateString("blowMeDown", (ulong)"blowMeDown".Length);
+                propertyHandle = Engine.JsObjectGetProperty(jsObjectHandle, shiverMeTimbers);
+                Assert.Equal(Engine.JsGetUndefinedValue(), propertyHandle);
+            }
+        }
+
+        [Fact]
+        public void JsObjectCanHasProperty()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+            {
+                Engine.JsSetCurrentContext(contextHandle);
+
+                var jsObjectHandle = Engine.JsCreateObject();
+
+                string isPirate = "isPirate";
+                var yarrr = Engine.JsCreateString(isPirate, (ulong)isPirate.Length);
+
+                Assert.False(Engine.JsObjectHasProperty(jsObjectHandle, yarrr));
+
+                Engine.JsObjectSetProperty(jsObjectHandle, yarrr, Engine.JsGetTrueValue(), true);
+
+                Assert.True(Engine.JsObjectHasProperty(jsObjectHandle, yarrr));
+            }
+        }
+
+        [Fact]
+        public void JsObjectCanDeleteProperty()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+            {
+                Engine.JsSetCurrentContext(contextHandle);
+
+                var jsObjectHandle = Engine.JsCreateObject();
+
+                string isPirate = "isPirate";
+                var yarrr = Engine.JsCreateString(isPirate, (ulong)isPirate.Length);
+
+                Assert.False(Engine.JsObjectHasProperty(jsObjectHandle, yarrr));
+
+                Engine.JsObjectSetProperty(jsObjectHandle, yarrr, Engine.JsGetTrueValue(), true);
+
+                Assert.True(Engine.JsObjectHasProperty(jsObjectHandle, yarrr));
+
+                Engine.JsObjectDeleteProperty(jsObjectHandle, yarrr, true);
+
+                Assert.False(Engine.JsObjectHasProperty(jsObjectHandle, yarrr));
+            }
+        }
+
+        [Fact]
+        public void JsObjectHasOwnProperty()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+            {
+                Engine.JsSetCurrentContext(contextHandle);
+
+                var jsObjectHandle = Engine.JsCreateObject();
+
+                string isPirate = "isPirate";
+                var isPirateStringHandle = Engine.JsCreateString(isPirate, (ulong)isPirate.Length);
+
+                string toString = "toString";
+                var toStringStringHandle = Engine.JsCreateString(toString, (ulong)toString.Length);
+
+                string hasOwnProperty = "hasOwnProperty";
+                var hasOwnPropertyStringHandle = Engine.JsCreateString(hasOwnProperty, (ulong)hasOwnProperty.Length);
+
+                Engine.JsObjectSetProperty(jsObjectHandle, isPirateStringHandle, Engine.JsGetTrueValue(), true);
+
+                Assert.True(Engine.JsObjectHasOwnProperty(jsObjectHandle, isPirateStringHandle));
+                Assert.True(Engine.JsObjectHasProperty(jsObjectHandle, toStringStringHandle));
+                Assert.False(Engine.JsObjectHasOwnProperty(jsObjectHandle, toStringStringHandle));
+                Assert.True(Engine.JsObjectHasProperty(jsObjectHandle, hasOwnPropertyStringHandle));
+                Assert.False(Engine.JsObjectHasOwnProperty(jsObjectHandle, hasOwnPropertyStringHandle));
+            }
+        }
+
+        [Fact]
+        public void JsObjectCanRetrieveOwnPropertyDescriptor()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+            {
+                Engine.JsSetCurrentContext(contextHandle);
+
+                var jsObjectHandle = Engine.JsCreateObject();
+
+                string isPirate = "isPirate";
+                var isPirateStringHandle = Engine.JsCreateString(isPirate, (ulong)isPirate.Length);
+                Engine.JsObjectSetProperty(jsObjectHandle, isPirateStringHandle, Engine.JsGetTrueValue(), true);
+
+                var propertyDescriptorObjHandle = Engine.JsObjectGetOwnPropertyDescriptor(jsObjectHandle, isPirateStringHandle);
+
+                Assert.NotNull(propertyDescriptorObjHandle);
+                Assert.NotEqual(propertyDescriptorObjHandle, Engine.JsGetUndefinedValue());
+
+                string configurable = "configurable";
+                Assert.Equal(Engine.JsObjectGetProperty(propertyDescriptorObjHandle, Engine.JsCreateString(configurable, (ulong)configurable.Length)), Engine.JsGetTrueValue());
+
+                string value = "value";
+                Assert.Equal(Engine.JsObjectGetProperty(propertyDescriptorObjHandle, Engine.JsCreateString(value, (ulong)value.Length)), Engine.JsGetTrueValue());
+            }
+        }
+
+        [Fact]
+        public void JsObjectCanDefineProperty()
+        {
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+            {
+                Engine.JsSetCurrentContext(contextHandle);
+
+                var jsPropertyDescriptorHandle = Engine.JsCreateObject();
+
+                string isPirate = "isPirate";
+                var isPirateStringHandle = Engine.JsCreateString(isPirate, (ulong)isPirate.Length);
+
+                string value = "value";
+                var valueStringHandle = Engine.JsCreateString(value, (ulong)value.Length);
+                Engine.JsObjectSetProperty(jsPropertyDescriptorHandle, valueStringHandle, Engine.JsIntToNumber(42), true);
+
+                string writable = "writable";
+                var writableStringHandle = Engine.JsCreateString(writable, (ulong)writable.Length);
+                Engine.JsObjectSetProperty(jsPropertyDescriptorHandle, writableStringHandle, Engine.JsGetFalseValue(), true);
+
+                var jsObjectHandle = Engine.JsCreateObject();
+                Engine.JsObjectDefineProperty(jsObjectHandle, isPirateStringHandle, jsPropertyDescriptorHandle);
+
+                try
+                {
+                    Engine.JsObjectSetProperty(jsObjectHandle, isPirateStringHandle, Engine.JsIntToNumber(77), true);
+                    Assert.False(true);
+                }
+                catch (JsScriptException) { }
+
+                Assert.Equal(Engine.JsIntToNumber(42), Engine.JsObjectGetProperty(jsObjectHandle, isPirateStringHandle));
+            }
+        }
+
+        [Fact]
+        public void JsEngineCanSerializeParserState()
+        {
+            var script = "(()=>{return 6*7;})()";
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+            {
+                Engine.JsSetCurrentContext(contextHandle);
+
+                var scriptHandle = Engine.JsCreateString(script, (ulong)script.Length);
+                var bufferHandle = Engine.JsSerializeParserState(scriptHandle, JavaScriptParseScriptAttributes.None);
+
+                var objType = Engine.JsGetValueType(bufferHandle);
+                Assert.Equal(JsValueType.ArrayBuffer, objType);
+            }
+        }
+
+        [Fact]
+        public void JsEngineCanRunScriptWithParserState()
+        {
+            var script = "var foo = 6*7; foo;";
+            string sourceUrl = "[eval code]";
+
+            byte[] parserStateBuffer;
+
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+            {
+                Engine.JsSetCurrentContext(contextHandle);
+
+                IntPtr ptrScript = Marshal.StringToHGlobalAnsi(script);
+                try
+                {
+                    var scriptHandle = Engine.JsCreateExternalArrayBuffer(ptrScript, (uint)script.Length, null, IntPtr.Zero);
+                    var bufferHandle = Engine.JsSerializeParserState(scriptHandle, JavaScriptParseScriptAttributes.None);
+
+                    var sourceUrlHandle = Engine.JsCreateString(sourceUrl, (ulong)sourceUrl.Length);
+                    var resultHandle = Engine.JsRunScriptWithParserState(scriptHandle, JavaScriptSourceContext.GetNextSourceContext(), sourceUrlHandle, JavaScriptParseScriptAttributes.None, bufferHandle);
+
+                    var fooGlobalHandle = Engine.GetGlobalVariable("foo");
+                    Assert.Equal(42, Engine.JsNumberToInt(fooGlobalHandle));
+
+                    //For now, it looks like the returned result is always undefined.
+                    var resultType = Engine.JsGetValueType(resultHandle);
+                    Assert.Equal(JsValueType.Undefined, resultType);
+                    Assert.Equal(Engine.JsGetUndefinedValue(), resultHandle);
+
+                    var ptrBuffer = Engine.JsGetArrayBufferStorage(bufferHandle, out uint bufferLength);
+                    parserStateBuffer = new byte[bufferLength];
+                    Marshal.Copy(ptrBuffer, parserStateBuffer, 0, (int)bufferLength);
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(ptrScript);
+                }
+            }
+
+            //Ensure that we can still run with just the parser code.
+            using (var runtimeHandle = Engine.JsCreateRuntime(JavaScriptRuntimeAttributes.None, null))
+            using (var contextHandle = Engine.JsCreateContext(runtimeHandle))
+            {
+                Engine.JsSetCurrentContext(contextHandle);
+
+                IntPtr parserStatePtr = Marshal.AllocHGlobal(sizeof(byte) * parserStateBuffer.Length);
+                try
+                {
+                    Marshal.Copy(parserStateBuffer, 0, parserStatePtr, parserStateBuffer.Length);
+                    var parserStateHandle = Engine.JsCreateExternalArrayBuffer(parserStatePtr, (uint)parserStateBuffer.Length, null, IntPtr.Zero);
+
+                    var scriptHandle = Engine.JsCreateString(script, (ulong)script.Length);
+                    var sourceUrlHandle = Engine.JsCreateString(sourceUrl, (ulong)sourceUrl.Length);
+                    var resultHandle = Engine.JsRunScriptWithParserState(scriptHandle, JavaScriptSourceContext.GetNextSourceContext(), sourceUrlHandle, JavaScriptParseScriptAttributes.None, parserStateHandle);
+
+                    var fooGlobalHandle = Engine.GetGlobalVariable("foo");
+                    Assert.Equal(42, Engine.JsNumberToInt(fooGlobalHandle));
+
+                    //For now, it looks like the returned result is always undefined.
+                    var resultType = Engine.JsGetValueType(resultHandle);
+                    Assert.Equal(JsValueType.Undefined, resultType);
+                    Assert.Equal(Engine.JsGetUndefinedValue(), resultHandle);
+                }
+                catch
+                {
+                    Marshal.FreeHGlobal(parserStatePtr);
                 }
             }
         }
