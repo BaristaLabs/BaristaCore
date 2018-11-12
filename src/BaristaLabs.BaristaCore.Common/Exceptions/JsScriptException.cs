@@ -208,6 +208,11 @@
             private set;
         }
 
+        public override string ToString()
+        {
+            return $"{Name}: {m_message}";
+        }
+
         #region IDisposable implementation
         private bool m_disposedValue = false; // To detect redundant calls
 

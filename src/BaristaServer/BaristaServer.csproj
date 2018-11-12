@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore" Version="1.10.2" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
   </ItemGroup>
 
   <ItemGroup>

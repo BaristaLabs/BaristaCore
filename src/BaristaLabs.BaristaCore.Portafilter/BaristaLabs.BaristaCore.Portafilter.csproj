@@ -13,7 +13,7 @@
     <PackageReference Include="BaristaLabs.BaristaCore.ChakraCore.win-x64" Version="1.10.2" />
     <PackageReference Include="BaristaLabs.BaristaCore.Common" Version="1.0.1-beta05" />
     <PackageReference Include="BaristaLabs.BaristaCore.Extensions" Version="1.0.1-beta05" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.14" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.24" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

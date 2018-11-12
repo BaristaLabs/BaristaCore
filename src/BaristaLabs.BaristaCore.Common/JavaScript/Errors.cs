@@ -98,28 +98,42 @@
 
                     case JsErrorCode.ScriptCompile:
                         {
-                            JsErrorCode innerError = LibChakraCore.JsGetAndClearException(out JavaScriptValueSafeHandle errorObject);
-
+                            JsErrorCode innerError;
+                            innerError = LibChakraCore.JsHasException(out bool hasException);
+                            //We attempted to clear the exception, but the result of that action was an exception.
                             if (innerError != JsErrorCode.NoError)
                             {
                                 throw new JsFatalException(innerError);
                             }
 
-                            innerError = LibChakraCore.JsSetException(errorObject);
-                            if (innerError != JsErrorCode.NoError)
+                            // Only throw an exception if the runtime is currently in an exception state
+                            // Parse errors are inheritly continuable.
+                            if (hasException)
                             {
-                                throw new JsFatalException(innerError);
-                            }
+                                innerError = LibChakraCore.JsGetAndClearException(out JavaScriptValueSafeHandle errorObject);
 
-                            throw new JsScriptException(error, errorObject, "Compile error.");
+                                //We attempted to clear the exception, but the result of that action was an exception.
+                                if (innerError != JsErrorCode.NoError)
+                                {
+                                    throw new JsFatalException(innerError);
+                                }
+
+                                innerError = LibChakraCore.JsSetException(errorObject);
+                                if (innerError != JsErrorCode.NoError)
+                                {
+                                    throw new JsFatalException(innerError);
+                                }
+
+                                throw new JsScriptException(error, errorObject, "Compile error.");
+                            }
                         }
-
+                        break;
                     case JsErrorCode.ScriptTerminated:
                         throw new JsScriptException(error, JavaScriptValueSafeHandle.Invalid, "Script was terminated.");
 
                     case JsErrorCode.ScriptEvalDisabled:
                         throw new JsScriptException(error, JavaScriptValueSafeHandle.Invalid, "Eval of strings is disabled in this runtime.");
-
+                    
                     case JsErrorCode.Fatal:
                         throw new JsFatalException(error);
 
