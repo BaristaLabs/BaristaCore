@@ -7,6 +7,7 @@ namespace BaristaLabs.BaristaCore.Portafilter
     using Microsoft.Azure.WebJobs.Extensions.Http;
     using Microsoft.Azure.WebJobs.Host;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
     using System;
     using System.Net.Http;
     using System.Threading.Tasks;
@@ -28,9 +29,9 @@ namespace BaristaLabs.BaristaCore.Portafilter
         }
 
         [FunctionName("BaristaFunction")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "patch", "put", "delete", "options", "head", "brew", Route = "{*path}")]HttpRequest req, string path, TraceWriter log)
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "patch", "put", "delete", "options", "head", "brew", Route = "{*path}")]HttpRequest req, string path, ILogger log)
         {
-            log.Info("Barista Function processed a request.");
+            log.LogTrace("Barista Function processed a request.");
 
             var brewOrder = await s_pipeline.TakeOrder(path, req);
 
