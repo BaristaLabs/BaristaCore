@@ -27,25 +27,25 @@ matrix:
       runtime:
         - name: netcore
           version: 2
-      env: CONFIGURATION=Release FRAMEWORK=netcoreapp2.1
+      env: CONFIGURATION=Release FRAMEWORK=netcoreapp2.2
     - os: osx
       osx_image: xcode9.1
       runtime:
         - name: netcore
           version: 2
-      env: CONFIGURATION=Release FRAMEWORK=netcoreapp2.1
+      env: CONFIGURATION=Release FRAMEWORK=netcoreapp2.2
 
 before_install:
   - if test "$TRAVIS_OS_NAME" == "osx"; then
       sw_vers -productVersion;
-      sudo curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 2.1;
+      sudo curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 2.2;
       eval $(/usr/libexec/path_helper -s);
       PATH="$HOME/.dotnet":"$PATH";
     else
       lsb_release -a;
       which $cc;
       sudo apt-get install curl;
-      sudo curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 2.1;
+      sudo curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 2.2;
       PATH="$HOME/.dotnet":"$PATH";
     fi;
 
