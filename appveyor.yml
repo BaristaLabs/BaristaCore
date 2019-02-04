@@ -4,7 +4,7 @@ configuration:
   - Release
 platform: Any CPU
 environment:
-  FRAMEWORK: netcoreapp2.1
+  FRAMEWORK: netcoreapp2.2
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
   COVERALLS_REPO_TOKEN: 7c1iHfH8bvABxL9ePXzvukfeVYM2txph8
   DOTNET_INSTALL_DIR: C:\Program Files\dotnet
@@ -18,8 +18,8 @@ build_script:
   - cmd: dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\
   - cmd: dotnet build -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Extensions.Tests\
 test_script:
-  - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\ -p:CollectCoverage=true -p:CoverletOutputFormat=\"cobertura,opencover\" --no-build
-  - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Extensions.Tests\ -p:CollectCoverage=true -p:CoverletOutputFormat=\"cobertura,opencover\" --no-build
+  - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Tests\ -p:CollectCoverage=true -p:CoverletOutputFormat=\"cobertura,opencover\" -p:Exclude=[xunit.*]* --no-build
+  - cmd: dotnet test -c %CONFIGURATION% -f %FRAMEWORK% test\BaristaLabs.BaristaCore.Extensions.Tests\ -p:CollectCoverage=true -p:CoverletOutputFormat=\"cobertura,opencover\" -p:Exclude=[xunit.*]* --no-build
 after_test:
   - cmd: dotnet tool install -g coveralls.net --version 1.0.0
   - cmd: csmacnz.Coveralls --opencover -i ./test/BaristaLabs.BaristaCore.Tests/coverage.opencover.xml --useRelativePaths

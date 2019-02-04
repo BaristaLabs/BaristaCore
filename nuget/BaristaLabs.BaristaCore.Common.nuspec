@@ -5,7 +5,7 @@
     <version>$version$</version>
     <authors>Sean McLellan</authors>
     <owners>BaristaLabs, LLC</owners>
-    <licenseUrl>https://raw.githubusercontent.com/BaristaLabs/BaristaCore/master/LICENSE</licenseUrl>
+    <license type="expression">MIT</license>
     <projectUrl>https://github.com/BaristaLabs/BaristaCore</projectUrl>
     <iconUrl>https://github.com/BaristaLabs/BaristaCore/raw/master/Logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
