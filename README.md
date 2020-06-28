@@ -10,7 +10,7 @@ BaristaCore
 | __macOS 10.12.1 (x64)__       | [![Build Status](https://travis-ci.org/BaristaLabs/BaristaCore.svg?branch=master)](https://travis-ci.org/BaristaLabs/BaristaCore) |
 
 
-> **02/01/2019** *BaristaCore is currently in active development. The functionality described below indicates the design goals of BaristaCore and may not be all currently implemented.*
+> **06/28/2020** With the official word from Microsoft regarding ChakraCore being that "Microsoft will continue to provide security updates for Chakracore 1.11 until 9th March 2021 but do not intend to support it after that." This project is basically dead. Investigating possibilities of using V8 as a backing engine.
 
 > Updated with ChakraCore 1.11.5
 
